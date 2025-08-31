@@ -1,0 +1,31 @@
+name: "🔨 Refactor"
+description: "코드 개선 및 리팩토링"
+labels: ["refactor"]
+body:
+  - type: textarea
+    attributes:
+      label: 📄 어떤 코드를 개선하고 싶나요?
+      description: 리팩토링이 필요한 코드의 위치나 기능에 대해 설명해주세요.
+      placeholder: 예시) PostService의 getPosts() 메소드
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 💡 왜 개선이 필요한가요?
+      description: 해당 코드를 개선하려는 이유를 작성해주세요. (가독성, 성능, 유지보수 등)
+      placeholder: 예시) 현재 로직이 너무 복잡해서 가독성이 떨어지고, 불필요한 데이터베이스 조회가 발생하여 성능에 영향을 줍니다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: ✅ 개선 아이디어
+      description: 코드를 어떻게 개선하면 좋을지에 대한 구체적인 아이디어를 작성해주세요.
+      placeholder: |
+        - [ ] N+1 문제를 해결하기 위해 Fetch Join을 적용한다.
+        - [ ] 복잡한 비즈니스 로직을 별도의 private 메소드로 분리한다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 🙋🏻 참고 자료
+      description: 리팩토링에 참고할 만한 자료가 있다면 링크를 추가해주세요.
