@@ -11,7 +11,7 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-
+.idea/
 # AWS User-specific
 .idea/**/aws.xml
 
@@ -28,6 +28,7 @@
 .idea/**/dbnavigator.xml
 
 # Gradle
+.gradle/
 .idea/**/gradle.xml
 .idea/**/libraries
 
@@ -197,7 +198,7 @@ $RECYCLE.BIN/
 .gradle
 **/build/
 !src/**/build/
-
+build/
 # Ignore Gradle GUI config
 gradle-app.setting
 
