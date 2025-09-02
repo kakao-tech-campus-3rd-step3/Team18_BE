@@ -1,6 +1,7 @@
-package com.kakaotech.team18.backend_server.applicationFormField;
+package com.kakaotech.team18.backend_server.domain.clubMember;
 
-import com.kakaotech.team18.backend_server.applicationForm.ApplicationForm;
+import com.kakaotech.team18.backend_server.domain.club.Club;
+import com.kakaotech.team18.backend_server.domain.user.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,21 +17,26 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ApplicationFormField {
+public class ClubMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form")
+    @Column(name = "club_member_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_id")
-    private ApplicationForm applicationForm;
+    @JoinColumn(name = "user_id")
+    private Users user;
 
-    private String question;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_id")
+    private Club club;
 
     @Enumerated(EnumType.STRING)
-    private FieldType fieldType;
+    private Position position;
 
-    private String isRequired;
+    @Enumerated(EnumType.STRING)
+    private ActiveStatus activeStatus;
+
+
 }

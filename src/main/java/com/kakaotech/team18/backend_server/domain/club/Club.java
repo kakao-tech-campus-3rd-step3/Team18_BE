@@ -1,6 +1,6 @@
-package com.kakaotech.team18.backend_server.club;
+package com.kakaotech.team18.backend_server.domain.club;
 
-import com.kakaotech.team18.backend_server.user.Users;
+import com.kakaotech.team18.backend_server.domain.user.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

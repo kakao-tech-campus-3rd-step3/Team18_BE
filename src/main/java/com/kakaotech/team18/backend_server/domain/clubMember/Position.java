@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.clubMember;
+package com.kakaotech.team18.backend_server.domain.clubMember;
 
 public enum Position {
     PRESIDENT,

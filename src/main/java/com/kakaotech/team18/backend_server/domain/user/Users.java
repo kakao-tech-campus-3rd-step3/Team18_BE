@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.user;
+package com.kakaotech.team18.backend_server.domain.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

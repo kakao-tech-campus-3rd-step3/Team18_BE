@@ -1,6 +1,7 @@
-package com.kakaotech.team18.backend_server.notification;
+package com.kakaotech.team18.backend_server.domain.applicationForm;
 
-import com.kakaotech.team18.backend_server.club.Club;
+import com.kakaotech.team18.backend_server.domain.application.Application;
+import com.kakaotech.team18.backend_server.domain.club.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,18 +15,22 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notification {
+public class ApplicationForm {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "notification_id")
+    @Column(name = "application_form_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "application_id")
+    private Application application;
+
     private String title;
 
-    private String content;
+    private String description;
 }
