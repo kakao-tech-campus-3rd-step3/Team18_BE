@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubAdmin;
 
+import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.user.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ClubAdmin {
+public class ClubAdmin extends BaseEntity {
 
     @Id
     @Column(name = "user_id")

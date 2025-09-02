@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.applicationFormAnswer;
 
+import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.Application;
 import com.kakaotech.team18.backend_server.domain.applicationForm.ApplicationForm;
 import jakarta.persistence.Column;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ApplicationFormAnswer {
+public class ApplicationFormAnswer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

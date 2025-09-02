@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubMember;
 
+import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.club.Club;
 import com.kakaotech.team18.backend_server.domain.user.Users;
 import jakarta.persistence.Column;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ClubMember {
+public class ClubMember extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
