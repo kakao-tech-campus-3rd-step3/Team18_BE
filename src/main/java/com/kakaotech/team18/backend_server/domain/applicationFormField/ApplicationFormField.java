@@ -21,7 +21,7 @@ public class ApplicationFormField extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form")
+    @Column(name = "application_form_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -33,5 +33,5 @@ public class ApplicationFormField extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private FieldType fieldType;
 
-    private String isRequired;
+    private boolean isRequired;
 }
