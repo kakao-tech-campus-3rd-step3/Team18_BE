@@ -1,9 +1,7 @@
-package com.kakaotech.team18.backend_server.domain.application;
+package com.kakaotech.team18.backend_server.domain.applicationFormField.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.applicationForm.ApplicationForm;
-import com.kakaotech.team18.backend_server.domain.club.Club;
-import com.kakaotech.team18.backend_server.domain.user.Users;
+import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,27 +17,21 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Application extends BaseEntity {
+public class ApplicationFormField extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_id")
+    @Column(name = "application_form_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Users users;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id")
-    private Club club;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applictaion_form_id")
+    @JoinColumn(name = "application_form_id")
     private ApplicationForm applicationForm;
 
+    private String question;
+
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private FieldType fieldType;
 
-
+    private boolean isRequired;
 }

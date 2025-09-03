@@ -1,7 +1,7 @@
-package com.kakaotech.team18.backend_server.domain.notification;
+package com.kakaotech.team18.backend_server.domain.notification.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.club.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

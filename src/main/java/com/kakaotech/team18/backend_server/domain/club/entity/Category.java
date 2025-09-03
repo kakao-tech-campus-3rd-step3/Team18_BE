@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.club;
+package com.kakaotech.team18.backend_server.domain.club.entity;
 
 public enum Category {
     STUDY,

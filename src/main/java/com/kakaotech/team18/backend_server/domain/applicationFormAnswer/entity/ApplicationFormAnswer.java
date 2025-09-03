@@ -1,8 +1,8 @@
-package com.kakaotech.team18.backend_server.domain.applicationFormAnswer;
+package com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.application.Application;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.ApplicationFormField;
+import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
