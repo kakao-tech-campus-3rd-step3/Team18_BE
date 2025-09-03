@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.applicationForm.ApplicationForm;
 import com.kakaotech.team18.backend_server.domain.club.Club;
 import com.kakaotech.team18.backend_server.domain.user.Users;
 import jakarta.persistence.Column;
@@ -32,6 +33,10 @@ public class Application extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "club_id")
     private Club club;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "applictaion_form_id")
+    private ApplicationForm applicationForm;
 
     @Enumerated(EnumType.STRING)
     private Status status;
