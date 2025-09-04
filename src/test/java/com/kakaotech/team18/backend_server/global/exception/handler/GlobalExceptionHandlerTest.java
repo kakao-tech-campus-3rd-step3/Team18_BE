@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.data.jpa.JpaRepositoriesAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -27,10 +29,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-// excludeAutoConfiguration을 사용하여 Spring Security 자동 구성을 제외
-@WebMvcTest(excludeAutoConfiguration = SecurityAutoConfiguration.class)
+@WebMvcTest(
+    excludeAutoConfiguration = {
+        SecurityAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class
+    }
+)
 @Import({GlobalExceptionHandler.class, GlobalExceptionHandlerTest.TestController.class})
-// 각 테스트 메소드 실행 후 컨텍스트를 초기화하여 테스트 간의 독립성 보장
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class GlobalExceptionHandlerTest {
 
