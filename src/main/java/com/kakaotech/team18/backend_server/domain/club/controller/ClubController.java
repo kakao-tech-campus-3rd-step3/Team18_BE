@@ -28,7 +28,9 @@ public class ClubController{
     }
 
     @GetMapping("/search/category")
-    public ResponseEntity<List<ClubResponse>> listClubsByCategory(@RequestParam(required=false)String category){
+    public ResponseEntity<List<ClubResponse>> listClubsByCategory(
+            @RequestParam(required=false)String category
+    ){
         List<ClubResponse> response = clubService.getClubByCategory(category);
         return ResponseEntity.ok(response);
     }
