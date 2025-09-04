@@ -14,10 +14,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class Club extends BaseEntity {
 
     @Id
@@ -50,5 +53,51 @@ public class Club extends BaseEntity {
     private LocalDateTime recruitStart;
 
     private LocalDateTime recruitEnd;
+
+    private String regularMeetingInfo;
+
+    @Builder
+    private Club(
+            Users president,
+            String name,
+            Category category,
+            String location,
+            String shortIntroduction,
+            String introductionImage,
+            String introductionIntroduce,
+            String introductionActivity,
+            String introductionWannabe,
+            LocalDateTime recruitStart,
+            LocalDateTime recruitEnd,
+            String regularMeetingInfo) {
+        this.president = president;
+        this.name = name;
+        this.category = category;
+        this.location = location;
+        this.shortIntroduction = shortIntroduction;
+        this.introductionImage = introductionImage;
+        this.introductionIntroduce = introductionIntroduce;
+        this.introductionActivity = introductionActivity;
+        this.introductionWannabe = introductionWannabe;
+        this.recruitStart = recruitStart;
+        this.recruitEnd = recruitEnd;
+        this.regularMeetingInfo = regularMeetingInfo;
+    }
+
+    public String getRecruitStatus(LocalDateTime start, LocalDateTime end) {
+        LocalDateTime today = LocalDateTime.now();
+
+        if (start == null || end == null) {
+            return "모집 일정 미정";
+        }
+
+        if (today.isBefore(start)) {
+            return "모집 준비중";
+        } else if (!today.isBefore(end)) {
+            return "모집 종료";
+        } else {
+            return "모집중";
+        }
+    }
 
 }

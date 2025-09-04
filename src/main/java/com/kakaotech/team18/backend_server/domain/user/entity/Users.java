@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -29,4 +30,14 @@ public class Users extends BaseEntity {
     private String phoneNumber;
 
     private String department;
+
+    @Builder
+    private Users(String email, String name, String studentId, String phoneNumber,
+            String department) {
+        this.email = email;
+        this.name = name;
+        this.studentId = studentId;
+        this.phoneNumber = phoneNumber;
+        this.department = department;
+    }
 }
