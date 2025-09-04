@@ -35,7 +35,7 @@ public class Application extends BaseEntity {
     private Club club;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "applictaion_form_id")
+    @JoinColumn(name = "application_form_id")
     private ApplicationForm applicationForm;
 
     @Enumerated(EnumType.STRING)

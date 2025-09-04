@@ -27,7 +27,7 @@ public class Club extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "president_id")
-    private Users users;
+    private Users president;
 
     @Column(name = "club_name")
     private String name;
