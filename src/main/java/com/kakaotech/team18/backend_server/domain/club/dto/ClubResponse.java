@@ -3,8 +3,8 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
-
-import java.time.LocalDateTime;
+import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatus;
+import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatusLabel;
 
 public record ClubResponse(
         Long id,
@@ -13,39 +13,23 @@ public record ClubResponse(
         String shortIntroduction,
         String recruitStatus
 ) {
-    public static ClubResponse from(Club club) {
+    public static ClubResponse from(Club club, RecruitStatus status) {
         return new ClubResponse(
                 club.getId(),
                 club.getName(),
                 club.getCategory(),
                 club.getShortIntroduction(),
-                getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())
+                RecruitStatusLabel.toKorean(status)
         );
     }
 
-    public static ClubResponse from(ClubSummary summary) {
+    public static ClubResponse from(ClubSummary summary, RecruitStatus status) {
         return new ClubResponse(
                 summary.getId(),
                 summary.getName(),
                 summary.getCategory(),
                 summary.getShortIntroduction(),
-                getRecruitStatus(summary.getRecruitStart(), summary.getRecruitEnd())
+                RecruitStatusLabel.toKorean(status)
         );
-    }
-
-    private static String getRecruitStatus(LocalDateTime start, LocalDateTime end) {
-        LocalDateTime today = LocalDateTime.now();
-
-        if (start == null || end == null) {
-            return "모집 일정 미정";
-        }
-
-        if (today.isBefore(start)) {
-            return "모집 준비중";
-        } else if (!today.isBefore(end)) {
-            return "모집 종료";
-        } else {
-            return "모집중";
-        }
     }
 }
