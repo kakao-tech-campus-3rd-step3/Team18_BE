@@ -2,6 +2,8 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
+
 import java.time.LocalDateTime;
 
 public record ClubResponse(
@@ -18,6 +20,16 @@ public record ClubResponse(
                 club.getCategory(),
                 club.getShortIntroduction(),
                 getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())
+        );
+    }
+
+    public static ClubResponse from(ClubSummary summary) {
+        return new ClubResponse(
+                summary.getId(),
+                summary.getName(),
+                summary.getCategory(),
+                summary.getShortIntroduction(),
+                getRecruitStatus(summary.getRecruitStart(), summary.getRecruitEnd())
         );
     }
 
