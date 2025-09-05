@@ -21,7 +21,7 @@ public class ApplicationFormField extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form_id")
+    @Column(name = "application_form_field_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
