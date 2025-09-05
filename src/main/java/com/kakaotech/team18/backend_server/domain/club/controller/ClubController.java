@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubServiceImpl;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
@@ -37,7 +38,7 @@ public class ClubController{
     public ResponseEntity<List<ClubResponse>> listClubsByCategory(
             @RequestParam(required=false)String category
     ){
-        List<ClubResponse> response = clubService.getClubByCategory(category);
+        List<ClubResponse> response = clubService.getClubByCategory(Category.valueOf(category));
         return ResponseEntity.ok(response);
     }
 
