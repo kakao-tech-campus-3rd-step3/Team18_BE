@@ -1,5 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.service.ClubServiceImpl;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
@@ -19,7 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/clubs")
 public class ClubController{
 
-    private final ClubService clubService;
+    private final ClubServiceImpl clubService;
+
+    public ClubController(ClubServiceImpl clubService) {
+        this.clubService = clubService;
+    }
 
     @GetMapping("/{clubId}")
     public HttpEntity<ClubDetailResponseDto> getClub(@PathVariable long clubId) {

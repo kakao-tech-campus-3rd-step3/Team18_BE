@@ -68,3 +68,4 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     """, nativeQuery = true)
     List<ClubSummary> findSummariesByNameContaining(@Param("name") String name);
 
+}
