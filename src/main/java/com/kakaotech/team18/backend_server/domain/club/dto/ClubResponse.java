@@ -25,10 +25,10 @@ public record ClubResponse(
 
     public static ClubResponse from(ClubSummary summary, RecruitStatus status) {
         return new ClubResponse(
-                summary.getId(),
-                summary.getName(),
-                summary.getCategory(),
-                summary.getShortIntroduction(),
+                summary.id(),
+                summary.name(),
+                summary.category(),
+                summary.shortIntroduction(),
                 RecruitStatusLabel.toKorean(status)
         );
     }

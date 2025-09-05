@@ -1,7 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 
@@ -52,7 +51,7 @@ public class ClubServiceImpl implements ClubService {
         return summaries.stream()
                 .map(s -> {
                     RecruitStatus status =
-                            RecruitStatusCalculator.of(s.getRecruitStart(), s.getRecruitEnd(), clock);
+                            RecruitStatusCalculator.of(s.recruitStart(), s.recruitEnd(), clock);
                     return ClubResponse.from(s, status);
                 })
                 .toList();
