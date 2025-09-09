@@ -23,6 +23,12 @@ public class ClubController{
 
     private final ClubService clubService;
 
+    @GetMapping
+    public ResponseEntity<List<ClubListResponseDto>> getAllClubs() {
+        List<ClubListResponseDto> response = clubService.getAllClubs();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{clubId}")
     public HttpEntity<ClubDetailResponseDto> getClub(@PathVariable long clubId) {
         ClubDetailResponseDto response = clubService.getClubDetail(clubId);
