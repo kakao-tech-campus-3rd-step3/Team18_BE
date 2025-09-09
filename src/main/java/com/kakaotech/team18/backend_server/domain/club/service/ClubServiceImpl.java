@@ -59,6 +59,7 @@ public class ClubServiceImpl implements ClubService {
         return ClubDetailResponseDto.from(findClub, findUser);
     }
 
+    // ---- private helpers ----
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
                 .map(s -> ClubListResponseDto.from(
