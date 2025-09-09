@@ -8,8 +8,6 @@ import java.time.Clock;
 import java.util.List;
 
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
-import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatus;
-import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatusCalculator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

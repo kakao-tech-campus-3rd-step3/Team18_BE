@@ -3,8 +3,6 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
-import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatus;
-import com.kakaotech.team18.backend_server.domain.club.service.model.RecruitStatusLabel;
 
 public record ClubResponse(
         Long id,
