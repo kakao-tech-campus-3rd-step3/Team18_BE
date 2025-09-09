@@ -42,7 +42,6 @@ public class ClubServiceImpl implements ClubService {
         return mapToResponse(clubRepository.findAllSummaries());
     }
 
-    // ---- private helpers ----
     private List<ClubListResponse> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
                 .map(s -> ClubListResponse.from(
