@@ -100,7 +100,7 @@ class GlobalExceptionHandlerTest {
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
                 .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
-                .andExpect(jsonPath("$.detail").isEmpty()); // detail이 null 인지 확인
+                .andExpect(jsonPath("$.detail").doesNotExist()); // detail이 null 인지 확인
     }
 
     @Test
