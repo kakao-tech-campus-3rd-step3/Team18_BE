@@ -1,0 +1,25 @@
+name: "❓ Question"
+description: "논의가 필요한 사항이나 질문을 기록합니다"
+labels: [ "question" ]
+body:
+  - type: textarea
+    attributes:
+      label: ❓ 무엇이 궁금한가요? / 어떤 논의가 필요한가요?
+      description: 질문이나 논의가 필요한 주제에 대해 명확하게 작성해주세요.
+      placeholder: 예시) API 응답 객체의 표준 포맷을 어떻게 정하면 좋을까요?
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 📂 배경 설명
+      description: 이 질문이나 논의가 나오게 된 배경에 대해 설명해주세요.
+      placeholder: 예시) 현재 각 API마다 성공/실패 응답의 구조가 조금씩 달라서, 프론트엔드에서 일관된 처리에 어려움이 있습니다.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: 💡 제안 또는 대안
+      description: 생각하고 있는 해결책이나 논의해보고 싶은 여러 대안들을 자유롭게 작성해주세요.
+      placeholder: |
+        - 제안 1) 모든 응답을 { success: boolean, data: ..., error: ... } 형태로 통일한다.
+        - 제안 2) HTTP 상태 코드를 더 적극적으로 활용하고, 성공 시에는 데이터만 반환한다.
