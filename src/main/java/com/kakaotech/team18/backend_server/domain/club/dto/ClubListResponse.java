@@ -4,15 +4,15 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
 
-public record ClubResponse(
+public record ClubListResponse(
         Long id,
         String name,
         Category category,
         String shortIntroduction,
         String recruitStatus
 ) {
-    public static ClubResponse from(Club club) {
-        return new ClubResponse(
+    public static ClubListResponse from(Club club) {
+        return new ClubListResponse(
                 club.getId(),
                 club.getName(),
                 club.getCategory(),
@@ -21,8 +21,8 @@ public record ClubResponse(
         );
     }
 
-    public static ClubResponse from(ClubSummary summary, String recruitStatus) {
-        return new ClubResponse(
+    public static ClubListResponse from(ClubSummary summary, String recruitStatus) {
+        return new ClubListResponse(
                 summary.id(),
                 summary.name(),
                 summary.category(),

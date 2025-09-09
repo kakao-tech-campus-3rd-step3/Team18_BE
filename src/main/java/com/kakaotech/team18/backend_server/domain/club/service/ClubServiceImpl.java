@@ -1,10 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,7 +22,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubResponse> getClubByCategory(Category category) {
+    public List<ClubListResponse> getClubByCategory(Category category) {
         if (category == null) {
             return mapToResponse(clubRepository.findAllSummaries());
         }
@@ -31,7 +30,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubResponse> getClubByName(String name) {
+    public List<ClubListResponse> getClubByName(String name) {
         if (name == null || name.isBlank()) {
             return mapToResponse(clubRepository.findAllSummaries());
         }
@@ -39,14 +38,14 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubResponse> getAllClubs() {
+    public List<ClubListResponse> getAllClubs() {
         return mapToResponse(clubRepository.findAllSummaries());
     }
 
     // ---- private helpers ----
-    private List<ClubResponse> mapToResponse(List<ClubSummary> summaries) {
+    private List<ClubListResponse> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
-                .map(s -> ClubResponse.from(
+                .map(s -> ClubListResponse.from(
                         s,
                         calculateRecruitStatus(s.recruitStart(), s.recruitEnd())
                 ))

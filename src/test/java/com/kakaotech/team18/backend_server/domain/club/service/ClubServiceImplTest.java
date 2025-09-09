@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -55,7 +54,7 @@ class ClubServiceImplTest {
 
             when(clubRepository.findAllSummaries()).thenReturn(List.of(undecided, prepare, open, closed));
 
-            List<ClubResponse> result = clubService.getAllClubs();
+            List<ClubListResponse> result = clubService.getAllClubs();
 
             assertThat(result).hasSize(4);
             assertThat(result.get(0).recruitStatus()).isEqualTo("모집 일정 미정");
@@ -77,7 +76,7 @@ class ClubServiceImplTest {
         void nullCategoryUsesAll() {
             when(clubRepository.findAllSummaries()).thenReturn(List.of());
 
-            List<ClubResponse> result = clubService.getClubByCategory(null);
+            List<ClubListResponse> result = clubService.getClubByCategory(null);
 
             assertThat(result).isEmpty();
             verify(clubRepository, times(1)).findAllSummaries();
@@ -91,7 +90,7 @@ class ClubServiceImplTest {
                     new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null)
             ));
 
-            List<ClubResponse> result = clubService.getClubByCategory(Category.SPORTS);
+            List<ClubListResponse> result = clubService.getClubByCategory(Category.SPORTS);
 
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("Run Club");
@@ -124,7 +123,7 @@ class ClubServiceImplTest {
             when(clubRepository.findSummariesByNameContaining("Inter"))
                     .thenReturn(List.of(new TestClubSummary(7L, "InterX", Category.STUDY, "si", null, null)));
 
-            List<ClubResponse> result = clubService.getClubByName("Inter");
+            List<ClubListResponse> result = clubService.getClubByName("Inter");
 
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("InterX");
