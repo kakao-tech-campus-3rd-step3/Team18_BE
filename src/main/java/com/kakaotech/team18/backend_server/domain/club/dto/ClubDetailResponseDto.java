@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import lombok.Builder;
 
 @Builder
-public record ClubResponse(
+public record ClubDetailResponseDto(
         String clubName,
         String location,
         Category category,
@@ -24,8 +24,8 @@ public record ClubResponse(
         LocalDateTime recruitEnd
         ) {
 
-        public static ClubResponse from(Club club, Users users) {
-                return ClubResponse.builder().
+        public static ClubDetailResponseDto from(Club club, Users users) {
+                return ClubDetailResponseDto.builder().
                         clubName(club.getName()).
                         location(club.getLocation()).
                         category(club.getCategory()).

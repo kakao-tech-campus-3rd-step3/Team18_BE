@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LITERATURE;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
@@ -43,7 +43,7 @@ class ClubServiceTest {
         Club savedClub = clubRepository.save(club);
 
         //when
-        ClubResponse response = clubService.getClubDetail(savedClub.getId());
+        ClubDetailResponseDto response = clubService.getClubDetail(savedClub.getId());
 
 
         //then

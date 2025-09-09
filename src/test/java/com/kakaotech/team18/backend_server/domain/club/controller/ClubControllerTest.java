@@ -4,7 +4,7 @@ import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LI
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +31,7 @@ class ClubControllerTest {
         //given
         long clubId = 1;
 
-        ClubResponse expected = ClubResponse.builder()
+        ClubDetailResponseDto expected = ClubDetailResponseDto.builder()
                 .clubName("카태켐")
                 .location("공대7호관 201호")
                 .category(LITERATURE)
