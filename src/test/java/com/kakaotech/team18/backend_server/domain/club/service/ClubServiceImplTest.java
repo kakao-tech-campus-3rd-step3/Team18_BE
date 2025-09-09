@@ -1,9 +1,10 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.*;
 class ClubServiceImplTest {
 
     private ClubRepository clubRepository;
+    private UsersRepository usersRepository;
     private ClubServiceImpl clubService;
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
@@ -29,7 +31,7 @@ class ClubServiceImplTest {
     @BeforeEach
     void setUp() {
         clubRepository = mock(ClubRepository.class);
-        clubService = new ClubServiceImpl(clubRepository);
+        clubService = new ClubServiceImpl(clubRepository, usersRepository);
     }
 
     private record TestClubSummary(Long id, String name, Category category, String shortIntroduction,
@@ -43,19 +45,19 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("모집 상태 라벨이 올바르게 계산&매핑된다 (미정/준비중/모집중/종료)")
         void mapsRecruitStatusLabels() {
-            var undecided = new TestClubSummary(1L, "A", Category.SPORTS, "si",
-                    null, null); // 미정
-            var prepare = new TestClubSummary(2L, "B", Category.SPORTS, "si",
-                    LocalDateTime.of(2025, 1, 10, 0, 0), LocalDateTime.of(2025, 1, 20, 0, 0)); // 준비중 (start > now)
-            var open = new TestClubSummary(3L, "C", Category.SPORTS, "si",
-                    LocalDateTime.of(2024, 12, 20, 0, 0), LocalDateTime.of(2025, 1, 10, 0, 0)); // 모집중 (start <= now < end)
-            var closed = new TestClubSummary(4L, "D", Category.SPORTS, "si",
-                    LocalDateTime.of(2024, 12, 1, 0, 0), LocalDateTime.of(2024, 12, 31, 23, 59)); // 종료 (now >= end)
+            // given
+            LocalDateTime now = LocalDateTime.now();
 
+            var undecided = new TestClubSummary(1L, "A", Category.SPORTS, "si",null, null);//미정
+            var prepare = new TestClubSummary(2L, "B", Category.SPORTS, "si",now.plusDays(10),now.plusDays(20));//준비중
+            var open = new TestClubSummary(3L, "C", Category.SPORTS, "si",now.minusDays(10),now.plusDays(10));//모집중
+            var closed = new TestClubSummary(4L, "D", Category.SPORTS, "si",now.minusDays(30),now.minusDays(1));//종료
             when(clubRepository.findAllSummaries()).thenReturn(List.of(undecided, prepare, open, closed));
 
-            List<ClubListResponse> result = clubService.getAllClubs();
+            //when
+            List<ClubListResponseDto> result = clubService.getAllClubs();
 
+            //then
             assertThat(result).hasSize(4);
             assertThat(result.get(0).recruitStatus()).isEqualTo("모집 일정 미정");
             assertThat(result.get(1).recruitStatus()).isEqualTo("모집 준비중");
@@ -76,7 +78,7 @@ class ClubServiceImplTest {
         void nullCategoryUsesAll() {
             when(clubRepository.findAllSummaries()).thenReturn(List.of());
 
-            List<ClubListResponse> result = clubService.getClubByCategory(null);
+            List<ClubListResponseDto> result = clubService.getClubByCategory(null);
 
             assertThat(result).isEmpty();
             verify(clubRepository, times(1)).findAllSummaries();
@@ -90,7 +92,7 @@ class ClubServiceImplTest {
                     new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null)
             ));
 
-            List<ClubListResponse> result = clubService.getClubByCategory(Category.SPORTS);
+            List<ClubListResponseDto> result = clubService.getClubByCategory(Category.SPORTS);
 
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("Run Club");
@@ -123,7 +125,7 @@ class ClubServiceImplTest {
             when(clubRepository.findSummariesByNameContaining("Inter"))
                     .thenReturn(List.of(new TestClubSummary(7L, "InterX", Category.STUDY, "si", null, null)));
 
-            List<ClubListResponse> result = clubService.getClubByName("Inter");
+            List<ClubListResponseDto> result = clubService.getClubByName("Inter");
 
             assertThat(result).hasSize(1);
             assertThat(result.getFirst().name()).isEqualTo("InterX");

@@ -1,11 +1,10 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubServiceImpl;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -24,10 +23,6 @@ public class ClubController{
 
     private final ClubServiceImpl clubService;
 
-    public ClubController(ClubServiceImpl clubService) {
-        this.clubService = clubService;
-    }
-
     @GetMapping("/{clubId}")
     public HttpEntity<ClubDetailResponseDto> getClub(@PathVariable long clubId) {
         ClubDetailResponseDto response = clubService.getClubDetail(clubId);
@@ -35,10 +30,10 @@ public class ClubController{
     }
 
     @GetMapping("/search/category")
-    public ResponseEntity<List<ClubListResponse>> listClubsByCategory(
+    public ResponseEntity<List<ClubListResponseDto>> listClubsByCategory(
             @RequestParam(required=false)String category
     ){
-        List<ClubListResponse> response = clubService.getClubByCategory(Category.valueOf(category));
+        List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
         return ResponseEntity.ok(response);
     }
 

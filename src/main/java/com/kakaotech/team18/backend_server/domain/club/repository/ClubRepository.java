@@ -18,7 +18,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     Optional<Club> findByName(String name);
 
-    List<Club> findByCategory(Category category);
+    List<Club> findByCategory(Category category);//optional이어야하지않음??
 
     @Query("""
     select c.id as id,

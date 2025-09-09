@@ -1,13 +1,18 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,13 +21,18 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
+    private final UsersRepository usersRepository;
 
-    public ClubServiceImpl(ClubRepository clubRepository) {
+    public ClubServiceImpl(
+            ClubRepository clubRepository,
+            UsersRepository usersRepository
+    ) {
         this.clubRepository = clubRepository;
+        this.usersRepository = usersRepository;
     }
 
     @Override
-    public List<ClubListResponse> getClubByCategory(Category category) {
+    public List<ClubListResponseDto> getClubByCategory(Category category) {
         if (category == null) {
             return mapToResponse(clubRepository.findAllSummaries());
         }
@@ -30,7 +40,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubListResponse> getClubByName(String name) {
+    public List<ClubListResponseDto> getClubByName(String name) {
         if (name == null || name.isBlank()) {
             return mapToResponse(clubRepository.findAllSummaries());
         }
@@ -38,13 +48,20 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubListResponse> getAllClubs() {
+    public List<ClubListResponseDto> getAllClubs() {
         return mapToResponse(clubRepository.findAllSummaries());
     }
 
-    private List<ClubListResponse> mapToResponse(List<ClubSummary> summaries) {
+    @Override
+    public ClubDetailResponseDto getClubDetail(Long clubId) {
+        Club findClub = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
+        Users findUser = usersRepository.findById(findClub.getPresident().getId()).orElseThrow(NoSuchElementException::new);
+        return ClubDetailResponseDto.from(findClub, findUser);
+    }
+
+    private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
-                .map(s -> ClubListResponse.from(
+                .map(s -> ClubListResponseDto.from(
                         s,
                         calculateRecruitStatus(s.recruitStart(), s.recruitEnd())
                 ))
