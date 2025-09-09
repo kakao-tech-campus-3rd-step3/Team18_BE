@@ -30,8 +30,7 @@ class ClubServiceImplTest {
     @BeforeEach
     void setUp() {
         clubRepository = mock(ClubRepository.class);
-        Clock fixedClock = Clock.fixed(FIXED_INSTANT, ZONE);
-        clubService = new ClubServiceImpl(clubRepository, fixedClock);
+        clubService = new ClubServiceImpl(clubRepository);
     }
 
     private record TestClubSummary(Long id, String name, Category category, String shortIntroduction,

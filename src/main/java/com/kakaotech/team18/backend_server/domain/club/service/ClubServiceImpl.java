@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubResponse;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 
 import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
@@ -16,11 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
-    private final Clock clock;
 
-    public ClubServiceImpl(ClubRepository clubRepository, Clock clock) {
+    public ClubServiceImpl(ClubRepository clubRepository) {
         this.clubRepository = clubRepository;
-        this.clock = clock;
     }
 
     @Override
@@ -47,11 +46,25 @@ public class ClubServiceImpl implements ClubService {
     // ---- private helpers ----
     private List<ClubResponse> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
-                .map(s -> {
-                    RecruitStatus status =
-                            RecruitStatusCalculator.of(s.recruitStart(), s.recruitEnd(), clock);
-                    return ClubResponse.from(s, status);
-                })
+                .map(s -> ClubResponse.from(
+                        s,
+                        calculateRecruitStatus(s.recruitStart(), s.recruitEnd())
+                ))
                 .toList();
+    }
+
+    private String calculateRecruitStatus(LocalDateTime start, LocalDateTime end) {
+        LocalDateTime today = LocalDateTime.now();
+
+        if (start == null || end == null) {
+            return "모집 일정 미정";
+        }
+        if (today.isBefore(start)) {
+            return "모집 준비중";
+        }
+        if (!today.isBefore(end)) {
+            return "모집 종료";
+        }
+        return "모집중";
     }
 }

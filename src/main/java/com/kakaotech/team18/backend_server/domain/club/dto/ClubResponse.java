@@ -11,23 +11,23 @@ public record ClubResponse(
         String shortIntroduction,
         String recruitStatus
 ) {
-    public static ClubResponse from(Club club, RecruitStatus status) {
+    public static ClubResponse from(Club club) {
         return new ClubResponse(
                 club.getId(),
                 club.getName(),
                 club.getCategory(),
                 club.getShortIntroduction(),
-                RecruitStatusLabel.toKorean(status)
+                club.getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())
         );
     }
 
-    public static ClubResponse from(ClubSummary summary, RecruitStatus status) {
+    public static ClubResponse from(ClubSummary summary, String recruitStatus) {
         return new ClubResponse(
                 summary.id(),
                 summary.name(),
                 summary.category(),
                 summary.shortIntroduction(),
-                RecruitStatusLabel.toKorean(status)
+                recruitStatus
         );
     }
 }
