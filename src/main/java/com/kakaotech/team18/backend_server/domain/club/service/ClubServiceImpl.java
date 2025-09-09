@@ -7,7 +7,7 @@ import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

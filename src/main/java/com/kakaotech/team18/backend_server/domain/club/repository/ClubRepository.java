@@ -5,7 +5,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import java.util.List;
 import java.util.Optional;
 
-import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.club.repository.dto;
+package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 

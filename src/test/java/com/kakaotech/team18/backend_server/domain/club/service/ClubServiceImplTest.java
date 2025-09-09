@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponse;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.club.repository.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
