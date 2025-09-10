@@ -64,7 +64,7 @@ public class ClubServiceImpl implements ClubService {
         return summaries.stream()
                 .map(s -> ClubListResponseDto.from(
                         s,
-                        calculateRecruitStatus(s.recruitStart(), s.recruitEnd())
+                        calculateRecruitStatus(s.getRecruitStart(), s.getRecruitEnd())
                 ))
                 .toList();
     }

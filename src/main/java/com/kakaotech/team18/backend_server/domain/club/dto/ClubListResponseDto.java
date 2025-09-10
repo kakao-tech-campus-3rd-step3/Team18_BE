@@ -22,10 +22,10 @@ public record ClubListResponseDto(
 
     public static ClubListResponseDto from(ClubSummary summary, String recruitStatus) {
         return new ClubListResponseDto(
-                summary.id(),
-                summary.name(),
-                summary.category(),
-                summary.shortIntroduction(),
+                summary.getId(),
+                summary.getName(),
+                summary.getCategory(),
+                summary.getShortIntroduction(),
                 recruitStatus
         );
     }
