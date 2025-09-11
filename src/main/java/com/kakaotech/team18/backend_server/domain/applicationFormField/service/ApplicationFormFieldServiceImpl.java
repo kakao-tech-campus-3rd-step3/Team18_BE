@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@Transactional
 public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldService {
         private final ApplicationFormFieldRepository applicationFormFieldRepository;
 
@@ -18,6 +17,8 @@ public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldServ
                 this.applicationFormFieldRepository = applicationFormFieldRepository;
         }
 
+        @Override
+        @Transactional(readOnly = true)
         public List<ApplicationFormField> getApplicationFormFieldsById(Long applicationFormId) {
                 return applicationFormFieldRepository.findByApplicationFormIdOrderByOrderAsc(applicationFormId);
         }
