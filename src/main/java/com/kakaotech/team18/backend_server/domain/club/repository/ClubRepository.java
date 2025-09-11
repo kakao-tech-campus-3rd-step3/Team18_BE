@@ -31,41 +31,41 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     """)
     List<ClubSummary> findAllSummaries();
 
-    @Query(value = """ 
+    @Query("""
     select c.id as id,
            c.name as name,
-           c.category as category, 
-           c.short_introduction as shortIntroduction, 
-           c.recruit_start as recruitStart, 
-           c.recruit_end as recruitEnd
-    from club c
-    where c.category = :name
-    """, nativeQuery = true)
+           c.category as category,
+           c.shortIntroduction as shortIntroduction,
+           c.recruitStart as recruitStart,
+           c.recruitEnd as recruitEnd
+    from Club c
+    where c.name = :name
+    """)
     Optional<ClubSummary> findClubSummaryByName(@Param("name") String name);
 
-    @Query(value = """ 
+    @Query("""
     select c.id as id,
            c.name as name,
-           c.category as category, 
-           c.short_introduction as shortIntroduction, 
-           c.recruit_start as recruitStart, 
-           c.recruit_end as recruitEnd
-    from club c
+           c.category as category,
+           c.shortIntroduction as shortIntroduction,
+           c.recruitStart as recruitStart,
+           c.recruitEnd as recruitEnd
+    from Club c
     where c.category = :category
-    """, nativeQuery = true)
+    """)
     List<ClubSummary> findSummariesByCategory(@Param("category") Category category);
 
 
-    @Query(value = """
+    @Query("""
     select c.id as id,
-           c.club_name as name,
+           c.name as name,
            c.category as category,
-           c.short_introduction as shortIntroduction,
-           c.recruit_start as recruitStart,
-           c.recruit_end as recruitEnd
-    from club c
-    where c.club_name like concat('%', :name, '%')
-    """, nativeQuery = true)
+           c.shortIntroduction as shortIntroduction,
+           c.recruitStart as recruitStart,
+           c.recruitEnd as recruitEnd
+    from Club c
+    where c.name like concat('%', :name, '%')
+    """)
     List<ClubSummary> findSummariesByNameContaining(@Param("name") String name);
 
 }

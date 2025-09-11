@@ -5,6 +5,8 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -34,8 +36,15 @@ class ClubServiceImplTest {
         clubService = new ClubServiceImpl(clubRepository, usersRepository);
     }
 
-    private record TestClubSummary(Long id, String name, Category category, String shortIntroduction,
-                                   LocalDateTime recruitStart, LocalDateTime recruitEnd) implements ClubSummary {
+    @Getter
+    @AllArgsConstructor
+    private static class TestClubSummary implements ClubSummary {
+        private final Long id;
+        private final String name;
+        private final Category category;
+        private final String shortIntroduction;
+        private final LocalDateTime recruitStart;
+        private final LocalDateTime recruitEnd;
     }
 
     @Nested

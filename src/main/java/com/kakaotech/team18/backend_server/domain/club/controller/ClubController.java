@@ -30,9 +30,9 @@ public class ClubController{
     }
 
     @GetMapping("/{clubId}")
-    public HttpEntity<ClubDetailResponseDto> getClub(@PathVariable long clubId) {
+    public ResponseEntity<ClubDetailResponseDto> getClub(@PathVariable long clubId) {
         ClubDetailResponseDto response = clubService.getClubDetail(clubId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/search/category")
