@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.applicationForm.repository.App
 import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.ApplicationFormFieldResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
         this.applicationFormRepository = applicationFormRepository;
     }
 
+    @Transactional(readOnly = true)
     public ApplicationFormResponse getQuestionForm(Long clubId){
         ApplicationForm applicationForm = applicationFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(IllegalArgumentException::new);
 
