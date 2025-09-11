@@ -19,6 +19,6 @@ public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldServ
         }
 
         public List<ApplicationFormField> getApplicationFormFieldsById(Long applicationFormId) {
-                return applicationFormFieldRepository.findByApplicationFormIdOrderByFieldOrderAsc(applicationFormId);
+                return applicationFormFieldRepository.findByApplicationFormIdOrderByOrderAsc(applicationFormId);
         }
 }
