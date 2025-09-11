@@ -98,7 +98,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").doesNotExist()); // detail이 null 인지 확인
     }
@@ -117,7 +117,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").value(detail));
     }
@@ -138,7 +138,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").value("name: 이름은 비워둘 수 없습니다."));
     }
@@ -156,7 +156,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
     }
 }
