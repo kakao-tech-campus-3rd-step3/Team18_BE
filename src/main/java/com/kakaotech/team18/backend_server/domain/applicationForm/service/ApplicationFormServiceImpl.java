@@ -22,5 +22,18 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
         this.applicationFormRepository = applicationFormRepository;
     }
 
+    public ApplicationFormResponse getQuestionForm(Club clubId){
+        Long formId = ApplicationFormRepository.getIdByClub(clubId);
 
+        String title = ApplicationFormRepository.getTitleById(formId);
+        String description = ApplicationFormRepository.getDescriptionById(formId);
+
+        List<ApplicationFormFieldResponseDto> questions =
+                applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(formId)
+                        .stream()
+                        .map(ApplicationFormFieldResponseDto::from)
+                        .toList();
+
+        return ApplicationFormResponse.of(title, description, questions);
+    }
 }
