@@ -20,6 +20,6 @@ public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldServ
         @Override
         @Transactional(readOnly = true)
         public List<ApplicationFormField> getApplicationFormFieldsById(Long applicationFormId) {
-                return applicationFormFieldRepository.findByApplicationFormIdOrderByOrderAsc(applicationFormId);
+                return applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(applicationFormId);
         }
 }
