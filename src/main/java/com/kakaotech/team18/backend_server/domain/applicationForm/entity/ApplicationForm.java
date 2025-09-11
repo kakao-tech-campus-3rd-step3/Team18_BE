@@ -34,4 +34,7 @@ public class ApplicationForm extends BaseEntity {
     private String title;
 
     private String description;
+
+    @Column(nullable = false)
+    private boolean isActive;
 }

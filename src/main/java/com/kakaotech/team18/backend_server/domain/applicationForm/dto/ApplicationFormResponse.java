@@ -5,13 +5,13 @@ import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.Appli
 import java.util.List;
 
 
-public class ApplicaationFormResponse {
+public class ApplicationFormResponse {
 
     String title;
     String description;
     List<ApplicationFormFieldResponseDto> questions;
 
-    public ApplicaationFormResponse(
+    public ApplicationFormResponse(
             String title,
             String description,
             List<ApplicationFormFieldResponseDto> questions
