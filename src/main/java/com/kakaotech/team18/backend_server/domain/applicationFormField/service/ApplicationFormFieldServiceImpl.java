@@ -3,10 +3,12 @@ package com.kakaotech.team18.backend_server.domain.applicationFormField.service;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldService {
         private final ApplicationFormFieldRepository applicationFormFieldRepository;
 
@@ -16,7 +18,7 @@ public class ApplicationFormFieldServiceImpl implements ApplicationFormFieldServ
                 this.applicationFormFieldRepository = applicationFormFieldRepository;
         }
 
-        public List<ApplicationFormField> getApplicationFormFields(Long clubId) {
-
+        public List<ApplicationFormField> getApplicationFormFieldsById(Long applicationFormId) {
+                return applicationFormFieldRepository.findByApplicationFormIdOrderByFieldOrderAsc(applicationFormId);
         }
 }
