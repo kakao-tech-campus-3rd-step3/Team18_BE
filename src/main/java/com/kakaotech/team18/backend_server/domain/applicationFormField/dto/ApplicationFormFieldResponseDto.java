@@ -5,7 +5,7 @@ import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.Fi
 import java.util.List;
 
 public record ApplicationFormFieldResponseDto(
-        int questionNum,
+        Long questionNum,
         FieldType questionType,
         String question,
         boolean required,
@@ -13,7 +13,7 @@ public record ApplicationFormFieldResponseDto(
 ) {
     public static ApplicationFormFieldResponseDto from(ApplicationFormField field) {
         return new ApplicationFormFieldResponseDto(
-                field.getDisplayOrder().intValue(),
+                field.getDisplayOrder(),
                 field.getFieldType(),
                 field.getQuestion(),
                 field.isRequired(),
