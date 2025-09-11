@@ -23,8 +23,7 @@ public class ApplicationFormResponse {
     public static ApplicationFormResponse of(
             String title,
             String description,
-            List<ApplicationFormFieldResponseDto> questions
-    ) {
+            List<ApplicationFormFieldResponseDto> questions) {
         return new ApplicationFormResponse(title, description, questions);
     }
 }

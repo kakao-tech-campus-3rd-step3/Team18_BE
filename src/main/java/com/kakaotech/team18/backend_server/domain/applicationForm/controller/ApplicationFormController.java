@@ -26,6 +26,6 @@ public class ApplicationFormController {
             @PathVariable("clubId") Long clubId
     ) {
         ApplicationFormResponse response = applicationFormService.getQuestionForm(clubId);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(response);
     }
 }
