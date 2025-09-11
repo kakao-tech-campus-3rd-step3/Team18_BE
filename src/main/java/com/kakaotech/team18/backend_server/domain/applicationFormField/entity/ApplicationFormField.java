@@ -5,10 +5,12 @@ import com.kakaotech.team18.backend_server.domain.applicationForm.entity.Applica
 import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationFormField extends BaseEntity {
