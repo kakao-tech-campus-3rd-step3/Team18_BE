@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           source: project.jar
-          target: /home/ubuntu/dongarium-server/tobe
+          target: /home/ec2-user/dongarium-server/tobe
 
       - name: SSH로 EC2에 접속하기
         uses: appleboy/ssh-action@v1.0.3
@@ -43,10 +43,10 @@ jobs:
           key: ${{ secrets.EC2_PRIVATE_KEY }}
           script_stop: true
           script: |
-            rm -rf /home/ubuntu/dongarium-server/current
-            mkdir /home/ubuntu/dongarium-server/current
-            mv /home/ubuntu/dongarium-server/tobe/project.jar /home/ubuntu/dongarium-server/current/project.jar
-            cd /home/ubuntu/dongarium-server/current
+            rm -rf /home/ec2-user/dongarium-server/current
+            mkdir /home/ec2-user/dongarium-server/current
+            mv /home/ec2-user/dongarium-server/tobe/project.jar /home/ec2-user/dongarium-server/current/project.jar
+            cd /home/ec2-user/dongarium-server/current
             sudo fuser -k -n tcp 8080 || true
             nohup java -Dspring.profiles.active=prod -jar project.jar > ./output.log 2>&1 &
-            rm -rf /home/ubuntu/dongarium-server/tobe
+            rm -rf /home/ec2-user/dongarium-server/tobe
