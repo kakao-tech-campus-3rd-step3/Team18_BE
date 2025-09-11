@@ -2,7 +2,7 @@ name: Deploy To Ec2 when Merge to Develop Branch
 
 on:
   push:
-    branches: [feature/setup-cicd-pipeline]
+    branches: [develop]
 
 jobs:
   deploy:
