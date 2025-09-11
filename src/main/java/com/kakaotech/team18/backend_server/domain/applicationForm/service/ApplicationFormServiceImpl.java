@@ -5,11 +5,9 @@ import com.kakaotech.team18.backend_server.domain.applicationForm.entity.Applica
 import com.kakaotech.team18.backend_server.domain.applicationForm.repository.ApplicationFormRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.ApplicationFormFieldResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ApplicationFormServiceImpl implements ApplicationFormService {
