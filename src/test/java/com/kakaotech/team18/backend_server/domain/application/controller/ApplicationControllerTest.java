@@ -2,7 +2,10 @@ package com.kakaotech.team18.backend_server.domain.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +19,10 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Collections;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -82,5 +87,67 @@ class ApplicationControllerTest {
         // then
         resultActions.andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.APPLICATION_NOT_FOUND.name()));
+    }
+
+    @Test
+    @DisplayName("지원서 상태 변경 컨트롤러 - 성공")
+    void updateApplicationStatus_success() throws Exception {
+        // given
+        Long applicationId = 1L;
+        ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
+        given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
+                .willReturn(new SuccessResponseDto(true));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/applications/{applicationId}", applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (지원서 없음)")
+    void updateApplicationStatus_fail_applicationNotFound() throws Exception {
+        // given
+        Long nonExistentApplicationId = 999L;
+        ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
+        given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
+                .willThrow(new ApplicationNotFoundException("테스트 detail 블라블라"));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/applications/{applicationId}", nonExistentApplicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+        );
+
+        // then
+        resultActions.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.APPLICATION_NOT_FOUND.name()));
+    }
+
+    @Test
+    @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (잘못된 요청 값)")
+    void updateApplicationStatus_fail_invalidInputValue() throws Exception {
+        // given
+        Long applicationId = 1L;
+        // status 필드가 없는 잘못된 요청
+        String invalidRequestBody = "{}";
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/applications/{applicationId}", applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRequestBody)
+        );
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
     }
 }
