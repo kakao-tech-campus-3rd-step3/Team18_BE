@@ -20,16 +20,18 @@ public class Club extends BaseEntity {
     @Column(name = "club_id")
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "president_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "president_id", nullable = false)
     private User president;
 
-    @Column(name = "club_name")
+    @Column(name = "club_name",  nullable = false, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Category category;
 
+    @Column(nullable = false)
     private String location;
 
     private String shortIntroduction;

@@ -21,14 +21,19 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(name = "email", nullable = false)
     private String email;
 
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "student_id", nullable = false)
     private String studentId;
 
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @Column(name = "department",  nullable = false)
     private String department;
 
     @Builder

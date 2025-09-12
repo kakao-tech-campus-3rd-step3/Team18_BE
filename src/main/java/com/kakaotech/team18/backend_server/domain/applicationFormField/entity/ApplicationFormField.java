@@ -18,18 +18,21 @@ public class ApplicationFormField extends BaseEntity {
     @Column(name = "application_form_field_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "application_form_id", nullable = false)
     private ApplicationForm applicationForm;
 
+    @Column(name = "question", nullable = false)
     private String question;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "field_type", nullable = false)
     private FieldType fieldType;
 
+    @Column(name = "is_required", nullable = false)
     private boolean isRequired;
 
-    @Column(name = "display_order")
+    @Column(name = "display_order", nullable = false)
     private Long displayOrder;
 
     @Convert(converter = StringListConverter.class)

@@ -23,12 +23,12 @@ public class ApplicationFormAnswer extends BaseEntity {
     @Column(name = "application_form_answer_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_id")
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "application_id", nullable = false)
     private Application application;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_field_id")
+    @ManyToOne(fetch = FetchType.LAZY,  optional = false)
+    @JoinColumn(name = "application_form_field_id", nullable = false)
     private ApplicationFormField applicationFormField;
 
     private String answer;
