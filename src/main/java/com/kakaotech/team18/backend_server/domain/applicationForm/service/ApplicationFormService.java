@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.applicationForm.service;
 
-import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponse;
+import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponseDto;
 
 public interface ApplicationFormService {
-    ApplicationFormResponse getQuestionForm(Long clubId);
+    ApplicationFormResponseDto getQuestionForm(Long clubId);
 }

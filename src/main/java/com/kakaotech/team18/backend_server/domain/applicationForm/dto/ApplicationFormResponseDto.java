@@ -6,13 +6,13 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class ApplicationFormResponse {
+public class ApplicationFormResponseDto {
 
     String title;
     String description;
     List<ApplicationFormFieldResponseDto> questions;
 
-    public ApplicationFormResponse(
+    public ApplicationFormResponseDto(
             String title,
             String description,
             List<ApplicationFormFieldResponseDto> questions
@@ -22,10 +22,10 @@ public class ApplicationFormResponse {
         this.questions = questions;
     }
 
-    public static ApplicationFormResponse of(
+    public static ApplicationFormResponseDto of(
             String title,
             String description,
             List<ApplicationFormFieldResponseDto> questions) {
-        return new ApplicationFormResponse(title, description, questions);
+        return new ApplicationFormResponseDto(title, description, questions);
     }
 }

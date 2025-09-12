@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.applicationForm.controller;
 
-import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponse;
+import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationForm.service.ApplicationFormService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +21,10 @@ public class ApplicationFormController {
     }
 
     @GetMapping("/apply")
-    public ResponseEntity<ApplicationFormResponse> getClubById(
+    public ResponseEntity<ApplicationFormResponseDto> getClubById(
             @PathVariable("clubId") Long clubId
     ) {
-        ApplicationFormResponse response = applicationFormService.getQuestionForm(clubId);
+        ApplicationFormResponseDto response = applicationFormService.getQuestionForm(clubId);
         return ResponseEntity.ok(response);
     }
 }

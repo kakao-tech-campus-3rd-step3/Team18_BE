@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.applicationForm.service;
 
-import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponse;
+import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
 import com.kakaotech.team18.backend_server.domain.applicationForm.repository.ApplicationFormRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.ApplicationFormFieldResponseDto;
@@ -24,7 +24,7 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
     }
 
     @Transactional(readOnly = true)
-    public ApplicationFormResponse getQuestionForm(Long clubId){
+    public ApplicationFormResponseDto getQuestionForm(Long clubId){
         ApplicationForm applicationForm = applicationFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(IllegalArgumentException::new);
 
         Long formId = applicationForm.getId();
@@ -37,6 +37,6 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                         .map(ApplicationFormFieldResponseDto::from)
                         .toList();
 
-        return ApplicationFormResponse.of(title, description, questions);
+        return ApplicationFormResponseDto.of(title, description, questions);
     }
 }
