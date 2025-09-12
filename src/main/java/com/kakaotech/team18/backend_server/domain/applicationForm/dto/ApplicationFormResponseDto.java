@@ -5,27 +5,16 @@ import lombok.Getter;
 
 import java.util.List;
 
-@Getter
-public class ApplicationFormResponseDto {
-
-    String title;
-    String description;
-    List<ApplicationFormFieldResponseDto> questions;
-
-    public ApplicationFormResponseDto(
+public record ApplicationFormResponseDto(
+        String title,
+        String description,
+        List<ApplicationFormFieldResponseDto> questions
+) {
+    public static ApplicationFormResponseDto of(
             String title,
             String description,
             List<ApplicationFormFieldResponseDto> questions
     ) {
-        this.title = title;
-        this.description = description;
-        this.questions = questions;
-    }
-
-    public static ApplicationFormResponseDto of(
-            String title,
-            String description,
-            List<ApplicationFormFieldResponseDto> questions) {
         return new ApplicationFormResponseDto(title, description, questions);
     }
 }
