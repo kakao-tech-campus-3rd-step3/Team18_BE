@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
@@ -80,20 +81,20 @@ class ClubServiceTest {
             String location,
             String shortIntroduction,
             String image,
-            String Introduce,
+            String overview,
             String activity,
-            String wannabe,
+            String ideal,
             String regularMeetingInfo) {
+
+        ClubIntroduction intro = ClubIntroduction.of(image, overview, activity, ideal);
+
         return Club.builder()
                 .president(president)
                 .name(name)
                 .category(category)
                 .location(location)
                 .shortIntroduction(shortIntroduction)
-                .introductionImage(image)
-                .introductionIntroduce(Introduce)
-                .introductionActivity(activity)
-                .introductionWannabe(wannabe)
+                .introduction(intro)
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
                 .regularMeetingInfo(regularMeetingInfo)

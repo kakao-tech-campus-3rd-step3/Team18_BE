@@ -13,9 +13,9 @@ public record ClubDetailResponseDto(
         Category category,
         String shortIntroduction,
         String introductionImage,
-        String introductionIntroduce,
+        String introductionOverview,
         String introductionActivity,
-        String introductionWannabe,
+        String introductionIdeal,
         String regularMeetingInfo,
         String recruitStatus,
         String presidentName,
@@ -25,15 +25,17 @@ public record ClubDetailResponseDto(
         ) {
 
         public static ClubDetailResponseDto from(Club club, User user) {
+                var intro = club.getIntroduction();
+
                 return ClubDetailResponseDto.builder().
                         clubName(club.getName()).
                         location(club.getLocation()).
                         category(club.getCategory()).
                         shortIntroduction(club.getShortIntroduction()).
-                        introductionImage(club.getIntroductionImage()).
-                        introductionIntroduce(club.getIntroductionIntroduce()).
-                        introductionActivity(club.getIntroductionActivity()).
-                        introductionWannabe(club.getIntroductionWannabe()).
+                        introductionImage(intro.getImageUrl()).
+                        introductionOverview(intro.getOverview()).
+                        introductionActivity(intro.getActivities()).
+                        introductionIdeal(intro.getIdeal()).
                         regularMeetingInfo(club.getRegularMeetingInfo()).
                         recruitStatus(club.getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())).
                         presidentName(user.getName()).
