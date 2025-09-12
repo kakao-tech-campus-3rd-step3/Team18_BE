@@ -59,7 +59,7 @@ class ApplicationFormServiceImplTest {
 
     @Test
     @DisplayName(" clubId로 지원서 조회 양식 조회시 Dto로 매핑하여 반환한다")
-    void getQuestionFormWithClubId () throws Exception{
+    void getQuestionFormWithClubId (){
 
         //given
         Long clubId = 100L;
