@@ -50,8 +50,8 @@ class ClubServiceTest {
         //then
         assertThat(response)
                 .extracting("clubName", "location", "category", "shortIntroduction",
-                        "introductionImage", "introductionIntroduce", "introductionActivity",
-                        "introductionWannabe", "regularMeetingInfo", "recruitStatus",
+                        "introductionImage", "introductionOverview", "introductionActivity",
+                        "introductionIdeal", "regularMeetingInfo", "recruitStatus",
                         "presidentName", "presidentPhoneNumber", "recruitStart", "recruitEnd")
                 .contains("카태켐", "공대7호관 201호", LITERATURE, "카카오 부트캠프", "ex.image",
                         "개발자로 성장할 수 있는 부트캠프입니다.", "총 3단계로 이루어진 코스", "열심열심", "매주 화요일 오후 6시", "모집중",
