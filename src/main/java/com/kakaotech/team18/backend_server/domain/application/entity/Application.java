@@ -44,5 +44,12 @@ public class Application extends BaseEntity {
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
-
+    /**
+     * 지원서의 상태를 변경합니다.
+     * 이 메소드는 서비스 계층에서 트랜잭션 내에서 호출되어야 합니다.
+     * @param newStatus 새로운 지원서 상태
+     */
+    public void updateStatus(Status newStatus) {
+        this.status = newStatus;
+    }
 }
