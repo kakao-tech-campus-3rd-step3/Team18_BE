@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.applicationForm.entity.Applica
 import com.kakaotech.team18.backend_server.domain.applicationForm.repository.ApplicationFormRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.ApplicationFormFieldResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,7 +20,7 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
 
     @Transactional(readOnly = true)
     public ApplicationFormResponseDto getQuestionForm(Long clubId){
-        ApplicationForm applicationForm = applicationFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(IllegalArgumentException::new);
+        ApplicationForm applicationForm = applicationFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(()->new ApplicationFormNotFoundException(clubId) );
 
         Long formId = applicationForm.getId();
         String title = applicationForm.getTitle();
