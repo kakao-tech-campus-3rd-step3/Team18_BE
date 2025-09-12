@@ -3,7 +3,6 @@ name: Deploy To Ec2 when Merge to Develop Branch
 on:
   push:
     branches: [feature/setup-cicd-pipeline#21]
-  workflow_dispatch: {}
 
 jobs:
   deploy:
