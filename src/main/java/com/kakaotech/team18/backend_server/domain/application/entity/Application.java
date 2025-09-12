@@ -39,7 +39,7 @@ public class Application extends BaseEntity {
     private ApplicationForm applicationForm;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private Status status = Status.PENDING;
 
 
 }
