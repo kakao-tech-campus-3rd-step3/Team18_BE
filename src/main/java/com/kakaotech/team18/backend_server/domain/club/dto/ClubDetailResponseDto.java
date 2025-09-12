@@ -2,7 +2,7 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.time.LocalDateTime;
 import lombok.Builder;
 
@@ -24,7 +24,7 @@ public record ClubDetailResponseDto(
         LocalDateTime recruitEnd
         ) {
 
-        public static ClubDetailResponseDto from(Club club, Users users) {
+        public static ClubDetailResponseDto from(Club club, User user) {
                 return ClubDetailResponseDto.builder().
                         clubName(club.getName()).
                         location(club.getLocation()).
@@ -36,8 +36,8 @@ public record ClubDetailResponseDto(
                         introductionWannabe(club.getIntroductionWannabe()).
                         regularMeetingInfo(club.getRegularMeetingInfo()).
                         recruitStatus(club.getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())).
-                        presidentName(users.getName()).
-                        presidentPhoneNumber(users.getPhoneNumber()).
+                        presidentName(user.getName()).
+                        presidentPhoneNumber(user.getPhoneNumber()).
                         recruitStart(club.getRecruitStart()).
                         recruitEnd(club.getRecruitEnd()).
                         build();

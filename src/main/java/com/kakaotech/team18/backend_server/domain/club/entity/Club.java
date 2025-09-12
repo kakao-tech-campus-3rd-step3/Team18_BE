@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -30,7 +30,7 @@ public class Club extends BaseEntity {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "president_id")
-    private Users president;
+    private User president;
 
     @Column(name = "club_name")
     private String name;
@@ -58,7 +58,7 @@ public class Club extends BaseEntity {
 
     @Builder
     private Club(
-            Users president,
+            User president,
             String name,
             Category category,
             String location,

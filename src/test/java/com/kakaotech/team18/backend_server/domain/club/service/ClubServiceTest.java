@@ -7,7 +7,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -34,8 +34,8 @@ class ClubServiceTest {
     @Test
     void getClubDetail() {
         //given
-        Users user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
-        Users savedUser = usersRepository.save(user);
+        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User savedUser = usersRepository.save(user);
 
         Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", "ex.image",
                 "개발자로 성장할 수 있는 부트캠프입니다.", "총 3단계로 이루어진 코스", "열심열심", "매주 화요일 오후 6시");
@@ -62,8 +62,8 @@ class ClubServiceTest {
 
 
 
-    private Users createUser(String name, String email, String department, String studentId, String phoneNumber) {
-        return Users.builder()
+    private User createUser(String name, String email, String department, String studentId, String phoneNumber) {
+        return User.builder()
                 .name(name)
                 .email(email)
                 .department(department)
@@ -74,7 +74,7 @@ class ClubServiceTest {
 
 
     private Club createClub(
-            Users president,
+            User president,
             String name,
             Category category,
             String location,

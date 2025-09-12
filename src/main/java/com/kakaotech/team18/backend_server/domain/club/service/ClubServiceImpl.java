@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,7 +55,7 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public ClubDetailResponseDto getClubDetail(Long clubId) {
         Club findClub = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
-        Users findUser = usersRepository.findById(findClub.getPresident().getId()).orElseThrow(NoSuchElementException::new);
+        User findUser = usersRepository.findById(findClub.getPresident().getId()).orElseThrow(NoSuchElementException::new);
         return ClubDetailResponseDto.from(findClub, findUser);
     }
 
