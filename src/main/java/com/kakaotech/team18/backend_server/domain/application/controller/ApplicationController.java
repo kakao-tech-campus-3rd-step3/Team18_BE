@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDet
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +31,7 @@ public class ApplicationController {
     @PatchMapping("/api/applications/{applicationId}")
     public ResponseEntity<SuccessResponseDto> updateApplicationStatus(
             @PathVariable("applicationId") Long applicationId,
-            @RequestBody ApplicationStatusUpdateRequestDto requestDto
+            @Valid @RequestBody ApplicationStatusUpdateRequestDto requestDto
     ) {
         SuccessResponseDto responseDto = applicationService.updateApplicationStatus(applicationId, requestDto);
         return ResponseEntity.ok(responseDto);
