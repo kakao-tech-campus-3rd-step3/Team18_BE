@@ -1,10 +1,22 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,18 +25,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-
 class ClubServiceImplTest {
 
     private ClubRepository clubRepository;
-    private UsersRepository usersRepository;
     private ClubServiceImpl clubService;
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
@@ -33,7 +36,7 @@ class ClubServiceImplTest {
     @BeforeEach
     void setUp() {
         clubRepository = mock(ClubRepository.class);
-        clubService = new ClubServiceImpl(clubRepository, usersRepository);
+        clubService = new ClubServiceImpl(clubRepository);
     }
 
     @Getter

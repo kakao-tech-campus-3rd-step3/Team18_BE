@@ -1,34 +1,29 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
+import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
-
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
-    private final UsersRepository usersRepository;
 
     public ClubServiceImpl(
-            ClubRepository clubRepository,
-            UsersRepository usersRepository
+            ClubRepository clubRepository
     ) {
         this.clubRepository = clubRepository;
-        this.usersRepository = usersRepository;
     }
 
     @Override
@@ -54,9 +49,14 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public ClubDetailResponseDto getClubDetail(Long clubId) {
-        Club findClub = clubRepository.findById(clubId).orElseThrow(NoSuchElementException::new);
-        Users findUser = usersRepository.findById(findClub.getPresident().getId()).orElseThrow(NoSuchElementException::new);
-        return ClubDetailResponseDto.from(findClub, findUser);
+        log.info("getClubDetail called with clubId={}", clubId);
+        Club findClub = clubRepository.findById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        log.info("Successfully found clubDetail: {}", findClub.getName());
+        return ClubDetailResponseDto.from(findClub, findClub.getPresident());
     }
 
     // ---- private helpers ----
