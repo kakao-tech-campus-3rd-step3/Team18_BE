@@ -20,7 +20,7 @@ public class Club extends BaseEntity {
     @Column(name = "club_id")
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "president_id")
     private User president;
 

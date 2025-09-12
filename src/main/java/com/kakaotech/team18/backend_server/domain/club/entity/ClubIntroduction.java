@@ -2,8 +2,10 @@ package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import jakarta.persistence.*;
+import lombok.NoArgsConstructor;
 
 @Entity
+@NoArgsConstructor
 public class ClubIntroduction extends BaseEntity {
 
     @Id
