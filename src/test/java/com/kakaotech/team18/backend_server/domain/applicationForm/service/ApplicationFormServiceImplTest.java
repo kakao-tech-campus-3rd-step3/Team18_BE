@@ -82,12 +82,12 @@ class ApplicationFormServiceImplTest {
         var secondQuestion = result.getQuestions().get(1);
         assertThat(secondQuestion.questionNum()).isEqualTo(2L);
         assertThat(secondQuestion.question()).isEqualTo("성별");
-        assertThat(secondQuestion.answerList()).containsExactly("남", "여");
+        assertThat(secondQuestion.optionList()).containsExactly("남", "여");
 
         var thirdQuestion = result.getQuestions().get(2);
         assertThat(thirdQuestion.questionNum()).isEqualTo(3L);
         assertThat(thirdQuestion.question()).isEqualTo("면접가능 요일");
-        assertThat(thirdQuestion.answerList()).containsExactly("월", "화", "수", "목", "금", "토");
+        assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
         verify(applicationFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
         verify(applicationFormFieldRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(applicationForm.getId());

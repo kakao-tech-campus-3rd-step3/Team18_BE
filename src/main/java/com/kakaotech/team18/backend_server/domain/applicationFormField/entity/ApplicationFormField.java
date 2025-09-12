@@ -31,7 +31,7 @@ public class ApplicationFormField extends BaseEntity {
     private boolean isRequired;
 
     @Column(name = "display_order")
-    private Long displayOrder;
+    private int displayOrder;
 
     @Convert(converter = StringListConverter.class)
     private List<String> options;

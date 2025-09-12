@@ -5,11 +5,11 @@ import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.Fi
 import java.util.List;
 
 public record ApplicationFormFieldResponseDto(
-        Long questionNum,
+        int questionNum,
         FieldType questionType,
         String question,
         boolean required,
-        List<String> answerList
+        List<String> optionList
 ) {
     public static ApplicationFormFieldResponseDto from(ApplicationFormField field) {
         return new ApplicationFormFieldResponseDto(
