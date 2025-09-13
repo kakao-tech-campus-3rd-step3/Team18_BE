@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.applicant.entity.Applicant;
 import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
@@ -14,7 +15,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,6 +46,20 @@ public class Application extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
+
+    @OneToOne(fetch = FetchType.LAZY,  optional = false)
+    @JoinColumn(name = "applicant_id", nullable = false)
+    private Applicant applicant;
+
+    @Builder
+    protected Application(User user, Club club, ApplicationForm applicationForm, Status status,
+            Applicant applicant) {
+        this.user = user;
+        this.club = club;
+        this.applicationForm = applicationForm;
+        this.status = status;
+        this.applicant = applicant;
+    }
 
     /**
      * 지원서의 상태를 변경합니다.
