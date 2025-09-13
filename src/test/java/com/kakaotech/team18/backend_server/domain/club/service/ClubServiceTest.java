@@ -20,10 +20,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ClubServiceTest {
 
     @Autowired
@@ -71,10 +73,10 @@ class ClubServiceTest {
     void getClubDetailWithWrongClubId() {
         //given
         Long wrongClubId = 0L;
-        Users user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
-        Users savedUser = usersRepository.save(user);
+        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User savedUser = usersRepository.save(user);
 
-        Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", "ex.image",
+        Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", List.of("ex.image"),
                 "개발자로 성장할 수 있는 부트캠프입니다.", "총 3단계로 이루어진 코스", "열심열심", "매주 화요일 오후 6시");
 
         Club savedClub = clubRepository.save(club);
