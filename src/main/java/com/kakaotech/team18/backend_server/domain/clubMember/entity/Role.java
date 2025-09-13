@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.clubAdmin.entity;
+package com.kakaotech.team18.backend_server.domain.clubMember.entity;
 
 public enum Role {
     SYSTEM_ADMIN,

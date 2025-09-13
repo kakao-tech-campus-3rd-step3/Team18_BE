@@ -28,4 +28,7 @@ public class ClubMember extends BaseEntity {
     @Column(name = "active_status", nullable = false)
     private ActiveStatus activeStatus;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "club_role", nullable = false, length = 20) // 길이는 적당히
+    private Role role;
 }
