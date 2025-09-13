@@ -1,0 +1,35 @@
+package com.kakaotech.team18.backend_server.domain.club.entity;
+
+import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class ClubImage extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(length = 500, nullable = false)
+    private String imageUrl;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_introduction_id", nullable = false)
+    private ClubIntroduction clubIntroduction;
+
+    private ClubImage(String imageUrl, ClubIntroduction clubIntroduction) {
+        this.imageUrl = imageUrl;
+        this.clubIntroduction = clubIntroduction;
+    }
+
+    public static ClubImage of(String imageUrl, ClubIntroduction clubIntroduction) {
+        return new ClubImage(imageUrl, clubIntroduction);
+    }
+
+}
+
+
