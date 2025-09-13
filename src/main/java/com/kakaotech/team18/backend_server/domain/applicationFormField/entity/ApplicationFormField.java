@@ -2,6 +2,8 @@ package com.kakaotech.team18.backend_server.domain.applicationFormField.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
+import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,8 +18,12 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+
 @Getter
 @Entity
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ApplicationFormField extends BaseEntity {
 
@@ -36,4 +42,10 @@ public class ApplicationFormField extends BaseEntity {
     private FieldType fieldType;
 
     private boolean isRequired;
+
+    @Column(name = "display_order")
+    private int displayOrder;
+
+    @Convert(converter = StringListConverter.class)
+    private List<String> options;
 }
