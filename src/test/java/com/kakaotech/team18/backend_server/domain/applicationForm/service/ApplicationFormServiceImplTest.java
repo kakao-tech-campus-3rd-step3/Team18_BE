@@ -53,9 +53,9 @@ class ApplicationFormServiceImplTest {
     void setUp() {
         applicationForm = new ApplicationForm(100L, mockClub, mockApplication, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
 
-        ApplicationFormField textQuestion = new ApplicationFormField(1L, mockApplicationForm, "이름", FieldType.TEXT, true, 1, null);
-        ApplicationFormField radioQuestion = new ApplicationFormField(2L, mockApplicationForm, "성별", FieldType.RADIO, true, 2, List.of("남","여"));
-        ApplicationFormField checkboxQuestion = new ApplicationFormField(3L, mockApplicationForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3, List.of("월","화","수","목","금","토"));
+        ApplicationFormField textQuestion = new ApplicationFormField(1L, mockApplicationForm, "이름", FieldType.TEXT, true, 1L, null);
+        ApplicationFormField radioQuestion = new ApplicationFormField(2L, mockApplicationForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
+        ApplicationFormField checkboxQuestion = new ApplicationFormField(3L, mockApplicationForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
 
         formFields = List.of(textQuestion, radioQuestion, checkboxQuestion);
     }

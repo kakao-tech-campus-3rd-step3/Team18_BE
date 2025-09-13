@@ -7,7 +7,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity.ApplicationFormAnswer;
 import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.repository.ApplicationFormAnswerRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class ApplicationServiceImplTest {
         Long applicantId = 1L;
 
         // Mock 객체 생성
-        Users mockUser = Users.builder()
+        User mockUser = User.builder()
                 .name("김지원")
                 .department("컴퓨터공학과")
                 .studentId("20230001")
@@ -52,7 +52,7 @@ class ApplicationServiceImplTest {
 
         // 리플렉션을 사용해 ID 강제 주입
         try {
-            java.lang.reflect.Field idField = Users.class.getDeclaredField("id");
+            java.lang.reflect.Field idField = User.class.getDeclaredField("id");
             idField.setAccessible(true);
             idField.set(mockUser, applicantId);
         } catch (Exception e) {
@@ -66,13 +66,13 @@ class ApplicationServiceImplTest {
         ApplicationFormAnswer mockAnswer2 = mock(ApplicationFormAnswer.class);
 
         // Repository Mocking 설정
-        when(applicationRepository.findByClub_IdAndUsers_Id(clubId, applicantId)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findByClub_IdAndUser_Id(clubId, applicantId)).thenReturn(Optional.of(mockApplication));
         when(applicationFormAnswerRepository.findByApplicationWithFormField(mockApplication)).thenReturn(List.of(mockAnswer1, mockAnswer2));
 
         // Application Mocking 설정
         when(mockApplication.getId()).thenReturn(100L);
         when(mockApplication.getStatus()).thenReturn(Status.PENDING);
-        when(mockApplication.getUsers()).thenReturn(mockUser);
+        when(mockApplication.getUser()).thenReturn(mockUser);
 
         // Answer 및 Field Mocking 설정
         when(mockAnswer1.getApplicationFormField()).thenReturn(mockField1);
@@ -98,7 +98,7 @@ class ApplicationServiceImplTest {
         assertEquals("답변 1", result.questionsAndAnswers().get(0).answer());
 
         // verify: 메소드가 정확히 1번씩 호출되었는지 검증
-        verify(applicationRepository, times(1)).findByClub_IdAndUsers_Id(clubId, applicantId);
+        verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, applicantId);
         verify(applicationFormAnswerRepository, times(1)).findByApplicationWithFormField(mockApplication);
     }
 
@@ -108,7 +108,7 @@ class ApplicationServiceImplTest {
         // given
         Long clubId = 1L;
         Long nonExistentApplicantId = 999L;
-        when(applicationRepository.findByClub_IdAndUsers_Id(clubId, nonExistentApplicantId)).thenReturn(Optional.empty());
+        when(applicationRepository.findByClub_IdAndUser_Id(clubId, nonExistentApplicantId)).thenReturn(Optional.empty());
 
         // when & then
         ApplicationNotFoundException exception = assertThrows(ApplicationNotFoundException.class, () -> {
@@ -118,7 +118,7 @@ class ApplicationServiceImplTest {
         assertEquals("clubId=1, applicantId=999", exception.getDetail());
 
         // verify
-        verify(applicationRepository, times(1)).findByClub_IdAndUsers_Id(clubId, nonExistentApplicantId);
+        verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, nonExistentApplicantId);
         verify(applicationFormAnswerRepository, never()).findByApplicationWithFormField(any(Application.class));
     }
 }
