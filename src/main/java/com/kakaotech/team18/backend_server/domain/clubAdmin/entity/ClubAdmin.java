@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubAdmin.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -20,16 +19,18 @@ import lombok.NoArgsConstructor;
 public class ClubAdmin extends BaseEntity {
 
     @Id
-    @Column(name = "user_id")
+    @Column(name = "user_id", nullable = false)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @MapsId
-    @JoinColumn(name = "user_id")
-    private Users user;
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
 
+    @Column(name = "login_id", nullable = false,  unique = true)
     private String loginId;
 
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Enumerated(EnumType.STRING)

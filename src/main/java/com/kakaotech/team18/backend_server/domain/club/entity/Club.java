@@ -1,17 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -28,27 +20,25 @@ public class Club extends BaseEntity {
     @Column(name = "club_id")
     private long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "president_id")
-    private Users president;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "president_id", nullable = false)
+    private User president;
 
-    @Column(name = "club_name")
+    @Column(name = "club_name",  nullable = false, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Category category;
 
+    @Column(nullable = false)
     private String location;
 
     private String shortIntroduction;
 
-    private String introductionImage;
-
-    private String introductionIntroduce;
-
-    private String introductionActivity;
-
-    private String introductionWannabe;
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "club_introduction_id")
+    private ClubIntroduction introduction;
 
     private LocalDateTime recruitStart;
 
@@ -58,15 +48,12 @@ public class Club extends BaseEntity {
 
     @Builder
     private Club(
-            Users president,
+            User president,
             String name,
             Category category,
             String location,
             String shortIntroduction,
-            String introductionImage,
-            String introductionIntroduce,
-            String introductionActivity,
-            String introductionWannabe,
+            ClubIntroduction introduction,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
             String regularMeetingInfo) {
@@ -75,10 +62,7 @@ public class Club extends BaseEntity {
         this.category = category;
         this.location = location;
         this.shortIntroduction = shortIntroduction;
-        this.introductionImage = introductionImage;
-        this.introductionIntroduce = introductionIntroduce;
-        this.introductionActivity = introductionActivity;
-        this.introductionWannabe = introductionWannabe;
+        this.introduction = introduction;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
