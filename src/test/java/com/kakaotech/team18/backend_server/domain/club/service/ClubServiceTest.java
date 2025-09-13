@@ -42,7 +42,7 @@ class ClubServiceTest {
     @Test
     void getClubDetail() {
         //given
-        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User user = createUser("김춘식", "ex1", "password1", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
         User savedUser = usersRepository.save(user);
         List<String> images = List.of("ex.image1", "ex.image2", "ex.image3", "ex.image4", "ex.image5", "ex.image6");
 
@@ -73,7 +73,7 @@ class ClubServiceTest {
     void getClubDetailWithWrongClubId() {
         //given
         Long wrongClubId = 0L;
-        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User user = createUser("김춘식", "ex1", "password1", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
         User savedUser = usersRepository.save(user);
 
         Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", List.of("ex.image"),
@@ -88,9 +88,11 @@ class ClubServiceTest {
     }
 
 
-    private User createUser(String name, String email, String department, String studentId, String phoneNumber) {
+    private User createUser(String name, String loginId, String password, String email, String department, String studentId, String phoneNumber) {
         return User.builder()
                 .name(name)
+                .loginId(loginId)
+                .password(password)
                 .email(email)
                 .department(department)
                 .studentId(studentId)
