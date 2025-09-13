@@ -1,0 +1,52 @@
+name: CI on PR (build & test)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # 위에 synchronize가 pr에 commit이 추가될 때마다 돌아간다는 의미인데, job이 동시에 동작하지 않도록 함
+    concurrency:
+      group: ci-${{ github.event.pull_request.head.sha }}
+      # 마지막 커밋 기준으로 작동
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # 캐시를 사용해 이전 Gradle 의존성을 다시 사용하도록 함 (속도 향상을 위함)
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      # 테스트용 yml을 임시 생성(H2)
+      - name: application-test.yml (temp)
+        run: |
+          mkdir -p ./src/main/resources
+          cat > ./src/main/resources/application-test.yml <<'YAML'
+          spring:
+            datasource:
+              url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+              driver-class-name: org.h2.Driver
+              username: sa
+              password:
+            jpa:
+              hibernate.ddl-auto: create
+              properties.hibernate.format_sql: true
+          YAML
+
+      # 테스트 프로필로 빌드/테스트
+      - name: Build & Test
+        run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build
