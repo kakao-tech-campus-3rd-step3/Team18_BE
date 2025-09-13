@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.application.entity;
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,31 +15,34 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Application extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_id")
+    @Column(name = "application_id", nullable = false)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private Users users;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id")
+    @JoinColumn(name = "club_id", nullable = false)
     private Club club;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_id")
+    @JoinColumn(name = "application_form_id", nullable = false)
     private ApplicationForm applicationForm;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    @Column(name = "status",  nullable = false)
+    private Status status = Status.PENDING;
 
 
 }
