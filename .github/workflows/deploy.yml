@@ -1,0 +1,52 @@
+name: Deploy To Ec2 when Merge to Develop Branch
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Github Repository 파일 불러오기
+        uses: actions/checkout@v4
+
+      - name: JDK 21버전 설치
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: application.yml 파일 만들기
+        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+
+      - name: 테스트 및 빌드하기
+        run: ./gradlew clean build
+
+      - name: 빌드된 파일 이름 변경하기
+        run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
+
+      - name: SCP로 EC2에 빌드된 파일 전송하기
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: project.jar
+          target: /home/ec2-user/dongarium-server/tobe
+
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            rm -rf /home/ec2-user/dongarium-server/current
+            mkdir /home/ec2-user/dongarium-server/current
+            mv /home/ec2-user/dongarium-server/tobe/project.jar /home/ec2-user/dongarium-server/current/project.jar
+            cd /home/ec2-user/dongarium-server/current
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -Dspring.profiles.active=prod -jar project.jar > ./output.log 2>&1 &
+            rm -rf /home/ec2-user/dongarium-server/tobe
