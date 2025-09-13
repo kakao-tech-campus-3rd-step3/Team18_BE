@@ -9,7 +9,9 @@ import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

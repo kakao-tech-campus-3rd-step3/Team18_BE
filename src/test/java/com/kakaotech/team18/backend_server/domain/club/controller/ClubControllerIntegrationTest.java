@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.club.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.user.entity.Users;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
 import jakarta.persistence.EntityManager;
-import java.time.LocalDateTime;
 
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.SPORTS;
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.STUDY;
@@ -55,7 +54,7 @@ class ClubControllerIntegrationTest {
         entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER TABLE club ALTER COLUMN club_id RESTART WITH 1").executeUpdate();
 
-        Users user1 = Users.builder()
+        User user1 = User.builder()
                 .name("회장1")
                 .email("president1@test.com")
                 .phoneNumber("010-1234-5678")
@@ -64,7 +63,7 @@ class ClubControllerIntegrationTest {
                 .build();
         usersRepository.save(user1);
 
-        Users user2 = Users.builder()
+        User user2 = User.builder()
                 .name("회장2")
                 .email("president2@test.com")
                 .phoneNumber("010-2222-2222")
