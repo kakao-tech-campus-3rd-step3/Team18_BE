@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity.A
 import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.repository.ApplicationFormAnswerRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
