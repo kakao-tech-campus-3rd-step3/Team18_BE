@@ -113,10 +113,17 @@ class ClubServiceTest {
             String ideal,
             String regularMeetingInfo) {
 
-        ClubIntroduction intro = ClubIntroduction.of(overview, activity, ideal);
+        ClubIntroduction intro = ClubIntroduction.builder()
+                .overview(overview)
+                .activities(activity)
+                .ideal(ideal)
+                .build();
 
         images.forEach(imageUrl -> {
-            ClubImage clubImage = ClubImage.of(imageUrl, intro);
+            ClubImage clubImage = ClubImage.builder()
+                    .imageUrl(imageUrl)
+                    .clubIntroduction(intro)
+                    .build();
             intro.getImages().add(clubImage);
         });
 
