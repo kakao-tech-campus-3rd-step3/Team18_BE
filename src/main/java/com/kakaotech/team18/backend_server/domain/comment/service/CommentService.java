@@ -29,4 +29,11 @@ public interface CommentService {
      */
     CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto, Long userId);
 
+    /**
+     * 특정 댓글을 삭제합니다.
+     *
+     * @param commentId 삭제할 댓글의 ID
+     * @param userId 현재 로그인한 사용자의 ID (권한 검증용)
+     */
+    void deleteComment(Long commentId, Long userId);
 }

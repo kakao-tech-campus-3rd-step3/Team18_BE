@@ -79,6 +79,21 @@ public class CommentServiceImpl implements CommentService {
         return CommentResponseDto.from(comment);
     }
 
+    @Override
+    @Transactional
+    public void deleteComment(Long commentId, Long userId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException("해당 댓글을 찾을 수 없습니다. ID: " + commentId));
+
+        this.validateCommentOwner(comment, userId);
+
+        Long applicationId = comment.getApplication().getId();
+
+        commentRepository.delete(comment);
+
+        this.updateApplicationAverageRating(applicationId);
+    }
+
     private void validateRating(Double rating) {
         if (rating % 0.5 != 0) {
             throw new InvalidRatingUnitException();
