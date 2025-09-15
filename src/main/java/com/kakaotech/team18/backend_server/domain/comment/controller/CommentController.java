@@ -38,4 +38,18 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(newComment);
     }
+
+    @PatchMapping("/{applicationId}/comments/{commentId}")
+    public ResponseEntity<CommentResponseDto> updateComment(
+            @PathVariable("applicationId") Long applicationId,
+            @PathVariable("commentId") Long commentId,
+            @Valid @RequestBody CommentRequestDto commentRequestDto
+    ) {
+        // TODO: Spring Security 적용 후 실제 사용자 ID를 가져와야 함
+        Long currentUserId = 1L; // 임시 사용자 ID
+
+        CommentResponseDto updatedComment = commentService.updateComment(commentId, commentRequestDto, currentUserId);
+
+        return ResponseEntity.ok(updatedComment);
+    }
 }
