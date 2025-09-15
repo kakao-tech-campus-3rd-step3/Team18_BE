@@ -52,4 +52,17 @@ public class CommentController {
 
         return ResponseEntity.ok(updatedComment);
     }
+
+    @DeleteMapping("/{applicationId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable("applicationId") Long applicationId,
+            @PathVariable("commentId") Long commentId
+    ) {
+        // TODO: Spring Security 적용 후 실제 사용자 ID를 가져와야 함
+        Long currentUserId = 1L; // 임시 사용자 ID
+
+        commentService.deleteComment(commentId, currentUserId);
+
+        return ResponseEntity.noContent().build();
+    }
 }
