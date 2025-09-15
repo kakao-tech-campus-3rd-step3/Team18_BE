@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
@@ -14,4 +15,6 @@ public interface ClubService {
     List<ClubListResponseDto> getAllClubs();
 
     ClubDetailResponseDto getClubDetail(Long clubId);
+
+    ClubDashBoardResponseDto getClubDashBoard(Long clubId);
 }
