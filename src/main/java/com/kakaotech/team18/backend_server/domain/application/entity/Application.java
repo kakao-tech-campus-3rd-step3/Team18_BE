@@ -52,13 +52,19 @@ public class Application extends BaseEntity {
     private Applicant applicant;
 
     @Builder
-    protected Application(User user, Club club, ApplicationForm applicationForm, Status status,
-            Applicant applicant) {
+    protected Application(User user, Club club, ApplicationForm applicationForm, Applicant applicant, Status status) {
         this.user = user;
         this.club = club;
         this.applicationForm = applicationForm;
         this.status = status;
+        this.setApplicant(applicant);
+    }
+
+    public void setApplicant(Applicant applicant) {
         this.applicant = applicant;
+        if (applicant.getApplication() != this) {
+            applicant.setApplication(this); // 역방향도 동기화
+        }
     }
 
     /**

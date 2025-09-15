@@ -56,14 +56,22 @@ public class Applicant extends BaseEntity {
             String studentId,
             String phoneNumber,
             String department,
-            Club club,
-            Application application) {
+            Club club
+    ) {
         this.email = email;
         this.name = name;
         this.studentId = studentId;
         this.phoneNumber = phoneNumber;
         this.department = department;
         this.club = club;
-        this.application = application;
     }
+
+    public void setApplication(Application application) {
+        this.application = application;
+        if (application.getApplicant() != this) {
+            application.setApplicant(this);
+        }
+    }
+
+
 }
