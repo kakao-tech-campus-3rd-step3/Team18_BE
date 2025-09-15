@@ -14,12 +14,14 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNo
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,6 +42,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public CommentResponseDto createComment(Long applicationId, CommentRequestDto commentRequestDto, Long userId) {
+        log.info("댓글 생성 시도 - applicationId: {}, userId: {}", applicationId, userId);
         this.validateRating(commentRequestDto.rating());
 
         Application application = applicationRepository.findById(applicationId)
@@ -59,12 +62,14 @@ public class CommentServiceImpl implements CommentService {
 
         this.updateApplicationAverageRating(application.getId());
 
+        log.info("댓글 생성 성공 - commentId: {}", newComment.getId());
         return CommentResponseDto.from(newComment);
     }
 
     @Override
     @Transactional
     public CommentResponseDto updateComment(Long commentId, CommentRequestDto commentRequestDto, Long userId) {
+        log.info("댓글 수정 시도 - commentId: {}, userId: {}", commentId, userId);
         this.validateRating(commentRequestDto.rating());
 
         Comment comment = commentRepository.findById(commentId)
@@ -76,12 +81,14 @@ public class CommentServiceImpl implements CommentService {
 
         this.updateApplicationAverageRating(comment.getApplication().getId());
 
+        log.info("댓글 수정 성공 - commentId: {}", commentId);
         return CommentResponseDto.from(comment);
     }
 
     @Override
     @Transactional
     public void deleteComment(Long commentId, Long userId) {
+        log.info("댓글 삭제 시도 - commentId: {}, userId: {}", commentId, userId);
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException("해당 댓글을 찾을 수 없습니다. ID: " + commentId));
 
@@ -92,6 +99,7 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.delete(comment);
 
         this.updateApplicationAverageRating(applicationId);
+        log.info("댓글 삭제 성공 - commentId: {}", commentId);
     }
 
     private void validateRating(Double rating) {
@@ -102,6 +110,8 @@ public class CommentServiceImpl implements CommentService {
 
     private void validateCommentOwner(Comment comment, Long userId) {
         if (!comment.getUser().getId().equals(userId)) {
+            log.warn("댓글 접근 권한 없음 - commentId: {}, ownerId: {}, requesterId: {}",
+                    comment.getId(), comment.getUser().getId(), userId);
             throw new CommentAccessDeniedException("해당 댓글을 수정/삭제할 권한이 없습니다. 사용자 ID: " + userId);
         }
     }
