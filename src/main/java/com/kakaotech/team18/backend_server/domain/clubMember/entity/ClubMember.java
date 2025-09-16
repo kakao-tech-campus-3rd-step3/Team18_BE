@@ -32,7 +32,8 @@ public class ClubMember extends BaseEntity {
     private ActiveStatus activeStatus;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    Application application;
+    @JoinColumn(name = "application_id")
+    private Application application;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "club_role", nullable = false, length = 20) // 길이는 적당히

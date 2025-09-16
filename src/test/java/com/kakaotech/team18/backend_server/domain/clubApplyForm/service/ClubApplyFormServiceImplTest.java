@@ -51,7 +51,7 @@ class ClubApplyFormServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        clubApplyForm = new ClubApplyForm(100L, mockClub, mockApplication, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
 
         FormQuestion textQuestion = new FormQuestion(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
         FormQuestion radioQuestion = new FormQuestion(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));

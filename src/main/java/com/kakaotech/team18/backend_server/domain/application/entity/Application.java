@@ -36,28 +36,19 @@ public class Application extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id", nullable = false)
-    private Club club;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_id", nullable = false)
+    @JoinColumn(name = "club_apply_form_id", nullable = false)
     private ClubApplyForm clubApplyForm;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_member_id")
-    private ClubMember clubMember;
-
     @Column(nullable = false)
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, Club club, ClubApplyForm clubApplyForm) {
+    private Application(User user, ClubApplyForm clubApplyForm) {
         this.user = user;
-        this.club = club;
         this.clubApplyForm = clubApplyForm;
         this.status = Status.PENDING;
         this.averageRating = 0.0;

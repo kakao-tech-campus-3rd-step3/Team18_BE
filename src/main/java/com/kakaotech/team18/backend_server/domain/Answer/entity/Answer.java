@@ -22,7 +22,7 @@ public class Answer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form_answer_id")
+    @Column(name = "answer_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -30,7 +30,7 @@ public class Answer extends BaseEntity {
     private Application application;
 
     @ManyToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "application_form_field_id", nullable = false)
+    @JoinColumn(name = "form_question_id", nullable = false)
     private FormQuestion formQuestion;
 
     private String answer;

@@ -22,16 +22,12 @@ public class ClubApplyForm extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form_id")
+    @Column(name = "club_apply_form_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "club_id", nullable = false)
     private Club club;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "application_id", nullable = false)
-    private Application application;
 
     @Column(name = "title", nullable = false)
     private String title;
@@ -42,9 +38,8 @@ public class ClubApplyForm extends BaseEntity {
     private boolean isActive;
 
     @Builder
-    public ClubApplyForm(Club club, Application application, String title, String description, boolean isActive) {
+    private ClubApplyForm(Club club, String title, String description, boolean isActive) {
         this.club = club;
-        this.application = application;
         this.title = title;
         this.description = description;
         this.isActive = isActive;
