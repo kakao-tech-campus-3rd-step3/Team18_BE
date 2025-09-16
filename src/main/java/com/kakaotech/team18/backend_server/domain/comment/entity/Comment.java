@@ -3,7 +3,14 @@ package com.kakaotech.team18.backend_server.domain.comment.entity;
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +41,7 @@ public class Comment extends BaseEntity {
     private User user;
 
     @Builder
-    public Comment(String content, Double rating, Application application, User user) {
+    private Comment(String content, Double rating, Application application, User user) {
         this.content = content;
         this.rating = rating;
         this.application = application;
