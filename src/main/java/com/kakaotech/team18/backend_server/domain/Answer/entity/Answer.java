@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.Answer.entity;
+package com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
@@ -18,11 +18,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Answer extends BaseEntity {
+public class ApplicationFormAnswer extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "answer_id")
+    @Column(name = "application_form_answer_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -30,7 +30,7 @@ public class Answer extends BaseEntity {
     private Application application;
 
     @ManyToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "form_question_id", nullable = false)
+    @JoinColumn(name = "application_form_field_id", nullable = false)
     private FormQuestion formQuestion;
 
     private String answer;
