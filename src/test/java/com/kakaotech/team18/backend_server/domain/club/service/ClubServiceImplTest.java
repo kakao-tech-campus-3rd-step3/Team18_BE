@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.kakaotech.team18.backend_server.domain.applicant.repository.ApplicantRepository;
+import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
@@ -28,7 +30,7 @@ import org.mockito.ArgumentMatchers;
 class ClubServiceImplTest {
 
     private ClubRepository clubRepository;
-    private ClubServiceImpl clubService;
+    private ClubService clubService;
 
     private static final ZoneId ZONE = ZoneId.of("Asia/Seoul");
     private static final Instant FIXED_INSTANT = LocalDateTime.of(2025, 1, 1, 0, 0).atZone(ZONE).toInstant();
@@ -36,7 +38,10 @@ class ClubServiceImplTest {
     @BeforeEach
     void setUp() {
         clubRepository = mock(ClubRepository.class);
-        clubService = new ClubServiceImpl(clubRepository);
+        ApplicantRepository applicantRepository = mock(ApplicantRepository.class);
+        ApplicationRepository applicationRepository = mock(ApplicationRepository.class);
+        clubService = new ClubServiceImpl(clubRepository, applicantRepository,
+                applicationRepository);
     }
 
     @Getter

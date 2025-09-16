@@ -11,7 +11,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,15 +35,15 @@ class ClubServiceTest {
     private ClubRepository clubRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
 
     @DisplayName("클럽Id를 통해 클럽 상세 정보를 조회할 수 있다.")
     @Test
     void getClubDetail() {
         //given
-        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
-        User savedUser = usersRepository.save(user);
+        User user = createUser("김춘식", "ex1", "password1", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User savedUser = userRepository.save(user);
         List<String> images = List.of("ex.image1", "ex.image2", "ex.image3", "ex.image4", "ex.image5", "ex.image6");
 
         Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", images,
@@ -73,8 +73,8 @@ class ClubServiceTest {
     void getClubDetailWithWrongClubId() {
         //given
         Long wrongClubId = 0L;
-        User user = createUser("김춘식", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
-        User savedUser = usersRepository.save(user);
+        User user = createUser("김춘식", "ex1", "password1", "ex@gmail.com", "소프트웨어공학과", "123456", "010-1234-5678");
+        User savedUser = userRepository.save(user);
 
         Club club = createClub(savedUser, "카태켐", LITERATURE, "공대7호관 201호", "카카오 부트캠프", List.of("ex.image"),
                 "개발자로 성장할 수 있는 부트캠프입니다.", "총 3단계로 이루어진 코스", "열심열심", "매주 화요일 오후 6시");
@@ -88,9 +88,11 @@ class ClubServiceTest {
     }
 
 
-    private User createUser(String name, String email, String department, String studentId, String phoneNumber) {
+    private User createUser(String name, String loginId, String password, String email, String department, String studentId, String phoneNumber) {
         return User.builder()
                 .name(name)
+                .loginId(loginId)
+                .password(password)
                 .email(email)
                 .department(department)
                 .studentId(studentId)
@@ -111,10 +113,17 @@ class ClubServiceTest {
             String ideal,
             String regularMeetingInfo) {
 
-        ClubIntroduction intro = ClubIntroduction.of(overview, activity, ideal);
+        ClubIntroduction intro = ClubIntroduction.builder()
+                .overview(overview)
+                .activities(activity)
+                .ideal(ideal)
+                .build();
 
         images.forEach(imageUrl -> {
-            ClubImage clubImage = ClubImage.of(imageUrl, intro);
+            ClubImage clubImage = ClubImage.builder()
+                    .imageUrl(imageUrl)
+                    .clubIntroduction(intro)
+                    .build();
             intro.getImages().add(clubImage);
         });
 

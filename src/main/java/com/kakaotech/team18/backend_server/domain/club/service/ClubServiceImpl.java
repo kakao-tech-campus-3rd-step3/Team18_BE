@@ -1,5 +1,12 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import com.kakaotech.team18.backend_server.domain.applicant.dto.ApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.applicant.entity.Applicant;
+import com.kakaotech.team18.backend_server.domain.applicant.repository.ApplicantRepository;
+import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
@@ -9,24 +16,21 @@ import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
+    private final ApplicantRepository applicantRepository;
+    private final ApplicationRepository applicationRepository;
 
-    public ClubServiceImpl(
-            ClubRepository clubRepository
-    ) {
-        this.clubRepository = clubRepository;
-    }
 
     @Override
     public List<ClubListResponseDto> getClubByCategory(Category category) {
@@ -59,6 +63,26 @@ public class ClubServiceImpl implements ClubService {
                 });
         log.info("Successfully found clubDetail: {}", findClub.getName());
         return ClubDetailResponseDto.from(findClub, findClub.getPresident());
+    }
+
+    @Override
+    public ClubDashBoardResponseDto getClubDashBoard(Long clubId) {
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        List<Applicant> applicantList = applicantRepository.findByClubId(clubId);
+        List<Application> pendingApplication = applicationRepository.findByClubIdAndStatus(clubId, Status.PENDING);
+        log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
+        return new ClubDashBoardResponseDto(
+                applicantList.size(),
+                pendingApplication.size(),
+                club.getRecruitStart().toLocalDate().toString(),
+                club.getRecruitEnd().toLocalDate().toString(),
+                applicantList.stream()
+                        .map(ApplicantResponseDto::from)
+                        .toList());
     }
 
     // ---- private helpers ----

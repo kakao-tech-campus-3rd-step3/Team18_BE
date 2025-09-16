@@ -7,6 +7,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.kakaotech.team18.backend_server.domain.applicant.dto.ApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
@@ -89,5 +92,24 @@ class ClubControllerTest {
         mockMvc.perform(get("/api/clubs/{clubId}", clubId))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @DisplayName("동아리 대쉬보드 페이지를 조회한다.")
+    @Test
+    void getClubDashboard_test() throws Exception {
+        //given
+        long clubId = 1L;
+
+        ClubDashBoardResponseDto expected = new ClubDashBoardResponseDto(1, 1, "2025-09-15", "2025-09-20",
+                List.of(new ApplicantResponseDto("춘식", "123456", "철학과", "010-1234-5678", "email.com", Status.PENDING)));
+
+        //when
+        when(clubService.getClubDashBoard(clubId)).thenReturn(expected);
+
+        //then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard", clubId))
+                .andDo(print())
+                .andExpect(status().isOk());
+
     }
 }
