@@ -38,9 +38,6 @@ public class ClubIntroduction extends BaseEntity {
     }
 
     public void addImage(ClubImage image) {
-        if (image.getClubIntroduction() != null) {
-            image.getClubIntroduction().removeImage(image);
-        }
         images.add(image);
         image.setClubIntroductionInternal(this); // 내부 전용 세터
     }
