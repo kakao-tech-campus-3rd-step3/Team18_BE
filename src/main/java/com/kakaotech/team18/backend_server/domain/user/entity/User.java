@@ -41,7 +41,7 @@ public class User extends BaseEntity {
     private String department;
 
     @Builder
-    protected User(String loginId, String password, String email, String name, String studentId,
+    private User(String loginId, String password, String email, String name, String studentId,
             String phoneNumber, String department) {
         this.loginId = loginId;
         this.password = password;
