@@ -1,8 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.applicant.dto.ApplicantResponseDto;
-import com.kakaotech.team18.backend_server.domain.applicant.entity.Applicant;
-import com.kakaotech.team18.backend_server.domain.applicant.repository.ApplicantRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
@@ -13,6 +11,9 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClubServiceImpl implements ClubService {
 
     private final ClubRepository clubRepository;
-    private final ApplicantRepository applicantRepository;
     private final ApplicationRepository applicationRepository;
+    private final ClubMemberRepository clubMemberRepository;
 
 
     @Override
@@ -72,7 +73,7 @@ public class ClubServiceImpl implements ClubService {
                     log.warn("Club not found for id={}", clubId);
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
-        List<Applicant> applicantList = applicantRepository.findByClubId(clubId);
+        List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
         List<Application> pendingApplication = applicationRepository.findByClubIdAndStatus(clubId, Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
         return new ClubDashBoardResponseDto(
