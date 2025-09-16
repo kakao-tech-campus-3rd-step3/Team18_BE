@@ -39,4 +39,13 @@ public class ApplicationForm extends BaseEntity {
 
     @Column(nullable = false)
     private boolean isActive;
+
+    @Builder
+    public ApplicationForm(Club club, Application application, String title, String description, boolean isActive) {
+        this.club = club;
+        this.application = application;
+        this.title = title;
+        this.description = description;
+        this.isActive = isActive;
+    }
 }

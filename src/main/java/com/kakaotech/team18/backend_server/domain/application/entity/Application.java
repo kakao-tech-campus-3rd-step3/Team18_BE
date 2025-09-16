@@ -51,12 +51,16 @@ public class Application extends BaseEntity {
     @JoinColumn(name = "applicant_id", nullable = false)
     private Applicant applicant;
 
+    @Column(nullable = false)
+    private Double averageRating = 0.0;
+
     @Builder
-    protected Application(User user, Club club, ApplicationForm applicationForm, Applicant applicant, Status status) {
+    private Application(User user, Club club, ApplicationForm applicationForm, Applicant applicant) {
         this.user = user;
         this.club = club;
         this.applicationForm = applicationForm;
-        this.status = status;
+        this.status = Status.PENDING;
+        this.averageRating = 0.0;
         this.setApplicant(applicant);
     }
 
@@ -74,5 +78,9 @@ public class Application extends BaseEntity {
      */
     public void updateStatus(Status newStatus) {
         this.status = newStatus;
+    }
+
+    public void updateAverageRating(Double averageRating) {
+        this.averageRating = averageRating;
     }
 }
