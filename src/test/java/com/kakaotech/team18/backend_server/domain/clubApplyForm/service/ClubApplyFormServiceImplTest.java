@@ -4,9 +4,9 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ class ClubApplyFormServiceImplTest {
     private ClubApplyFormRepository clubApplyFormRepository;
 
     @Mock
-    private ApplicationFormFieldRepository applicationFormFieldRepository;
+    private FormQuestionRepository formQuestionRepository;
 
     @InjectMocks
     private ApplicationFormServiceImpl applicationFormServiceImpl;
@@ -47,15 +47,15 @@ class ClubApplyFormServiceImplTest {
     private Application mockApplication;
 
     private ClubApplyForm clubApplyForm;
-    private List<ApplicationFormField> formFields;
+    private List<FormQuestion> formFields;
 
     @BeforeEach
     void setUp() {
         clubApplyForm = new ClubApplyForm(100L, mockClub, mockApplication, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
 
-        ApplicationFormField textQuestion = new ApplicationFormField(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
-        ApplicationFormField radioQuestion = new ApplicationFormField(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
-        ApplicationFormField checkboxQuestion = new ApplicationFormField(3L, mockClubApplyForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
+        FormQuestion textQuestion = new FormQuestion(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
+        FormQuestion radioQuestion = new FormQuestion(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
+        FormQuestion checkboxQuestion = new FormQuestion(3L, mockClubApplyForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
 
         formFields = List.of(textQuestion, radioQuestion, checkboxQuestion);
     }
@@ -77,7 +77,7 @@ class ClubApplyFormServiceImplTest {
 
                 when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(
                         clubApplyForm));
-                when(applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(
+                when(formQuestionRepository.findByApplicationFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId())).thenReturn(formFields);
 
                 //when
@@ -103,7 +103,7 @@ class ClubApplyFormServiceImplTest {
                 assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
                 verify(clubApplyFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
-                verify(applicationFormFieldRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(
+                verify(formQuestionRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId());
             }
 
@@ -115,7 +115,7 @@ class ClubApplyFormServiceImplTest {
 
                 when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
                         .thenReturn(Optional.of(clubApplyForm));
-                when(applicationFormFieldRepository
+                when(formQuestionRepository
                         .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
                         .thenReturn(List.of());
 
@@ -128,7 +128,7 @@ class ClubApplyFormServiceImplTest {
                 assertThat(result.questions()).isEmpty();
 
                 verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
-                verify(applicationFormFieldRepository)
+                verify(formQuestionRepository)
                         .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
             }
         }
@@ -150,7 +150,7 @@ class ClubApplyFormServiceImplTest {
                         .isInstanceOf(ApplicationFormNotFoundException.class);
 
                 verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
-                verifyNoInteractions(applicationFormFieldRepository);
+                verifyNoInteractions(formQuestionRepository);
             }
         }
     }

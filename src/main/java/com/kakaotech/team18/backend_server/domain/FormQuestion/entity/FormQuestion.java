@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.applicationFormField.entity;
+package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
@@ -18,7 +18,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ApplicationFormField extends BaseEntity {
+public class FormQuestion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,19 +1,32 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity.ApplicationFormAnswer;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.repository.ApplicationFormAnswerRepository;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,12 +34,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ApplicationServiceImplTest {
@@ -38,7 +45,7 @@ class ApplicationServiceImplTest {
     private ApplicationRepository applicationRepository;
 
     @Mock
-    private ApplicationFormAnswerRepository applicationFormAnswerRepository;
+    private AnswerRepository answerRepository;
 
     @Test
     @DisplayName("지원서 상세 조회 - 성공")
@@ -66,14 +73,14 @@ class ApplicationServiceImplTest {
         }
 
         Application mockApplication = mock(Application.class);
-        ApplicationFormField mockField1 = mock(ApplicationFormField.class);
-        ApplicationFormField mockField2 = mock(ApplicationFormField.class);
-        ApplicationFormAnswer mockAnswer1 = mock(ApplicationFormAnswer.class);
-        ApplicationFormAnswer mockAnswer2 = mock(ApplicationFormAnswer.class);
+        FormQuestion mockField1 = mock(FormQuestion.class);
+        FormQuestion mockField2 = mock(FormQuestion.class);
+        Answer mockAnswer1 = mock(Answer.class);
+        Answer mockAnswer2 = mock(Answer.class);
 
         // Repository Mocking 설정
         when(applicationRepository.findByClub_IdAndUser_Id(clubId, applicantId)).thenReturn(Optional.of(mockApplication));
-        when(applicationFormAnswerRepository.findByApplicationWithFormField(mockApplication)).thenReturn(List.of(mockAnswer1, mockAnswer2));
+        when(answerRepository.findByApplicationWithFormField(mockApplication)).thenReturn(List.of(mockAnswer1, mockAnswer2));
 
         // Application Mocking 설정
         when(mockApplication.getId()).thenReturn(100L);
@@ -81,11 +88,11 @@ class ApplicationServiceImplTest {
         when(mockApplication.getUser()).thenReturn(mockUser);
 
         // Answer 및 Field Mocking 설정
-        when(mockAnswer1.getApplicationFormField()).thenReturn(mockField1);
+        when(mockAnswer1.getFormQuestionField()).thenReturn(mockField1);
         when(mockField1.getQuestion()).thenReturn("질문 1");
         when(mockAnswer1.getAnswer()).thenReturn("답변 1");
 
-        when(mockAnswer2.getApplicationFormField()).thenReturn(mockField2);
+        when(mockAnswer2.getFormQuestionField()).thenReturn(mockField2);
         when(mockField2.getQuestion()).thenReturn("질문 2");
         when(mockAnswer2.getAnswer()).thenReturn("답변 2");
 
@@ -105,7 +112,7 @@ class ApplicationServiceImplTest {
 
         // verify: 메소드가 정확히 1번씩 호출되었는지 검증
         verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, applicantId);
-        verify(applicationFormAnswerRepository, times(1)).findByApplicationWithFormField(mockApplication);
+        verify(answerRepository, times(1)).findByApplicationWithFormField(mockApplication);
     }
 
     @Test
@@ -125,7 +132,7 @@ class ApplicationServiceImplTest {
 
         // verify
         verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, nonExistentApplicantId);
-        verify(applicationFormAnswerRepository, never()).findByApplicationWithFormField(any(Application.class));
+        verify(answerRepository, never()).findByApplicationWithFormField(any(Application.class));
     }
 
     @Test

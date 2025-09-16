@@ -2,7 +2,7 @@ package com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,7 +31,7 @@ public class ApplicationFormAnswer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY,  optional = false)
     @JoinColumn(name = "application_form_field_id", nullable = false)
-    private ApplicationFormField applicationFormField;
+    private FormQuestion formQuestion;
 
     private String answer;
 }

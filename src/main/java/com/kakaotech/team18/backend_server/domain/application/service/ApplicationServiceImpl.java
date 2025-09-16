@@ -47,7 +47,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<ApplicationFormAnswer> answers = applicationFormAnswerRepository.findByApplicationWithFormField(application);
         List<ApplicationDetailResponseDto.QuestionAndAnswer> questionsAndAnswers = answers.stream()
                 .map(answer -> new ApplicationDetailResponseDto.QuestionAndAnswer(
-                        answer.getApplicationFormField().getQuestion(),
+                        answer.getFormQuestion().getQuestion(),
                         answer.getAnswer()
                 ))
                 .collect(Collectors.toList());
