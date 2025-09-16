@@ -14,7 +14,7 @@ import com.kakaotech.team18.backend_server.domain.applicant.repository.Applicant
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
@@ -55,11 +55,11 @@ public class ClubServiceMockTest {
         Club club = createClub(mockUser, mockIntro);
         ReflectionTestUtils.setField(club, "id", clubId);
         Applicant applicant = createApplicant(club);
-        ApplicationForm mockApplicationForm = mock(ApplicationForm.class);
+        ClubApplyForm mockClubApplyForm = mock(ClubApplyForm.class);
         Application application = Application.builder()
                 .user(mockUser)
                 .club(club)
-                .applicationForm(mockApplicationForm)
+                .applicationForm(mockClubApplyForm)
                 .applicant(applicant)
                 .build();
 
@@ -101,11 +101,11 @@ public class ClubServiceMockTest {
         Club club = createClub(mockUser, mockIntro);
         ReflectionTestUtils.setField(club, "id", clubId);
         Applicant applicant = createApplicant(club);
-        ApplicationForm mockApplicationForm = mock(ApplicationForm.class);
+        ClubApplyForm mockClubApplyForm = mock(ClubApplyForm.class);
         Application application = Application.builder()
                 .user(mockUser)
                 .club(club)
-                .applicationForm(mockApplicationForm)
+                .applicationForm(mockClubApplyForm)
                 .applicant(applicant)
                 .build();
 

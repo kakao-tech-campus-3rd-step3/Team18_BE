@@ -1,9 +1,9 @@
-package com.kakaotech.team18.backend_server.domain.applicationForm.service;
+package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
-import com.kakaotech.team18.backend_server.domain.applicationForm.repository.ApplicationFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.ApplicationFormField;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
@@ -26,10 +26,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class ApplicationFormServiceImplTest {
+class ClubApplyFormServiceImplTest {
 
     @Mock
-    private ApplicationFormRepository applicationFormRepository;
+    private ClubApplyFormRepository clubApplyFormRepository;
 
     @Mock
     private ApplicationFormFieldRepository applicationFormFieldRepository;
@@ -41,21 +41,21 @@ class ApplicationFormServiceImplTest {
     private Club mockClub;
 
     @Mock
-    private ApplicationForm mockApplicationForm;
+    private ClubApplyForm mockClubApplyForm;
 
     @Mock
     private Application mockApplication;
 
-    private ApplicationForm applicationForm;
+    private ClubApplyForm clubApplyForm;
     private List<ApplicationFormField> formFields;
 
     @BeforeEach
     void setUp() {
-        applicationForm = new ApplicationForm(100L, mockClub, mockApplication, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        clubApplyForm = new ClubApplyForm(100L, mockClub, mockApplication, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
 
-        ApplicationFormField textQuestion = new ApplicationFormField(1L, mockApplicationForm, "이름", FieldType.TEXT, true, 1L, null);
-        ApplicationFormField radioQuestion = new ApplicationFormField(2L, mockApplicationForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
-        ApplicationFormField checkboxQuestion = new ApplicationFormField(3L, mockApplicationForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
+        ApplicationFormField textQuestion = new ApplicationFormField(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
+        ApplicationFormField radioQuestion = new ApplicationFormField(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
+        ApplicationFormField checkboxQuestion = new ApplicationFormField(3L, mockClubApplyForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
 
         formFields = List.of(textQuestion, radioQuestion, checkboxQuestion);
     }
@@ -75,8 +75,10 @@ class ApplicationFormServiceImplTest {
                 //given
                 Long clubId = 100L;
 
-                when(applicationFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(applicationForm));
-                when(applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(applicationForm.getId())).thenReturn(formFields);
+                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(
+                        clubApplyForm));
+                when(applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(
+                        clubApplyForm.getId())).thenReturn(formFields);
 
                 //when
                 var result = applicationFormServiceImpl.getQuestionForm(clubId);
@@ -100,8 +102,9 @@ class ApplicationFormServiceImplTest {
                 assertThat(thirdQuestion.question()).isEqualTo("면접가능 요일");
                 assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
-                verify(applicationFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
-                verify(applicationFormFieldRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(applicationForm.getId());
+                verify(clubApplyFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
+                verify(applicationFormFieldRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(
+                        clubApplyForm.getId());
             }
 
             @Test
@@ -110,10 +113,10 @@ class ApplicationFormServiceImplTest {
                 // given
                 Long clubId = 100L;
 
-                when(applicationFormRepository.findByClubIdAndIsActiveTrue(clubId))
-                        .thenReturn(Optional.of(applicationForm));
+                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                        .thenReturn(Optional.of(clubApplyForm));
                 when(applicationFormFieldRepository
-                        .findByApplicationFormIdOrderByDisplayOrderAsc(applicationForm.getId()))
+                        .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
                         .thenReturn(List.of());
 
                 // when
@@ -124,9 +127,9 @@ class ApplicationFormServiceImplTest {
                 assertThat(result.description()).isEqualTo("함께 성장할 팀원을 찾습니다.");
                 assertThat(result.questions()).isEmpty();
 
-                verify(applicationFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
                 verify(applicationFormFieldRepository)
-                        .findByApplicationFormIdOrderByDisplayOrderAsc(applicationForm.getId());
+                        .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
             }
         }
 
@@ -139,14 +142,14 @@ class ApplicationFormServiceImplTest {
             void throwsException() {
                 // given
                 Long clubId = 999L;
-                when(applicationFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
                         .thenReturn(Optional.empty());
 
                 // when & then
                 assertThatThrownBy(() -> applicationFormServiceImpl.getQuestionForm(clubId))
                         .isInstanceOf(ApplicationFormNotFoundException.class);
 
-                verify(applicationFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
                 verifyNoInteractions(applicationFormFieldRepository);
             }
         }

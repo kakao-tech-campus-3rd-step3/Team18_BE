@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.applicationForm.entity;
+package com.kakaotech.team18.backend_server.domain.clubApplyForm.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
@@ -17,7 +17,7 @@ import lombok.*;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ApplicationForm extends BaseEntity {
+public class ClubApplyForm extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +41,7 @@ public class ApplicationForm extends BaseEntity {
     private boolean isActive;
 
     @Builder
-    public ApplicationForm(Club club, Application application, String title, String description, boolean isActive) {
+    public ClubApplyForm(Club club, Application application, String title, String description, boolean isActive) {
         this.club = club;
         this.application = application;
         this.title = title;

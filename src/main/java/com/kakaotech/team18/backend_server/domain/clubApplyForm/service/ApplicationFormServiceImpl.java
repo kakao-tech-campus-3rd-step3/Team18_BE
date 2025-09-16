@@ -1,8 +1,8 @@
-package com.kakaotech.team18.backend_server.domain.applicationForm.service;
+package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
-import com.kakaotech.team18.backend_server.domain.applicationForm.dto.ApplicationFormResponseDto;
-import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
-import com.kakaotech.team18.backend_server.domain.applicationForm.repository.ApplicationFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.dto.ApplicationFormFieldResponseDto;
 import com.kakaotech.team18.backend_server.domain.applicationFormField.repository.ApplicationFormFieldRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
@@ -16,15 +16,15 @@ import java.util.List;
 @Service
 public class ApplicationFormServiceImpl implements ApplicationFormService {
     private final ApplicationFormFieldRepository applicationFormFieldRepository;
-    private final ApplicationFormRepository applicationFormRepository;
+    private final ClubApplyFormRepository clubApplyFormRepository;
 
     @Transactional(readOnly = true)
-    public ApplicationFormResponseDto getQuestionForm(Long clubId){
-        ApplicationForm applicationForm = applicationFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(()->new ApplicationFormNotFoundException(clubId) );
+    public ClubApplyFormResponseDto getQuestionForm(Long clubId){
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(()->new ApplicationFormNotFoundException(clubId) );
 
-        Long formId = applicationForm.getId();
-        String title = applicationForm.getTitle();
-        String description = applicationForm.getDescription();
+        Long formId = clubApplyForm.getId();
+        String title = clubApplyForm.getTitle();
+        String description = clubApplyForm.getDescription();
 
         List<ApplicationFormFieldResponseDto> questions =
                 applicationFormFieldRepository.findByApplicationFormIdOrderByDisplayOrderAsc(formId)
@@ -32,6 +32,6 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
                         .map(ApplicationFormFieldResponseDto::from)
                         .toList();
 
-        return ApplicationFormResponseDto.of(title, description, questions);
+        return ClubApplyFormResponseDto.of(title, description, questions);
     }
 }
