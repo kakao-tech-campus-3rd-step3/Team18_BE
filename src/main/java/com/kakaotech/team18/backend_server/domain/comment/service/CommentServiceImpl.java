@@ -7,7 +7,7 @@ import com.kakaotech.team18.backend_server.domain.comment.dto.CommentResponseDto
 import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNotFoundException;
@@ -29,7 +29,7 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final ApplicationRepository applicationRepository;
-    private final UsersRepository usersRepository;
+    private final UserRepository userRepository;
 
     @Override
     public List<CommentResponseDto> getComments(Long applicationId) {
@@ -48,7 +48,7 @@ public class CommentServiceImpl implements CommentService {
         Application application = applicationRepository.findById(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("해당 지원서를 찾을 수 없습니다. ID: " + applicationId));
 
-        User user = usersRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 사용자를 찾을 수 없습니다. ID: " + userId));
 
         Comment newComment = Comment.builder()

@@ -61,7 +61,6 @@ public class ClubServiceMockTest {
                 .club(club)
                 .applicationForm(mockApplicationForm)
                 .applicant(applicant)
-                .status(Status.PENDING)
                 .build();
 
 
@@ -108,7 +107,6 @@ public class ClubServiceMockTest {
                 .club(club)
                 .applicationForm(mockApplicationForm)
                 .applicant(applicant)
-                .status(Status.PENDING)
                 .build();
 
 

@@ -7,7 +7,7 @@ import com.kakaotech.team18.backend_server.domain.comment.dto.CommentResponseDto
 import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +41,7 @@ class CommentServiceImplTest {
     private ApplicationRepository applicationRepository;
 
     @Mock
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
     @Test
     @DisplayName("댓글 생성 - 성공")
@@ -56,7 +56,7 @@ class CommentServiceImplTest {
 
         when(mockApplication.getId()).thenReturn(applicationId);
         when(applicationRepository.findById(anyLong())).thenReturn(Optional.of(mockApplication));
-        when(usersRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(commentRepository.findByApplicationIdWithUser(applicationId)).thenReturn(Collections.emptyList());
 
         // when
