@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ApplicantRepository extends JpaRepository<Applicant, Long> {
 
-    List<Applicant> findByClubId(long clubId);
+    List<Applicant> findByClubId(Long clubId);
 }

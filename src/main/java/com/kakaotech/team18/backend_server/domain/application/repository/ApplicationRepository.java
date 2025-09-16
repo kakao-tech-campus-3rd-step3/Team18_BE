@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
     Optional<Application> findByClub_IdAndUser_Id(Long clubId, Long userId);
 
-    List<Application> findByClubIdAndStatus(long clubId, Status status);
+    List<Application> findByClubIdAndStatus(Long clubId, Status status);
 }
