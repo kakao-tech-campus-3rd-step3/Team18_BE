@@ -160,6 +160,23 @@ class CommentServiceImplTest {
     }
 
     @Test
+    @DisplayName("댓글 수정 - 실패 (잘못된 별점 단위)")
+    void updateComment_fail_invalidRatingUnit() {
+        // given
+        final Long commentId = 1L;
+        final Long userId = 1L;
+        final CommentRequestDto requestDto = new CommentRequestDto("잘못된 별점 수정", 3.3);
+
+        // when & then
+        assertThrows(InvalidRatingUnitException.class, () -> {
+            commentService.updateComment(commentId, requestDto, userId);
+        });
+
+        verify(commentRepository, never()).findById(anyLong());
+        verify(commentRepository, never()).save(any(Comment.class));
+    }
+
+    @Test
     @DisplayName("댓글 삭제 - 성공")
     void deleteComment_success(CapturedOutput output) {
         // given
