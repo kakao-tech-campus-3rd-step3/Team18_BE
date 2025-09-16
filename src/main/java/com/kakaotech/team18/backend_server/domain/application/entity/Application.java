@@ -1,9 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.application.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.applicant.entity.Applicant;
-import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,34 +41,26 @@ public class Application extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_form_id", nullable = false)
-    private ApplicationForm applicationForm;
+    private ClubApplyForm clubApplyForm;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
-    @OneToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "applicant_id", nullable = false)
-    private Applicant applicant;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "club_member_id")
+    private ClubMember clubMember;
 
     @Column(nullable = false)
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, Club club, ApplicationForm applicationForm, Applicant applicant) {
+    private Application(User user, Club club, ClubApplyForm clubApplyForm) {
         this.user = user;
         this.club = club;
-        this.applicationForm = applicationForm;
+        this.clubApplyForm = clubApplyForm;
         this.status = Status.PENDING;
         this.averageRating = 0.0;
-        this.setApplicant(applicant);
-    }
-
-    public void setApplicant(Applicant applicant) {
-        this.applicant = applicant;
-        if (applicant.getApplication() != this) {
-            applicant.setApplication(this); // 역방향도 동기화
-        }
     }
 
     /**
