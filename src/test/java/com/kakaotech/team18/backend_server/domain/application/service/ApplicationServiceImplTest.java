@@ -88,11 +88,11 @@ class ApplicationServiceImplTest {
         when(mockApplication.getUser()).thenReturn(mockUser);
 
         // Answer 및 Field Mocking 설정
-        when(mockAnswer1.getFormQuestionField()).thenReturn(mockField1);
+        when(mockAnswer1.getFormQuestion()).thenReturn(mockField1);
         when(mockField1.getQuestion()).thenReturn("질문 1");
         when(mockAnswer1.getAnswer()).thenReturn("답변 1");
 
-        when(mockAnswer2.getFormQuestionField()).thenReturn(mockField2);
+        when(mockAnswer2.getFormQuestion()).thenReturn(mockField2);
         when(mockField2.getQuestion()).thenReturn("질문 2");
         when(mockAnswer2.getAnswer()).thenReturn("답변 2");
 

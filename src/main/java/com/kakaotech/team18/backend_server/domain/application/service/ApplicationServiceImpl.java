@@ -4,8 +4,8 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDet
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity.ApplicationFormAnswer;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.repository.ApplicationFormAnswerRepository;
+import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
-    private final ApplicationFormAnswerRepository applicationFormAnswerRepository;
+    private final AnswerRepository answerRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -44,7 +44,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
 
         // 3. 질문 및 답변(QuestionAndAnswer) DTO 리스트 생성
-        List<ApplicationFormAnswer> answers = applicationFormAnswerRepository.findByApplicationWithFormField(application);
+        List<Answer> answers = answerRepository.findByApplicationWithFormField(application);
         List<ApplicationDetailResponseDto.QuestionAndAnswer> questionsAndAnswers = answers.stream()
                 .map(answer -> new ApplicationDetailResponseDto.QuestionAndAnswer(
                         answer.getFormQuestion().getQuestion(),
