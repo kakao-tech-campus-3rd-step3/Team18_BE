@@ -10,6 +10,11 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember.ClubMemberBuilder;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
@@ -37,6 +42,9 @@ class ClubServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ClubMemberRepository clubMemberRepository;
+
 
     @DisplayName("클럽Id를 통해 클럽 상세 정보를 조회할 수 있다.")
     @Test
@@ -50,6 +58,13 @@ class ClubServiceTest {
                 "개발자로 성장할 수 있는 부트캠프입니다.", "총 3단계로 이루어진 코스", "열심열심", "매주 화요일 오후 6시");
 
         Club savedClub = clubRepository.save(club);
+
+        ClubMemberBuilder clubMember = ClubMember.builder()
+                .user(savedUser)
+                .club(savedClub)
+                .activeStatus(ActiveStatus.ACTIVE)
+                .role(Role.CLUB_ADMIN);
+        clubMemberRepository.save(clubMember.build());
 
         //when
         ClubDetailResponseDto response = clubService.getClubDetail(savedClub.getId());
@@ -128,7 +143,6 @@ class ClubServiceTest {
         });
 
         return Club.builder()
-                .president(president)
                 .name(name)
                 .category(category)
                 .location(location)
