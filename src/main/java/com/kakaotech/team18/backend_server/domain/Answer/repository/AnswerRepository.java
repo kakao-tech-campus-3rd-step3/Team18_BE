@@ -10,10 +10,10 @@ import java.util.List;
 
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
     @Query("""
-           SELECT afa 
-           FROM Answer afa 
-           JOIN FETCH afa.applicationFormField 
+           SELECT afa
+           FROM Answer afa
+           JOIN FETCH afa.formQuestion
            WHERE afa.application = :application
            """)
-    List<Answer> findByApplicationWithFormField(@Param("application") Application application);
+    List<Answer> findByApplicationWithFormQuestion(@Param("application") Application application);
 }

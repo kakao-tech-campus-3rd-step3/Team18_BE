@@ -22,11 +22,11 @@ public class FormQuestion extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "application_form_field_id")
+    @Column(name = "form_question_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "application_form_id", nullable = false)
+    @JoinColumn(name = "club_apply_form_id", nullable = false)
     private ClubApplyForm clubApplyForm;
 
     @Column(name = "question", nullable = false)

@@ -9,12 +9,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.kakaotech.team18.backend_server.domain.applicant.repository.ApplicantRepository;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -38,10 +39,10 @@ class ClubServiceImplTest {
     @BeforeEach
     void setUp() {
         clubRepository = mock(ClubRepository.class);
-        ApplicantRepository applicantRepository = mock(ApplicantRepository.class);
+        ClubMemberRepository clubMemberRepository = mock(ClubMemberRepository.class);
         ApplicationRepository applicationRepository = mock(ApplicationRepository.class);
-        clubService = new ClubServiceImpl(clubRepository, applicantRepository,
-                applicationRepository);
+        ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
+        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository);
     }
 
     @Getter

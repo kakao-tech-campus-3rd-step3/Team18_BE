@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface FormQuestionRepository extends JpaRepository<FormQuestion,Long> {
-    List<FormQuestion> findByApplicationFormIdOrderByDisplayOrderAsc(Long applicationFormId);
+    List<FormQuestion> findByClubApplyFormIdOrderByDisplayOrderAsc(Long clubApplyFormId);
 }

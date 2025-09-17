@@ -27,7 +27,7 @@ public class ApplicationFormServiceImpl implements ApplicationFormService {
         String description = clubApplyForm.getDescription();
 
         List<FormQuestionResponseDto> questions =
-                formQuestionRepository.findByApplicationFormIdOrderByDisplayOrderAsc(formId)
+                formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId)
                         .stream()
                         .map(FormQuestionResponseDto::from)
                         .toList();

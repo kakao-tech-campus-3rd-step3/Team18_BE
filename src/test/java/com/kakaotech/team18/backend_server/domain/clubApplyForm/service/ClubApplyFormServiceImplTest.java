@@ -77,7 +77,7 @@ class ClubApplyFormServiceImplTest {
 
                 when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(
                         clubApplyForm));
-                when(formQuestionRepository.findByApplicationFormIdOrderByDisplayOrderAsc(
+                when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId())).thenReturn(formFields);
 
                 //when
@@ -103,7 +103,7 @@ class ClubApplyFormServiceImplTest {
                 assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
                 verify(clubApplyFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
-                verify(formQuestionRepository, times(1)).findByApplicationFormIdOrderByDisplayOrderAsc(
+                verify(formQuestionRepository, times(1)).findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId());
             }
 
@@ -116,7 +116,7 @@ class ClubApplyFormServiceImplTest {
                 when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
                         .thenReturn(Optional.of(clubApplyForm));
                 when(formQuestionRepository
-                        .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
+                        .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
                         .thenReturn(List.of());
 
                 // when
@@ -129,7 +129,7 @@ class ClubApplyFormServiceImplTest {
 
                 verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
                 verify(formQuestionRepository)
-                        .findByApplicationFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
+                        .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
             }
         }
 

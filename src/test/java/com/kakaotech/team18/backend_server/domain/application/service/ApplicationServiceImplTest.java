@@ -79,8 +79,8 @@ class ApplicationServiceImplTest {
         Answer mockAnswer2 = mock(Answer.class);
 
         // Repository Mocking 설정
-        when(applicationRepository.findByClub_IdAndUser_Id(clubId, applicantId)).thenReturn(Optional.of(mockApplication));
-        when(answerRepository.findByApplicationWithFormField(mockApplication)).thenReturn(List.of(mockAnswer1, mockAnswer2));
+        when(applicationRepository.findByClubApplyFormIdAndUserId(clubId, applicantId)).thenReturn(Optional.of(mockApplication));
+        when(answerRepository.findByApplicationWithFormQuestion(mockApplication)).thenReturn(List.of(mockAnswer1, mockAnswer2));
 
         // Application Mocking 설정
         when(mockApplication.getId()).thenReturn(100L);
@@ -111,8 +111,8 @@ class ApplicationServiceImplTest {
         assertEquals("답변 1", result.questionsAndAnswers().get(0).answer());
 
         // verify: 메소드가 정확히 1번씩 호출되었는지 검증
-        verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, applicantId);
-        verify(answerRepository, times(1)).findByApplicationWithFormField(mockApplication);
+        verify(applicationRepository, times(1)).findByClubApplyFormIdAndUserId(clubId, applicantId);
+        verify(answerRepository, times(1)).findByApplicationWithFormQuestion(mockApplication);
     }
 
     @Test
@@ -121,7 +121,7 @@ class ApplicationServiceImplTest {
         // given
         Long clubId = 1L;
         Long nonExistentApplicantId = 999L;
-        when(applicationRepository.findByClub_IdAndUser_Id(clubId, nonExistentApplicantId)).thenReturn(Optional.empty());
+        when(applicationRepository.findByClubApplyFormIdAndUserId(clubId, nonExistentApplicantId)).thenReturn(Optional.empty());
 
         // when & then
         ApplicationNotFoundException exception = assertThrows(ApplicationNotFoundException.class, () -> {
@@ -131,8 +131,8 @@ class ApplicationServiceImplTest {
         assertEquals("clubId=1, applicantId=999", exception.getDetail());
 
         // verify
-        verify(applicationRepository, times(1)).findByClub_IdAndUser_Id(clubId, nonExistentApplicantId);
-        verify(answerRepository, never()).findByApplicationWithFormField(any(Application.class));
+        verify(applicationRepository, times(1)).findByClubApplyFormIdAndUserId(clubId, nonExistentApplicantId);
+        verify(answerRepository, never()).findByApplicationWithFormQuestion(any(Application.class));
     }
 
     @Test

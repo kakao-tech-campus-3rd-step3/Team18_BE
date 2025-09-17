@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,4 +39,14 @@ public class ClubMember extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "club_role", nullable = false, length = 20) // 길이는 적당히
     private Role role;
+
+    @Builder
+    private ClubMember(User user, Club club, ActiveStatus activeStatus, Application application,
+            Role role) {
+        this.user = user;
+        this.club = club;
+        this.activeStatus = activeStatus;
+        this.application = application;
+        this.role = role;
+    }
 }

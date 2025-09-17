@@ -16,6 +16,6 @@ public class FormQuestionServiceImpl implements FormQuestionService {
         @Override
         @Transactional(readOnly = true)
         public List<FormQuestion> getApplicationFormFieldsById(Long applicationFormId) {
-                return formQuestionRepository.findByApplicationFormIdOrderByDisplayOrderAsc(applicationFormId);
+                return formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(applicationFormId);
         }
 }
