@@ -17,7 +17,7 @@ public class ClubApplyFormController {
     private final ApplicationFormService applicationFormService;
 
     @GetMapping("/apply")
-    public ResponseEntity<ClubApplyFormResponseDto> getClubById(
+    public ResponseEntity<ClubApplyFormResponseDto> getClubApplyFormByClubId(
             @PathVariable("clubId") Long clubId
     ) {
         ClubApplyFormResponseDto response = applicationFormService.getQuestionForm(clubId);
