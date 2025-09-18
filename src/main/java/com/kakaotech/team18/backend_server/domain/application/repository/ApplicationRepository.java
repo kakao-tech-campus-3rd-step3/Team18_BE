@@ -9,13 +9,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    Optional<Application> findByClub_IdAndUser_Id(Long clubId, Long userId);
+    Optional<Application> findByClubApplyFormIdAndUserId(Long clubApplyFormId, Long userId);
 
     @Query("""
             select app
             from Application app
-            join fetch app.club
-            where app.club.id = :clubId and app.status = :status
+            join fetch app.clubApplyForm
+            where app.clubApplyForm.id = :clubApplyFormId and app.status = :status
             """)
-    List<Application> findByClubIdAndStatus(Long clubId, Status status);
+    List<Application> findByClubApplyFormIdAndStatus(Long clubApplyFormId, Status status);
 }

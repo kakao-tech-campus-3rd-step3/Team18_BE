@@ -4,11 +4,14 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDet
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.entity.ApplicationFormAnswer;
-import com.kakaotech.team18.backend_server.domain.applicationFormAnswer.repository.ApplicationFormAnswerRepository;
+import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,12 +27,19 @@ import java.util.stream.Collectors;
 public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
-    private final ApplicationFormAnswerRepository applicationFormAnswerRepository;
+    private final AnswerRepository answerRepository;
+    private final ClubApplyFormRepository clubApplyFormRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
         // 1. clubId와 applicantId로 지원서 조회 (없으면 ApplicationNotFoundException 예외 발생)
-        Application application = applicationRepository.findByClub_IdAndUser_Id(clubId, applicantId)
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                            log.warn("ClubApplyForm not found, clubId={}", clubId);
+                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                        }
+                );
+        Application application = applicationRepository.findByClubApplyFormIdAndUserId(clubApplyForm.getId(), applicantId)
                 .orElseThrow(() -> new ApplicationNotFoundException("clubId=" + clubId + ", applicantId=" + applicantId));
 
         // 2. 지원자 정보(ApplicantInfo) DTO 생성
@@ -44,10 +54,10 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
 
         // 3. 질문 및 답변(QuestionAndAnswer) DTO 리스트 생성
-        List<ApplicationFormAnswer> answers = applicationFormAnswerRepository.findByApplicationWithFormField(application);
+        List<Answer> answers = answerRepository.findByApplicationWithFormQuestion(application);
         List<ApplicationDetailResponseDto.QuestionAndAnswer> questionsAndAnswers = answers.stream()
                 .map(answer -> new ApplicationDetailResponseDto.QuestionAndAnswer(
-                        answer.getApplicationFormField().getQuestion(),
+                        answer.getFormQuestion().getQuestion(),
                         answer.getAnswer()
                 ))
                 .collect(Collectors.toList());

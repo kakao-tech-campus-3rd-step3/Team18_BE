@@ -1,8 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.dto;
 
 
-import com.kakaotech.team18.backend_server.domain.applicant.dto.ApplicantResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import java.util.List;
 
 public record ClubDashBoardResponseDto(

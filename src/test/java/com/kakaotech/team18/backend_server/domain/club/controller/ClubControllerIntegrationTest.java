@@ -77,7 +77,6 @@ class ClubControllerIntegrationTest {
         userRepository.save(user2);
 
         Club club1 = Club.builder()
-                .president(user1)
                 .name("동아리1")
                 .category(STUDY)
                 .shortIntroduction("짧은 소개1")
@@ -85,7 +84,6 @@ class ClubControllerIntegrationTest {
                 .build();
 
         Club club2 = Club.builder()
-                .president(user2)
                 .name("동아리2")
                 .category(SPORTS)
                 .shortIntroduction("짧은 소개2")

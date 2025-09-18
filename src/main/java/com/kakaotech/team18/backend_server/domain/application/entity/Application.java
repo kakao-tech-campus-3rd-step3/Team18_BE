@@ -1,9 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.applicant.entity.Applicant;
-import com.kakaotech.team18.backend_server.domain.applicationForm.entity.ApplicationForm;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +13,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,39 +33,22 @@ public class Application extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "club_id", nullable = false)
-    private Club club;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "application_form_id", nullable = false)
-    private ApplicationForm applicationForm;
+    @JoinColumn(name = "club_apply_form_id", nullable = false)
+    private ClubApplyForm clubApplyForm;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
-    @OneToOne(fetch = FetchType.LAZY,  optional = false)
-    @JoinColumn(name = "applicant_id", nullable = false)
-    private Applicant applicant;
-
     @Column(nullable = false)
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, Club club, ApplicationForm applicationForm, Applicant applicant) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status) {
         this.user = user;
-        this.club = club;
-        this.applicationForm = applicationForm;
-        this.status = Status.PENDING;
+        this.clubApplyForm = clubApplyForm;
+        this.status = status;
         this.averageRating = 0.0;
-        this.setApplicant(applicant);
-    }
-
-    public void setApplicant(Applicant applicant) {
-        this.applicant = applicant;
-        if (applicant.getApplication() != this) {
-            applicant.setApplication(this); // 역방향도 동기화
-        }
     }
 
     /**

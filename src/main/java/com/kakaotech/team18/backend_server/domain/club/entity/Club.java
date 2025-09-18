@@ -20,10 +20,6 @@ public class Club extends BaseEntity {
     @Column(name = "club_id")
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "president_id", nullable = false)
-    private User president;
-
     @Column(name = "club_name",  nullable = false, unique = true)
     private String name;
 
@@ -48,7 +44,6 @@ public class Club extends BaseEntity {
 
     @Builder
     private Club(
-            User president,
             String name,
             Category category,
             String location,
@@ -57,7 +52,6 @@ public class Club extends BaseEntity {
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
             String regularMeetingInfo) {
-        this.president = president;
         this.name = name;
         this.category = category;
         this.location = location;
