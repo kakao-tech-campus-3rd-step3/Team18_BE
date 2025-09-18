@@ -44,10 +44,10 @@ public class Application extends BaseEntity {
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, ClubApplyForm clubApplyForm) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
-        this.status = Status.PENDING;
+        this.status = status;
         this.averageRating = 0.0;
     }
 
