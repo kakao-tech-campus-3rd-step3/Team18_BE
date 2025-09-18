@@ -61,21 +61,4 @@ public class Club extends BaseEntity {
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
     }
-
-    public String getRecruitStatus(LocalDateTime start, LocalDateTime end) {
-        LocalDateTime today = LocalDateTime.now();
-
-        if (start == null || end == null) {
-            return "모집 일정 미정";
-        }
-
-        if (today.isBefore(start)) {
-            return "모집 준비중";
-        } else if (!today.isBefore(end)) {
-            return "모집 종료";
-        } else {
-            return "모집중";
-        }
-    }
-
 }

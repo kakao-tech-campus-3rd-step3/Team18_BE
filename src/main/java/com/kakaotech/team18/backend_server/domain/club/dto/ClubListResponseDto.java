@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 
 public record ClubListResponseDto(
         Long id,
@@ -16,7 +17,7 @@ public record ClubListResponseDto(
                 club.getName(),
                 club.getCategory(),
                 club.getShortIntroduction(),
-                club.getRecruitStatus(club.getRecruitStart(), club.getRecruitEnd())
+                RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd())
         );
     }
 

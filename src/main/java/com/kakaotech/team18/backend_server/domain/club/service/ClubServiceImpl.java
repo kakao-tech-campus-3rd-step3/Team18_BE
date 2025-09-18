@@ -12,6 +12,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
@@ -104,25 +105,8 @@ public class ClubServiceImpl implements ClubService {
     // ---- private helpers ----
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
-                .map(s -> ClubListResponseDto.from(
-                        s,
-                        calculateRecruitStatus(s.getRecruitStart(), s.getRecruitEnd())
-                ))
+                .map(s -> ClubListResponseDto.from(s,
+                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd())))
                 .toList();
-    }
-
-    private String calculateRecruitStatus(LocalDateTime start, LocalDateTime end) {
-        LocalDateTime today = LocalDateTime.now();
-
-        if (start == null || end == null) {
-            return "모집 일정 미정";
-        }
-        if (today.isBefore(start)) {
-            return "모집 준비중";
-        }
-        if (!today.isBefore(end)) {
-            return "모집 종료";
-        }
-        return "모집중";
     }
 }
