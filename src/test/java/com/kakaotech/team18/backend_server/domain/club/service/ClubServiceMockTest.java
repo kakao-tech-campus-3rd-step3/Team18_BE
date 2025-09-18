@@ -63,7 +63,7 @@ public class ClubServiceMockTest {
         Long clubId = 1L;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
         ReflectionTestUtils.setField(club, "id", 1L);
-        User user = createUser(club);
+        User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
@@ -100,7 +100,7 @@ public class ClubServiceMockTest {
         Long clubId = 1L;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
         ReflectionTestUtils.setField(club, "id", 1L);
-        User user = createUser(club);
+        User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
@@ -136,7 +136,7 @@ public class ClubServiceMockTest {
         Long missingId = 0L;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
         ReflectionTestUtils.setField(club, "id", 1L);
-        User user = createUser(club);
+        User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
@@ -167,7 +167,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(image, "id", 1L);
         Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
         ReflectionTestUtils.setField(club, "id", 1L);
-        User user = createUser(club);
+        User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -223,7 +223,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(image, "id", 1L);
         Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
         ReflectionTestUtils.setField(club, "id", 1L);
-        User user = createUser(club);
+        User user = createUser( "loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -237,8 +237,43 @@ public class ClubServiceMockTest {
 
         //then
         verifyNoInteractions(clubMemberRepository);
+    }
 
 
+    @DisplayName("지원 상태에 따라 지원자를 다르게 조회할 수 있다.")
+    @Test
+    void viewApplicantsByFilter() {
+        //given
+        Long clubId = 1L;
+        Status status = Status.PENDING;
+        Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", 1L);
+        User user1 = createUser( "loginId1", "111111");
+        ReflectionTestUtils.setField(user1, "id", 1L);
+        User user2 = createUser( "loginId2", "222222");
+        ReflectionTestUtils.setField(user2, "id", 1L);
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+        ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
+
+        ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ReflectionTestUtils.setField(clubMember1, "id", 1L);
+        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ReflectionTestUtils.setField(clubMember2, "id", 2L);
+
+        // club -> clubMember -> user -> application
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(clubId), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of(clubMember1, clubMember2));
+
+        List<ApplicantResponseDto> expect = List.of(
+                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
+                        Status.PENDING),
+                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
+                        Status.PENDING));
+
+        //when
+        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, status);
+
+        //then
+        assertThat(actual).isEqualTo(expect);
     }
 
     private static ClubImage createClubImage(ClubIntroduction clubIntroduction) {
@@ -256,22 +291,20 @@ public class ClubServiceMockTest {
     }
 
 
-    private static User createUser(Club club) {
+    private static User createUser(String loginId, String studentId) {
         return User.builder()
-                .loginId("loginId")
+                .loginId(loginId)
                 .password("password")
                 .name("김춘식")
                 .email("123@email.com")
-                .studentId("123456")
+                .studentId(studentId)
                 .phoneNumber("010-1234-5678")
                 .department("철학과")
                 .build();
     }
 
 
-    private Club createClub(
-            ClubIntroduction clubIntroduction, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
-
+    private Club createClub(ClubIntroduction clubIntroduction, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
         return Club.builder()
                 .name("카태켐")
                 .category(Category.LITERATURE)
@@ -292,8 +325,7 @@ public class ClubServiceMockTest {
                 .build();
     }
 
-    private static ClubMember createClubMember(User user, Club club, Application application,
-            Role role, ActiveStatus active) {
+    private static ClubMember createClubMember(User user, Club club, Application application, Role role, ActiveStatus active) {
         return ClubMember.builder()
                 .user(user)
                 .club(club)

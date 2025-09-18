@@ -102,6 +102,11 @@ public class ClubServiceImpl implements ClubService {
                         .toList());
     }
 
+    public List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status) {
+        return null;
+    }
+
+
     // ---- private helpers ----
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
