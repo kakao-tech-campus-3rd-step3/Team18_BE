@@ -53,8 +53,7 @@ public class ClubController{
     public ResponseEntity<List<ApplicantResponseDto>> getClubApplicants(
             @PathVariable Long clubId,
             @RequestParam(required = false) String status) {
-        List<ApplicantResponseDto> response = clubService.getApplicantsByStatus(clubId,
-                Status.valueOf(status));
+        List<ApplicantResponseDto> response = clubService.getApplicantsByStatus(clubId, Status.fromText(status));
         return ResponseEntity.ok(response);
     }
 }

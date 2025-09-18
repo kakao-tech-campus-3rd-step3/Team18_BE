@@ -27,6 +27,7 @@ public enum ErrorCode {
     // 400 BAD_REQUEST: 잘못된 요청
     INVALID_INPUT_VALUE("입력 값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_RATING_UNIT("별점은 0.5 단위로만 입력 가능합니다.", HttpStatus.BAD_REQUEST),
+    STATUS_NOT_FOUND("해당 상태를 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // 403 FORBIDDEN: 권한 없음
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
