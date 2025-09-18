@@ -1,0 +1,17 @@
+package com.kakaotech.team18.backend_server.domain.club.service;
+
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.entity.Category;
+import java.util.List;
+
+public interface ClubService {
+
+    List<ClubListResponseDto> getClubByCategory(Category category);
+
+    List<ClubListResponseDto> getClubByName(String name);
+
+    List<ClubListResponseDto> getAllClubs();
+
+    ClubDetailResponseDto getClubDetail(Long clubId);
+}

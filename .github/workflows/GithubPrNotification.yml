@@ -1,0 +1,35 @@
+name: Pull Request Discord Notification
+
+on:
+  pull_request:
+    types: [opened, closed]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification on PR event
+        if: github.event.action == 'opened' 
+        uses: appleboy/discord-action@master
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+          username : "GitHub BE PR 알림봇"
+          message: |
+            **새로운 Pull Request가 생성되었습니다!** - **저장소:** `${{ github.repository }}`
+            - **제목:** `${{ github.event.pull_request.title }}`
+            - **작성자:** `${{ github.event.pull_request.user.login }}`
+            - **링크:** ${{ github.event.pull_request.html_url }}
+        
+      - name: Notify when PR merged 
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true 
+        uses: appleboy/discord-action@master 
+        with: 
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }} 
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }} 
+          username: "GitHub BE PR 알림봇" 
+          message: | 
+            **Pull Request가 Merge되었습니다!** - **저장소:** `${{ github.repository }}`
+            **제목:** `${{ github.event.pull_request.title }}` 
+            **머지한 사람:** `${{ github.event.pull_request.merged_by.login }}`
+            **링크:** ${{ github.event.pull_request.html_url }}

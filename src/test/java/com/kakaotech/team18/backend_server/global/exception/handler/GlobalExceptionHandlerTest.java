@@ -1,10 +1,5 @@
 package com.kakaotech.team18.backend_server.global.exception.handler;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
@@ -29,12 +24,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @WebMvcTest(
-        excludeAutoConfiguration = {
-                SecurityAutoConfiguration.class,
-                HibernateJpaAutoConfiguration.class,
-                JpaRepositoriesAutoConfiguration.class
-        }
+        controllers = GlobalExceptionHandler.class,
+    excludeAutoConfiguration = {
+        SecurityAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+        JpaRepositoriesAutoConfiguration.class
+    }
 )
 @Import({GlobalExceptionHandler.class, GlobalExceptionHandlerTest.TestController.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -97,9 +98,9 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
-                .andExpect(jsonPath("$.detail").doesNotExist());
+                .andExpect(jsonPath("$.detail").doesNotExist()); // detail이 null 인지 확인
     }
 
     @Test
@@ -116,7 +117,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").value(detail));
     }
@@ -137,7 +138,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").value("name: 이름은 비워둘 수 없습니다."));
     }
@@ -155,7 +156,7 @@ class GlobalExceptionHandlerTest {
 
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
-                .andExpect(jsonPath("$.errorCode").value(errorCode.getCode()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
     }
 }
