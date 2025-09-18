@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -31,9 +31,13 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFo
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.MockedStatic;
 import org.mockito.Mock;
@@ -213,20 +217,14 @@ public class ClubServiceMockTest {
     @Test
     void getClubDetailWithWrongClubId() {
         //given
-        Long clubId = 1L;
         Long missingId = 0L;
 
         ClubIntroduction clubIntroduction = createClubIntroduction();
-        ReflectionTestUtils.setField(clubIntroduction, "id", 1L);
         ClubImage image = createClubImage(clubIntroduction);
         clubIntroduction.addImage(image);
-        ReflectionTestUtils.setField(image, "id", 1L);
         Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
-        ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser( "loginId", "123456");
-        ReflectionTestUtils.setField(user, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
-        ReflectionTestUtils.setField(clubMember, "id", 1L);
 
         given(clubRepository.findById(eq(missingId))).willReturn(Optional.empty());
 
@@ -240,41 +238,85 @@ public class ClubServiceMockTest {
     }
 
 
-    @DisplayName("지원 상태에 따라 지원자를 다르게 조회할 수 있다.")
+    @DisplayName("지원자의 지원 상태에 따라 지원자를 필터링해 조회할 수 있다.")
+    @ParameterizedTest
+    @MethodSource("provideStatusAndClubMembers")
+    void viewApplicantsByFilter(Status status, List<ClubMember> mockResult, int expectedSize) {
+        // given
+        Long clubId = 1L;
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(
+                eq(clubId), eq(Role.APPLICANT), eq(status)))
+                .willReturn(mockResult);
+
+        // when
+        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, status);
+
+        // then
+        assertThat(actual).hasSize(expectedSize);
+        assertThat(actual).allMatch(dto -> dto.status().equals(status));
+    }
+
+    private static Stream<Arguments> provideStatusAndClubMembers() {
+        Club club = createClub(mock(ClubIntroduction.class),
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59));
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+
+        User user1 = createUser("loginId1", "111111");
+        User user2 = createUser("loginId2", "222222");
+        User user3 = createUser("loginId3", "333333");
+
+        ClubMember clubMember1 = createClubMember(user1, club,
+                createApplication(user1, clubApplyForm, Status.PENDING),
+                Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember2 = createClubMember(user2, club,
+                createApplication(user2, clubApplyForm, Status.PENDING),
+                Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember3 = createClubMember(user3, club,
+                createApplication(user3, clubApplyForm, Status.REJECTED),
+                Role.APPLICANT, ActiveStatus.ACTIVE);
+
+        return Stream.of(
+                Arguments.of(Status.PENDING, List.of(clubMember1, clubMember2), 2),
+                Arguments.of(Status.REJECTED, List.of(clubMember3), 1),
+                Arguments.of(Status.APPROVED, List.of(), 0)
+        );
+    }
+
+    @DisplayName("지원자들을 조회할 때 필터링 값인 status를 주지 않으면 전체 지원자가 조회된다.")
     @Test
-    void viewApplicantsByFilter() {
+    void viewApplicantsByNoFilter() {
         //given
         Long clubId = 1L;
-        Status status = Status.PENDING;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
-        ReflectionTestUtils.setField(club, "id", 1L);
         User user1 = createUser( "loginId1", "111111");
-        ReflectionTestUtils.setField(user1, "id", 1L);
         User user2 = createUser( "loginId2", "222222");
-        ReflectionTestUtils.setField(user2, "id", 1L);
+        User user3 = createUser( "loginId3", "333333");
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
-        ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
 
         ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ReflectionTestUtils.setField(clubMember1, "id", 1L);
-        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ReflectionTestUtils.setField(clubMember2, "id", 2L);
+        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED), Role.APPLICANT, ActiveStatus.ACTIVE);
 
         // club -> clubMember -> user -> application
-        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(clubId), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of(clubMember1, clubMember2));
+        given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember1, clubMember2, clubMember3));
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
                         Status.PENDING),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING));
+                        Status.APPROVED),
+                new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
+                        Status.REJECTED)
+        );
 
         //when
-        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, status);
+        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, null);
 
         //then
         assertThat(actual).isEqualTo(expect);
     }
+
 
     private static ClubImage createClubImage(ClubIntroduction clubIntroduction) {
         return ClubImage.builder()
@@ -304,7 +346,8 @@ public class ClubServiceMockTest {
     }
 
 
-    private Club createClub(ClubIntroduction clubIntroduction, LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+    private static Club createClub(ClubIntroduction clubIntroduction, LocalDateTime recruitStart,
+            LocalDateTime recruitEnd) {
         return Club.builder()
                 .name("카태켐")
                 .category(Category.LITERATURE)
