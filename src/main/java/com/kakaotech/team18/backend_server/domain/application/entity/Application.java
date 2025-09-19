@@ -51,6 +51,13 @@ public class Application extends BaseEntity {
         this.averageRating = 0.0;
     }
 
+    public Application(User user, ClubApplyForm form) {
+        this.user = user;
+        this.clubApplyForm = form;
+        this.averageRating = 0.0;
+    }
+
+
     /**
      * 지원서의 상태를 변경합니다.
      * 이 메소드는 서비스 계층에서 트랜잭션 내에서 호출되어야 합니다.
