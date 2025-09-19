@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
