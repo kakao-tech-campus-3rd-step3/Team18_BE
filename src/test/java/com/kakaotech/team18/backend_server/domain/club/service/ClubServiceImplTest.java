@@ -70,7 +70,7 @@ class ClubServiceImplTest {
             var prepare = new TestClubSummary(2L, "B", Category.SPORTS, "si",now.plusDays(10),now.plusDays(20));//준비중
             var open = new TestClubSummary(3L, "C", Category.SPORTS, "si",now.minusDays(10),now.plusDays(10));//모집중
             var closed = new TestClubSummary(4L, "D", Category.SPORTS, "si",now.minusDays(30),now.minusDays(1));//종료
-            when(clubRepository.findAllSummaries()).thenReturn(List.of(undecided, prepare, open, closed));
+            when(clubRepository.findAllProjectedBy()).thenReturn(List.of(undecided, prepare, open, closed));
 
             //when
             List<ClubListResponseDto> result = clubService.getAllClubs();
@@ -82,7 +82,7 @@ class ClubServiceImplTest {
             assertThat(result.get(2).recruitStatus()).isEqualTo("모집중");
             assertThat(result.get(3).recruitStatus()).isEqualTo("모집 종료");
 
-            verify(clubRepository, times(1)).findAllSummaries();
+            verify(clubRepository, times(1)).findAllProjectedBy();
             verifyNoMoreInteractions(clubRepository);
         }
     }
@@ -94,12 +94,12 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("category == null 이면 전체 요약을 조회한다")
         void nullCategoryUsesAll() {
-            when(clubRepository.findAllSummaries()).thenReturn(List.of());
+            when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
             List<ClubListResponseDto> result = clubService.getClubByCategory(null);
 
             assertThat(result).isEmpty();
-            verify(clubRepository, times(1)).findAllSummaries();
+            verify(clubRepository, times(1)).findAllProjectedBy();
             verify(clubRepository, never()).findSummariesByCategory(ArgumentMatchers.any());
         }
 
@@ -116,7 +116,7 @@ class ClubServiceImplTest {
             assertThat(result.getFirst().name()).isEqualTo("Run Club");
 
             verify(clubRepository, times(1)).findSummariesByCategory(Category.SPORTS);
-            verify(clubRepository, never()).findAllSummaries();
+            verify(clubRepository, never()).findAllProjectedBy();
         }
     }
 
@@ -127,13 +127,13 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("name 이 null/blank 이면 전체 요약을 조회한다")
         void blankUsesAll() {
-            when(clubRepository.findAllSummaries()).thenReturn(List.of());
+            when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
             assertThat(clubService.getClubByName(null)).isEmpty();
             assertThat(clubService.getClubByName("")).isEmpty();
             assertThat(clubService.getClubByName("   ")).isEmpty();
 
-            verify(clubRepository, times(3)).findAllSummaries(); // 세 번 호출
+            verify(clubRepository, times(3)).findAllProjectedBy(); // 세 번 호출
             verify(clubRepository, never()).findSummariesByNameContaining(anyString());
         }
 
@@ -149,7 +149,7 @@ class ClubServiceImplTest {
             assertThat(result.getFirst().name()).isEqualTo("InterX");
 
             verify(clubRepository, times(1)).findSummariesByNameContaining("Inter");
-            verify(clubRepository, never()).findAllSummaries();
+            verify(clubRepository, never()).findAllProjectedBy();
         }
     }
 }

@@ -42,7 +42,7 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public List<ClubListResponseDto> getClubByCategory(Category category) {
         if (category == null) {
-            return mapToResponse(clubRepository.findAllSummaries());
+            return mapToResponse(clubRepository.findAllProjectedBy());
         }
         return mapToResponse(clubRepository.findSummariesByCategory(category));
     }
@@ -50,14 +50,14 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public List<ClubListResponseDto> getClubByName(String name) {
         if (name == null || name.isBlank()) {
-            return mapToResponse(clubRepository.findAllSummaries());
+            return mapToResponse(clubRepository.findAllProjectedBy());
         }
         return mapToResponse(clubRepository.findSummariesByNameContaining(name));
     }
 
     @Override
     public List<ClubListResponseDto> getAllClubs() {
-        return mapToResponse(clubRepository.findAllSummaries());
+        return mapToResponse(clubRepository.findAllProjectedBy());
     }
 
     @Override
