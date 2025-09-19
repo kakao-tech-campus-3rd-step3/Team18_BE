@@ -3,10 +3,12 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.Builder;
@@ -30,20 +32,21 @@ public record ClubDetailResponseDto(
         ) {
 
         public static ClubDetailResponseDto from(Club club, User user) {
-                var intro = club.getIntroduction();
-                var images = intro.getImages();
+                Optional<ClubIntroduction> clubIntroduction = Optional.ofNullable(club.getIntroduction());
 
                 return ClubDetailResponseDto.builder().
                         clubName(club.getName()).
                         location(club.getLocation()).
                         category(club.getCategory()).
                         shortIntroduction(club.getShortIntroduction()).
-                        introductionImages(images.stream()
-                                .map(ClubImage::getImageUrl)
-                                .collect(Collectors.toList())).
-                        introductionOverview(intro.getOverview()).
-                        introductionActivity(intro.getActivities()).
-                        introductionIdeal(intro.getIdeal()).
+                        introductionImages(clubIntroduction.map(ClubIntroduction::getImages)
+                                .map(images -> images.stream()
+                                        .map(ClubImage::getImageUrl)
+                                        .collect(Collectors.toList()))
+                                .orElse(List.of())).
+                        introductionOverview(clubIntroduction.map(ClubIntroduction::getOverview).orElse("")).
+                        introductionActivity(clubIntroduction.map(ClubIntroduction::getActivities).orElse("")).
+                        introductionIdeal(clubIntroduction.map(ClubIntroduction::getIdeal).orElse("")).
                         regularMeetingInfo(club.getRegularMeetingInfo()).
                         recruitStatus(RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd())).
                         presidentName(user.getName()).
