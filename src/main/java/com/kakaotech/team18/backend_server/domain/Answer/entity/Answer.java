@@ -34,4 +34,14 @@ public class Answer extends BaseEntity {
     private FormQuestion formQuestion;
 
     private String answer;
+
+    private Answer(Application application, FormQuestion formQuestion, String answer) {
+        this.application = application;
+        this.formQuestion = formQuestion;
+        this.answer = answer;
+    }
+
+    public static Answer of(Application application, FormQuestion formQuestion, String answer) {
+        return new Answer(application, formQuestion, answer);
+    }
 }

@@ -1,5 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
@@ -9,7 +13,9 @@ import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerReposi
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -29,6 +38,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationRepository applicationRepository;
     private final AnswerRepository answerRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
+    private final FormQuestionRepository formQuestionRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -90,4 +101,161 @@ public class ApplicationServiceImpl implements ApplicationService {
         // 3. 성공 응답 DTO 반환
         return new SuccessResponseDto(true);
     }
+
+    @Override
+    public ApplicationApplyResponseDto submitApplication(
+            Long clubId,
+            ApplicationApplyRequestDto request,
+            boolean confirmOverwrite
+    ) {
+
+        //1. applicationForm 찾기
+        ClubApplyForm form = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+                .orElseThrow(() -> new ApplicationFormNotFoundException(clubId));
+
+        //2. 유저 정보생성(없으면 생성)
+        User user = userRepository.findByStudentId(request.studentId())
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .studentId(request.studentId())
+                            .email(request.email())
+                            .name(request.name())
+                            .phoneNumber(request.phoneNumber())
+                            .department(request.department())
+                            .build();
+                    return userRepository.save(newUser);
+                });
+
+        //3. (폼+학번)으로 지원내역이 있는지 찾기
+        Optional<Application> existingApplicationOptional = applicationRepository.findByUserAndClubApplyForm(request.studentId(), form);
+
+        //3.1 제출내역이 있고
+        if (existingApplicationOptional.isPresent()) {
+            Application existingApplication = existingApplicationOptional.get();
+
+            //3.1.1 덮어쓰기가 false
+            if (!confirmOverwrite) {
+                return new ApplicationApplyResponseDto(
+                        existingApplication.getUser().getStudentId(),
+                        existingApplication.getLastModifiedAt(),
+                        true
+                );
+            }
+
+            //3.1.2 넢어쓰기가 true
+            return updateApplication(existingApplication, request);
+        } else {
+            //3.2 제출내역이 없는경우
+            return createApplication(user, form, request);
+        }
+    }
+
+    private ApplicationApplyResponseDto updateApplication(
+            Application application,
+            ApplicationApplyRequestDto request
+    ) {
+
+        answerRepository.deleteByApplication(application);
+
+        List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answerList());
+        emailService.sendApplication(application, emailLines);
+
+        return new ApplicationApplyResponseDto(
+                application.getUser().getStudentId(),
+                application.getLastModifiedAt(),
+                true
+        );
+    }
+
+    private ApplicationApplyResponseDto createApplication(
+            User user,
+            ClubApplyForm form,
+            ApplicationApplyRequestDto request
+    ) {
+
+        Application newApplication = new Application(user, form);
+        applicationRepository.save(newApplication);
+
+        List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
+        emailService.sendApplication(newApplication, emailLines);
+
+        return new ApplicationApplyResponseDto(
+                newApplication.getUser().getStudentId(),
+                newApplication.getLastModifiedAt(),
+                true
+        );
+    }
+
+    @Transactional
+    public void saveApplicationAnswers(Application application, List<String> answerList) {
+        if (answerList == null) answerList = List.of();
+
+        final Long formId = application.getClubApplyForm().getId();
+
+        // 1) 폼의 질문을 표시순서대로 조회
+        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);
+
+        // 2) 문항-답변 매칭(displayOrder 기반)
+        List<Answer> toSave = new ArrayList<>(questions.size());
+        List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
+
+        for (int i = 0; i < questions.size(); i++) {
+            FormQuestion q = questions.get(i);
+            String raw = (i < answerList.size()) ? answerList.get(i) : null;
+            String normalized = normalize(raw);
+
+            // 필수 문항 검사
+            if (q.isRequired() && isBlank(normalized)) {
+                throw new InvalidAnswerException("필수 문항 미응답: questionId=" + q.getId());
+            }
+
+            // 타입별 검증/정규화
+            switch (q.getFieldType()) {
+                case TEXT -> {
+                }
+
+                case RADIO -> {
+                    if (q.isRequired() && isBlank(normalized)) {
+                        throw new InvalidAnswerException("단일 선택 값이 필요합니다. questionId=" + q.getId());
+                    }
+                }
+
+                case CHECKBOX -> {
+                    List<String> options = splitAndTrim(normalized);
+                    if (q.isRequired() && options.isEmpty()) {
+                        throw new InvalidAnswerException("다중 선택 최소 1개 필요. questionId=" + q.getId());
+                    }
+                    normalized = String.join(",", options);
+                }
+                default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
+            }
+
+            toSave.add(Answer.of(application, q, isBlank(normalized) ? null : normalized));
+            emailLines.add(new AnswerEmailLine(q.getId(), q.getDisplayOrder(), q.getQuestion(), isBlank(normalized) ? "(미입력)" : normalized));
+        }
+
+        // 4) 일괄 저장
+        answerRepository.saveAll(toSave);
+        return emailLines;
+    }
+
+    //helper methods
+
+    private boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private String normalize(String s) {
+        return (s == null) ? "" : s.trim();
+    }
+
+    private List<String> splitAndTrim(String raw) {
+        if (isBlank(raw)) return List.of();
+        return Arrays.stream(raw.split(","))
+                .map(String::trim)
+                .filter(str -> !str.isEmpty())
+                .distinct()
+                .toList();
+    }
+
 }
