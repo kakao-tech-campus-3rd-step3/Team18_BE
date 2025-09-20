@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
@@ -34,7 +35,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.MockedStatic;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -169,33 +172,41 @@ public class ClubServiceMockTest {
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
 
-        given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
-        given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
+        // try-with-resources 구문을 사용하여 테스트가 끝나면 mock이 자동으로 해제되도록 합니다.
+        try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
+            // given
+            // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 "모집중"을 반환하도록 설정합니다.
+            mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
+                    .thenReturn("모집중");
 
-        ClubDetailResponseDto expect = new ClubDetailResponseDto(
-                "카태켐",
-                "공7 1호관",
-                Category.LITERATURE,
-                "함께 배우는 카태켐",
-                List.of("image1.url"),
-                "overview",
-                "activities",
-                "ideal",
-                "매주 화요일 오후 6시반",
-                "모집중",
-                "김춘식",
-                "010-1234-5678",
-                LocalDateTime.of(2025, 9, 3, 0, 0),
-                LocalDateTime.of(2025, 9, 20, 23, 59)
-        );
+            given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
+            given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
 
-        //when
-        ClubDetailResponseDto actual = clubService.getClubDetail(clubId);
+            ClubDetailResponseDto expect = new ClubDetailResponseDto(
+                    "카태켐",
+                    "공7 1호관",
+                    Category.LITERATURE,
+                    "함께 배우는 카태켐",
+                    List.of("image1.url"),
+                    "overview",
+                    "activities",
+                    "ideal",
+                    "매주 화요일 오후 6시반",
+                    "모집중", // mock이 반환할 값과 일치
+                    "김춘식",
+                    "010-1234-5678",
+                    LocalDateTime.of(2025, 9, 3, 0, 0),
+                    LocalDateTime.of(2025, 9, 20, 23, 59)
+            );
 
-        //then
-        assertThat(actual).isEqualTo(expect);
-        verify(clubRepository).findById(eq(clubId));
-        verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
+            //when
+            ClubDetailResponseDto actual = clubService.getClubDetail(clubId);
+
+            //then
+            assertThat(actual).isEqualTo(expect);
+            verify(clubRepository).findById(eq(clubId));
+            verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
+        }
     }
 
     @DisplayName("Club Detail 조회시 존재하지 않는 clubId를 사용할 때 ClubNotFoundException이 실행된다.")

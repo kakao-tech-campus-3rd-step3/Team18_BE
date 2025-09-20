@@ -29,16 +29,16 @@ public class User extends BaseEntity {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "student_id", nullable = false)
+    @Column(name = "student_id", nullable = false, unique = true)
     private String studentId;
 
-    @Column(name = "phone_number", nullable = false)
+    @Column(name = "phone_number", nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(name = "department",  nullable = false)

@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import java.time.Instant;
@@ -26,7 +27,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 
 class ClubServiceImplTest {
 
@@ -61,29 +64,29 @@ class ClubServiceImplTest {
     class GetAllClubs {
 
         @Test
-        @DisplayName("모집 상태 라벨이 올바르게 계산&매핑된다 (미정/준비중/모집중/종료)")
-        void mapsRecruitStatusLabels() {
-            // given
-            LocalDateTime now = LocalDateTime.now();
+        @DisplayName("RecruitStatusCalculator의 결과를 DTO에 올바르게 매핑한다")
+        void mapsRecruitStatusCorrectly() {
+            // try-with-resources 구문을 사용하여 테스트가 끝나면 mock이 자동으로 해제되도록 합니다.
+            try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
+                // given
+                final String DUMMY_STATUS = "DUMMY_STATUS";
+                var summary = new TestClubSummary(1L, "A", Category.SPORTS, "si", null, null);
 
-            var undecided = new TestClubSummary(1L, "A", Category.SPORTS, "si",null, null);//미정
-            var prepare = new TestClubSummary(2L, "B", Category.SPORTS, "si",now.plusDays(10),now.plusDays(20));//준비중
-            var open = new TestClubSummary(3L, "C", Category.SPORTS, "si",now.minusDays(10),now.plusDays(10));//모집중
-            var closed = new TestClubSummary(4L, "D", Category.SPORTS, "si",now.minusDays(30),now.minusDays(1));//종료
-            when(clubRepository.findAllSummaries()).thenReturn(List.of(undecided, prepare, open, closed));
+                // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 "DUMMY_STATUS"를 반환하도록 설정
+                mockedCalculator.when(() -> RecruitStatusCalculator.calculate(summary.getRecruitStart(), summary.getRecruitEnd()))
+                        .thenReturn(DUMMY_STATUS);
 
-            //when
-            List<ClubListResponseDto> result = clubService.getAllClubs();
+                when(clubRepository.findAllProjectedBy()).thenReturn(List.of(summary));
 
-            //then
-            assertThat(result).hasSize(4);
-            assertThat(result.get(0).recruitStatus()).isEqualTo("모집 일정 미정");
-            assertThat(result.get(1).recruitStatus()).isEqualTo("모집 준비중");
-            assertThat(result.get(2).recruitStatus()).isEqualTo("모집중");
-            assertThat(result.get(3).recruitStatus()).isEqualTo("모집 종료");
+                //when
+                List<ClubListResponseDto> result = clubService.getAllClubs();
 
-            verify(clubRepository, times(1)).findAllSummaries();
-            verifyNoMoreInteractions(clubRepository);
+                //then
+                assertThat(result).hasSize(1);
+                assertThat(result.get(0).recruitStatus()).isEqualTo(DUMMY_STATUS);
+                verify(clubRepository, times(1)).findAllProjectedBy();
+                verifyNoMoreInteractions(clubRepository);
+            }
         }
     }
 
@@ -94,12 +97,12 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("category == null 이면 전체 요약을 조회한다")
         void nullCategoryUsesAll() {
-            when(clubRepository.findAllSummaries()).thenReturn(List.of());
+            when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
             List<ClubListResponseDto> result = clubService.getClubByCategory(null);
 
             assertThat(result).isEmpty();
-            verify(clubRepository, times(1)).findAllSummaries();
+            verify(clubRepository, times(1)).findAllProjectedBy();
             verify(clubRepository, never()).findSummariesByCategory(ArgumentMatchers.any());
         }
 
@@ -116,7 +119,7 @@ class ClubServiceImplTest {
             assertThat(result.getFirst().name()).isEqualTo("Run Club");
 
             verify(clubRepository, times(1)).findSummariesByCategory(Category.SPORTS);
-            verify(clubRepository, never()).findAllSummaries();
+            verify(clubRepository, never()).findAllProjectedBy();
         }
     }
 
@@ -127,13 +130,13 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("name 이 null/blank 이면 전체 요약을 조회한다")
         void blankUsesAll() {
-            when(clubRepository.findAllSummaries()).thenReturn(List.of());
+            when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
             assertThat(clubService.getClubByName(null)).isEmpty();
             assertThat(clubService.getClubByName("")).isEmpty();
             assertThat(clubService.getClubByName("   ")).isEmpty();
 
-            verify(clubRepository, times(3)).findAllSummaries(); // 세 번 호출
+            verify(clubRepository, times(3)).findAllProjectedBy(); // 세 번 호출
             verify(clubRepository, never()).findSummariesByNameContaining(anyString());
         }
 
@@ -149,7 +152,7 @@ class ClubServiceImplTest {
             assertThat(result.getFirst().name()).isEqualTo("InterX");
 
             verify(clubRepository, times(1)).findSummariesByNameContaining("Inter");
-            verify(clubRepository, never()).findAllSummaries();
+            verify(clubRepository, never()).findAllProjectedBy();
         }
     }
 }
