@@ -52,8 +52,8 @@ public class ClubController{
     @GetMapping("/{clubId}/dashboard/applicants")
     public ResponseEntity<List<ApplicantResponseDto>> getClubApplicants(
             @PathVariable Long clubId,
-            @RequestParam(required = false) String status) {
-        List<ApplicantResponseDto> response = clubService.getApplicantsByStatus(clubId, Status.fromText(status));
+            @RequestParam(required = false) Status status) {
+        List<ApplicantResponseDto> response = clubService.getApplicantsByStatus(clubId, status);
         return ResponseEntity.ok(response);
     }
 }
