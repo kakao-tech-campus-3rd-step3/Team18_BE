@@ -42,6 +42,12 @@ public class EmailService {
 
     public void sendToApplicant(Application application, List<AnswerEmailLine> emailLines) {
 
+        Long clubId = application.getClubApplyForm().getClub().getId();
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
+        String replyTo = president.getEmail();
+
         Map<String, Object> model = new HashMap<>();
 
         model.put("title", "동아리 지원서");
@@ -59,11 +65,6 @@ public class EmailService {
         String subject = subjectPrefix + " "
                 + application.getClubApplyForm().getClub().getName()
                 + " - " + application.getUser().getName();
-
-        User president = clubMemberRepository
-                .findUserByClubIdAndRoleAndStatus(application.getClubApplyForm().getClub().getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
-                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + application.getClubApplyForm().getClub().getId()));
-        String replyTo = president.getEmail();
 
         emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
     }
