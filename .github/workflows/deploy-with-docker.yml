@@ -12,7 +12,6 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     env:
       AWS_REGION: ap-northeast-2
       ECR_REPO_NAME: dongarium-server
@@ -86,21 +85,18 @@ jobs:
           source: "docker-compose.yml"
           target: "${{ env.REMOTE_DIR }}/current"
 
-      # === 배포: credHelpers 방식 (docker login 제거) ===
       - name: Deploy on EC2 (create .env, set credHelpers, compose up)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          # 인스턴스 프로파일이 없다면 아래 envs 3개가 필요합니다
           envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
           script_stop: true
           script: |
-            
             set -euo pipefail
-            
-            # (선택) docker/compose 보장
+
+            # Docker/compose 보장
             if ! systemctl is-active --quiet docker; then
               sudo systemctl start docker || true
             fi
@@ -112,51 +108,57 @@ jobs:
               fi
               docker compose version || { echo "FATAL: docker compose not available"; exit 1; }
             fi
-            
-            # (인스턴스 프로파일이 없다면) AWS 크레덴셜 주입
+
+            # AWS 크레덴셜 (Instance Profile이 없을 때만)
             export AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}'
             export AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}'
             export AWS_REGION='${{ env.AWS_REGION }}'
-            
-            # ecr-credential-helper 설치(없으면)
+
+            # ECR credential helper 설치
             if ! command -v docker-credential-ecr-login >/dev/null 2>&1; then
               if command -v yum >/dev/null 2>&1; then
-                sudo yum install -y amazon-ecr-credential-helper
+                sudo yum install -y amazon-ecr-credential-helper || true
               elif command -v dnf >/dev/null 2>&1; then
-                sudo dnf install -y amazon-ecr-credential-helper
+                sudo dnf install -y amazon-ecr-credential-helper || true
               fi
             fi
-            
-            mkdir -p ~/.docker
-            cat > ~/.docker/config.json <<'EOF'
-            {
-              "credHelpers": {
-                "351933853369.dkr.ecr.ap-northeast-2.amazonaws.com": "ecr-login"
-              }
-            }
-            EOF
-            
-            # (디버그) 내용 확인
-            cat ~/.docker/config.json
-            
+
+            # 기존 ~/.docker 오염 회피: 임시 DOCKER_CONFIG 사용
+            export DOCKER_CONFIG=/tmp/docker-config-ecr
+            mkdir -p "$DOCKER_CONFIG"
+
+            # credHelpers 설정을 jq로 생성 (heredoc NO)
+            REG='${{ steps.ecr.outputs.registry }}'
+            if ! command -v jq >/dev/null 2>&1; then
+              # jq가 없으면 설치 (Amazon Linux 계열)
+              if command -v yum >/dev/null 2>&1; then
+                sudo yum install -y jq || true
+              elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y jq || true
+              fi
+            fi
+            jq -n --arg reg "$REG" '{credHelpers:{($reg):"ecr-login"}}' > "$DOCKER_CONFIG/config.json"
+
+            # 디렉토리 이동
             cd ${{ env.REMOTE_DIR }}
-            
-            # .env 생성 (이것도 종료 토큰 맨 앞!)
-            cat > ${{ env.REMOTE_DIR }}/shared/.env <<'DOTENV'
-            DB_NAME=${{ secrets.DB_NAME }}
-            DB_USER=${{ secrets.DB_USER }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            DB_ROOT_PASSWORD=${{ secrets.DB_ROOT_PASSWORD }}
-            DOTENV
+
+            # .env 생성 (printf로 안전하게 생성)
+            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\n' \
+              '${{ secrets.DB_NAME }}' \
+              '${{ secrets.DB_USER }}' \
+              '${{ secrets.DB_PASSWORD }}' \
+              '${{ secrets.DB_ROOT_PASSWORD }}' \
+              > ${{ env.REMOTE_DIR }}/shared/.env
+
             chmod 600 ${{ env.REMOTE_DIR }}/shared/.env
             ln -sf ${{ env.REMOTE_DIR }}/shared/.env ${{ env.REMOTE_DIR }}/current/.env
-            
+
             echo "==> Pull latest image (credHelpers auto-auth)"
-            docker pull 351933853369.dkr.ecr.ap-northeast-2.amazonaws.com/dongarium-server:latest
-            
+            docker pull $REG/${{ env.ECR_REPO_NAME }}:latest
+
+            # 재기동
             sudo fuser -k -n tcp 8080 || true
             cd ${{ env.REMOTE_DIR }}/current
-            export ECR_REGISTRY=351933853369.dkr.ecr.ap-northeast-2.amazonaws.com
-            docker compose down || true
-            ECR_REGISTRY=$ECR_REGISTRY docker compose up -d --remove-orphans
+            ECR_REGISTRY="$REG" docker compose down || true
+            ECR_REGISTRY="$REG" docker compose up -d --remove-orphans
             docker compose ps
