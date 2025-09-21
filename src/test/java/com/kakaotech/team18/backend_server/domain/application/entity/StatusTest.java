@@ -27,7 +27,7 @@ class StatusTest {
         );
     }
 
-    @DisplayName("fromText의 파라미터가 매칭되지 않아 StatusNotFoundException이 일어난다..")
+    @DisplayName("fromText의 파라미터가 매칭되지 않아 StatusNotFoundException이 일어난다.")
     @ParameterizedTest
     @MethodSource("provideTextAndStatusWithError")
     void fromTextWithError(String text) {
