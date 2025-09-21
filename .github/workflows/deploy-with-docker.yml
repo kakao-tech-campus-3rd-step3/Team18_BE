@@ -148,6 +148,7 @@ jobs:
               '${{ secrets.DB_USER }}' \
               '${{ secrets.DB_PASSWORD }}' \
               '${{ secrets.DB_ROOT_PASSWORD }}' \
+              '${{ steps.ecr.outputs.registry }}' \
               > ${{ env.REMOTE_DIR }}/shared/.env
 
             chmod 600 ${{ env.REMOTE_DIR }}/shared/.env
