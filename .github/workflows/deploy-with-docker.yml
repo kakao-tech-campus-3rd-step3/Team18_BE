@@ -95,7 +95,7 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
-
+            rm -f ~/.docker/config.json || true
             # Docker/compose 보장
             if ! systemctl is-active --quiet docker; then
               sudo systemctl start docker || true
