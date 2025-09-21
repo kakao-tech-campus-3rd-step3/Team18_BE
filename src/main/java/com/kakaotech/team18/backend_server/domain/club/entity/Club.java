@@ -77,5 +77,4 @@ public class Club extends BaseEntity {
             return "모집중";
         }
     }
-
 }

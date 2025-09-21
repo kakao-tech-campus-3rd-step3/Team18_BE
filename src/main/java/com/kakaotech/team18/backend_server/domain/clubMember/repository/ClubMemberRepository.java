@@ -1,11 +1,17 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
+
 import java.util.List;
 import java.util.Optional;
+
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
 
@@ -24,4 +30,17 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             where cm.club.id = :clubId and cm.role = :role
             """)
     Optional<ClubMember> findClubAdminByClubIdAndRole(Long clubId, Role role);
+
+    @Query("""
+        select cm.user
+        from ClubMember cm
+        where cm.club.id = :clubId
+          and cm.role = :role
+          and cm.activeStatus = :status
+        """)
+    java.util.Optional<User> findUserByClubIdAndRoleAndStatus(
+            @Param("clubId") Long clubId,
+            @Param("role") Role role,
+            @Param("status") ActiveStatus status
+    );
 }

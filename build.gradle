@@ -40,6 +40,11 @@ dependencies {
     // validation 관련 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // SMTP 전송 (JavaMailSender)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // Thymeleaf 템플릿 렌더링(나중에 제거할 것)
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
     // 테스트 코드에서 Lombok 사용을 위한 의존성 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'

@@ -12,6 +12,9 @@ import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
+import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -21,6 +24,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +45,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
+    private final ApplicationEventPublisher publisher;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -159,7 +165,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         answerRepository.deleteByApplication(application);
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answerList());
-        emailService.sendApplication(application, emailLines);
+        //emailService.sendToApplicant(application, emailLines);
+        publisher.publishEvent(new ApplicationSubmittedEvent(application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
                 application.getUser().getStudentId(),
@@ -178,7 +185,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(newApplication);
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
-        emailService.sendApplication(newApplication, emailLines);
+        //emailService.sendToApplicant(newApplication, emailLines);
+        publisher.publishEvent(new ApplicationSubmittedEvent(newApplication.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
                 newApplication.getUser().getStudentId(),
@@ -188,7 +196,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Transactional
-    public void saveApplicationAnswers(Application application, List<String> answerList) {
+    public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<String> answerList) {
         if (answerList == null) answerList = List.of();
 
         final Long formId = application.getClubApplyForm().getId();

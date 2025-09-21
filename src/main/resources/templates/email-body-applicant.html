@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title th:text="${title}">동아리 지원서</title>
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif; margin: 0; padding: 24px; background: #f7f7f7; }
+        .card { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        h1 { margin: 0 0 8px; font-size: 20px; }
+        h2 { margin: 24px 0 8px; font-size: 16px; }
+        .muted { color: #666; font-size: 13px; }
+        .grid { display: grid; grid-template-columns: 140px 1fr; gap: 8px 16px; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 9999px; background: #eef2ff; color: #3730a3; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { width: 30%; color: #374151; background: #fafafa; }
+        .footer { margin-top: 24px; color: #666; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h1>
+        <span class="badge">지원 접수</span>
+        <span th:text="${clubName}">동아리명</span> - <span th:text="${applicantName}">지원자명</span>
+    </h1>
+    <div class="muted" th:text="${#temporals.format(submittedAt, 'yyyy-MM-dd HH:mm')}">2025-09-20 13:00</div>
+
+    <h2>지원자 정보</h2>
+    <div class="grid">
+        <div>이름</div><div th:text="${applicantName}">홍길동</div>
+        <div>학번</div><div th:text="${studentId}">20251234</div>
+        <div>학과</div><div th:text="${department}">컴퓨터정보통신공학과</div>
+        <div>전화번호</div><div th:text="${phoneNumber}">010-0000-0000</div>
+        <div>이메일</div><div th:text="${applicantEmail}">user@example.com</div>
+    </div>
+
+    <h2>지원서 응답</h2>
+    <table>
+        <tbody>
+        <tr th:each="line : ${answers}">
+            <th th:text="${line.question()}">질문</th>
+            <td th:utext="${#strings.escapeXml(line.answer()).replaceAll('\n','<br/>')}">답변</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        본 메일은 지원서 제출 안내용으로 발송되었습니다. 문의는 회장/관리자에게 회신(Reply-To)으로 보내주세요.
+    </div>
+</div>
+</body>
+</html>
