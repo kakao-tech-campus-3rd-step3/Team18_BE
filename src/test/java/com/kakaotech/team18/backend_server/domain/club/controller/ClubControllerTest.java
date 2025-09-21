@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LITERATURE;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -111,5 +112,67 @@ class ClubControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk());
 
+    }
+
+    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회한다.")
+    @Test
+    void getApplicantsByStatus() throws Exception {
+        //given
+        Long clubId = 1L;
+        String status = "미정";
+        List<ApplicantResponseDto> expect = List.of(
+                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
+                        Status.PENDING),
+                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
+                        Status.PENDING)
+        );
+
+        //when
+        when(clubService.getApplicantsByStatus(clubId, Status.PENDING)).thenReturn(expect);
+
+        //then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard/applicants", clubId)
+                        .param("status", status))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status 값이 비어 있으면 모든 지원자를 조회한다.")
+    @Test
+    void getApplicantsByStatusWithEmptyStatus() throws Exception {
+        //given
+        Long clubId = 1L;
+        String status = null;
+        List<ApplicantResponseDto> expect = List.of(
+                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
+                        Status.PENDING),
+                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
+                        Status.APPROVED)
+        );
+
+        //when
+        when(clubService.getApplicantsByStatus(clubId, null)).thenReturn(expect);
+
+        //then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard/applicants", clubId)
+                        .param("status", status))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생하낟.")
+    @Test
+    void getApplicantsByWrongStatus() throws Exception {
+        // given
+        Long clubId = 1L;
+        String wrongStatus = "엉망값";
+
+        // when + then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard/applicants", clubId)
+                        .param("status", wrongStatus))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        verifyNoInteractions(clubService);
     }
 }

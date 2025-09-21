@@ -1,8 +1,5 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
@@ -14,6 +11,9 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
@@ -101,6 +101,24 @@ public class ClubServiceImpl implements ClubService {
                         .map(ApplicantResponseDto::from)
                         .toList());
     }
+
+    @Override
+    public List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status) {
+        if (status != null) {
+            List<ClubMember> filteredApplicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, status);
+            return filteredApplicants
+                    .stream()
+                    .map(ApplicantResponseDto::from)
+                    .toList();
+        } else {
+            List<ClubMember> allApplicants = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
+            return allApplicants
+                    .stream()
+                    .map(ApplicantResponseDto::from)
+                    .toList();
+        }
+    }
+
 
     // ---- private helpers ----
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
