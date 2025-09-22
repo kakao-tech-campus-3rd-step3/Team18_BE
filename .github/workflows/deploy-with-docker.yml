@@ -143,15 +143,15 @@ jobs:
             cd ${{ env.REMOTE_DIR }}
 
             # .env 생성 (printf로 안전하게 생성)
-            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\n' \
-              '${{ secrets.DB_NAME }}' \
-              '${{ secrets.DB_USER }}' \
-              '${{ secrets.DB_PASSWORD }}' \
-              '${{ secrets.DB_ROOT_PASSWORD }}' \
-              '${{ steps.ecr.outputs.registry }}' \
-              > ${{ env.REMOTE_DIR }}/shared/.env
-
-            chmod 600 ${{ env.REMOTE_DIR }}/shared/.env
+            tmp_env="$(mktemp)"
+            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\n' \
+            '${{ secrets.DB_NAME }}' \
+            '${{ secrets.DB_USER }}' \
+            '${{ secrets.DB_PASSWORD }}' \
+            '${{ secrets.DB_ROOT_PASSWORD }}' \
+            "$REG" > "$tmp_env"
+            install -m 600 "$tmp_env" ${{ env.REMOTE_DIR }}/shared/.env
+            rm -f "$tmp_env"
             ln -sf ${{ env.REMOTE_DIR }}/shared/.env ${{ env.REMOTE_DIR }}/current/.env
 
             echo "==> Pull latest image (credHelpers auto-auth)"
