@@ -19,7 +19,7 @@ import lombok.Builder;
 public record ClubDetailResponseDto(
         @Schema(description = "동아리 이름", example = "개발하는 사람들") String clubName,
         @Schema(description = "주요 활동 장소", example = "학생회관 101호") String location,
-        @Schema(description = "동아리 카테고리", example = "IT") Category category,
+        @Schema(description = "동아리 카테고리", example = "STUDY") Category category,
         @Schema(description = "동아리 한 줄 소개", example = "함께 성장하는 개발 동아리입니다.") String shortIntroduction,
         @Schema(description = "동아리 소개 이미지 URL 목록") List<String> introductionImages,
         @Schema(description = "동아리 소개 (개요)", example = "저희는 스프링부트와 리액트를 공부하는 스터디 동아리입니다...") String introductionOverview,
