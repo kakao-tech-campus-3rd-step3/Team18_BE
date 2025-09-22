@@ -40,6 +40,9 @@ dependencies {
     // validation 관련 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
+    // OpenAPI 3.0 및 Swagger UI
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+
     // 테스트 코드에서 Lombok 사용을 위한 의존성 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
