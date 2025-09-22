@@ -5,6 +5,8 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,6 +38,9 @@ public class Club extends BaseEntity {
     @JoinColumn(name = "club_introduction_id")
     private ClubIntroduction introduction;
 
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClubCaution> cautions = new ArrayList<>();
+
     private LocalDateTime recruitStart;
 
     private LocalDateTime recruitEnd;
@@ -60,5 +65,10 @@ public class Club extends BaseEntity {
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
+    }
+
+    public void addCaution(ClubCaution caution) {
+        cautions.add(caution);
+        caution.setClub(this);
     }
 }

@@ -30,7 +30,8 @@ public record ClubDetailResponseDto(
         @Schema(description = "동아리 회장 이름", example = "김회장") String presidentName,
         @Schema(description = "동아리 회장 연락처", example = "010-1234-5678") String presidentPhoneNumber,
         @Schema(description = "모집 시작일") LocalDateTime recruitStart,
-        @Schema(description = "모집 마감일") LocalDateTime recruitEnd
+        @Schema(description = "모집 마감일") LocalDateTime recruitEnd,
+        @Schema(description = "동아리 지원 유의사항 목록") List<ClubCautionResponseDto> clubCautions
 ) {
 
     public static ClubDetailResponseDto from(Club club, User user) {
@@ -55,6 +56,7 @@ public record ClubDetailResponseDto(
                 presidentPhoneNumber(user.getPhoneNumber()).
                 recruitStart(club.getRecruitStart()).
                 recruitEnd(club.getRecruitEnd()).
+                clubCautions(club.getCautions().stream().map(ClubCautionResponseDto::from).toList()).
                 build();
     }
 }

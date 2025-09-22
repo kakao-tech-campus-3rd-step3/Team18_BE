@@ -16,10 +16,12 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
 public class ClubCaution extends BaseEntity {
 
     @Id
@@ -41,8 +43,7 @@ public class ClubCaution extends BaseEntity {
     private List<CautionItem> items = new ArrayList<>();
 
     @Builder
-    private ClubCaution(Club club, String title, Integer displayOrder) {
-        this.club = club;
+    private ClubCaution(String title, Integer displayOrder) {
         this.title = title;
         this.displayOrder = displayOrder;
     }
@@ -50,5 +51,9 @@ public class ClubCaution extends BaseEntity {
     public void addItem(CautionItem item) {
         items.add(item);
         item.setSection(this);
+    }
+
+    public void setClub(Club club) {
+        this.club = club;
     }
 }
