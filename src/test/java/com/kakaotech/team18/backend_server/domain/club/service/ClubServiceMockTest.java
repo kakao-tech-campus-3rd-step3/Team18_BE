@@ -11,10 +11,14 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.club.dto.CautionItemResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubCautionResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
+import com.kakaotech.team18.backend_server.domain.club.entity.CautionItem;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
@@ -163,6 +167,9 @@ public class ClubServiceMockTest {
     @Test
     void getClubDetail() {
         //given
+        CautionItem cautionItem = createCautionItem();
+        ClubCaution clubCaution = createClubCaution();
+        clubCaution.addItem(cautionItem);
         Long clubId = 1L;
         ClubIntroduction clubIntroduction = createClubIntroduction();
         ReflectionTestUtils.setField(clubIntroduction, "id", 1L);
@@ -170,6 +177,7 @@ public class ClubServiceMockTest {
         clubIntroduction.addImage(image);
         ReflectionTestUtils.setField(image, "id", 1L);
         Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        club.addCaution(clubCaution);
         ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
@@ -200,7 +208,8 @@ public class ClubServiceMockTest {
                     "김춘식",
                     "010-1234-5678",
                     LocalDateTime.of(2025, 9, 3, 0, 0),
-                    LocalDateTime.of(2025, 9, 20, 23, 59)
+                    LocalDateTime.of(2025, 9, 20, 23, 59),
+                    List.of(new ClubCautionResponseDto(1, "지원 자격 확인", List.of(new CautionItemResponseDto(1, "해당 학기 재학 중인 학생만 지원 가능합니다."))))
             );
 
             //when
@@ -254,6 +263,20 @@ public class ClubServiceMockTest {
         // then
         assertThat(actual).hasSize(expectedSize);
         assertThat(actual).allMatch(dto -> dto.status().equals(status));
+    }
+
+    private static CautionItem createCautionItem() {
+        return CautionItem.builder()
+                .displayOrder(1)
+                .content("해당 학기 재학 중인 학생만 지원 가능합니다.")
+                .build();
+    }
+
+    private static ClubCaution createClubCaution() {
+        return ClubCaution.builder()
+                .displayOrder(1)
+                .title("지원 자격 확인")
+                .build();
     }
 
     private static Stream<Arguments> provideStatusAndClubMembers() {
