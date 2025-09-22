@@ -21,9 +21,6 @@ public class MailConfig {
         sender.setUsername(username);
         sender.setPassword(password);
 
-        var props = sender.getJavaMailProperties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
         return sender;
     }
 }
