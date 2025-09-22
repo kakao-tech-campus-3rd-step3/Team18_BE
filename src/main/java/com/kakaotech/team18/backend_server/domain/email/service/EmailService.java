@@ -29,8 +29,8 @@ public class EmailService {
     public EmailService(
             EmailTemplateRenderer renderer,
             EmailSender emailSender,
-            @Value("${email.from}") String from,
-            @Value("${email.subject-prefix}") String subjectPrefix,
+            @Value("${spring.email.from}") String from,
+            @Value("${spring.email.subject-prefix}") String subjectPrefix,
             ClubMemberRepository clubMemberRepository
     ) {
         this.renderer = renderer;
