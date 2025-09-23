@@ -9,6 +9,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +19,13 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Table(
+        name = "caution_item",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_caution_item_section_display_order",
+                columnNames = {"section_id", "display_order"}
+        )
+)
 public class CautionItem extends BaseEntity {
 
     @Id
@@ -31,7 +40,7 @@ public class CautionItem extends BaseEntity {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "display_order", nullable = false)
     private Integer displayOrder;
 
     @Builder
@@ -40,7 +49,7 @@ public class CautionItem extends BaseEntity {
         this.displayOrder = displayOrder;
     }
 
-    public void setSection(ClubCaution section) {
+    protected void setSection(ClubCaution section) {
         this.section = section;
     }
 }
