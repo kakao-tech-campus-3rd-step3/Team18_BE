@@ -191,7 +191,7 @@ public class ClubServiceMockTest {
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
                     .thenReturn("모집중");
 
-            given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
+            given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
 
             ClubDetailResponseDto expect = new ClubDetailResponseDto(
@@ -217,7 +217,7 @@ public class ClubServiceMockTest {
 
             //then
             assertThat(actual).isEqualTo(expect);
-            verify(clubRepository).findById(eq(clubId));
+            verify(clubRepository).findClubDetailById(eq(clubId));
             verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
         }
     }
@@ -258,7 +258,7 @@ public class ClubServiceMockTest {
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
                     .thenReturn("모집중");
 
-            given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
+            given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
 
             ClubDetailResponseDto expect = new ClubDetailResponseDto(
@@ -292,7 +292,7 @@ public class ClubServiceMockTest {
 
             //then
             assertThat(actual).isEqualTo(expect);
-            verify(clubRepository).findById(eq(clubId));
+            verify(clubRepository).findClubDetailById(eq(clubId));
             verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
         }
     }
@@ -311,7 +311,7 @@ public class ClubServiceMockTest {
         User user = createUser( "loginId", "123456");
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
 
-        given(clubRepository.findById(eq(missingId))).willReturn(Optional.empty());
+        given(clubRepository.findClubDetailById(eq(missingId))).willReturn(Optional.empty());
 
         //when
         assertThatThrownBy(() -> clubService.getClubDetail(missingId))

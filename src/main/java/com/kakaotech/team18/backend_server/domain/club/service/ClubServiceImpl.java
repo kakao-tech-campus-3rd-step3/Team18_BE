@@ -9,8 +9,8 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
@@ -20,7 +20,6 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +62,7 @@ public class ClubServiceImpl implements ClubService {
     @Override
     public ClubDetailResponseDto getClubDetail(Long clubId) {
         log.info("getClubDetail called with clubId={}", clubId);
-        Club findClub = clubRepository.findById(clubId)
+        Club findClub = clubRepository.findClubDetailById(clubId)
                 .orElseThrow(() -> {
                     log.warn("Club not found for id={}", clubId);
                     return new ClubNotFoundException("clubId = " + clubId);

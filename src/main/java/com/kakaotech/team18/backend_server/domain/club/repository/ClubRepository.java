@@ -12,8 +12,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
 
-    @EntityGraph(attributePaths = {"cautions","cautions.items","introduction.images"})
     Optional<Club> findById(Long id);
+
+    @EntityGraph(attributePaths = {"cautions","cautions.items","introduction.images"})
+    Optional<Club> findClubDetailById(Long id);
 
     Optional<Club> findByName(String name);
 
