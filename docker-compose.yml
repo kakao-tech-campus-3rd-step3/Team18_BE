@@ -1,0 +1,70 @@
+# docker-compose.yml
+name: dongarium-stack
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: dongarium-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      TZ: Asia/Seoul
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci",
+      "--max_connections=200"
+    ]
+    ports:
+      - "3306:3306"        # EC2 밖에서 직접 접근 필요 없으면 이 라인은 주석처리 가능
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  app:
+    image: ${ECR_REGISTRY}/dongarium-server:latest   # GitHub Actions에서 채워서 pull
+    container_name: dongarium-server
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      # 프로필
+      SPRING_PROFILES_ACTIVE: prod
+
+      # ✅ application.yml(prod) datasource를 환경변수로 덮어쓰기
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+      # JPA 옵션(원하는 경우)
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+
+      # 로깅(옵션)
+      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE_JDBC: DEBUG
+      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_CONTEXT_CONFIG: DEBUG
+    healthcheck:
+      # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+networks:
+  default:
+    name: dongarium-net
+
+volumes:
+  db_data:
