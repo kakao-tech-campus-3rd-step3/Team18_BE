@@ -2,16 +2,17 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.Builder;
 
 @Builder
@@ -30,7 +31,8 @@ public record ClubDetailResponseDto(
         @Schema(description = "동아리 회장 이름", example = "김회장") String presidentName,
         @Schema(description = "동아리 회장 연락처", example = "010-1234-5678") String presidentPhoneNumber,
         @Schema(description = "모집 시작일") LocalDateTime recruitStart,
-        @Schema(description = "모집 마감일") LocalDateTime recruitEnd
+        @Schema(description = "모집 마감일") LocalDateTime recruitEnd,
+        @Schema(description = "동아리 지원 유의사항 목록") List<ClubCautionResponseDto> applicationNotices
 ) {
 
     public static ClubDetailResponseDto from(Club club, User user) {
@@ -55,6 +57,9 @@ public record ClubDetailResponseDto(
                 presidentPhoneNumber(user.getPhoneNumber()).
                 recruitStart(club.getRecruitStart()).
                 recruitEnd(club.getRecruitEnd()).
+                applicationNotices(club.getCautions().stream()
+                        .sorted(Comparator.comparing(ClubCaution::getDisplayOrder))
+                        .map(ClubCautionResponseDto::from).toList()).
                 build();
     }
 }
