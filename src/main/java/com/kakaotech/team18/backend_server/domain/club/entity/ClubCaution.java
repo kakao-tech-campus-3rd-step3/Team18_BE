@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,6 +52,7 @@ public class ClubCaution extends BaseEntity {
 
     @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("displayOrder ASC")
+    @BatchSize(size = 10)
     private List<CautionItem> items = new ArrayList<>();
 
     @Builder
@@ -64,7 +66,7 @@ public class ClubCaution extends BaseEntity {
         item.setSection(this);
     }
 
-    public void setClub(Club club) {
+    protected void setClub(Club club) {
         this.club = club;
     }
 }
