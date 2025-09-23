@@ -1,7 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.club.dto;
 
+import com.kakaotech.team18.backend_server.domain.club.entity.CautionItem;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Comparator;
 import java.util.List;
 import lombok.Builder;
 
@@ -17,6 +19,7 @@ public record ClubCautionResponseDto(
                 .displayOrder(clubCaution.getDisplayOrder())
                 .title(clubCaution.getTitle())
                 .items(clubCaution.getItems().stream()
+                        .sorted(Comparator.comparing(CautionItem::getDisplayOrder))
                         .map(CautionItemResponseDto::from)
                         .toList())
                 .build();

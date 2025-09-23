@@ -2,16 +2,17 @@ package com.kakaotech.team18.backend_server.domain.club.dto;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import lombok.Builder;
 
 @Builder
@@ -56,7 +57,9 @@ public record ClubDetailResponseDto(
                 presidentPhoneNumber(user.getPhoneNumber()).
                 recruitStart(club.getRecruitStart()).
                 recruitEnd(club.getRecruitEnd()).
-                applicationNotices(club.getCautions().stream().map(ClubCautionResponseDto::from).toList()).
+                applicationNotices(club.getCautions().stream()
+                        .sorted(Comparator.comparing(ClubCaution::getDisplayOrder))
+                        .map(ClubCautionResponseDto::from).toList()).
                 build();
     }
 }
