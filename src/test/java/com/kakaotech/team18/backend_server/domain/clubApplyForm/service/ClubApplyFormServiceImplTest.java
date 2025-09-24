@@ -8,7 +8,7 @@ import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuesti
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -147,7 +147,7 @@ class ClubApplyFormServiceImplTest {
 
                 // when & then
                 assertThatThrownBy(() -> applicationFormServiceImpl.getQuestionForm(clubId))
-                        .isInstanceOf(ApplicationFormNotFoundException.class);
+                        .isInstanceOf(ClubApplyFormNotFoundException.class);
 
                 verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
                 verifyNoInteractions(formQuestionRepository);

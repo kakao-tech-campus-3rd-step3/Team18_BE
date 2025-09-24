@@ -18,7 +18,6 @@ import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
@@ -119,7 +118,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         //1. applicationForm 찾기
         ClubApplyForm form = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
-                .orElseThrow(() -> new ApplicationFormNotFoundException(clubId));
+                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
 
         //2. 유저 정보생성(없으면 생성)
         User user = userRepository.findByStudentId(request.studentId())
