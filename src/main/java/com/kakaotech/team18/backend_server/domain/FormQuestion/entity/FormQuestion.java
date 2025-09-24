@@ -3,20 +3,26 @@ package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
-
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import java.util.List;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 
 @Getter
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FormQuestion extends BaseEntity {
 
@@ -44,4 +50,20 @@ public class FormQuestion extends BaseEntity {
 
     @Convert(converter = StringListConverter.class)
     private List<String> options;
+
+    @Builder
+    private FormQuestion(
+            ClubApplyForm clubApplyForm,
+            String question,
+            FieldType fieldType,
+            boolean isRequired,
+            Long displayOrder,
+            List<String> options) {
+        this.clubApplyForm = clubApplyForm;
+        this.question = question;
+        this.fieldType = fieldType;
+        this.isRequired = isRequired;
+        this.displayOrder = displayOrder;
+        this.options = options;
+    }
 }

@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,10 +53,35 @@ class ClubApplyFormServiceImplTest {
     @BeforeEach
     void setUp() {
         clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        FormQuestion textQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("이름")
+                .fieldType(FieldType.TEXT)
+                .isRequired(true)
+                .displayOrder(1L)
+                .build();
+        ReflectionTestUtils.setField(textQuestion, "id", 1L);
 
-        FormQuestion textQuestion = new FormQuestion(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
-        FormQuestion radioQuestion = new FormQuestion(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
-        FormQuestion checkboxQuestion = new FormQuestion(3L, mockClubApplyForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
+        FormQuestion radioQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("성별")
+                .fieldType(FieldType.RADIO)
+                .isRequired(true)
+                .displayOrder(2L)
+                .options(List.of("남", "여"))
+                .build();
+        ReflectionTestUtils.setField(radioQuestion, "id", 2L);
+
+        FormQuestion checkboxQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("면접가능 요일")
+                .fieldType(FieldType.CHECKBOX)
+                .isRequired(true)
+                .displayOrder(3L)
+                .options(List.of("월", "화", "수", "목", "금", "토"))
+                .build();
+        ReflectionTestUtils.setField(checkboxQuestion, "id", 3L);
+
 
         formFields = List.of(textQuestion, radioQuestion, checkboxQuestion);
     }
