@@ -1,0 +1,119 @@
+package com.kakaotech.team18.backend_server.domain.clubApplyForm.controller;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ApplicationFormService;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+@WebMvcTest(ClubApplyFormController.class)
+class ClubApplyFormControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private ApplicationFormService applicationFormService;
+
+    @DisplayName("동아리 지원서 양식 조회 테스트 - 성공")
+    @Test
+    void getClubApplyFormByClubId_success() throws Exception {
+        // given
+        Long clubId = 1L;
+        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null);
+        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"));
+        ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
+                "테스트 동아리 지원서",
+                "테스트 동아리 지원서 설명입니다.",
+                List.of(question1, question2)
+        );
+
+        when(applicationFormService.getQuestionForm(clubId)).thenReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/apply", clubId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
+                .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
+                .andExpect(jsonPath("$.questions[0].question").value("이름"))
+                .andExpect(jsonPath("$.questions[1].question").value("성별"))
+                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+
+        verify(applicationFormService, times(1)).getQuestionForm(clubId);
+    }
+    @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 성공")
+    @Test
+    void getClubApplyFormByClubIdInDashboard_success() throws Exception {
+        // given
+        Long clubId = 1L;
+        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null);
+        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"));
+        ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
+                "테스트 동아리 지원서",
+                "테스트 동아리 지원서 설명입니다.",
+                List.of(question1, question2)
+        );
+
+        when(applicationFormService.getQuestionForm(clubId)).thenReturn(mockResponse);
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard/apply-form", clubId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
+                .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
+                .andExpect(jsonPath("$.questions[0].question").value("이름"))
+                .andExpect(jsonPath("$.questions[1].question").value("성별"))
+                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+
+        verify(applicationFormService, times(1)).getQuestionForm(clubId);
+    }
+
+    @DisplayName("동아리 지원서 양식 조회 테스트 - 지원서 양식 없음")
+    @Test
+    void getClubApplyFormByClubId_notFound() throws Exception {
+        // given
+        Long clubId = 999L;
+        when(applicationFormService.getQuestionForm(clubId))
+                .thenThrow(new ApplicationFormNotFoundException(clubId));
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/apply", clubId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        verify(applicationFormService, times(1)).getQuestionForm(clubId);
+    }
+    @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 지원서 양식 없음")
+    @Test
+    void getClubApplyFormByClubIdInDashboard_notFound() throws Exception {
+        // given
+        Long clubId = 999L;
+        when(applicationFormService.getQuestionForm(clubId))
+                .thenThrow(new ApplicationFormNotFoundException(clubId));
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/dashboard/apply-form", clubId))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        verify(applicationFormService, times(1)).getQuestionForm(clubId);
+    }
+
+}
