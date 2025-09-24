@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import java.util.List;
 
 @Schema(description = "지원서 양식 개별 질문 등록 정보")
@@ -10,15 +12,20 @@ public record FormQuestionRequestDto(
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")
         @NotBlank(message = "질문은 필수 입니다.")
         String question,
+
         @Schema(description = "질문 유형", example = "체크박스")
-        @NotBlank(message = "질문 유형은 필수 입니다.")
+        @NotNull(message = "질문 유형은 필수 입니다.")
         FieldType fieldType,
+
         @Schema(description = "필수 응답 여부", example = "true")
-        @NotBlank(message = "필수 응답 여부는 필수 입니다.")
+        @NotNull(message = "필수 응답 여부는 필수 입니다.")
         boolean isRequired,
+
         @Schema(description = "질문 표시 순서", example = "1")
-        @NotBlank(message = "질문 표시 순서는 필수 입니다.")
+        @NotNull(message = "질문 표시 순서는 필수 입니다.")
+        @Positive(message = "질문 표시 순서는 1 이상이어야 합니다.")
         Long displayOrder,
+
         @Schema(description = "선택지", example = "[\"JAVA\", \"C\", \"C++\"]")
         List<String> options
 ) {
