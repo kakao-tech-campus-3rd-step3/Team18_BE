@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/clubs/{clubId}")
 public class ClubApplyFormController {
 
-    private final ClubApplyFormService applicationFormService;
+    private final ClubApplyFormService clubApplyFormService;
 
     @Operation(summary = "지원서 양식 조회", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 조회합니다.")
     @ApiResponses({
@@ -31,7 +31,7 @@ public class ClubApplyFormController {
     public ResponseEntity<ClubApplyFormResponseDto> getClubApplyFormByClubId(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId
     ) {
-        ClubApplyFormResponseDto response = applicationFormService.getQuestionForm(clubId);
+        ClubApplyFormResponseDto response = clubApplyFormService.getQuestionForm(clubId);
         return ResponseEntity.ok(response);
     }
 }
