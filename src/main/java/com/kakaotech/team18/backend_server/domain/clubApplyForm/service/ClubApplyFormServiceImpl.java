@@ -1,11 +1,17 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final FormQuestionRepository formQuestionRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
+    private final ClubRepository clubRepository;
 
     @Transactional(readOnly = true)
     public ClubApplyFormResponseDto getQuestionForm(Long clubId){
@@ -38,5 +45,43 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                         .toList();
 
         return ClubApplyFormResponseDto.of(title, description, questions);
+    }
+
+    @Override
+    @Transactional
+    public void createClubApplyForm(Long clubId, ClubApplyFormRequestDto request) {
+        Club findClub = clubRepository.findById(clubId).orElseThrow(() -> {
+            log.warn("Club not found for clubId: {}", clubId);
+            return new ClubNotFoundException("clubId");
+        });
+
+        ClubApplyForm clubApplyForm = createClubApplyForm(request, findClub);
+        ClubApplyForm savedClubApplyForm = clubApplyFormRepository.save(clubApplyForm);
+        log.info("Saved ClubApplyFormId: {}", savedClubApplyForm.getId());
+
+        request.formQuestions().forEach(formQuestionRequestDto -> {
+            FormQuestion formQuestion = createFormQuestion(formQuestionRequestDto, savedClubApplyForm);
+            formQuestionRepository.save(formQuestion);
+            log.info("Saved FormQuestionId: {}", formQuestion.getId());
+        });
+    }
+
+    private static ClubApplyForm createClubApplyForm(ClubApplyFormRequestDto request, Club findClub) {
+        return ClubApplyForm.builder()
+                .club(findClub)
+                .title(request.title())
+                .description(request.description())
+                .build();
+    }
+
+    private static FormQuestion createFormQuestion(FormQuestionRequestDto formQuestionRequestDto, ClubApplyForm savedClubApplyForm) {
+        return FormQuestion.builder()
+                .clubApplyForm(savedClubApplyForm)
+                .question(formQuestionRequestDto.question())
+                .fieldType(formQuestionRequestDto.fieldType())
+                .isRequired(formQuestionRequestDto.isRequired())
+                .displayOrder(formQuestionRequestDto.displayOrder())
+                .options(formQuestionRequestDto.options())
+                .build();
     }
 }
