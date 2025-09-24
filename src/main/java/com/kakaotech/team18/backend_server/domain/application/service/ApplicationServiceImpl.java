@@ -114,7 +114,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationApplyResponseDto submitApplication(
             Long clubId,
             ApplicationApplyRequestDto request,
-            boolean confirmOverwrite
+            boolean requiresConfirmation
     ) {
 
         //1. applicationForm 찾기
@@ -142,7 +142,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             Application existingApplication = existingApplicationOptional.get();
 
             //3.1.1 덮어쓰기가 false
-            if (!confirmOverwrite) {
+            if (!requiresConfirmation) {
                 return new ApplicationApplyResponseDto(
                         existingApplication.getUser().getStudentId(),
                         existingApplication.getLastModifiedAt(),
