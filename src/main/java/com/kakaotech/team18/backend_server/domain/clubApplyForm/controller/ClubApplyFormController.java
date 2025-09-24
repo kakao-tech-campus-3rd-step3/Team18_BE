@@ -27,7 +27,7 @@ public class ClubApplyFormController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리 또는 지원서 양식을 찾을 수 없음")
     })
-    @GetMapping("/apply")
+    @GetMapping({"/apply", "/dashboard/apply-form"})
     public ResponseEntity<ClubApplyFormResponseDto> getClubApplyFormByClubId(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId
     ) {
