@@ -35,7 +35,9 @@ public class ApplicationFormAnswer extends BaseEntity {
 
     private String answer;
 
-    private Answer(Application application, FormQuestion formQuestion, String answer) {
+
+    private Answer(
+            Application application, FormQuestion formQuestion, String answer) {
         this.application = application;
         this.formQuestion = formQuestion;
         this.answer = answer;

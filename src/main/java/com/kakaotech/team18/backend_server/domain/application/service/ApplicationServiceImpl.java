@@ -109,6 +109,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new SuccessResponseDto(true);
     }
 
+    @Transactional
     @Override
     public ApplicationApplyResponseDto submitApplication(
             Long clubId,
@@ -149,7 +150,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 );
             }
 
-            //3.1.2 넢어쓰기가 true
+            //3.1.2 덮어쓰기가 true
             return updateApplication(existingApplication, request);
         } else {
             //3.2 제출내역이 없는경우
@@ -181,7 +182,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             ApplicationApplyRequestDto request
     ) {
 
-        Application newApplication = new Application(user, form);
+        Application newApplication = Application.builder().user(user).clubApplyForm(form).build();
         applicationRepository.save(newApplication);
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
