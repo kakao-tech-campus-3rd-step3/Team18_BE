@@ -3,7 +3,9 @@ package com.kakaotech.team18.backend_server.domain.auth.service;
 import com.kakaotech.team18.backend_server.domain.auth.dto.*;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.jwt.JwtProvider;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -81,6 +83,52 @@ public class AuthServiceImpl implements AuthService {
 
             return new RegistrationRequiredResponseDto("REGISTRATION_REQUIRED", temporaryToken);
         }
+    }
+
+    @Override
+    @Transactional
+    public LoginSuccessResponseDto register(String bearerToken, RegisterRequestDto registerRequestDto) {
+        // 1. 임시 토큰 검증 및 정보 추출
+        String temporaryToken = jwtProvider.extractToken(bearerToken);
+        Claims claims = jwtProvider.verify(temporaryToken);
+        Long kakaoId = claims.get("kakaoId", Long.class);
+
+        // 2. 학번으로 기존 사용자가 있는지 조회
+        Optional<User> userOptional = userRepository.findByStudentId(registerRequestDto.studentId());
+
+        User user;
+        if (userOptional.isPresent()) {
+            // 3-1. 계정 연결: 학번으로 사용자가 존재하면
+            user = userOptional.get();
+
+            // 보안 강화: 해당 학번의 사용자가 이미 카카오 연동이 되어 있는지 확인
+            if (user.getKakaoId() != null) {
+                // 이미 연동된 계정이 있다면, 계정 탈취 시도일 수 있으므로 에러 발생
+                log.warn("계정 연결 시도 실패: 이미 카카오 계정과 연동된 학번입니다. studentId={}", registerRequestDto.studentId());
+                throw new DuplicateKakaoIdException("이미 연동된 계정이 존재합니다.");
+            }
+
+            log.info("기존 사용자 계정 연결: studentId={}, kakaoId={}", user.getStudentId(), kakaoId);
+            user.connectKakaoId(kakaoId);
+        } else {
+            // 3-2. 신규 생성: 학번으로 사용자가 없으면, 새로운 User 생성
+            log.info("신규 사용자 생성: kakaoId={}", kakaoId);
+            user = User.builder()
+                    .kakaoId(kakaoId)
+                    .name(registerRequestDto.name())
+                    .email(registerRequestDto.email())
+                    .studentId(registerRequestDto.studentId())
+                    .phoneNumber(registerRequestDto.phoneNumber())
+                    .department(registerRequestDto.department())
+                    .build();
+            userRepository.save(user);
+        }
+
+        // 4. 정식 토큰 발급
+        String accessToken = jwtProvider.createAccessToken(user);
+        String refreshToken = jwtProvider.createRefreshToken(user);
+
+        return new LoginSuccessResponseDto("REGISTER_SUCCESS", accessToken, refreshToken);
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {

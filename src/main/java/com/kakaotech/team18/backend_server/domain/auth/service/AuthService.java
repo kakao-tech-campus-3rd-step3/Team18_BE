@@ -1,6 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.auth.service;
 
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 
 public interface AuthService {
 
@@ -13,6 +15,13 @@ public interface AuthService {
      */
     LoginResponse kakaoLogin(String authorizationCode);
 
-    // TODO: 추가 정보 입력을 위한 회원가입 완료 메서드는 다음 단계에서 추가
-    // void register(RegisterRequestDto registerRequestDto, Long userId);
+    /**
+     * 신규 회원이 제출한 추가 정보와 임시 토큰을 사용하여 최종 회원가입을 완료하고, 정식 토큰을 발급합니다.
+     *
+     * @param temporaryToken     신규 회원임을 증명하는 임시 토큰
+     * @param registerRequestDto 사용자가 입력한 추가 정보(이름, 학번, 학과 등)
+     * @return 회원가입 및 로그인 성공 결과로, 정식 토큰이 담긴 DTO
+     */
+    LoginSuccessResponseDto register(String temporaryToken, RegisterRequestDto registerRequestDto);
+
 }
