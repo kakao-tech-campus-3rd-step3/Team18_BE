@@ -41,6 +41,11 @@ public class ClubApplyFormController {
     }
 
     //TODO 권한 관련된 기능 로그인 기능 구현 이후 추가
+    @Operation(summary = "지원서 양식 저장", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "저장 성공"),
+            @ApiResponse(responseCode = "400", description = "입력 값 옳바르지 않은 경우")
+    })
     @PostMapping("/dashboard/apply-form")
     public ResponseEntity<Void> createClubApplyForm(
             @PathVariable("clubId") Long clubId,
