@@ -1,12 +1,14 @@
 package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
 
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.validate.ValidFormQuestionRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 
+@ValidFormQuestionRequest
 @Schema(description = "지원서 양식 개별 질문 등록 정보")
 public record FormQuestionRequestDto(
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")

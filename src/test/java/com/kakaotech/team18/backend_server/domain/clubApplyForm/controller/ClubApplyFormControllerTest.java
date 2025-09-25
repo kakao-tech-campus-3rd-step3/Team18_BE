@@ -198,4 +198,24 @@ class ClubApplyFormControllerTest {
         verifyNoInteractions(clubApplyFormService);
     }
 
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(TIME_SLOT 질문인데 timeSlotOptions가 null이면 400 응답)")
+    @Test
+    void timeSlotQuestionWithoutOptions_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "테스트 지원서",
+                "설명",
+                List.of(new FormQuestionRequestDto("면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+
 }

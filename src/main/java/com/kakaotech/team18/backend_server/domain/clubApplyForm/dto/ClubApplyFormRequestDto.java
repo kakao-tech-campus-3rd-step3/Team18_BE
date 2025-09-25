@@ -20,7 +20,7 @@ public record ClubApplyFormRequestDto(
         @Schema(description = "질문 목록")
         @NotEmpty(message = "질문 목록은 최소 1개 이상이어야 합니다.")
         @Valid
-        List<FormQuestionRequestDto> formQuestions
+        List<@Valid FormQuestionRequestDto> formQuestions
 ) {
 
 }
