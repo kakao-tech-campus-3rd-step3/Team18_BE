@@ -15,7 +15,7 @@ public record FormQuestionRequestDto(
         @NotBlank(message = "질문은 필수 입니다.")
         String question,
 
-        @Schema(description = "질문 유형", example = "체크박스")
+        @Schema(description = "질문 유형", example = "[TEXT, RADIO, CHECKBOX, TIME_SLOT 중 하나 입력 가능]")
         @NotNull(message = "질문 유형은 필수 입니다.")
         FieldType fieldType,
 
@@ -29,7 +29,7 @@ public record FormQuestionRequestDto(
         Long displayOrder,
 
         @Schema(description = "(check box, radio)선택지", example = "[\"JAVA\", \"C\", \"C++\"]")
-        List<String> options,
+        List<String> optionList,
 
         @Schema(description = "(Time Slot)선택지")
         List<TimeSlotOptionRequestDto> timeSlotOptions

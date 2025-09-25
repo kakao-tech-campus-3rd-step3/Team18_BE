@@ -47,8 +47,8 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_success() throws Exception {
         // given
         Long clubId = 1L;
-        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null);
-        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"));
+        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null, null);
+        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"), null);
         ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
@@ -74,8 +74,8 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubIdInDashboard_success() throws Exception {
         // given
         Long clubId = 1L;
-        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null);
-        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"));
+        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L, FieldType.TEXT, "이름", true, null, null);
+        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, FieldType.RADIO, "성별", true, List.of("남", "여"), null);
         ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",

@@ -66,12 +66,14 @@ class ClubApplyFormServiceImplMockTest {
                 clubApplyForm.getTitle(),
                 clubApplyForm.getDescription(),
                 List.of(formQuestion).stream().map(
-                        fq -> new FormQuestionResponseDto(
-                                fq.getDisplayOrder(),
-                                fq.getFieldType(),
-                                fq.getQuestion(),
-                                fq.isRequired(),
-                                fq.getOptions()))
+                                fq -> new FormQuestionResponseDto(
+                                        fq.getDisplayOrder(),
+                                        fq.getFieldType(),
+                                        fq.getQuestion(),
+                                        fq.isRequired(),
+                                        fq.getOptions(),
+                                        fq.getTimeSlotOptions()
+                                ))
                         .toList());
 
         //when

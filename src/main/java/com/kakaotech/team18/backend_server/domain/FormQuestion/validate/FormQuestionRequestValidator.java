@@ -23,7 +23,7 @@ public class FormQuestionRequestValidator implements ConstraintValidator<ValidFo
         }
 
         if (type == RADIO || type == CHECKBOX) {
-            if (dto.options() == null || dto.options().isEmpty()) {
+            if (dto.optionList() == null || dto.optionList().isEmpty()) {
                 return fail(context, "선택형 질문은 options를 입력해야 합니다.");
             }
         }

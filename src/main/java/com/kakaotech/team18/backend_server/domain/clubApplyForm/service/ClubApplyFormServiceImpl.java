@@ -96,7 +96,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                     ))
                     .toList());
         } else {
-            builder.options(dto.options());  // RADIO, CHECKBOX 등에서 사용
+            builder.options(dto.optionList());  // RADIO, CHECKBOX 등에서 사용
         }
         return builder.build();
     }
