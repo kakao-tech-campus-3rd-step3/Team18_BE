@@ -2,7 +2,9 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.TimeSlotOption;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
@@ -12,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -74,14 +77,31 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 .build();
     }
 
-    private static FormQuestion createFormQuestion(FormQuestionRequestDto formQuestionRequestDto, ClubApplyForm savedClubApplyForm) {
-        return FormQuestion.builder()
-                .clubApplyForm(savedClubApplyForm)
-                .question(formQuestionRequestDto.question())
-                .fieldType(formQuestionRequestDto.fieldType())
-                .isRequired(formQuestionRequestDto.isRequired())
-                .displayOrder(formQuestionRequestDto.displayOrder())
-                .options(formQuestionRequestDto.options())
-                .build();
+    private static FormQuestion createFormQuestion(FormQuestionRequestDto dto, ClubApplyForm savedForm) {
+        FormQuestion.FormQuestionBuilder builder = FormQuestion.builder()
+                .clubApplyForm(savedForm)
+                .question(dto.question())
+                .fieldType(dto.fieldType())
+                .isRequired(dto.isRequired())
+                .displayOrder(dto.displayOrder());
+
+        if (isTimeSlot(dto)) {
+            builder.timeSlotOptions(dto.timeSlotOptions().stream()
+                    .map(tsoDto -> new TimeSlotOption(
+                            LocalDate.parse(tsoDto.date()),
+                            new TimeSlotOption.TimeRange(
+                                    tsoDto.availableTime().start(),
+                                    tsoDto.availableTime().end()
+                            )
+                    ))
+                    .toList());
+        } else {
+            builder.options(dto.options());  // RADIO, CHECKBOX 등에서 사용
+        }
+        return builder.build();
+    }
+
+    private static boolean isTimeSlot(FormQuestionRequestDto dto) {
+        return dto.fieldType() == FieldType.TIME_SLOT;
     }
 }

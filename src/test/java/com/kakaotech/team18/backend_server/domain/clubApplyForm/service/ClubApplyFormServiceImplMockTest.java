@@ -11,12 +11,11 @@ import static org.mockito.Mockito.mock;
 
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.TimeSlotOptionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
@@ -24,7 +23,6 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -106,8 +104,11 @@ class ClubApplyFormServiceImplMockTest {
         Long clubId = 1L;
         Club club = Club.builder().name("Test Club").build();
 
-        FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null);
-        FormQuestionRequestDto question2 = new FormQuestionRequestDto("질문 2", FieldType.RADIO, false, 2L, List.of("옵션 1", "옵션 2"));
+        FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
+        FormQuestionRequestDto question2 = new FormQuestionRequestDto("질문 2", FieldType.RADIO,
+                false, 2L, List.of("옵션 1", "옵션 2"),
+                List.of(new TimeSlotOptionRequestDto("2025-09-24", new TimeSlotOptionRequestDto.TimeRange("10:00", "21:00")))
+        );
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명", List.of(question1, question2));
 
         ClubApplyForm clubApplyForm = ClubApplyForm.builder()
@@ -138,7 +139,7 @@ class ClubApplyFormServiceImplMockTest {
     void createClubApplyForm_ClubNotFound() {
         //given
         Long clubId = 1L;
-        FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null);
+        FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명", List.of(question1));
 
         given(clubRepository.findById(clubId)).willReturn(Optional.empty());

@@ -26,8 +26,11 @@ public record FormQuestionRequestDto(
         @Positive(message = "질문 표시 순서는 1 이상이어야 합니다.")
         Long displayOrder,
 
-        @Schema(description = "선택지", example = "[\"JAVA\", \"C\", \"C++\"]")
-        List<String> options
+        @Schema(description = "(check box, radio)선택지", example = "[\"JAVA\", \"C\", \"C++\"]")
+        List<String> options,
+
+        @Schema(description = "(Time Slot)선택지")
+        List<TimeSlotOptionRequestDto> timeSlotOptions
 ) {
 
 }

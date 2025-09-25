@@ -3,8 +3,10 @@ package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -51,6 +53,10 @@ public class FormQuestion extends BaseEntity {
     @Convert(converter = StringListConverter.class)
     private List<String> options;
 
+    @ElementCollection
+    @CollectionTable(name = "time_slot_options", joinColumns = @JoinColumn(name = "form_question_id"))
+    private List<TimeSlotOption> timeSlotOptions;
+
     @Builder
     private FormQuestion(
             ClubApplyForm clubApplyForm,
@@ -58,12 +64,14 @@ public class FormQuestion extends BaseEntity {
             FieldType fieldType,
             boolean isRequired,
             Long displayOrder,
-            List<String> options) {
+            List<String> options,
+            List<TimeSlotOption> timeSlotOptions) {
         this.clubApplyForm = clubApplyForm;
         this.question = question;
         this.fieldType = fieldType;
         this.isRequired = isRequired;
         this.displayOrder = displayOrder;
         this.options = options;
+        this.timeSlotOptions = timeSlotOptions;
     }
 }
