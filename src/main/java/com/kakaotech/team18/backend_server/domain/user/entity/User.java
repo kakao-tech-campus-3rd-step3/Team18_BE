@@ -23,11 +23,8 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "login_id", unique = true)
-    private String loginId;
-
-    @Column(name = "password")
-    private String password;
+    @Column(unique = true, nullable = true)
+    private Long kakaoId;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -45,10 +42,9 @@ public class User extends BaseEntity {
     private String department;
 
     @Builder
-    private User(String loginId, String password, String email, String name, String studentId,
+    private User(Long kakaoId, String email, String name, String studentId,
             String phoneNumber, String department) {
-        this.loginId = loginId;
-        this.password = password;
+        this.kakaoId = kakaoId;
         this.email = email;
         this.name = name;
         this.studentId = studentId;
