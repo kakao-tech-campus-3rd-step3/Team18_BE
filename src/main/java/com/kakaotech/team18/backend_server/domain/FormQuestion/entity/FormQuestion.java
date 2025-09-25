@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
 import jakarta.persistence.CollectionTable;
@@ -16,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -74,4 +76,29 @@ public class FormQuestion extends BaseEntity {
         this.options = options;
         this.timeSlotOptions = timeSlotOptions;
     }
-}
+
+    public void updateFrom(FormQuestionUpdateDto dto) {
+        this.question = dto.question();
+        this.fieldType = dto.fieldType();
+        this.isRequired = dto.isRequired();
+        this.displayOrder = dto.displayOrder();
+
+        if (dto.fieldType() == FieldType.TIME_SLOT) {
+            this.timeSlotOptions = dto.timeSlotOptions() != null
+                    ? dto.timeSlotOptions().stream()
+                    .map(tsoDto -> new TimeSlotOption(
+                            LocalDate.parse(tsoDto.date()),
+                            new TimeSlotOption.TimeRange(
+                                    tsoDto.availableTime().start(),
+                                    tsoDto.availableTime().end()
+                            )
+                    ))
+                    .toList()
+                    : null;
+
+            this.options = null;
+        } else {
+            this.options = dto.optionList();
+            this.timeSlotOptions = null;
+        }
+    }}
