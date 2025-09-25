@@ -4,15 +4,15 @@ import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.Fie
 import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType.RADIO;
 import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType.TIME_SLOT;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionBaseDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class FormQuestionRequestValidator implements ConstraintValidator<ValidFormQuestionRequest, FormQuestionRequestDto> {
+public class FormQuestionRequestValidator implements ConstraintValidator<ValidFormQuestionRequest, FormQuestionBaseDto> {
 
     @Override
-    public boolean isValid(FormQuestionRequestDto dto, ConstraintValidatorContext context) {
+    public boolean isValid(FormQuestionBaseDto dto, ConstraintValidatorContext context) {
 
         FieldType type = dto.fieldType();
 
