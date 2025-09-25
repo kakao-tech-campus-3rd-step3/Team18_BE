@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionR
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.TimeSlotOptionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.TimeSlotOption;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
@@ -23,6 +24,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -170,6 +172,9 @@ class ClubApplyFormServiceImplMockTest {
                 .isRequired(true)
                 .displayOrder(1L)
                 .options(List.of("치킨", "피자", "햄버거"))
+                .timeSlotOptions(List.of(new TimeSlotOption(LocalDate.of(2024, 10, 26),
+                        new TimeSlotOption.TimeRange("10:00", "12:00")
+                )))
                 .build();
     }
 
