@@ -38,7 +38,7 @@ public class ClubApplyForm extends BaseEntity {
     private boolean isActive;
 
     @Builder
-    public ClubApplyForm(Club club, String title, String description, boolean isActive) {
+    private ClubApplyForm(Club club, String title, String description, boolean isActive) {
         this.club = club;
         this.title = title;
         this.description = description;

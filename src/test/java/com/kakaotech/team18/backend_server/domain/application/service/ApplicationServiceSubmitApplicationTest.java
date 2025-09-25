@@ -52,7 +52,6 @@ class ApplicationServiceSubmitApplicationTest {
     @Mock private ClubApplyFormRepository clubApplyFormRepository;
     @Mock private FormQuestionRepository formQuestionRepository;
     @Mock private UserRepository userRepository;
-    //@Mock private EmailService emailService;
     @Mock private ApplicationEventPublisher publisher;
 
     private final User baseUser = User.builder()
@@ -148,7 +147,7 @@ class ApplicationServiceSubmitApplicationTest {
             when(userRepository.findByStudentId("20231234"))
                     .thenReturn(Optional.of(baseUser));
 
-            Application existing = new Application(baseUser, form);
+            Application existing = Application.builder().user(baseUser).clubApplyForm(form).build();
             ReflectionTestUtils.setField(existing, "id", 200L);
             ReflectionTestUtils.setField(existing, "lastModifiedAt", LocalDateTime.now());
 
@@ -184,7 +183,7 @@ class ApplicationServiceSubmitApplicationTest {
             when(userRepository.findByStudentId("20231234"))
                     .thenReturn(Optional.of(baseUser));
 
-            Application existing = new Application(baseUser, form);
+            Application existing = Application.builder().user(baseUser).clubApplyForm(form).build();
             ReflectionTestUtils.setField(existing, "id", 201L);
             ReflectionTestUtils.setField(existing, "lastModifiedAt", LocalDateTime.now());
 
@@ -231,7 +230,7 @@ class ApplicationServiceSubmitApplicationTest {
             ClubApplyForm form = mock(ClubApplyForm.class);
             when(form.getId()).thenReturn(11L);
 
-            Application app = new Application(baseUser, form);
+            Application app = Application.builder().user(baseUser).clubApplyForm(form).build();
             ReflectionTestUtils.setField(app, "id", 300L);
 
             when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(11L))
