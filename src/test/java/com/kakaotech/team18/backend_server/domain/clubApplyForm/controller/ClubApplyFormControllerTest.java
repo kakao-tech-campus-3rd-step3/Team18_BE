@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -15,9 +16,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
@@ -216,6 +219,95 @@ class ClubApplyFormControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").exists());
     }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 성공")
+    @Test
+    void updateClubApplyForm() throws Exception {
+        //given
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "테스트 설명",
+                List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
+                ));
+
+        doNothing().when(clubApplyFormService).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
+
+        //when & then
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clubApplyFormUpdateDto))
+                )
+                .andDo(print())
+                .andExpect(status().isAccepted());
+
+        verify(clubApplyFormService, times(1)).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(해당 동아리가 없음)")
+    @Test
+    void updateClubApplyForm_wrongClubId() throws Exception {
+        //given
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "테스트 설명",
+                List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
+                ));
+
+        doThrow(new ClubNotFoundException("clubId")).when(clubApplyFormService).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
+
+        //when & then
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clubApplyFormUpdateDto))
+                )
+                .andDo(print())
+                .andExpect(status().isNotFound());
+
+        verify(clubApplyFormService, times(1)).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(유효하지 않은 입력)")
+    @Test
+    void updateClubApplyForm_invalidInput() throws Exception {
+        //given
+        Long clubId = 1L;
+        // question 필드가 blank인 경우
+        ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto("테스트 지원서", "테스트 설명",
+                List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)));
+
+        //when & then
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(clubApplyFormUpdateDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("입력 값이 올바르지 않습니다."));
+
+        verifyNoInteractions(clubApplyFormService);
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(TIME_SLOT 질문인데 timeSlotOptions가 null이면 400 응답)")
+    @Test
+    void updateClubApplyForm_timeSlotQuestionWithoutOptions_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "설명",
+                List.of(new FormQuestionUpdateDto(1L, "면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
 
 
 }
