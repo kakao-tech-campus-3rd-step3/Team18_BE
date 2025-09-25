@@ -67,6 +67,7 @@ class ClubApplyFormServiceImplMockTest {
                 clubApplyForm.getDescription(),
                 List.of(formQuestion).stream().map(
                                 fq -> new FormQuestionResponseDto(
+                                        fq.getId(),
                                         fq.getDisplayOrder(),
                                         fq.getFieldType(),
                                         fq.getQuestion(),
