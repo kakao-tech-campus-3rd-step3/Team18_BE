@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -13,6 +14,7 @@ import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,5 +54,19 @@ public class ClubApplyFormController {
             @Valid @RequestBody ClubApplyFormRequestDto request) {
         clubApplyFormService.createClubApplyForm(clubId, request);
         return ResponseEntity.created(URI.create("/api/clubs/" + clubId + "/dashboard/apply-form")).build();
+    }
+
+    //TODO 권한 관련된 기능 로그인 기능 구현 이후 추가
+    @Operation(summary = "지원서 양식 수정", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "입력 값 옳바르지 않은 경우")
+    })
+    @PatchMapping("/dashboard/apply-form")
+    public ResponseEntity<Void> updateClubApplyForm(
+            @PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ClubApplyFormUpdateDto request) {
+        clubApplyFormService.updateClubApplyForm(clubId, request);
+        return ResponseEntity.accepted().build();
     }
 }
