@@ -341,20 +341,6 @@ public class ClubServiceMockTest {
         assertThat(actual).allMatch(dto -> dto.status().equals(status));
     }
 
-    private static CautionItem createCautionItem() {
-        return CautionItem.builder()
-                .displayOrder(1)
-                .content("해당 학기 재학 중인 학생만 지원 가능합니다.")
-                .build();
-    }
-
-    private static ClubCaution createClubCaution() {
-        return ClubCaution.builder()
-                .displayOrder(1)
-                .title("지원 자격 확인")
-                .build();
-    }
-
     private static Stream<Arguments> provideStatusAndClubMembers() {
         Club club = createClub(mock(ClubIntroduction.class),
                 LocalDateTime.of(2025, 9, 3, 0, 0),
@@ -414,6 +400,20 @@ public class ClubServiceMockTest {
 
         //then
         assertThat(actual).isEqualTo(expect);
+    }
+
+    private static CautionItem createCautionItem() {
+        return CautionItem.builder()
+                .displayOrder(1)
+                .content("해당 학기 재학 중인 학생만 지원 가능합니다.")
+                .build();
+    }
+
+    private static ClubCaution createClubCaution() {
+        return ClubCaution.builder()
+                .displayOrder(1)
+                .title("지원 자격 확인")
+                .build();
     }
 
 
