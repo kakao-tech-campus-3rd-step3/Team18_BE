@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.validate.ValidFormQuestionRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -32,6 +33,7 @@ public record FormQuestionRequestDto(
         List<String> optionList,
 
         @Schema(description = "(Time Slot)선택지")
+        @Valid
         List<TimeSlotOptionRequestDto> timeSlotOptions
 ) implements FormQuestionBaseDto {
 
