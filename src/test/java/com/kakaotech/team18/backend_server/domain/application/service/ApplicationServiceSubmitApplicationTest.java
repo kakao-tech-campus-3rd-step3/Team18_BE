@@ -12,6 +12,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
@@ -66,6 +67,11 @@ class ApplicationServiceSubmitApplicationTest {
         FormQuestion q1 = new FormQuestion(null, form, "자기소개", FieldType.TEXT, true , 1L, null);
         FormQuestion q2 = new FormQuestion(null, form, "성별"  , FieldType.RADIO, true , 2L, List.of("남","여"));
         FormQuestion q3 = new FormQuestion(null, form, "관심사", FieldType.CHECKBOX, false, 3L, List.of("A","B","C"));
+
+        ReflectionTestUtils.setField(q1, "id", 101L);
+        ReflectionTestUtils.setField(q2, "id", 102L);
+        ReflectionTestUtils.setField(q3, "id", 103L);
+
         return List.of(q1, q2, q3);
     }
 
@@ -108,7 +114,11 @@ class ApplicationServiceSubmitApplicationTest {
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "20231234", "stud@example.com", "홍길동", "010-0000-0000", "컴공",
-                    List.of("안녕하세요", "여", "A,B")
+                    List.of(
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "안녕하세요"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "여"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "A,B")
+                    )
             );
 
             // when
@@ -156,7 +166,11 @@ class ApplicationServiceSubmitApplicationTest {
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "20231234", "stud@example.com", "홍길동", "010-0000-0000", "컴공",
-                    List.of("수정본문", "남", "A")
+                    List.of(
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "수정본문"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "남"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "A")
+                    )
             );
 
             // when
@@ -198,7 +212,11 @@ class ApplicationServiceSubmitApplicationTest {
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "20231234", "stud@example.com", "홍길동", "010-0000-0000", "컴공",
-                    List.of("수정본문", "여", "B")
+                    List.of(
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "수정본문"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "여"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "B")
+                    )
             );
 
             // when
@@ -240,10 +258,14 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenAnswer(inv -> inv.getArgument(0));
 
             // TEXT 값, RADIO 값, CHECKBOX 공란
-            var answers = List.of("자소서", "남", "");
+            List<ApplicationApplyRequestDto.AnswerDto> answers = List.of(
+                    new ApplicationApplyRequestDto.AnswerDto(101L, "자소서"),
+                    new ApplicationApplyRequestDto.AnswerDto(102L, "남"),
+                    new ApplicationApplyRequestDto.AnswerDto(103L, "")
+            );
 
             // when
-            var emailLines = service.saveApplicationAnswers(app, answers);
+            List<AnswerEmailLine> emailLines = service.saveApplicationAnswers(app, answers);
 
             // then
             assertThat(emailLines).hasSize(3);

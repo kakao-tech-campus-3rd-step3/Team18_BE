@@ -1,14 +1,15 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
@@ -30,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -195,11 +198,20 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    @Transactional
-    public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<String> answerList) {
+    //@Transactional
+    public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<AnswerDto> answerList) {
         if (answerList == null) answerList = List.of();
 
         final Long formId = application.getClubApplyForm().getId();
+
+        Map<Long, String> byQuestionId = answerList.stream()
+                .filter(Objects::nonNull)
+                .filter(a -> a.questionId() != null)
+                .collect(Collectors.toMap(
+                        AnswerDto::questionId,
+                        a -> normalize(a.answerContent()),
+                        (prev, next) -> next
+                ));
 
         // 1) 폼의 질문을 표시순서대로 조회
         List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);
@@ -208,10 +220,9 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<Answer> toSave = new ArrayList<>(questions.size());
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
-        for (int i = 0; i < questions.size(); i++) {
-            FormQuestion q = questions.get(i);
-            String raw = (i < answerList.size()) ? answerList.get(i) : null;
-            String normalized = normalize(raw);
+        for (FormQuestion q : questions) {
+            String normalized = byQuestionId.getOrDefault(q.getId(), "");
+            normalized = normalize(normalized);
 
             // 필수 문항 검사
             if (q.isRequired() && isBlank(normalized)) {
