@@ -18,54 +18,14 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     Optional<Club> findByName(String name);
 
-    List<Club> findByCategory(Category category);//optional이어야하지않음??
+    List<Club> findByCategory(Category category);
 
-    @Query("""
-    select c.id as id,
-           c.name as name,
-           c.shortIntroduction as shortIntroduction,
-           c.category as category,
-           c.recruitStart as recruitStart,
-           c.recruitEnd as recruitEnd
-    from Club c
-    """)
-    List<ClubSummary> findAllSummaries();
+    List<ClubSummary> findAllProjectedBy();
 
-    @Query("""
-    select c.id as id,
-           c.name as name,
-           c.category as category,
-           c.shortIntroduction as shortIntroduction,
-           c.recruitStart as recruitStart,
-           c.recruitEnd as recruitEnd
-    from Club c
-    where c.name = :name
-    """)
-    Optional<ClubSummary> findClubSummaryByName(@Param("name") String name);
+    Optional<ClubSummary> findSummaryByName(String name);
 
-    @Query("""
-    select c.id as id,
-           c.name as name,
-           c.category as category,
-           c.shortIntroduction as shortIntroduction,
-           c.recruitStart as recruitStart,
-           c.recruitEnd as recruitEnd
-    from Club c
-    where c.category = :category
-    """)
-    List<ClubSummary> findSummariesByCategory(@Param("category") Category category);
+    List<ClubSummary> findSummariesByCategory(Category category);
 
-
-    @Query("""
-    select c.id as id,
-           c.name as name,
-           c.category as category,
-           c.shortIntroduction as shortIntroduction,
-           c.recruitStart as recruitStart,
-           c.recruitEnd as recruitEnd
-    from Club c
-    where c.name like concat('%', :name, '%')
-    """)
-    List<ClubSummary> findSummariesByNameContaining(@Param("name") String name);
+    List<ClubSummary> findSummariesByNameContaining(String name);
 
 }

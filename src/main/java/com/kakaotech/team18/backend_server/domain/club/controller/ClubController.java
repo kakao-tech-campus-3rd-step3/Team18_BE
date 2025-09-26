@@ -1,14 +1,12 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
-
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,4 +41,9 @@ public class ClubController{
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/{clubId}/dashboard")
+    public ResponseEntity<ClubDashBoardResponseDto> getClubDashboard(@PathVariable long clubId) {
+        ClubDashBoardResponseDto response = clubService.getClubDashBoard(clubId);
+        return ResponseEntity.ok(response);
+    }
 }

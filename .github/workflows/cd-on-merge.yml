@@ -1,0 +1,68 @@
+name: CD on Merge to develop
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch: {}
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: application.yml from secret
+        run: |
+          mkdir -p ./src/main/resources
+          cat > ./src/main/resources/application.yml <<'YAML'
+          ${{ secrets.APPLICATION_YML }}
+          YAML
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: 테스트 및 빌드하기
+        run: ./gradlew clean build
+
+      - name: 빌드된 파일 이름 변경하기
+        run: mv ./build/libs/*SNAPSHOT.jar ./project.jar
+
+      - name: SCP로 EC2에 빌드된 파일 전송하기
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: project.jar
+          target: /home/ec2-user/dongarium-server/tobe
+
+      - name: SSH로 EC2에 접속하기
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            rm -rf /home/ec2-user/dongarium-server/current
+            mkdir /home/ec2-user/dongarium-server/current
+            mv /home/ec2-user/dongarium-server/tobe/project.jar /home/ec2-user/dongarium-server/current/project.jar
+            cd /home/ec2-user/dongarium-server/current
+            sudo fuser -k -n tcp 8080 || true
+            nohup java -Dspring.profiles.active=prod -jar project.jar > ./output.log 2>&1 &
+            rm -rf /home/ec2-user/dongarium-server/tobe

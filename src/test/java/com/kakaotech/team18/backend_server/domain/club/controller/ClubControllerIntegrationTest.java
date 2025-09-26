@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import com.kakaotech.team18.backend_server.domain.user.repository.UsersRepository;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class ClubControllerIntegrationTest {
     private ClubRepository clubRepository;
 
     @Autowired
-    private UsersRepository usersRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -49,31 +49,34 @@ class ClubControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         clubRepository.deleteAll();
-        usersRepository.deleteAll();
+        userRepository.deleteAll();
 
         entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER TABLE club ALTER COLUMN club_id RESTART WITH 1").executeUpdate();
 
         User user1 = User.builder()
                 .name("회장1")
+                .loginId("ex1")
+                .password("123")
                 .email("president1@test.com")
                 .phoneNumber("010-1234-5678")
                 .studentId("123456")
                 .department("컴퓨터공학과")
                 .build();
-        usersRepository.save(user1);
+        userRepository.save(user1);
 
         User user2 = User.builder()
                 .name("회장2")
+                .loginId("ex2")
+                .password("123")
                 .email("president2@test.com")
                 .phoneNumber("010-2222-2222")
                 .studentId("456789")
                 .department("인공지능학부")
                 .build();
-        usersRepository.save(user2);
+        userRepository.save(user2);
 
         Club club1 = Club.builder()
-                .president(user1)
                 .name("동아리1")
                 .category(STUDY)
                 .shortIntroduction("짧은 소개1")
@@ -81,7 +84,6 @@ class ClubControllerIntegrationTest {
                 .build();
 
         Club club2 = Club.builder()
-                .president(user2)
                 .name("동아리2")
                 .category(SPORTS)
                 .shortIntroduction("짧은 소개2")
