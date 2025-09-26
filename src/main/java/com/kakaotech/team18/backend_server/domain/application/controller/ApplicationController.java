@@ -59,7 +59,7 @@ public class ApplicationController {
     }
 
     @PostMapping("/api/clubs/{clubId}/apply-submit")
-    public ResponseEntity<?> submitApplication(
+    public ResponseEntity<ApplicationApplyResponseDto> submitApplication(
             @PathVariable("clubId") Long clubId,
             @Valid @RequestBody ApplicationApplyRequestDto request,
             @RequestParam(value = "overwrite", defaultValue = "false" ) boolean requiresConfirmation
