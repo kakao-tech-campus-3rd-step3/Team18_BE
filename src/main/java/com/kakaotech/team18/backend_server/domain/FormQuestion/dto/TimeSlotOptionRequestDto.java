@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "동아리의 면접 가능 날짜")
 public record TimeSlotOptionRequestDto(
@@ -12,6 +13,7 @@ public record TimeSlotOptionRequestDto(
 
         @Schema(description = "가능한 면접 시간")
         @Valid
+        @NotNull(message = "면접 가능 시간은 필수 입니다.")
         TimeRange availableTime
 ) {
     @Schema(description = "동아리의 면접 가능 시간")
