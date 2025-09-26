@@ -21,7 +21,7 @@ public record FormQuestionRequestDto(
 
         @Schema(description = "필수 응답 여부", example = "true")
         @NotNull(message = "필수 응답 여부는 필수 입니다.")
-        boolean isRequired,
+        Boolean isRequired,
 
         @Schema(description = "질문 표시 순서", example = "1")
         @NotNull(message = "질문 표시 순서는 필수 입니다.")

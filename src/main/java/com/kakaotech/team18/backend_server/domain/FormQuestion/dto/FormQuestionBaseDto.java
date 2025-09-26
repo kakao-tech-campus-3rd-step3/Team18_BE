@@ -6,7 +6,7 @@ import java.util.List;
 public interface FormQuestionBaseDto {
     String question();
     FieldType fieldType();
-    boolean isRequired();
+    Boolean isRequired();
     Long displayOrder();
     List<String> optionList();
     List<TimeSlotOptionRequestDto> timeSlotOptions();
