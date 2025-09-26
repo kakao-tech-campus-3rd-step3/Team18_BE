@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -44,7 +45,7 @@ class ApplicationControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ApplicationService applicationService;
 
     @Autowired
@@ -175,7 +176,11 @@ class ApplicationControllerTest {
           "name":"홍길동",
           "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
-          "answerList": ["자기소개입니다","여","A,B"]
+          "answerList": [
+          {"questionId":1,"answerContent":"자기소개입니다"},
+          {"questionId":2,"answerContent":"여"},
+          {"questionId":3,"answerContent":"A,B"}
+          ]
         }
         """;
         }
@@ -196,7 +201,8 @@ class ApplicationControllerTest {
 
         @Test
         @DisplayName("requiresConfirmation=true → 202 ACCEPTED")
-        void returnsAccepted_whenRequiresConfirmationTrue() throws Exception {
+        void
+        returnsAccepted_whenRequiresConfirmationTrue() throws Exception {
             long clubId = 1L;
 
             // overwrite 파라미터 기본값(false)
