@@ -45,6 +45,25 @@ jobs:
             jpa:
               hibernate.ddl-auto: create
               properties.hibernate.format_sql: true
+          # spring.security.oauth2 설정 추가
+            security:
+              oauth2:
+                client:
+                  registration:
+                    kakao:
+                      client-id: ${KAKAO_CLIENT_ID}
+                      client-secret: ${KAKAO_CLIENT_SECRET}
+                      redirect-uri: "http://localhost:8080/callback"
+                  provider:
+                    kakao:
+                      token-uri: https://kauth.kakao.com/oauth/token
+                      user-info-uri: https://kapi.kakao.com/v2/user/me
+
+          # jwt 설정 추가
+          jwt:
+            secret: ${JWT_SECRET}
+            access-token-validity-in-seconds: 1800
+            refresh-token-validity-in-seconds: 604800
           YAML
 
       # 테스트 프로필로 빌드/테스트
