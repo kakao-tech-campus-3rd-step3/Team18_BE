@@ -127,6 +127,7 @@ class ApplicationServiceSubmitApplicationTest {
             // then
             assertThat(res).isNotNull();
             assertThat(res.studentId()).isEqualTo("20231234");
+            assertThat(res.requiresConfirmation()).isTrue();
 
             verify(applicationRepository, times(1)).save(any(Application.class));
             verify(answerRepository, times(1)).saveAll(anyList());

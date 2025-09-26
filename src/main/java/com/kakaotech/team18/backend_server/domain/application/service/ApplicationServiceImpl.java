@@ -15,7 +15,6 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
-import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -47,7 +46,6 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
-    private final EmailService emailService;
     private final ApplicationEventPublisher publisher;
 
     @Override
@@ -190,7 +188,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         applicationRepository.save(newApplication);
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
-        //emailService.sendToApplicant(newApplication, emailLines);
         publisher.publishEvent(new ApplicationSubmittedEvent(newApplication.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(

@@ -1,9 +1,10 @@
-package com.kakaotech.team18.backend_server.domain.email.connfig;
+package com.kakaotech.team18.backend_server.domain.email.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 @Configuration
 public class MailConfig {
@@ -15,7 +16,7 @@ public class MailConfig {
             @Value("${spring.mail.username}") String username,
             @Value("${spring.mail.password}") String password
     ) {
-        var sender = new org.springframework.mail.javamail.JavaMailSenderImpl();
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
         sender.setHost(host);
         sender.setPort(port);
         sender.setUsername(username);
