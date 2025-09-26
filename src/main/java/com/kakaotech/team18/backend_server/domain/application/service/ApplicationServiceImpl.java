@@ -203,7 +203,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    //@Transactional
     public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<AnswerDto> answerList) {
         if (answerList == null) answerList = List.of();
 
