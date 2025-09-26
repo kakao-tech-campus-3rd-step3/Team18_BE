@@ -137,7 +137,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 });
 
         //3. (폼+학번)으로 지원내역이 있는지 찾기
-        Optional<Application> existingApplicationOptional = applicationRepository.findByUserAndClubApplyForm(request.studentId(), form);
+        Optional<Application> existingApplicationOptional = applicationRepository.findByStudentIdAndClubApplyForm(request.studentId(), form);
 
         //3.1 제출내역이 있고
         if (existingApplicationOptional.isPresent()) {

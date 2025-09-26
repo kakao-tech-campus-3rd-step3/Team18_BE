@@ -29,5 +29,5 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             join a.user u 
             where u.studentId = :studentId and a.clubApplyForm = :form
             """)
-    Optional<Application> findByUserAndClubApplyForm(String studentId, ClubApplyForm form);
+    Optional<Application> findByStudentIdAndClubApplyForm(String studentId, ClubApplyForm form);
 }

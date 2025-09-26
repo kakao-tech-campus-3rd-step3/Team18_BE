@@ -95,7 +95,7 @@ class ApplicationServiceSubmitApplicationTest {
             when(userRepository.save(any(User.class)))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            when(applicationRepository.findByUserAndClubApplyForm(eq("20231234"), eq(form)))
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
                     .thenReturn(Optional.empty());
 
             when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(11L))
@@ -161,7 +161,7 @@ class ApplicationServiceSubmitApplicationTest {
             ReflectionTestUtils.setField(existing, "id", 200L);
             ReflectionTestUtils.setField(existing, "lastModifiedAt", LocalDateTime.now());
 
-            when(applicationRepository.findByUserAndClubApplyForm(eq("20231234"), eq(form)))
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
                     .thenReturn(Optional.of(existing));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
@@ -201,7 +201,7 @@ class ApplicationServiceSubmitApplicationTest {
             ReflectionTestUtils.setField(existing, "id", 201L);
             ReflectionTestUtils.setField(existing, "lastModifiedAt", LocalDateTime.now());
 
-            when(applicationRepository.findByUserAndClubApplyForm(eq("20231234"), eq(form)))
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
                     .thenReturn(Optional.of(existing));
 
             when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(11L))
