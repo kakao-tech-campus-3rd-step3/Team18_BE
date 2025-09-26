@@ -183,6 +183,11 @@ class ClubApplyFormServiceImplMockTest {
         given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
         given(formQuestionRepository.findByClubApplyForm(clubApplyForm)).willReturn(List.of(formQuestion1, formQuestion2));
+        given(formQuestionRepository.save(any(FormQuestion.class))).willAnswer(invocation -> {
+            FormQuestion savedQuestion = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedQuestion, "id", 1L); // Simulate ID generation
+            return savedQuestion;
+        });
 
         // Update: question1 modified, question2 deleted, new question3 added
         ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(

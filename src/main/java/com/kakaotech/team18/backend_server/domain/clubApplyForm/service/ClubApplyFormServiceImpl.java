@@ -108,8 +108,8 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 incomingIds.add(dto.questionId());
             } else {
                 FormQuestion newQuestion = createFormQuestion(dto, findClubApplyForm);
-                formQuestionRepository.save(newQuestion);
-                log.info("Created new FormQuestionId: {}", dto.questionId());
+                FormQuestion savedFormQuestion = formQuestionRepository.save(newQuestion);
+                log.info("Created new FormQuestionId: {}", savedFormQuestion.getId());
             }
         }
     }
@@ -126,7 +126,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private Club findClub(Long clubId) {
         return clubRepository.findById(clubId).orElseThrow(() -> {
             log.warn("Club not found for clubId: {}", clubId);
-            return new ClubNotFoundException("clubId");
+            return new ClubNotFoundException("clubId = " + clubId);
         });
     }
 
