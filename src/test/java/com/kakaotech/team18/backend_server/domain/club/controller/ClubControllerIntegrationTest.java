@@ -67,8 +67,6 @@ class ClubControllerIntegrationTest {
 
         User user1 = User.builder()
                 .name("회장1")
-                .loginId("ex1")
-                .password("123")
                 .email("president1@test.com")
                 .phoneNumber("010-1234-5678")
                 .studentId("123456")
@@ -78,8 +76,6 @@ class ClubControllerIntegrationTest {
 
         User user2 = User.builder()
                 .name("회장2")
-                .loginId("ex2")
-                .password("123")
                 .email("president2@test.com")
                 .phoneNumber("010-2222-2222")
                 .studentId("456789")
