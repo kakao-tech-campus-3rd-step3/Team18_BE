@@ -3,8 +3,8 @@ package com.kakaotech.team18.backend_server.global.security;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -14,16 +14,10 @@ import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtProvider {
 
-    @Value("${jwt.secret}")
-    private String secret;
-
-    @Value("${jwt.access-token-validity-in-seconds}")
-    private long accessTokenValidityInSeconds;
-
-    @Value("${jwt.refresh-token-validity-in-seconds}")
-    private long refreshTokenValidityInSeconds;
+    private final JwtProperties jwtProperties;
 
     // 임시 토큰 유효 시간 (5분)
     private final long temporaryTokenValidityInSeconds = 300;
@@ -32,7 +26,7 @@ public class JwtProvider {
     private static final String HEADER = "Authorization";
 
     private Key getSigningKey() {
-        byte[] keyBytes = secret.getBytes(StandardCharsets.UTF_8);
+        byte[] keyBytes = jwtProperties.secret().getBytes(StandardCharsets.UTF_8);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
@@ -42,7 +36,7 @@ public class JwtProvider {
         // Map<String, Object> claims = Map.of("memberships", structuredRoles);
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.accessTokenValidityInSeconds * 1000);
+        Date validity = new Date(now + jwtProperties.accessTokenValidityInSeconds() * 1000);
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
@@ -56,7 +50,7 @@ public class JwtProvider {
     // Refresh Token 생성
     public String createRefreshToken(User user) {
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.refreshTokenValidityInSeconds * 1000);
+        Date validity = new Date(now + jwtProperties.refreshTokenValidityInSeconds() * 1000);
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())

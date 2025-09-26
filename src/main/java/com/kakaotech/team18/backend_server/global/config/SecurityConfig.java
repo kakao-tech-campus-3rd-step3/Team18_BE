@@ -3,7 +3,9 @@ package com.kakaotech.team18.backend_server.global.config;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,29 +19,36 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
+@EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
 
     private final HandlerExceptionResolver resolver;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
-                          JwtAuthenticationFilter jwtAuthenticationFilter) {
+    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
         this.resolver = resolver;
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http.csrf(csrf -> csrf.disable());
         http.formLogin(formLogin -> formLogin.disable());
         http.httpBasic(httpBasic -> httpBasic.disable());
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        // =================== 개발 단계에서 모든 API 허용 ===================
+        // TODO: 배포 시, 아래 주석을 풀고 원래의 보안 설정을 적용해야 합니다.
+        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+        // ===============================================================
+
+        /*
+        // =================== 원래의 보안 설정 (배포 시 활성화) ===================
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().authenticated()
         );
+        // ====================================================================
+        */
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint())
