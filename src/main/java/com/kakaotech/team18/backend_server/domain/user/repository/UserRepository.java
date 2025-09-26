@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Optional<User> findByStudentId(@NotBlank(message = "학번은 필수입니다.") String s);
+    Optional<User> findByStudentId(String s);
 }

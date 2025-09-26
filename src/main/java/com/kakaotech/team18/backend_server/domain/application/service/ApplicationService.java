@@ -12,5 +12,5 @@ public interface ApplicationService {
 
     SuccessResponseDto updateApplicationStatus(Long applicationId, ApplicationStatusUpdateRequestDto requestDto);
 
-    ApplicationApplyResponseDto submitApplication(Long clubId, @Valid ApplicationApplyRequestDto request, boolean confirmOverwrite);
+    ApplicationApplyResponseDto submitApplication(Long clubId, ApplicationApplyRequestDto request, boolean confirmOverwrite);
 }

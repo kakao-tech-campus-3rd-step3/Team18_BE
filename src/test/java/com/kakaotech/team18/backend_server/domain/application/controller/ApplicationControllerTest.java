@@ -22,6 +22,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Collections;
 
+import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -204,7 +205,7 @@ class ApplicationControllerTest {
                     any(ApplicationApplyRequestDto.class),
                     eq(false))
             ).thenReturn(new ApplicationApplyResponseDto(
-                    "20231234", java.time.LocalDateTime.now(), true
+                    "20231234", now(), true
             ));
 
             mockMvc.perform(post("/api/clubs/{clubId}/apply-submit", clubId)
@@ -228,8 +229,8 @@ class ApplicationControllerTest {
                     eq(clubId),
                     any(ApplicationApplyRequestDto.class),
                     eq(true))
-            ).thenReturn(new com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto(
-                    "20231234", java.time.LocalDateTime.now(), false
+            ).thenReturn(new ApplicationApplyResponseDto(
+                    "20231234", now(), false
             ));
 
             mockMvc.perform(post("/api/clubs/{clubId}/apply-submit?overwrite=true", clubId)
