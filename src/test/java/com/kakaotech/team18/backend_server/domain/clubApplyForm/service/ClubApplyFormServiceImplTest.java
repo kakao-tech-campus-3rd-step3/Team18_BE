@@ -35,7 +35,7 @@ class ClubApplyFormServiceImplTest {
     private FormQuestionRepository formQuestionRepository;
 
     @InjectMocks
-    private ApplicationFormServiceImpl applicationFormServiceImpl;
+    private ClubApplyFormServiceImpl applicationFormServiceImpl;
 
     @Mock
     private Club mockClub;

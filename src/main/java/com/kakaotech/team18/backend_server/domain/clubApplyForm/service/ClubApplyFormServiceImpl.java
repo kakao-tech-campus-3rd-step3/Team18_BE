@@ -14,20 +14,20 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class ApplicationFormServiceImpl implements ApplicationFormService {
+public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final FormQuestionRepository formQuestionRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
 
     @Transactional(readOnly = true)
-    public ClubApplyFormResponseDto getQuestionForm(Long clubId){
-        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(()->new ClubApplyFormNotFoundException("clubId:"+clubId) );
+    public ClubApplyFormResponseDto getQuestionForm(Long clubId) {
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:" + clubId));
 
         Long formId = clubApplyForm.getId();
         String title = clubApplyForm.getTitle();
         String description = clubApplyForm.getDescription();
 
         List<FormQuestionResponseDto> questions =
-                formQuestionRepository.findByApplicationFormIdOrderByDisplayOrderAsc(formId)
+                formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId)
                         .stream()
                         .map(FormQuestionResponseDto::from)
                         .toList();
