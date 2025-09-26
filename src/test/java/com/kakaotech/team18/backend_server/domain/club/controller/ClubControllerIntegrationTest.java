@@ -3,6 +3,9 @@ package com.kakaotech.team18.backend_server.domain.club.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.email.eventListener.ApplicationNotificationListener;
+import com.kakaotech.team18.backend_server.domain.email.sender.SmtpEmailSender;
+import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +50,12 @@ class ClubControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    //자동으로 JavaMailSender bean을 생성하려해서 추가함
+    @MockitoBean private ApplicationNotificationListener applicationNotificationListener;
+    @MockitoBean private JavaMailSender javaMailSender;
+    @MockitoBean private SmtpEmailSender smtpEmailSender;
+    @MockitoBean private EmailService  emailService;
 
     @BeforeEach
     void setUp() {

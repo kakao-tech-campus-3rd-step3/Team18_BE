@@ -51,8 +51,6 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
-    private final FormQuestionRepository formQuestionRepository;
-    private final UserRepository userRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {

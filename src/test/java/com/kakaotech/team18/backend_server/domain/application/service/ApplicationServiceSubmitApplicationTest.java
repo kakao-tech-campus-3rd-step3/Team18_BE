@@ -264,7 +264,6 @@ class ApplicationServiceSubmitApplicationTest {
                     new ApplicationApplyRequestDto.AnswerDto(102L, "남"),
                     new ApplicationApplyRequestDto.AnswerDto(103L, "")
             );
-            var answers = List.of("자소서", "남", "");
 
             // when
             List<AnswerEmailLine> emailLines = service.saveApplicationAnswers(app, answers);
