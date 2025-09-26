@@ -252,7 +252,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                 default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
             }
 
-            toSave.add(Answer.of(application, q, isBlank(normalized) ? null : normalized));
+            toSave.add(
+                    Answer.builder()
+                            .application(application)
+                            .formQuestion(q)
+                            .answer(isBlank(normalized) ? null : normalized)
+                            .build()
+            );
+
             emailLines.add(new AnswerEmailLine(q.getId(), q.getDisplayOrder(), q.getQuestion(), isBlank(normalized) ? "(미입력)" : normalized));
         }
 
