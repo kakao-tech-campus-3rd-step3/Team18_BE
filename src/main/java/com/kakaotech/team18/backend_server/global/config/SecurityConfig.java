@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.global.config;
 
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,6 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
@@ -18,9 +20,12 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class SecurityConfig {
 
     private final HandlerExceptionResolver resolver;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
+                          JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.resolver = resolver;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
@@ -40,6 +45,9 @@ public class SecurityConfig {
                 .authenticationEntryPoint(authenticationEntryPoint())
                 .accessDeniedHandler(accessDeniedHandler())
         );
+
+        // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

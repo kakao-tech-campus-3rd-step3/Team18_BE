@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.global.jwt;
+package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import io.jsonwebtoken.*;

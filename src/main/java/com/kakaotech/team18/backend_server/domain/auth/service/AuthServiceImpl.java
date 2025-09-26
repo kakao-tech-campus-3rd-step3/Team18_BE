@@ -4,7 +4,7 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.*;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.jwt.JwtProvider;
+import com.kakaotech.team18.backend_server.global.security.JwtProvider; // 경로 수정
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
