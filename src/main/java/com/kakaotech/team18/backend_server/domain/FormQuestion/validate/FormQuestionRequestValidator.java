@@ -13,6 +13,9 @@ public class FormQuestionRequestValidator implements ConstraintValidator<ValidFo
 
     @Override
     public boolean isValid(FormQuestionBaseDto dto, ConstraintValidatorContext context) {
+        if (dto == null) {
+            return fail(context, "질문 정보는 필수입니다.");
+        }
 
         FieldType type = dto.fieldType();
 
