@@ -18,5 +18,5 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
            """)
     List<Answer> findByApplicationWithFormQuestion(@Param("application") Application application);
 
-    void deleteByApplication(Application application);
+    long deleteByApplication(Application application);
 }

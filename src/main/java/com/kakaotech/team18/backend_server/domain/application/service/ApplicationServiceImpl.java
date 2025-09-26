@@ -165,7 +165,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             ApplicationApplyRequestDto request
     ) {
 
-        answerRepository.deleteByApplication(application);
+        long deleted = answerRepository.deleteByApplication(application);
+        log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), deleted);
+
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answerList());
         //emailService.sendToApplicant(application, emailLines);
