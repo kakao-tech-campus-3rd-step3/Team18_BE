@@ -49,4 +49,8 @@ jobs:
 
       # 테스트 프로필로 빌드/테스트
       - name: Build & Test
+        env:
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build
