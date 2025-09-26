@@ -47,7 +47,7 @@ public class FormQuestion extends BaseEntity {
     private FieldType fieldType;
 
     @Column(name = "is_required", nullable = false)
-    private boolean isRequired;
+    private Boolean isRequired;
 
     @Column(name = "display_order", nullable = false)
     private Long displayOrder;

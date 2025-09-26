@@ -21,7 +21,7 @@ public record FormQuestionResponseDto(
         String question,
 
         @Schema(description = "필수 응답 여부", example = "true")
-        boolean required,
+        Boolean required,
 
         @Schema(description = "선택지 목록 (객관식, 체크박스 유형일 경우에만 존재)", example = "[\"JAVA\", \"C\", \"C++\"]")
         List<String> optionList,
@@ -37,7 +37,7 @@ public record FormQuestionResponseDto(
                 field.getDisplayOrder(),
                 field.getFieldType(),
                 field.getQuestion(),
-                field.isRequired(),
+                field.getIsRequired(),
                 field.getOptions(),
                 field.getTimeSlotOptions()
         );

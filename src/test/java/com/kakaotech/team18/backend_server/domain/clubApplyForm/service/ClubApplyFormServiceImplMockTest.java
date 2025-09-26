@@ -74,7 +74,7 @@ class ClubApplyFormServiceImplMockTest {
                                         fq.getDisplayOrder(),
                                         fq.getFieldType(),
                                         fq.getQuestion(),
-                                        fq.isRequired(),
+                                        fq.getIsRequired(),
                                         fq.getOptions(),
                                         fq.getTimeSlotOptions()
                                 ))
