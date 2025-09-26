@@ -30,6 +30,9 @@ public enum ErrorCode {
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
 
+    // 401 UNAUTHORIZED: 인증되지 않은 사용자
+    UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+
     // 403 FORBIDDEN: 권한 없음
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
     COMMENT_ACCESS_DENIED("해당 댓글에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
