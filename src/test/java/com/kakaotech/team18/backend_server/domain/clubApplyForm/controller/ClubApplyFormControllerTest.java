@@ -22,7 +22,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFor
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -106,7 +106,7 @@ class ClubApplyFormControllerTest {
         // given
         Long clubId = 999L;
         when(clubApplyFormService.getQuestionForm(clubId))
-                .thenThrow(new ApplicationFormNotFoundException(clubId));
+                .thenThrow(new ClubApplyFormNotFoundException("clubId = " + clubId));
 
         // when & then
         mockMvc.perform(get("/api/clubs/{clubId}/apply", clubId))
@@ -121,7 +121,7 @@ class ClubApplyFormControllerTest {
         // given
         Long clubId = 999L;
         when(clubApplyFormService.getQuestionForm(clubId))
-                .thenThrow(new ApplicationFormNotFoundException(clubId));
+                .thenThrow(new ClubApplyFormNotFoundException("clubId = " + clubId));
 
         // when & then
         mockMvc.perform(get("/api/clubs/{clubId}/dashboard/apply-form", clubId))

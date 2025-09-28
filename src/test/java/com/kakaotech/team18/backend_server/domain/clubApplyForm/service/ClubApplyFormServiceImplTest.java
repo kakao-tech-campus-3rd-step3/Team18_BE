@@ -1,13 +1,23 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,14 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
 import org.springframework.test.util.ReflectionTestUtils;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ClubApplyFormServiceImplTest {

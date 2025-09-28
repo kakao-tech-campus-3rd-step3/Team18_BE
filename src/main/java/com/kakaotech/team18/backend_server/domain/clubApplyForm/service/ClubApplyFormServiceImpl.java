@@ -15,7 +15,6 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFor
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;

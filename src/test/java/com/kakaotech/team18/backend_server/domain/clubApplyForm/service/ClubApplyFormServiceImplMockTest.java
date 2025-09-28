@@ -24,7 +24,6 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFor
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
@@ -98,7 +97,7 @@ class ClubApplyFormServiceImplMockTest {
 
         //when, then
         Assertions.assertThatThrownBy(() -> clubApplyFormService.getQuestionForm(clubId))
-                .isInstanceOf(ApplicationFormNotFoundException.class)
+                .isInstanceOf(ClubApplyFormNotFoundException.class)
                 .hasMessageContaining("지원폼이 존재하지 않습니다");
 
         then(clubApplyFormRepository).should(times(1)).findByClubIdAndIsActiveTrue(clubId);
