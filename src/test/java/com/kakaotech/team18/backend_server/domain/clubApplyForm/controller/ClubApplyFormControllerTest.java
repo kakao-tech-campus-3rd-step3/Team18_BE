@@ -187,7 +187,7 @@ class ClubApplyFormControllerTest {
         Long clubId = 1L;
         // question 필드가 blank인 경우
         ClubApplyFormRequestDto clubApplyFormRequestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명",
-                List.of(new com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto("", FieldType.TEXT, true, 1L, null, null)));
+                List.of(new FormQuestionRequestDto("", FieldType.TEXT, true, 1L, null, null)));
 
         //when & then
         mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
