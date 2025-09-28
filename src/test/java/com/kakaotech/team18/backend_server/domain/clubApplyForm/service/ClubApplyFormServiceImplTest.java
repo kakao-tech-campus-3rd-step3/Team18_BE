@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
@@ -46,9 +45,6 @@ class ClubApplyFormServiceImplTest {
 
     @Mock
     private ClubApplyForm mockClubApplyForm;
-
-    @Mock
-    private Application mockApplication;
 
     private ClubApplyForm clubApplyForm;
     private List<FormQuestion> formFields;
