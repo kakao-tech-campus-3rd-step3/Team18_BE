@@ -36,6 +36,7 @@ jobs:
         env:
           KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_REDIRECT_URI_TEST: ${{ secrets.KAKAO_REDIRECT_URI_TEST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           mkdir -p ./src/main/resources
@@ -56,7 +57,7 @@ jobs:
                     kakao:
                       client-id: ${KAKAO_CLIENT_ID}
                       client-secret: ${KAKAO_CLIENT_SECRET}
-                      redirect-uri: "http://localhost:8080/callback"
+                      redirect-uri: ${KAKAO_REDIRECT_URI_TEST}
                   provider:
                     kakao:
                       token-uri: https://kauth.kakao.com/oauth/token
