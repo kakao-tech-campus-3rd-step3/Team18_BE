@@ -5,7 +5,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,13 +14,13 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-public class ApplicationFormServiceImpl implements ApplicationFormService {
+public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final FormQuestionRepository formQuestionRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
 
     @Transactional(readOnly = true)
-    public ClubApplyFormResponseDto getQuestionForm(Long clubId){
-        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(()->new ApplicationFormNotFoundException(clubId) );
+    public ClubApplyFormResponseDto getQuestionForm(Long clubId) {
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId).orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:" + clubId));
 
         Long formId = clubApplyForm.getId();
         String title = clubApplyForm.getTitle();

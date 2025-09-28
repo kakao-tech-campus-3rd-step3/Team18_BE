@@ -16,4 +16,6 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
            WHERE afa.application = :application
            """)
     List<Answer> findByApplicationWithFormQuestion(@Param("application") Application application);
+
+    long deleteByApplication(Application application);
 }

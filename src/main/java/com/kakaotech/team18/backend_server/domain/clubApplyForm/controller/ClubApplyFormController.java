@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ApplicationFormService;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/clubs/{clubId}")
 public class ClubApplyFormController {
 
-    private final ApplicationFormService applicationFormService;
+    private final ClubApplyFormService applicationFormService;
 
     @Operation(summary = "지원서 양식 조회", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 조회합니다.")
     @ApiResponses({

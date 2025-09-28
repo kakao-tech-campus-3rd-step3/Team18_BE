@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface FormQuestionRepository extends JpaRepository<FormQuestion,Long> {
     List<FormQuestion> findByClubApplyFormIdOrderByDisplayOrderAsc(Long clubApplyFormId);
+
+    List<FormQuestion> findByClubApplyFormIdOrderByIdAsc(Long formId);
 }

@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,12 @@ public class Answer extends BaseEntity {
     private FormQuestion formQuestion;
 
     private String answer;
+
+    @Builder
+    private Answer(
+            Application application, FormQuestion formQuestion, String answer) {
+        this.application = application;
+        this.formQuestion = formQuestion;
+        this.answer = answer;
+    }
 }
