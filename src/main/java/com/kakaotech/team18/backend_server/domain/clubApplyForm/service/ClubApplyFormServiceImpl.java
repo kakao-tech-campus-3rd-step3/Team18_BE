@@ -115,11 +115,12 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     }
 
     private void removeLegacyQuestions(Map<Long, FormQuestion> existingMap, Set<Long> incomingIds) {
-        for (Long existingId : existingMap.keySet()) {
-            if (!incomingIds.contains(existingId)) {
-                formQuestionRepository.deleteById(existingId);
-                log.info("Deleted FormQuestionId: {}", existingId);
-            }
+        List<Long> idsToDelete = existingMap.keySet().stream()
+                .filter(existingId -> !incomingIds.contains(existingId))
+                .toList();
+        if (!idsToDelete.isEmpty()) {
+            formQuestionRepository.deleteAllByIdInBatch(idsToDelete);
+            log.info("Deleted FormQuestionIds: {}", idsToDelete);
         }
     }
 

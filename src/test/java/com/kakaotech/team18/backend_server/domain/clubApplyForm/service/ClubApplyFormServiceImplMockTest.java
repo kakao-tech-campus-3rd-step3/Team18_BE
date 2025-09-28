@@ -223,7 +223,7 @@ class ClubApplyFormServiceImplMockTest {
         then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(formQuestionRepository).should(times(1)).findByClubApplyForm(clubApplyForm);
         then(formQuestionRepository).should(times(1)).save(any(FormQuestion.class)); // For the new question
-        then(formQuestionRepository).should(times(1)).deleteById(2L); // For the deleted question
+        then(formQuestionRepository).should(times(1)).deleteAllByIdInBatch(List.of(2L)); // For the deleted question
     }
 
     @DisplayName("지원폼 수정 - 실패 (지원폼이 존재하지 않음)")
