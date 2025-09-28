@@ -62,10 +62,10 @@ jobs:
                     kakao:
                       token-uri: https://kauth.kakao.com/oauth/token
                       user-info-uri: https://kapi.kakao.com/v2/user/me
-          jwt:
-            secret: ${JWT_SECRET}
-            access-token-validity-in-seconds: 1800
-            refresh-token-validity-in-seconds: 604800
+            jwt:
+              secret: ${JWT_SECRET}
+              access-token-validity-in-seconds: 1800
+              refresh-token-validity-in-seconds: 604800
           YAML
 
       # 테스트 프로필로 빌드/테스트
