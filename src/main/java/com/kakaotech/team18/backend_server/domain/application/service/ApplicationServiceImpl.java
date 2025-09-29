@@ -1,20 +1,16 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
 import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
@@ -25,12 +21,6 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +28,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -227,7 +222,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             normalized = normalize(normalized);
 
             // 필수 문항 검사
-            if (q.isRequired() && isBlank(normalized)) {
+            if (q.getIsRequired() && isBlank(normalized)) {
                 throw new InvalidAnswerException("필수 문항 미응답: questionId=" + q.getId());
             }
 
@@ -237,14 +232,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                 }
 
                 case RADIO -> {
-                    if (q.isRequired() && isBlank(normalized)) {
+                    if (q.getIsRequired() && isBlank(normalized)) {
                         throw new InvalidAnswerException("단일 선택 값이 필요합니다. questionId=" + q.getId());
                     }
                 }
 
                 case CHECKBOX -> {
                     List<String> options = splitAndTrim(normalized);
-                    if (q.isRequired() && options.isEmpty()) {
+                    if (q.getIsRequired() && options.isEmpty()) {
                         throw new InvalidAnswerException("다중 선택 최소 1개 필요. questionId=" + q.getId());
                     }
                     normalized = String.join(",", options);
