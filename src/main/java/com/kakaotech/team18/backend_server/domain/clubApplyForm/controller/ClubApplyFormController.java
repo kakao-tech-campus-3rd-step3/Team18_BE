@@ -1,16 +1,23 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.controller;
 
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,18 +27,46 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/clubs/{clubId}")
 public class ClubApplyFormController {
 
-    private final ClubApplyFormService applicationFormService;
+    private final ClubApplyFormService clubApplyFormService;
 
     @Operation(summary = "지원서 양식 조회", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 조회합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리 또는 지원서 양식을 찾을 수 없음")
     })
-    @GetMapping("/apply")
+    @GetMapping({"/apply", "/dashboard/apply-form"})
     public ResponseEntity<ClubApplyFormResponseDto> getClubApplyFormByClubId(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId
     ) {
-        ClubApplyFormResponseDto response = applicationFormService.getQuestionForm(clubId);
+        ClubApplyFormResponseDto response = clubApplyFormService.getQuestionForm(clubId);
         return ResponseEntity.ok(response);
+    }
+
+    //TODO 권한 관련된 기능 로그인 기능 구현 이후 추가
+    @Operation(summary = "지원서 양식 저장", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 저장합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "저장 성공"),
+            @ApiResponse(responseCode = "400", description = "입력 값 옳바르지 않은 경우")
+    })
+    @PostMapping("/dashboard/apply-form")
+    public ResponseEntity<Void> createClubApplyForm(
+            @PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ClubApplyFormRequestDto request) {
+        clubApplyFormService.createClubApplyForm(clubId, request);
+        return ResponseEntity.created(URI.create("/api/clubs/" + clubId + "/dashboard/apply-form")).build();
+    }
+
+    //TODO 권한 관련된 기능 로그인 기능 구현 이후 추가
+    @Operation(summary = "지원서 양식 수정", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "수정 성공"),
+            @ApiResponse(responseCode = "400", description = "입력 값 옳바르지 않은 경우")
+    })
+    @PatchMapping("/dashboard/apply-form")
+    public ResponseEntity<Void> updateClubApplyForm(
+            @PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ClubApplyFormUpdateDto request) {
+        clubApplyFormService.updateClubApplyForm(clubId, request);
+        return ResponseEntity.accepted().build();
     }
 }

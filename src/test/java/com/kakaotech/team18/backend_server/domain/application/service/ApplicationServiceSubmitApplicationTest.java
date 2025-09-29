@@ -64,9 +64,25 @@ class ApplicationServiceSubmitApplicationTest {
             .build();
 
     private List<FormQuestion> sampleQuestions(ClubApplyForm form) {
-        FormQuestion q1 = new FormQuestion(null, form, "자기소개", FieldType.TEXT, true , 1L, null);
-        FormQuestion q2 = new FormQuestion(null, form, "성별"  , FieldType.RADIO, true , 2L, List.of("남","여"));
-        FormQuestion q3 = new FormQuestion(null, form, "관심사", FieldType.CHECKBOX, false, 3L, List.of("A","B","C"));
+
+        FormQuestion q1 = FormQuestion.builder()
+            .clubApplyForm(form)
+            .question("자기소개")
+            .fieldType(FieldType.TEXT)
+            .isRequired(true)
+            .displayOrder(1L)
+            .build();
+        FormQuestion q2 = FormQuestion.builder()
+            .clubApplyForm(form)
+            .question("성별")
+            .fieldType(FieldType.RADIO)
+            .isRequired(true)
+            .displayOrder(2L)
+            .options(List.of("남", "여"))
+            .build();
+        FormQuestion q3 = FormQuestion.builder()
+            .clubApplyForm(form)
+            .question("관심사").fieldType(FieldType.CHECKBOX).isRequired(false).displayOrder(3L).options(List.of("A", "B", "C")).build();
 
         ReflectionTestUtils.setField(q1, "id", 101L);
         ReflectionTestUtils.setField(q2, "id", 102L);
