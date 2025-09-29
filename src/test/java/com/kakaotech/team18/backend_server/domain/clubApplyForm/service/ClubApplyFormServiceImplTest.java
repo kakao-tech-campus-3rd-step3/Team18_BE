@@ -17,7 +17,6 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubA
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import java.util.List;
 import java.util.Optional;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
