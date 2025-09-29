@@ -22,6 +22,8 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFor
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
+import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.util.List;
@@ -29,11 +31,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(ClubApplyFormController.class)
+@WebMvcTest(
+    controllers = ClubApplyFormController.class,
+    excludeFilters = @ComponentScan.Filter(
+        type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class
+    )
+)
+@Import(TestSecurityConfig.class)
 class ClubApplyFormControllerTest {
 
     @Autowired
