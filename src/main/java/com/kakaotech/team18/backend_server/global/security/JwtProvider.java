@@ -70,17 +70,12 @@ public class JwtProvider {
     public String createTemporaryToken(Long kakaoId, String nickname) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.temporaryTokenValidityInSeconds * 1000);
-
-        // 임시 토큰에는 회원가입 완료에 필요한 최소한의 정보만 담습니다.
-        Map<String, Object> claims = Map.of(
-                "tokenType", "TEMPORARY", // 토큰 타입: TEMPORARY
-                "kakaoId", kakaoId,
-                "nickname", nickname
-        );
-
+ 
         return Jwts.builder()
-                .setSubject("temporary") // 토큰의 주체를 'temporary'로 설정하여 구분
-                .setClaims(claims)
+                .setSubject("temporary") // 임시 토큰 구분
+                .claim("tokenType", "TEMPORARY")
+                .claim("kakaoId", kakaoId)
+                .claim("nickname", nickname)
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
