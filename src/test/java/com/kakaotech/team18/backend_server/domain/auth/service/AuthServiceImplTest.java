@@ -119,7 +119,7 @@ class AuthServiceImplTest {
         // then
         assertThat(result).isInstanceOf(LoginSuccessResponseDto.class);
         LoginSuccessResponseDto successResponse = (LoginSuccessResponseDto) result;
-        assertThat(successResponse.status()).isEqualTo("LOGIN_SUCCESS");
+        assertThat(successResponse.status()).isEqualTo(AuthStatus.LOGIN_SUCCESS);
         assertThat(successResponse.accessToken()).isEqualTo(accessToken);
         assertThat(successResponse.refreshToken()).isEqualTo(refreshToken);
     }
@@ -167,7 +167,7 @@ class AuthServiceImplTest {
         // then
         assertThat(result).isInstanceOf(RegistrationRequiredResponseDto.class);
         RegistrationRequiredResponseDto registrationResponse = (RegistrationRequiredResponseDto) result;
-        assertThat(registrationResponse.status()).isEqualTo("REGISTRATION_REQUIRED");
+        assertThat(registrationResponse.status()).isEqualTo(AuthStatus.REGISTRATION_REQUIRED);
         assertThat(registrationResponse.temporaryToken()).isEqualTo(temporaryToken);
     }
 
@@ -198,7 +198,7 @@ class AuthServiceImplTest {
         LoginSuccessResponseDto result = authService.register(bearerToken, requestDto);
 
         // then
-        assertThat(result.status()).isEqualTo("REGISTER_SUCCESS");
+        assertThat(result.status()).isEqualTo(AuthStatus.REGISTER_SUCCESS);
         assertThat(result.accessToken()).isEqualTo("newAccessToken");
         assertThat(result.refreshToken()).isEqualTo("newRefreshToken");
     }
@@ -239,7 +239,7 @@ class AuthServiceImplTest {
         LoginSuccessResponseDto result = authService.register(bearerToken, requestDto);
 
         // then
-        assertThat(result.status()).isEqualTo("REGISTER_SUCCESS");
+        assertThat(result.status()).isEqualTo(AuthStatus.REGISTER_SUCCESS);
         assertThat(existingUser.getKakaoId()).isEqualTo(kakaoId); // kakaoId가 연결되었는지 확인
         assertThat(result.accessToken()).isEqualTo("linkedAccessToken");
         assertThat(result.refreshToken()).isEqualTo("linkedRefreshToken");

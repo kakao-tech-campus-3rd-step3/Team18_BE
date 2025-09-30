@@ -68,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
             String accessToken = jwtProvider.createAccessToken(user);
             String refreshToken = jwtProvider.createRefreshToken(user);
 
-            return new LoginSuccessResponseDto("LOGIN_SUCCESS", accessToken, refreshToken);
+            return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken);
         } else {
             // 4-2. 신규 회원일 경우: 추가 정보 입력 필요
             log.info("신규 회원, 추가 정보 입력 필요");
@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
                     kakaoUserInfo.getProperties().getNickname()
             );
 
-            return new RegistrationRequiredResponseDto("REGISTRATION_REQUIRED", temporaryToken);
+            return new RegistrationRequiredResponseDto(AuthStatus.REGISTRATION_REQUIRED, temporaryToken);
         }
     }
 
@@ -136,7 +136,7 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);
 
-        return new LoginSuccessResponseDto("REGISTER_SUCCESS", accessToken, refreshToken);
+        return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken);
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {
