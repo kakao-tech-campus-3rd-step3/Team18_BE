@@ -116,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
             if (user.getKakaoId() != null) {
                 // 이미 연동된 계정이 있다면, 계정 탈취 시도일 수 있으므로 에러 발생
                 log.warn("계정 연결 시도 실패: 이미 카카오 계정과 연동된 학번입니다. studentId={}", registerRequestDto.studentId());
-                throw new DuplicateKakaoIdException("이미 연동된 계정이 존재합니다.");
+                throw new DuplicateKakaoIdException("이미 다른 계정과 연동된 학번입니다.");
             }
 
             log.info("기존 사용자 계정 연결: studentId={}, kakaoId={}", user.getStudentId(), kakaoId);

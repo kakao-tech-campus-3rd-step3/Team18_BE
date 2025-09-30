@@ -176,6 +176,7 @@ class AuthServiceImplTest {
         );
 
         Claims claims = Jwts.claims();
+        claims.setSubject("temporary");
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -216,6 +217,7 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
+        claims.setSubject("temporary");
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -257,7 +259,8 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
-        claims.put("kakaoId", attackerKakaoId);
+        claims.setSubject("temporary"); // subject를 "temporary"로 설정
+        claims.put("kakaoId", attackerKakaoId); // kakaoId 클레임 추가
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
         given(jwtProvider.verify(temporaryToken)).willReturn(claims);
