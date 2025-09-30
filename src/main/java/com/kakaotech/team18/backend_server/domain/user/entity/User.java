@@ -42,8 +42,14 @@ public class User extends BaseEntity {
     private String department;
 
     @Builder
-    private User(Long kakaoId, String email, String name, String studentId,
-            String phoneNumber, String department) {
+    private User(
+            Long kakaoId,
+            String email,
+            String name,
+            String studentId,
+            String phoneNumber,
+            String department
+    ) {
         this.kakaoId = kakaoId;
         this.email = email;
         this.name = name;

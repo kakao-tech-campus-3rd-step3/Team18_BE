@@ -14,10 +14,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
@@ -38,7 +37,19 @@ class AuthServiceImplTest {
     @Mock
     private JwtProvider jwtProvider;
     @Mock
-    private RestTemplate restTemplate;
+    private RestClient restClient;
+
+    // RestClient의 플루언트 API를 Mocking하기 위한 추가 Mock 객체들
+    @Mock
+    private RestClient.RequestBodyUriSpec requestBodyUriSpec;
+    @Mock
+    private RestClient.RequestBodySpec requestBodySpec;
+    @Mock
+    private RestClient.RequestHeadersUriSpec requestHeadersUriSpec;
+    @Mock
+    private RestClient.RequestHeadersSpec requestHeadersSpec;
+    @Mock
+    private RestClient.ResponseSpec responseSpec;
 
     private final String KAKAO_CLIENT_ID = "testClientId";
     private final String KAKAO_CLIENT_SECRET = "testClientSecret";
@@ -68,12 +79,12 @@ class AuthServiceImplTest {
         // 1. Mocking: 카카오 토큰 응답
         KakaoTokenResponseDto mockTokenResponse = new KakaoTokenResponseDto();
         mockTokenResponse.setAccessToken("kakaoAccessToken");
-        when(restTemplate.exchange(
-                eq(KAKAO_TOKEN_URI),
-                eq(HttpMethod.POST),
-                any(),
-                eq(KakaoTokenResponseDto.class)
-        )).thenReturn(ResponseEntity.ok(mockTokenResponse));
+        given(restClient.post()).willReturn(requestBodyUriSpec);
+        given(requestBodyUriSpec.uri(KAKAO_TOKEN_URI)).willReturn(requestBodySpec);
+        given(requestBodySpec.contentType(any())).willReturn(requestBodySpec);
+        given(requestBodySpec.body(any(MultiValueMap.class))).willReturn(requestBodySpec);
+        given(requestBodySpec.retrieve()).willReturn(responseSpec);
+        given(responseSpec.body(KakaoTokenResponseDto.class)).willReturn(mockTokenResponse);
 
         // 2. Mocking: 카카오 사용자 정보 응답 (더 구체적인 조건으로 수정)
         KakaoUserInfoResponseDto mockUserInfoResponse = new KakaoUserInfoResponseDto();
@@ -81,12 +92,11 @@ class AuthServiceImplTest {
         KakaoUserInfoResponseDto.Properties properties = new KakaoUserInfoResponseDto.Properties();
         properties.setNickname(nickname);
         mockUserInfoResponse.setProperties(properties);
-        when(restTemplate.exchange(
-                eq(KAKAO_USER_INFO_URI),
-                eq(HttpMethod.GET),
-                any(),
-                eq(KakaoUserInfoResponseDto.class)
-        )).thenReturn(ResponseEntity.ok(mockUserInfoResponse));
+        given(restClient.get()).willReturn(requestHeadersUriSpec);
+        given(requestHeadersUriSpec.uri(KAKAO_USER_INFO_URI)).willReturn(requestHeadersSpec);
+        given(requestHeadersSpec.header(any(), any())).willReturn(requestHeadersSpec); // header() 호출을 모두 처리
+        given(requestHeadersSpec.retrieve()).willReturn(responseSpec);
+        given(responseSpec.body(KakaoUserInfoResponseDto.class)).willReturn(mockUserInfoResponse);
 
         // 3. Mocking: UserRepository - 기존 사용자 존재
         User existingUser = User.builder()
@@ -126,12 +136,12 @@ class AuthServiceImplTest {
         // 1. Mocking: 카카오 토큰 응답
         KakaoTokenResponseDto mockTokenResponse = new KakaoTokenResponseDto();
         mockTokenResponse.setAccessToken("kakaoAccessToken");
-        when(restTemplate.exchange(
-                eq(KAKAO_TOKEN_URI),
-                eq(HttpMethod.POST),
-                any(),
-                eq(KakaoTokenResponseDto.class)
-        )).thenReturn(ResponseEntity.ok(mockTokenResponse));
+        given(restClient.post()).willReturn(requestBodyUriSpec);
+        given(requestBodyUriSpec.uri(KAKAO_TOKEN_URI)).willReturn(requestBodySpec);
+        given(requestBodySpec.contentType(any())).willReturn(requestBodySpec);
+        given(requestBodySpec.body(any(MultiValueMap.class))).willReturn(requestBodySpec);
+        given(requestBodySpec.retrieve()).willReturn(responseSpec);
+        given(responseSpec.body(KakaoTokenResponseDto.class)).willReturn(mockTokenResponse);
 
         // 2. Mocking: 카카오 사용자 정보 응답
         KakaoUserInfoResponseDto mockUserInfoResponse = new KakaoUserInfoResponseDto();
@@ -139,12 +149,11 @@ class AuthServiceImplTest {
         KakaoUserInfoResponseDto.Properties properties = new KakaoUserInfoResponseDto.Properties();
         properties.setNickname(nickname);
         mockUserInfoResponse.setProperties(properties);
-        when(restTemplate.exchange(
-                eq(KAKAO_USER_INFO_URI),
-                eq(HttpMethod.GET),
-                any(),
-                eq(KakaoUserInfoResponseDto.class)
-        )).thenReturn(ResponseEntity.ok(mockUserInfoResponse));
+        given(restClient.get()).willReturn(requestHeadersUriSpec);
+        given(requestHeadersUriSpec.uri(KAKAO_USER_INFO_URI)).willReturn(requestHeadersSpec);
+        given(requestHeadersSpec.header(any(), any())).willReturn(requestHeadersSpec);
+        given(requestHeadersSpec.retrieve()).willReturn(responseSpec);
+        given(responseSpec.body(KakaoUserInfoResponseDto.class)).willReturn(mockUserInfoResponse);
 
         // 3. Mocking: UserRepository - 신규 사용자 (존재하지 않음)
         when(userRepository.findByKakaoId(kakaoId)).thenReturn(Optional.empty());

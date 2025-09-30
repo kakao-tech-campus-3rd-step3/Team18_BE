@@ -10,15 +10,12 @@ import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
 
@@ -30,7 +27,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
-    private final RestTemplate restTemplate;
+    private final RestClient restClient;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -143,42 +140,27 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "authorization_code");
         params.add("client_id", kakaoClientId);
         params.add("client_secret", kakaoClientSecret);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", authorizationCode);
-
-        HttpEntity<MultiValueMap<String, String>> kakaoTokenRequest = new HttpEntity<>(params, headers);
-
-        ResponseEntity<KakaoTokenResponseDto> response = restTemplate.exchange(
-                kakaoTokenUri,
-                HttpMethod.POST,
-                kakaoTokenRequest,
-                KakaoTokenResponseDto.class
-        );
-
-        return response.getBody();
+        
+        return restClient.post()
+                .uri(kakaoTokenUri)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .body(params)
+                .retrieve()
+                .body(KakaoTokenResponseDto.class);
     }
 
     private KakaoUserInfoResponseDto getKakaoUserInfo(String accessToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + accessToken);
-        headers.add("Content-type", "application/x-www-form-urlencoded;charset=utf-8");
-
-        HttpEntity<MultiValueMap<String, String>> kakaoUserInfoRequest = new HttpEntity<>(headers);
-
-        ResponseEntity<KakaoUserInfoResponseDto> response = restTemplate.exchange(
-                kakaoUserInfoUri,
-                HttpMethod.GET,
-                kakaoUserInfoRequest,
-                KakaoUserInfoResponseDto.class
-        );
-
-        return response.getBody();
+        return restClient.get()
+                .uri(kakaoUserInfoUri)
+                .header("Authorization", "Bearer " + accessToken)
+                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
+                .retrieve()
+                .body(KakaoUserInfoResponseDto.class);
     }
 }
