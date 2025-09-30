@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.*;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider; // 경로 수정
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,17 @@ public class AuthServiceImpl implements AuthService {
         // 1. 임시 토큰 검증 및 정보 추출
         String temporaryToken = jwtProvider.extractToken(bearerToken);
         Claims claims = jwtProvider.verify(temporaryToken);
+
+        // 1-1. 토큰 타입 검증: 이 토큰이 '임시 토큰'이 맞는지 확인
+        if (!"temporary".equals(claims.getSubject())) {
+            throw new UnauthenticatedUserException("회원가입에는 임시 토큰이 필요합니다.");
+        }
+
+        // 1-2. 필수 정보 검증: 토큰에 'kakaoId'가 포함되어 있는지 확인
         Long kakaoId = claims.get("kakaoId", Long.class);
+        if (kakaoId == null) {
+            throw new UnauthenticatedUserException("토큰에 필수 정보(kakaoId)가 없습니다.");
+        }
 
         // 2. 학번으로 기존 사용자가 있는지 조회
         Optional<User> userOptional = userRepository.findByStudentId(registerRequestDto.studentId());
