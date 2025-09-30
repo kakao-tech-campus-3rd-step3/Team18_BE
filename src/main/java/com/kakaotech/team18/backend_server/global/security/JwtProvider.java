@@ -45,6 +45,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
+                .claim("tokenType", "ACCESS") // 토큰 타입: ACCESS
                 // .setClaims(claims) // 역할 정보 추가
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
@@ -59,6 +60,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
+                .claim("tokenType", "REFRESH") // 토큰 타입: REFRESH
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -71,6 +73,7 @@ public class JwtProvider {
 
         // 임시 토큰에는 회원가입 완료에 필요한 최소한의 정보만 담습니다.
         Map<String, Object> claims = Map.of(
+                "tokenType", "TEMPORARY", // 토큰 타입: TEMPORARY
                 "kakaoId", kakaoId,
                 "nickname", nickname
         );
