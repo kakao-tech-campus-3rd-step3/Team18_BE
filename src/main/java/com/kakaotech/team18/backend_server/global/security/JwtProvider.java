@@ -46,7 +46,6 @@ public class JwtProvider {
         return Jwts.builder()
                 .setSubject(user.getId().toString())
                 .claim("tokenType", "ACCESS") // 토큰 타입: ACCESS
-                // .setClaims(claims) // 역할 정보 추가
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
