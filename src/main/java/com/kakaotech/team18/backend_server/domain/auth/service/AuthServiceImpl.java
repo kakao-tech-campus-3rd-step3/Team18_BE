@@ -1,6 +1,12 @@
 package com.kakaotech.team18.backend_server.domain.auth.service;
 
-import com.kakaotech.team18.backend_server.domain.auth.dto.*;
+import com.kakaotech.team18.backend_server.domain.auth.dto.AuthStatus;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoTokenResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoUserInfoResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
