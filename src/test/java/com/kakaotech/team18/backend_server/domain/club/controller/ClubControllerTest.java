@@ -1,5 +1,28 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
+import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.entity.Category;
+import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LITERATURE;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -8,24 +31,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Status;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Category;
-import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
-import java.time.LocalDateTime;
-import java.util.List;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-
-@WebMvcTest(ClubController.class)
+@WebMvcTest(
+        controllers = ClubController.class,
+        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+)
+@Import(TestSecurityConfig.class)
 class ClubControllerTest {
 
     @Autowired

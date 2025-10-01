@@ -434,8 +434,6 @@ public class ClubServiceMockTest {
 
     private static User createUser(String loginId, String studentId) {
         return User.builder()
-                .loginId(loginId)
-                .password("password")
                 .name("김춘식")
                 .email("123@email.com")
                 .studentId(studentId)
