@@ -22,6 +22,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFor
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
+import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
@@ -40,9 +41,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(
     controllers = ClubApplyFormController.class,
-    excludeFilters = @ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class
-    )
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+        }
 )
 @Import(TestSecurityConfig.class)
 class ClubApplyFormControllerTest {
