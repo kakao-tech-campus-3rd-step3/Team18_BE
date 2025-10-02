@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.email.sender;
 
 import java.util.List;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.EmailSendFailedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -28,7 +29,7 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(mime);
         } catch (Exception e) {
-            throw new RuntimeException("SMTP send failed", e);
+            throw EmailSendFailedException.of(e);
         }
     }
 }
