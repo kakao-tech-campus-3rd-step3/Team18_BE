@@ -44,7 +44,7 @@ jobs:
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
         run: |
           mkdir -p ./src/main/resources
-          cat > ./src/main/resources/application-test.yml <<'YAML'
+          cat > ./src/main/resources/application-test.yml <<YAML
           spring:
             datasource:
               url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -79,8 +79,8 @@ jobs:
               refresh-token-validity-in-seconds: 604800
           
             mail:
-              host: ${SMTP_HOST:smtp.gmail.com}
-              port: ${SMTP_PORT:587}
+              host: ${SMTP_HOST}
+              port: ${SMTP_PORT}
               username: ${SMTP_USERNAME}
               password: ${SMTP_PASSWORD}
               properties:
