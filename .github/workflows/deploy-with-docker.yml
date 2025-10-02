@@ -47,10 +47,16 @@ jobs:
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           KAKAO_REDIRECT_URI_TEST: ${{ secrets.KAKAO_REDIRECT_URI_TEST }}
+          KAKAO_REDIRECT_URI_PROD: ${{ secrets.KAKAO_REDIRECT_URI_PROD }}
           SMTP_HOST: ${{secrets.SMTP_HOST}}
           SMTP_PORT: ${{secrets.SMTP_PORT}}
           SMTP_USERNAME: ${{secrets.SMTP_USERNAME}}
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
+          DB_NAME: '${{ secrets.DB_NAME }}'
+          DB_USER: '${{ secrets.DB_USER }}'
+          DB_PASSWORD: '${{ secrets.DB_PASSWORD }}'
+          DB_ROOT_PASSWORD: '${{ secrets.DB_ROOT_PASSWORD }}'
+
         run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build -x test
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
