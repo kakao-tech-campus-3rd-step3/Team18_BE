@@ -6,7 +6,9 @@ import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmitted
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -18,6 +20,7 @@ public class ApplicationNotificationListener {
     private final EmailService emailService;
 
     // 트랜잭션이 커밋된 뒤에만 이 메서드가 호출됨
+    @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSubmitted(ApplicationSubmittedEvent event) {
         Application application = applicationRepository.findById(event.applicationId()).orElse(null);
