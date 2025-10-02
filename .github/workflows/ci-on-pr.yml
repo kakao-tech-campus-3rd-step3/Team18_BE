@@ -38,6 +38,8 @@ jobs:
           KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
           KAKAO_REDIRECT_URI_TEST: ${{ secrets.KAKAO_REDIRECT_URI_TEST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SMTP_HOST: ${{secrets.SMTP_HOST}}
+          SMTP_PORT: ${{secrets.SMTP_PORT}}
           SMTP_USERNAME: ${{secrets.SMTP_USERNAME}}
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
         run: |
