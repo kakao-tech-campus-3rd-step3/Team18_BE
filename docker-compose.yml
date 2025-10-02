@@ -37,23 +37,6 @@ services:
         condition: service_healthy
     ports:
       - "8080:8080"
-    environment:
-      # 프로필
-      SPRING_PROFILES_ACTIVE: prod
-
-      # ✅ application.yml(prod) datasource를 환경변수로 덮어쓰기
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-      SPRING_DATASOURCE_USERNAME: ${DB_USER}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-
-      # JPA 옵션(원하는 경우)
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
-
-      # 로깅(옵션)
-      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE_JDBC: DEBUG
-      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_CONTEXT_CONFIG: DEBUG
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
