@@ -62,12 +62,12 @@ public class ApplicationController {
     public ResponseEntity<ApplicationApplyResponseDto> submitApplication(
             @PathVariable("clubId") Long clubId,
             @Valid @RequestBody ApplicationApplyRequestDto request,
-            @RequestParam(value = "overwrite", defaultValue = "false" ) boolean overwrite
+            @RequestParam(value = "overwrite", defaultValue = "false" ) boolean requiresConfirmation
     ){
         ApplicationApplyResponseDto response = applicationService.submitApplication(
                 clubId,
                 request,
-                overwrite
+                requiresConfirmation
         );
 
         if(response.requiresConfirmation()){

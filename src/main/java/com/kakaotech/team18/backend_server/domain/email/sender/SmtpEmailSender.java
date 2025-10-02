@@ -2,19 +2,20 @@ package com.kakaotech.team18.backend_server.domain.email.sender;
 
 import java.util.List;
 
-import com.kakaotech.team18.backend_server.global.exception.exceptions.EmailSendFailedException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import jakarta.mail.internet.MimeMessage;
 
-@RequiredArgsConstructor
 @Component
 public class SmtpEmailSender implements EmailSender {
 
     private final JavaMailSender mailSender;
+
+    public SmtpEmailSender(JavaMailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 
     @Override
     public void sendHtml(String from, String replyTo, List<String> to, String subject, String htmlBody) {
@@ -29,7 +30,7 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(mime);
         } catch (Exception e) {
-            throw EmailSendFailedException.of(e);
+            throw new RuntimeException("SMTP send failed", e);
         }
     }
 }

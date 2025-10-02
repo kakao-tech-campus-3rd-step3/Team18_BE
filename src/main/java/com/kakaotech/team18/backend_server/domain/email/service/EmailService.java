@@ -23,17 +23,20 @@ public class EmailService {
     private final EmailTemplateRenderer renderer;
     private final EmailSender emailSender;
     private final String from;
+    private final String subjectPrefix;
     private final ClubMemberRepository  clubMemberRepository;
 
     public EmailService(
             EmailTemplateRenderer renderer,
             EmailSender emailSender,
             @Value("${spring.email.from}") String from,
+            @Value("${spring.email.subject-prefix}") String subjectPrefix,
             ClubMemberRepository clubMemberRepository
     ) {
         this.renderer = renderer;
         this.emailSender = emailSender;
         this.from = from;
+        this.subjectPrefix = subjectPrefix;
         this.clubMemberRepository = clubMemberRepository;
     }
 
@@ -59,7 +62,6 @@ public class EmailService {
 
         String html = renderer.render("email-body-applicant", model);
 
-        final String subjectPrefix = "[동아리 지원]";
         String subject = subjectPrefix + " "
                 + application.getClubApplyForm().getClub().getName()
                 + " - " + application.getUser().getName();
