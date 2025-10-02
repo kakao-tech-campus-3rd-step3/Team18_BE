@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class ApplicationNotificationListener {
@@ -27,5 +29,7 @@ public class ApplicationNotificationListener {
         if (application == null) return;
 
         emailService.sendToApplicant(application, event.emailLines());
+        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
+
     }
 }
