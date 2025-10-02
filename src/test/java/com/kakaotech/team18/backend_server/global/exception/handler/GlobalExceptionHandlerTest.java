@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.global.exception.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
@@ -32,7 +33,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(
         controllers = GlobalExceptionHandlerTest.TestController.class,
-        excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+        }
 )
 @Import({TestSecurityConfig.class, GlobalExceptionHandler.class, GlobalExceptionHandlerTest.TestController.class})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
