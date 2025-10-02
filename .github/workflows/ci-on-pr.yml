@@ -52,6 +52,7 @@ jobs:
             jpa:
               hibernate.ddl-auto: create
               properties.hibernate.format_sql: true
+            sql.init.mode: never
             security:
               oauth2:
                 client:

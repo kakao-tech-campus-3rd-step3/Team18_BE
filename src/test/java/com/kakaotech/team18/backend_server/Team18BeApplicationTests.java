@@ -11,7 +11,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @ActiveProfiles("test")
-@TestPropertySource(properties = "spring.sql.init.mode=never")
 @SpringBootTest
 class Team18BeApplicationTests {
 

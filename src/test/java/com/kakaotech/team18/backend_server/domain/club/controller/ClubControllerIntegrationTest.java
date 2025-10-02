@@ -34,7 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@TestPropertySource(properties = "spring.sql.init.mode=never")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 class ClubControllerIntegrationTest {
 
