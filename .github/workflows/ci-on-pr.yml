@@ -79,8 +79,8 @@ jobs:
               refresh-token-validity-in-seconds: 604800
           
             mail:
-              host: ${SMTP_HOST:smtp.gmail.com}
-              port: ${SMTP_PORT:587}
+              host: ${SMTP_HOST}
+              port: ${SMTP_PORT}
               username: ${SMTP_USERNAME}
               password: ${SMTP_PASSWORD}
               properties:
