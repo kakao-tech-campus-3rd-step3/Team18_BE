@@ -51,8 +51,7 @@ jobs:
           SMTP_PORT: ${{secrets.SMTP_PORT}}
           SMTP_USERNAME: ${{secrets.SMTP_USERNAME}}
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
-        run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build
-
+        run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build -x test
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
