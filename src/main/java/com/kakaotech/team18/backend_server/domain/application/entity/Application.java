@@ -40,6 +40,8 @@ public class Application extends BaseEntity {
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
+    private String stage;
+
     @Column(nullable = false)
     private Double averageRating = 0.0;
 

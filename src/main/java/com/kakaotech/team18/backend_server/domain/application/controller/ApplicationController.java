@@ -78,12 +78,13 @@ public class ApplicationController {
         }
     }
 
-    @PatchMapping("/api/clubs/{clubId}/application-form")
+    @PatchMapping("/api/clubs/{clubId}/application-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @PathVariable("clubId") Long clubId,
-            @RequestBody ApplicationApprovedRequestDto requestDto
+            @RequestBody ApplicationApprovedRequestDto requestDto,
+            @RequestParam(value = "stage") String stage
     ){
-        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto);
+        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
         return ResponseEntity.ok(responseDto);
     }
 }

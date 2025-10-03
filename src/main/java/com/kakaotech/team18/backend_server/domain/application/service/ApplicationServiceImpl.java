@@ -158,11 +158,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    @Override
-    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto) {
-        return null;
-    }
-
     private ApplicationApplyResponseDto updateApplication(
             Application application,
             ApplicationApplyRequestDto request
@@ -270,7 +265,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public SuccessResponseDto sendPassFailMessage(long clubId, List<AnswerEmailLine> emailLines) {
+    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, String stage) {
+        
         return null;
     }
 

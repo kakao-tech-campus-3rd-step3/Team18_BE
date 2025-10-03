@@ -17,7 +17,5 @@ public interface ApplicationService {
 
     ApplicationApplyResponseDto submitApplication(Long clubId, ApplicationApplyRequestDto request, boolean confirmOverwrite);
 
-    SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto);
-
-    SuccessResponseDto sendPassFailMessage(long clubId, List<AnswerEmailLine> emailLines);
+    SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, String stage);
 }
