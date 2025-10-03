@@ -172,7 +172,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationApplyResponseDto(
                 application.getUser().getStudentId(),
                 application.getLastModifiedAt(),
-                true
+                false
         );
     }
 
@@ -193,7 +193,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationApplyResponseDto(
                 newApplication.getUser().getStudentId(),
                 newApplication.getLastModifiedAt(),
-                true
+                false
         );
     }
 
