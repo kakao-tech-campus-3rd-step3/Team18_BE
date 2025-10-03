@@ -50,7 +50,7 @@ class ClubApplyFormServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true, null, null);
         FormQuestion textQuestion = FormQuestion.builder()
                 .clubApplyForm(mockClubApplyForm)
                 .question("이름")

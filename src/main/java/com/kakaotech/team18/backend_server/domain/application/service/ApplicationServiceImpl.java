@@ -276,7 +276,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
 
+        ClubApplyForm form =clubApplyFormRepository.findByClub_Id(clubId);
+
         if(stage == Stage.INTERVIEW) {
+            form.updateInterviewMessage(requestDto.message());
             List<Application> approved = apps.stream()
                     .filter(a -> a.getStatus() == Status.APPROVED)
                     .toList();
@@ -303,6 +306,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
         if(stage == Stage.FINAL) {
+            form.updateFinalMessage(requestDto.message());
             List<Application> approved = apps.stream()
                     .filter(a -> a.getStatus() == Status.APPROVED)
                     .toList();

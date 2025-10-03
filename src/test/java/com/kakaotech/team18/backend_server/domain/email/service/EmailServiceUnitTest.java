@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationServiceImpl;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
@@ -73,6 +74,8 @@ class EmailServiceUnitTest {
     Application application;
     @Mock
     ClubApplyForm clubApplyForm;
+    @Mock
+    ClubApplyFormRepository clubApplyFormRepository;
     @Mock
     Club club;
     @Mock
@@ -192,6 +195,8 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
+        when(clubApplyFormRepository.findByClub_Id(77L)).thenReturn(clubApplyForm);
+
         // 공통: stage 초기값은 INTERVIEW
         final Stage[] approvedStageRef = { Stage.INTERVIEW }; // updateStage 호출 시 바뀌게 함
         when(appApproved.getStage()).thenAnswer(inv -> approvedStageRef[0]);
@@ -227,6 +232,9 @@ class EmailServiceUnitTest {
 
         //then
         assertThat(resp).isNotNull();
+
+        verify(clubApplyFormRepository).findByClub_Id(77L);
+        verify(clubApplyForm).updateInterviewMessage("면접 합격 안내 메시지");
 
         // 승격 호출 확인
         verify(appApproved).updateStage(Stage.FINAL);
@@ -270,6 +278,8 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
+        when(clubApplyFormRepository.findByClub_Id(88L)).thenReturn(clubApplyForm);
+
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
         when(appRejected.getStage()).thenReturn(Stage.FINAL);
 
@@ -297,6 +307,9 @@ class EmailServiceUnitTest {
 
         //then
         assertThat(resp).isNotNull();
+
+        verify(clubApplyFormRepository).findByClub_Id(88L);
+        verify(clubApplyForm).updateFinalMessage("최종 합격 안내 메시지");
 
         // FINAL 단계에서는 승격 호출 없음
         verify(appApproved, never()).updateStage(any());
