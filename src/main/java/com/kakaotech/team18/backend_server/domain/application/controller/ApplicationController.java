@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.application.controller;
 
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
@@ -75,5 +76,14 @@ public class ApplicationController {
         } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);//기존 응답이 없어서 바로 제출
         }
+    }
+
+    @PatchMapping("/api/clubs/{clubId}/application-form")
+    public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
+            @PathVariable("clubId") Long clubId,
+            @RequestBody ApplicationApprovedRequestDto requestDto
+    ){
+        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto);
+        return ResponseEntity.ok(responseDto);
     }
 }

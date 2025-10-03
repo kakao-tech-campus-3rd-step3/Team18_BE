@@ -7,6 +7,7 @@ import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQu
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
@@ -157,6 +158,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    @Override
+    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto) {
+        return null;
+    }
+
     private ApplicationApplyResponseDto updateApplication(
             Application application,
             ApplicationApplyRequestDto request
@@ -261,6 +267,11 @@ public class ApplicationServiceImpl implements ApplicationService {
         // 4) 일괄 저장
         answerRepository.saveAll(toSave);
         return emailLines;
+    }
+
+    @Override
+    public SuccessResponseDto sendPassFailMessage(long clubId, List<AnswerEmailLine> emailLines) {
+        return null;
     }
 
     //helper methods
