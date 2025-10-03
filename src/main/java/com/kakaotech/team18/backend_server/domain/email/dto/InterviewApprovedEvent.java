@@ -4,7 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 
 public record InterviewApprovedEvent(
         Long applicationId,
-        String message,
         String email,
+        String message,
         Stage stage
 ) {}

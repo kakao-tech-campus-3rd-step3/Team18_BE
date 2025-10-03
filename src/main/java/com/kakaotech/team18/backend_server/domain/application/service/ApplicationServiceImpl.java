@@ -270,6 +270,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return emailLines;
     }
 
+    @Transactional
     @Override
     public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
 
@@ -289,8 +290,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 a.updateStage(Stage.FINAL);
                 publisher.publishEvent(new InterviewApprovedEvent(
                         a.getId(),
-                        requestDto.message(),
                         a.getUser().getEmail(),
+                        requestDto.message(),
                         a.getStage()));
             }
             for(Application a : rejected) {
@@ -314,8 +315,8 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : approved) {
                 publisher.publishEvent(new FinalApprovedEvent(
                         a.getId(),
-                        requestDto.message(),
                         a.getUser().getEmail(),
+                        requestDto.message(),
                         a.getStage()));
             }
             for(Application a : rejected) {
@@ -326,8 +327,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getStage()));
             }
         }
-
-        return null;
+        return new SuccessResponseDto(true);
     }
 
     //helper methods
