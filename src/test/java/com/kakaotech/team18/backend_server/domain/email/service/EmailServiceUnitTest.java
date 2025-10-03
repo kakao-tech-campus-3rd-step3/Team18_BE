@@ -72,7 +72,7 @@ class EmailServiceUnitTest {
 
     @BeforeEach
     void setUp() {
-        service = new EmailService(renderer, emailSender, from, subjectPrefix, clubMemberRepository);
+        service = new EmailService(renderer, emailSender, from, clubMemberRepository);
     }
 
     private void stubHappyPath() {
