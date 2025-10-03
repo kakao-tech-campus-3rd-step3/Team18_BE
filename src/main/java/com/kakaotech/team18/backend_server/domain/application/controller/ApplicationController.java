@@ -79,6 +79,10 @@ public class ApplicationController {
         }
     }
 
+    @Operation(summary = "합/불 처리 및 메세지 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 이메일을 보냅니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
+    })
     @PatchMapping("/api/clubs/{clubId}/application-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @PathVariable("clubId") Long clubId,
