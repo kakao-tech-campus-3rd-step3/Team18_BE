@@ -33,9 +33,9 @@ class EmailServiceIntegrationTest {
 
     @MockitoBean private ClubMemberRepository clubMemberRepository;
 
-    @DisplayName("불필요한 데이터는 mock + 실제 SMTP 발송")
+    @DisplayName("실제 SMTP 발송")
     @Test
-    void sendToApplicant_realSmtp_minimalMocks() {
+    void sendToApplicant_realSmtp() {
         Club club = Mockito.mock(Club.class);
         given(club.getId()).willReturn(7L);
         given(club.getName()).willReturn("모의동아리");
