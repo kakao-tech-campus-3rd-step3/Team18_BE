@@ -39,6 +39,11 @@ public class EmailService {
         this.clubMemberRepository = clubMemberRepository;
     }
 
+    public enum ResultType {
+        INTERVIEW_APPROVED, INTERVIEW_REJECTED,
+        FINAL_APPROVED, FINAL_REJECTED
+    }
+
     public void sendToApplicant(Application application, List<AnswerEmailLine> emailLines) {
 
         Long clubId = application.getClubApplyForm().getClub().getId();
@@ -69,117 +74,86 @@ public class EmailService {
         emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
     }
 
+    public void sendResult(Application application, ResultType type, String message) {
+        Long clubId = application.getClubApplyForm().getClub().getId();
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
+        String replyTo = president.getEmail();
+
+        boolean approved = isApproved(type);
+        if (approved && (message == null || message.isBlank())) {
+            throw new IllegalArgumentException("합격 통지 이메일에는 message가 필요합니다.");
+        }
+
+        Map<String, Object> model = baseModel(application);
+        model.put("title", titleFor(type));
+        if (approved) {
+            model.put("message", message);
+        }
+
+        String templateName = templateFor(type);
+
+        String html = renderer.render(templateName, model);
+        final String subjectPrefix = "[동아리 지원]";
+        String subject = subjectPrefix + " "
+                + application.getClubApplyForm().getClub().getName()
+                + " - " + application.getUser().getName();
+
+        emailSender.sendHtml(from, replyTo, List.of(application.getUser().getEmail()), subject, html);
+    }
+
+    private Map<String, Object> baseModel(Application application) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("clubName", application.getClubApplyForm().getClub().getName());
+        model.put("applicantName", application.getUser().getName());
+        model.put("studentId", application.getUser().getStudentId());
+        model.put("department", application.getUser().getDepartment());
+        model.put("phoneNumber", application.getUser().getPhoneNumber());
+        model.put("applicantEmail", application.getUser().getEmail());
+        model.put("submittedAt", application.getLastModifiedAt());
+        return model;
+    }
+
+    private String subjectFor(Application application) {
+
+    }
+
+    private boolean isApproved(ResultType type) {
+        return switch (type) {
+            case INTERVIEW_APPROVED, FINAL_APPROVED -> true;
+            default -> false;
+        };
+    }
+
+    private String titleFor(ResultType type) {
+        return switch (type) {
+            case INTERVIEW_APPROVED -> "동아리 면접 합격을 축하드립니다";
+            case INTERVIEW_REJECTED -> "동아리 면접 결과 안내";
+            case FINAL_APPROVED -> "동아리 최종 합격을 축하드립니다";
+            case FINAL_REJECTED -> "동아리 최종 결과 안내";
+        };
+    }
+
+    private String templateFor(ResultType type) {
+        return switch (type) {
+            case INTERVIEW_APPROVED -> "email-body-applicant-InterviewApproved";
+            case INTERVIEW_REJECTED -> "email-body-applicant-InterviewRejected";
+            case FINAL_APPROVED -> "email-body-applicant-FinalApproved";
+            case FINAL_REJECTED -> "email-body-applicant-FinalRejected";
+        };
+    }
+
     public void sendInterviewApprovedResultToApplicant(Application application, String message) {
-        Long clubId = application.getClubApplyForm().getClub().getId();
-        User president = clubMemberRepository
-                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
-                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
-        String replyTo = president.getEmail();
-
-        Map<String, Object> model = new HashMap<>();
-
-        model.put("title", "동아리 면접 합격을 축하드립니다");
-        model.put("clubName", application.getClubApplyForm().getClub().getName());
-        model.put("applicantName", application.getUser().getName());
-        model.put("studentId", application.getUser().getStudentId());
-        model.put("department", application.getUser().getDepartment());
-        model.put("phoneNumber", application.getUser().getPhoneNumber());
-        model.put("applicantEmail", application.getUser().getEmail());
-        model.put("message", message);
-        model.put("submittedAt", application.getLastModifiedAt());
-
-        String html = renderer.render("email-body-applicant-InterviewApproved", model);
-
-        final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + application.getClubApplyForm().getClub().getName()
-                + " - " + application.getUser().getName();
-
-        emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
+        sendResult(application, ResultType.INTERVIEW_APPROVED, message);
     }
-
     public void sendInterviewRejectedResultToApplicant(Application application) {
-        Long clubId = application.getClubApplyForm().getClub().getId();
-        User president = clubMemberRepository
-                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
-                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
-        String replyTo = president.getEmail();
-
-        Map<String, Object> model = new HashMap<>();
-
-        model.put("title", "동아리 면접 결과");
-        model.put("clubName", application.getClubApplyForm().getClub().getName());
-        model.put("applicantName", application.getUser().getName());
-        model.put("studentId", application.getUser().getStudentId());
-        model.put("department", application.getUser().getDepartment());
-        model.put("phoneNumber", application.getUser().getPhoneNumber());
-        model.put("applicantEmail", application.getUser().getEmail());
-        model.put("submittedAt", application.getLastModifiedAt());
-
-        String html = renderer.render("email-body-applicant-InterviewApproved", model);
-
-        final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + application.getClubApplyForm().getClub().getName()
-                + " - " + application.getUser().getName();
-
-        emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
+        sendResult(application, ResultType.INTERVIEW_REJECTED, null);
     }
-
     public void sendFinalApprovedResultToApplicant(Application application, String message) {
-        Long clubId = application.getClubApplyForm().getClub().getId();
-        User president = clubMemberRepository
-                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
-                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
-        String replyTo = president.getEmail();
-
-        Map<String, Object> model = new HashMap<>();
-
-        model.put("title", "동아리 최종 합격을 축하드립니다");
-        model.put("clubName", application.getClubApplyForm().getClub().getName());
-        model.put("applicantName", application.getUser().getName());
-        model.put("studentId", application.getUser().getStudentId());
-        model.put("department", application.getUser().getDepartment());
-        model.put("phoneNumber", application.getUser().getPhoneNumber());
-        model.put("applicantEmail", application.getUser().getEmail());
-        model.put("message", message);
-        model.put("submittedAt", application.getLastModifiedAt());
-
-        String html = renderer.render("email-body-applicant-InterviewApproved", model);
-
-        final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + application.getClubApplyForm().getClub().getName()
-                + " - " + application.getUser().getName();
-
-        emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
+        sendResult(application, ResultType.FINAL_APPROVED, message);
     }
-
     public void sendFinalRejectedResultToApplicant(Application application) {
-        Long clubId = application.getClubApplyForm().getClub().getId();
-        User president = clubMemberRepository
-                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
-                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
-        String replyTo = president.getEmail();
-
-        Map<String, Object> model = new HashMap<>();
-
-        model.put("title", "동아리 최종 결과");
-        model.put("clubName", application.getClubApplyForm().getClub().getName());
-        model.put("applicantName", application.getUser().getName());
-        model.put("studentId", application.getUser().getStudentId());
-        model.put("department", application.getUser().getDepartment());
-        model.put("phoneNumber", application.getUser().getPhoneNumber());
-        model.put("applicantEmail", application.getUser().getEmail());
-        model.put("submittedAt", application.getLastModifiedAt());
-
-        String html = renderer.render("email-body-applicant-InterviewApproved", model);
-
-        final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + application.getClubApplyForm().getClub().getName()
-                + " - " + application.getUser().getName();
-
-        emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
+        sendResult(application, ResultType.FINAL_REJECTED, null);
     }
 }
