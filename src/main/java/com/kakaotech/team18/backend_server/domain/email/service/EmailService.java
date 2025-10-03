@@ -20,8 +20,6 @@ import java.util.Map;
 @Service
 public class EmailService {
 
-    private static final String SUBJECT_PREFIX = "[동아리 지원]";
-
     private final EmailTemplateRenderer renderer;
     private final EmailSender emailSender;
     private final String from;
@@ -113,10 +111,6 @@ public class EmailService {
         model.put("applicantEmail", application.getUser().getEmail());
         model.put("submittedAt", application.getLastModifiedAt());
         return model;
-    }
-
-    private String subjectFor(Application application) {
-
     }
 
     private boolean isApproved(ResultType type) {
