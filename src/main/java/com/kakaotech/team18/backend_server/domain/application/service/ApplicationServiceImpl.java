@@ -11,11 +11,17 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -265,8 +271,62 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
-    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, String stage) {
-        
+    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
+
+        List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
+
+        if(stage == Stage.INTERVIEW) {
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            List<Application> pending = apps.stream()
+                    .filter(a -> a.getStatus() == Status.PENDING)
+                    .toList();
+            for(Application a : approved) {
+                a.updateStage(Stage.FINAL);
+                publisher.publishEvent(new InterviewApprovedEvent(
+                        a.getId(),
+                        requestDto.message(),
+                        a.getUser().getEmail(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                applicationRepository.deleteById(a.getId());
+                publisher.publishEvent(new InterviewRejectedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        a.getStage()));
+            }
+        }
+        if(stage == Stage.FINAL) {
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            List<Application> pending = apps.stream()
+                    .filter(a -> a.getStatus() == Status.PENDING)
+                    .toList();
+            for(Application a : approved) {
+                publisher.publishEvent(new FinalApprovedEvent(
+                        a.getId(),
+                        requestDto.message(),
+                        a.getUser().getEmail(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                applicationRepository.deleteById(a.getId());
+                publisher.publishEvent(new FinalRejectedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        a.getStage()));
+            }
+        }
+
         return null;
     }
 

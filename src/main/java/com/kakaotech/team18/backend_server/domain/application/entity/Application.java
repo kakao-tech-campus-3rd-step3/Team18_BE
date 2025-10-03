@@ -40,7 +40,8 @@ public class Application extends BaseEntity {
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
-    private String stage;
+    @Enumerated(EnumType.STRING)
+    private Stage stage;
 
     @Column(nullable = false)
     private Double averageRating = 0.0;
@@ -60,6 +61,10 @@ public class Application extends BaseEntity {
      */
     public void updateStatus(Status newStatus) {
         this.status = newStatus;
+    }
+
+    public void updateStage(Stage newStage) {
+        this.stage = newStage;
     }
 
     public void updateAverageRating(Double averageRating) {

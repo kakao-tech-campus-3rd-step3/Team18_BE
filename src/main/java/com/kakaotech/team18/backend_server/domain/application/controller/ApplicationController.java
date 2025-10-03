@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,7 +83,7 @@ public class ApplicationController {
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @PathVariable("clubId") Long clubId,
             @RequestBody ApplicationApprovedRequestDto requestDto,
-            @RequestParam(value = "stage") String stage
+            @RequestParam(value = "stage") Stage stage
     ){
         SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
         return ResponseEntity.ok(responseDto);

@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import java.util.List;
 
@@ -31,4 +32,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             where u.studentId = :studentId and a.clubApplyForm = :form
             """)
     Optional<Application> findByStudentIdAndClubApplyForm(String studentId, ClubApplyForm form);
+
+    List<Application> findByClubApplyForm_Club_IdAndStage(Long clubId, Stage stage);
 }
