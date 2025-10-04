@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.Answer.entity;
+package com.kakaotech.team18.backend_server.domain.answer.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;

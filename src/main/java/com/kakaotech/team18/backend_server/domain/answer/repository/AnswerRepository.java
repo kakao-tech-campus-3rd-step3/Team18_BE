@@ -1,7 +1,7 @@
-package com.kakaotech.team18.backend_server.domain.Answer.repository;
+package com.kakaotech.team18.backend_server.domain.answer.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

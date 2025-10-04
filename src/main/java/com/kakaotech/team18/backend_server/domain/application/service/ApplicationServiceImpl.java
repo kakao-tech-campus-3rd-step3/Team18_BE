@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
-import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
-import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
