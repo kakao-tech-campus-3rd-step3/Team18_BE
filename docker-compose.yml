@@ -66,6 +66,7 @@ services:
       SMTP_USERNAME: ${SMTP_USERNAME}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       EMAIL_FROM: ${EMAIL_FROM}
+      SPRING_EMAIL_SUBJECT_PREFIX: ${EMAIL_SUBJECT_PREFIX}
 
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
