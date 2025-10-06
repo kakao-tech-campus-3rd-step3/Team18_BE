@@ -57,7 +57,8 @@ class CommentServiceImplTest {
         when(mockApplication.getId()).thenReturn(applicationId);
         when(applicationRepository.findById(anyLong())).thenReturn(Optional.of(mockApplication));
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(commentRepository.findByApplicationIdWithUser(applicationId)).thenReturn(Collections.emptyList());
+        when(applicationRepository.findByIdWithPessimisticLock(applicationId)).thenReturn(Optional.of(mockApplication));
+        when(commentRepository.findAverageRatingByApplicationId(applicationId)).thenReturn(Optional.of(4.5));
 
         // when
         CommentResponseDto responseDto = commentService.createComment(applicationId, requestDto, userId);
@@ -110,8 +111,8 @@ class CommentServiceImplTest {
         when(mockComment.getApplication()).thenReturn(mockApplication);
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(mockApplication));
-        when(commentRepository.findByApplicationIdWithUser(applicationId)).thenReturn(Collections.singletonList(mockComment));
+        when(applicationRepository.findByIdWithPessimisticLock(applicationId)).thenReturn(Optional.of(mockApplication));
+        when(commentRepository.findAverageRatingByApplicationId(applicationId)).thenReturn(Optional.of(3.0));
 
         // when
         commentService.updateComment(commentId, requestDto, userId);
@@ -194,8 +195,8 @@ class CommentServiceImplTest {
         when(mockComment.getApplication()).thenReturn(mockApplication);
 
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
-        when(applicationRepository.findById(applicationId)).thenReturn(Optional.of(mockApplication));
-        when(commentRepository.findByApplicationIdWithUser(applicationId)).thenReturn(Collections.emptyList());
+        when(applicationRepository.findByIdWithPessimisticLock(applicationId)).thenReturn(Optional.of(mockApplication));
+        when(commentRepository.findAverageRatingByApplicationId(applicationId)).thenReturn(Optional.of(0.0));
 
         // when
         commentService.deleteComment(commentId, userId);

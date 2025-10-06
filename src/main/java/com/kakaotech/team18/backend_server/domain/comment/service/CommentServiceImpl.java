@@ -117,17 +117,18 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private void updateApplicationAverageRating(Long applicationId) {
-        Application application = applicationRepository.findById(applicationId)
+        // 1. 비관적 락을 사용하여 Application 엔티티를 안전하게 조회합니다.
+        Application application = applicationRepository.findByIdWithPessimisticLock(applicationId)
                 .orElseThrow(() -> new ApplicationNotFoundException("해당 지원서를 찾을 수 없습니다. ID: " + applicationId));
 
-        List<Comment> comments = commentRepository.findByApplicationIdWithUser(applicationId);
-        double average = comments.stream()
-                .mapToDouble(Comment::getRating)
-                .average()
+        // 2. DB에서 직접 계산한 평균 평점을 가져옵니다. 댓글이 없으면 0.0을 사용합니다.
+        double average = commentRepository.findAverageRatingByApplicationId(applicationId)
                 .orElse(0.0);
 
+        // 3. 소수점 첫째 자리까지 반올림합니다.
         double roundedAverage = Math.round(average * 10.0) / 10.0;
 
+        // 4. 조회한 Application 엔티티의 평균 평점을 업데이트합니다.
         application.updateAverageRating(roundedAverage);
     }
 }
