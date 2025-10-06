@@ -65,7 +65,7 @@ services:
       SMTP_PORT: ${SMTP_PORT}
       SMTP_USERNAME: ${SMTP_USERNAME}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
-      EMAIL_FROM: ${EMAIL_FROM:no-reply@gmail.com}
+      EMAIL_FROM: ${EMAIL_FROM}
 
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
