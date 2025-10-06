@@ -39,7 +39,7 @@ public class SmtpEmailSender implements EmailSender {
             helper.setText(htmlBody, true);
 
             mailSender.send(mime);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (SmtpFailureClassifier.isTemporary(e)) {
                 throw new RetryableEmailException("Temporary email failure, will retry", e);
             }
