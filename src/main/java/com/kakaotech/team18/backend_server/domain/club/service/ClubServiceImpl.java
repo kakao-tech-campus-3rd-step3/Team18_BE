@@ -123,7 +123,7 @@ public class ClubServiceImpl implements ClubService {
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
                 .map(s -> ClubListResponseDto.from(s,
-                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd())))
+                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd()).getDisplayName()))
                 .toList();
     }
 }

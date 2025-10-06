@@ -16,9 +16,9 @@ public final class RecruitStatusCalculator {
      *
      * @param start 모집 시작일
      * @param end   모집 종료일
-     * @return 계산된 모집 상태 문자열
+     * @return 계산된 모집 상태 Enum
      */
-    public static String calculate(LocalDateTime start, LocalDateTime end) {
+    public static RecruitStatus calculate(LocalDateTime start, LocalDateTime end) {
         return calculate(start, end, LocalDateTime.now());
     }
 
@@ -29,19 +29,19 @@ public final class RecruitStatusCalculator {
      * @param start 모집 시작일
      * @param end   모집 종료일
      * @param now   기준 시간
-     * @return 계산된 모집 상태 문자열
+     * @return 계산된 모집 상태 Enum
      */
-    static String calculate(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
+    static RecruitStatus calculate(LocalDateTime start, LocalDateTime end, LocalDateTime now) {
         if (start == null || end == null) {
-            return "모집 일정 미정";
+            return RecruitStatus.NOT_SCHEDULED;
         }
 
         if (now.isBefore(start)) {
-            return "모집 준비중";
+            return RecruitStatus.PREPARING;
         } else if (!now.isBefore(end)) {
-            return "모집 종료";
+            return RecruitStatus.CLOSED;
         } else {
-            return "모집중";
+            return RecruitStatus.RECRUITING;
         }
     }
 }

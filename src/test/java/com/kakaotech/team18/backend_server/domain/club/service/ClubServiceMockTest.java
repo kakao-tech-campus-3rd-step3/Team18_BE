@@ -22,6 +22,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
@@ -189,7 +190,7 @@ public class ClubServiceMockTest {
             // given
             // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 "모집중"을 반환하도록 설정합니다.
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
-                    .thenReturn("모집중");
+                    .thenReturn(RecruitStatus.RECRUITING);
 
             given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
@@ -256,7 +257,7 @@ public class ClubServiceMockTest {
         try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
             // given
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
-                    .thenReturn("모집중");
+                    .thenReturn(RecruitStatus.RECRUITING);
 
             given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
