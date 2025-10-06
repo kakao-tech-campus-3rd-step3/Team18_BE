@@ -26,6 +26,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import java.util.List;
 import java.util.Optional;
@@ -138,6 +139,29 @@ class ApplicationServiceImplTest {
         verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
         verify(applicationRepository, times(1)).findByClubApplyFormIdAndUserId(formId, userId);
         verify(answerRepository, never()).findByApplicationWithFormQuestion(any(Application.class));
+    }
+
+    @Test
+    @DisplayName("지원서 상세 조회 - 실패 (지원서 양식을 찾을 수 없음)")
+    void getApplicationDetail_fail_clubApplyFormNotFound() {
+        // given
+        Long clubId = 1L;
+        Long userId = 1L;
+
+        // clubApplyFormRepository.findByClubId가 호출되면 Optional.empty()를 반환하도록 설정
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.empty());
+
+        // when & then
+        // getApplicationDetail을 호출했을 때 ClubApplyFormNotFoundException이 발생하는지 검증
+        ClubApplyFormNotFoundException exception = assertThrows(ClubApplyFormNotFoundException.class, () -> {
+            applicationService.getApplicationDetail(clubId, userId);
+        });
+
+        assertEquals("지원폼이 존재하지 않습니다", exception.getMessage());
+
+        // verify
+        verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
+        verify(applicationRepository, never()).findByClubApplyFormIdAndUserId(any(), any());
     }
 
     @Test
