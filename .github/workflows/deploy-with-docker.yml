@@ -2,7 +2,7 @@ name: Deploy To EC2 With Docker
 
 on:
   push:
-    branches: [fix/deploy-without-test]
+    branches: [develop]
   workflow_dispatch: {}
 
 concurrency:
