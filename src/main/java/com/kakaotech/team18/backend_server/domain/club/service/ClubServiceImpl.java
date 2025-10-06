@@ -84,7 +84,7 @@ public class ClubServiceImpl implements ClubService {
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
         ClubApplyForm clubApplyForm = clubApplyFormRepository
-                .getByClub(club).orElseThrow(() -> {
+                .findByClubId(club.getId()).orElseThrow(() -> {
             log.warn("ClubApplyForm not found for id={}", clubId);
             return new ClubApplyFormNotFoundException("clubId = " + clubId);
         });

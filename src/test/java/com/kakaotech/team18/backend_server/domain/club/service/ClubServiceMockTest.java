@@ -82,7 +82,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(clubMember, "id", 1L);
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
-        given(clubApplyFormRepository.getByClub(eq(club))).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of(application));
 
@@ -97,7 +97,7 @@ public class ClubServiceMockTest {
         //then
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
-        verify(clubApplyFormRepository).getByClub(club);
+        verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
         verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
     }
@@ -119,7 +119,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(clubMember, "id", 1L);
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
-        given(clubApplyFormRepository.getByClub(eq(club))).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
 
@@ -131,7 +131,7 @@ public class ClubServiceMockTest {
         //then
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
-        verify(clubApplyFormRepository).getByClub(club);
+        verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
         verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
 
