@@ -10,38 +10,73 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.TemporaryServerConflictException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import org.springframework.dao.PessimisticLockingFailureException;
+import org.springframework.retry.annotation.EnableRetry;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
+@ExtendWith(OutputCaptureExtension.class)
+@SpringBootTest
+@EnableRetry(proxyTargetClass = true)
 class CommentServiceImplTest {
 
-    @InjectMocks
+    @Autowired
     private CommentServiceImpl commentService;
 
-    @Mock
+    @MockBean
     private CommentRepository commentRepository;
 
-    @Mock
+    @MockBean
     private ApplicationRepository applicationRepository;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
+
+    @Test
+    @DisplayName("평균점수 업데이트 실패 - 락 경합으로 재시도 후 실패")
+    void updateAverageRating_fail_afterRetries_thenRecover() {
+        // given
+        final Long applicationId = 1L;
+        final String expectedExceptionDetail = "DB Lock failed";
+
+        given(applicationRepository.findByIdWithPessimisticLock(anyLong()))
+                .willThrow(new PessimisticLockingFailureException(expectedExceptionDetail));
+
+        // when & then
+        // 재시도가 모두 실패하고 @Recover 메소드가 던진 예외가 최종적으로 발생하는지 검증
+        TemporaryServerConflictException exception = assertThrows(TemporaryServerConflictException.class, () -> {
+            commentService.updateApplicationAverageRating(applicationId);
+        });
+
+        // then
+        // CustomException의 detail 필드에 원인 메시지가 잘 담겼는지 확인
+        assertThat(exception.getDetail()).isEqualTo(expectedExceptionDetail);
+
+        // @Retryable(maxAttempts=3) 설정에 따라, findByIdWithPessimisticLock 메소드가 3번 호출되었는지 검증
+        verify(applicationRepository, times(3)).findByIdWithPessimisticLock(applicationId);
+    }
 
     @Test
     @DisplayName("댓글 생성 - 성공")
