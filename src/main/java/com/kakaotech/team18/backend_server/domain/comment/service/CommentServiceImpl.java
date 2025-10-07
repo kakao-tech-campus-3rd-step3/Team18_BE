@@ -8,14 +8,15 @@ import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNotFoundException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -102,6 +103,32 @@ public class CommentServiceImpl implements CommentService {
         log.info("댓글 삭제 성공 - commentId: {}", commentId);
     }
 
+    @Retryable(
+            value = {DataAccessException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 200)
+    )
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateApplicationAverageRating(Long applicationId) {
+        log.info("지원서 평균 평점 업데이트 시도 - applicationId: {}", applicationId);
+        Application application = applicationRepository.findByIdWithPessimisticLock(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("해당 지원서를 찾을 수 없습니다. ID: " + applicationId));
+
+        double average = commentRepository.findAverageRatingByApplicationId(applicationId)
+                .orElse(0.0);
+
+        double roundedAverage = Math.round(average * 10.0) / 10.0;
+
+        application.updateAverageRating(roundedAverage);
+        log.info("지원서 평균 평점 업데이트 성공 - applicationId: {}", applicationId);
+    }
+
+    @Recover
+    public void recover(DataAccessException e, Long applicationId) {
+        log.error("평균 평점 업데이트 중 최대 재시도 횟수 초과 - applicationId: {}", applicationId, e);
+        throw new TemporaryServerConflictException(e.getMessage());
+    }
+
     private void validateRating(Double rating) {
         if (rating % 0.5 != 0) {
             throw new InvalidRatingUnitException();
@@ -114,21 +141,5 @@ public class CommentServiceImpl implements CommentService {
                     comment.getId(), comment.getUser().getId(), userId);
             throw new CommentAccessDeniedException("해당 댓글을 수정/삭제할 권한이 없습니다. 사용자 ID: " + userId);
         }
-    }
-
-    private void updateApplicationAverageRating(Long applicationId) {
-        // 1. 비관적 락을 사용하여 Application 엔티티를 안전하게 조회합니다.
-        Application application = applicationRepository.findByIdWithPessimisticLock(applicationId)
-                .orElseThrow(() -> new ApplicationNotFoundException("해당 지원서를 찾을 수 없습니다. ID: " + applicationId));
-
-        // 2. DB에서 직접 계산한 평균 평점을 가져옵니다. 댓글이 없으면 0.0을 사용합니다.
-        double average = commentRepository.findAverageRatingByApplicationId(applicationId)
-                .orElse(0.0);
-
-        // 3. 소수점 첫째 자리까지 반올림합니다.
-        double roundedAverage = Math.round(average * 10.0) / 10.0;
-
-        // 4. 조회한 Application 엔티티의 평균 평점을 업데이트합니다.
-        application.updateAverageRating(roundedAverage);
     }
 }
