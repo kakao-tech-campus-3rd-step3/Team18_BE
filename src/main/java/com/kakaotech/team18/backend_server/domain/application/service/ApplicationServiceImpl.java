@@ -35,6 +35,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -279,15 +281,20 @@ public class ApplicationServiceImpl implements ApplicationService {
         ClubApplyForm form =clubApplyFormRepository.findByClub_Id(clubId);
 
         if(stage == Stage.INTERVIEW) {
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
             form.updateInterviewMessage(requestDto.message());
             List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
                     .toList();
             List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
-                    .toList();
-            List<Application> pending = apps.stream()
-                    .filter(a -> a.getStatus() == Status.PENDING)
                     .toList();
             for(Application a : approved) {
                 a.updateStage(Stage.FINAL);
@@ -306,15 +313,50 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
         if(stage == Stage.FINAL) {
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
             form.updateFinalMessage(requestDto.message());
             List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
                     .toList();
             List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
-            List<Application> pending = apps.stream()
-                    .filter(a -> a.getStatus() == Status.PENDING)
+            for(Application a : approved) {
+                publisher.publishEvent(new FinalApprovedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                applicationRepository.deleteById(a.getId());
+                publisher.publishEvent(new FinalRejectedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        a.getStage()));
+            }
+        }
+        if(stage == null) {
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
             for(Application a : approved) {
                 publisher.publishEvent(new FinalApprovedEvent(
