@@ -67,6 +67,10 @@ dependencies {
     // 테스트 코드에서 Lombok 사용을 위한 의존성 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
+    implementation 'org.springframework.retry:spring-retry:2.0.5'     // Spring Retry
+
 }
 
 tasks.named('test') {
