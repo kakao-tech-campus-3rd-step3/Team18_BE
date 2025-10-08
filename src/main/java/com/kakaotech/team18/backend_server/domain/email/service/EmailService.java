@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.email.service;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
@@ -72,8 +73,8 @@ public class EmailService {
         emailSender.sendHtml(from, replyTo,List.of(application.getUser().getEmail()),subject, html);
     }
 
-    public void sendResult(Application application, ResultType type, String message) {
-        Long clubId = application.getClubApplyForm().getClub().getId();
+    public void sendResult(Club club, User user, ResultType type, String message) {
+        Long clubId = club.getId();
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
@@ -84,7 +85,7 @@ public class EmailService {
             throw new IllegalArgumentException("합격 통지 이메일에는 message가 필요합니다.");
         }
 
-        Map<String, Object> model = baseModel(application);
+        Map<String, Object> model = baseModel(club, user);
         model.put("title", titleFor(type));
         if (approved) {
             model.put("message", message);
@@ -95,21 +96,20 @@ public class EmailService {
         String html = renderer.render(templateName, model);
         final String subjectPrefix = "[동아리 지원]";
         String subject = subjectPrefix + " "
-                + application.getClubApplyForm().getClub().getName()
-                + " - " + application.getUser().getName();
+                + club.getName()
+                + " - " + user.getName();
 
-        emailSender.sendHtml(from, replyTo, List.of(application.getUser().getEmail()), subject, html);
+        emailSender.sendHtml(from, replyTo, List.of(user.getEmail()), subject, html);
     }
 
-    private Map<String, Object> baseModel(Application application) {
+    private Map<String, Object> baseModel(Club club, User user) {
         Map<String, Object> model = new HashMap<>();
-        model.put("clubName", application.getClubApplyForm().getClub().getName());
-        model.put("applicantName", application.getUser().getName());
-        model.put("studentId", application.getUser().getStudentId());
-        model.put("department", application.getUser().getDepartment());
-        model.put("phoneNumber", application.getUser().getPhoneNumber());
-        model.put("applicantEmail", application.getUser().getEmail());
-        model.put("submittedAt", application.getLastModifiedAt());
+        model.put("clubName", club.getName());
+        model.put("applicantName", user.getName());
+        model.put("studentId", user.getStudentId());
+        model.put("department", user.getDepartment());
+        model.put("phoneNumber", user.getPhoneNumber());
+        model.put("applicantEmail", user.getEmail());
         return model;
     }
 
@@ -122,7 +122,7 @@ public class EmailService {
 
     private String titleFor(ResultType type) {
         return switch (type) {
-            case INTERVIEW_APPROVED -> "동아리 면접 합격을 축하드립니다";
+            case INTERVIEW_APPROVED -> "동아리 면접 일정 공지";
             case INTERVIEW_REJECTED -> "동아리 면접 결과 안내";
             case FINAL_APPROVED -> "동아리 최종 합격을 축하드립니다";
             case FINAL_REJECTED -> "동아리 최종 결과 안내";
@@ -138,16 +138,16 @@ public class EmailService {
         };
     }
 
-    public void sendInterviewApprovedResultToApplicant(Application application, String message) {
-        sendResult(application, ResultType.INTERVIEW_APPROVED, message);
+    public void sendInterviewApprovedResultToApplicant(Club club, User user, String message) {
+        sendResult(club, user, ResultType.INTERVIEW_APPROVED, message);
     }
-    public void sendInterviewRejectedResultToApplicant(Application application) {
-        sendResult(application, ResultType.INTERVIEW_REJECTED, null);
+    public void sendInterviewRejectedResultToApplicant(Club club, User user) {
+        sendResult(club, user, ResultType.INTERVIEW_REJECTED, null);
     }
-    public void sendFinalApprovedResultToApplicant(Application application, String message) {
-        sendResult(application, ResultType.FINAL_APPROVED, message);
+    public void sendFinalApprovedResultToApplicant(Club club, User user, String message) {
+        sendResult(club, user, ResultType.FINAL_APPROVED, message);
     }
-    public void sendFinalRejectedResultToApplicant(Application application) {
-        sendResult(application, ResultType.FINAL_REJECTED, null);
+    public void sendFinalRejectedResultToApplicant(Club club, User user) {
+        sendResult( club, user, ResultType.FINAL_REJECTED, null);
     }
 }

@@ -195,7 +195,7 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
-        when(clubApplyFormRepository.findByClub_Id(77L)).thenReturn(clubApplyForm);
+        when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.ofNullable(clubApplyForm));
 
         // 공통: stage 초기값은 INTERVIEW
         final Stage[] approvedStageRef = { Stage.INTERVIEW }; // updateStage 호출 시 바뀌게 함
@@ -233,7 +233,7 @@ class EmailServiceUnitTest {
         //then
         assertThat(resp).isNotNull();
 
-        verify(clubApplyFormRepository).findByClub_Id(77L);
+        verify(clubApplyFormRepository).findByClubId(77L);
         verify(clubApplyForm).updateInterviewMessage("면접 합격 안내 메시지");
 
         // 승격 호출 확인
@@ -278,7 +278,7 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
-        when(clubApplyFormRepository.findByClub_Id(88L)).thenReturn(clubApplyForm);
+        when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.ofNullable(clubApplyForm));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
         when(appRejected.getStage()).thenReturn(Stage.FINAL);
@@ -308,7 +308,7 @@ class EmailServiceUnitTest {
         //then
         assertThat(resp).isNotNull();
 
-        verify(clubApplyFormRepository).findByClub_Id(88L);
+        verify(clubApplyFormRepository).findByClubId(88L);
         verify(clubApplyForm).updateFinalMessage("최종 합격 안내 메시지");
 
         // FINAL 단계에서는 승격 호출 없음

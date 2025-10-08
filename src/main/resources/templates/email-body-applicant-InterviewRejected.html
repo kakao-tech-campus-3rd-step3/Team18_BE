@@ -18,7 +18,6 @@
     <h1 th:text="${title}">동아리 면접 결과 안내</h1>
     <div class="meta">
         <span th:text="'동아리: ' + ${clubName}">동아리명</span> ·
-        <span th:text="${#temporals.format(submittedAt, 'yyyy-MM-dd HH:mm')}">2025-10-04 10:00</span>
     </div>
 
     <div class="card">
@@ -28,15 +27,6 @@
 
     <div class="card">
         앞으로 더 좋은 인연으로 만나 뵙길 바랍니다. 귀중한 시간 내어 주셔서 감사합니다.
-    </div>
-
-    <div class="card">
-        <div style="font-weight:600; margin-bottom:8px;">지원자 정보</div>
-        <div>이름: <span th:text="${applicantName}">홍길동</span></div>
-        <div>학번: <span th:text="${studentId}">20231234</span></div>
-        <div>학과: <span th:text="${department}">컴퓨터정보통신공학과</span></div>
-        <div>연락처: <span th:text="${phoneNumber}">010-1234-5678</span></div>
-        <div>이메일: <span th:text="${applicantEmail}">user@example.com</span></div>
     </div>
 
     <div class="footer">

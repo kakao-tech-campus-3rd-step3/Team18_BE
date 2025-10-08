@@ -278,7 +278,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
 
-        ClubApplyForm form =clubApplyFormRepository.findByClub_Id(clubId);
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                            log.warn("ClubApplyForm not found, clubId={}", clubId);
+                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                        }
+                );
 
         if(stage == Stage.INTERVIEW) {
             boolean hasPending = apps.stream()
@@ -298,6 +303,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .toList();
             for(Application a : approved) {
                 a.updateStage(Stage.FINAL);
+                a.updateStatus(Status.PENDING);
                 publisher.publishEvent(new InterviewApprovedEvent(
                         a.getId(),
                         a.getUser().getEmail(),
@@ -305,12 +311,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getStage()));
             }
             for(Application a : rejected) {
-                applicationRepository.deleteById(a.getId());
                 publisher.publishEvent(new InterviewRejectedEvent(
-                        a.getId(),
+                        a.getClubApplyForm().getClub(),
+                        a.getUser(),
                         a.getUser().getEmail(),
-                        a.getStage()));
+                        a.getStage(),
+                        a.getStatus()));
             }
+            applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == Stage.FINAL) {
             boolean hasPending = apps.stream()
@@ -336,12 +344,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getStage()));
             }
             for(Application a : rejected) {
-                applicationRepository.deleteById(a.getId());
                 publisher.publishEvent(new FinalRejectedEvent(
-                        a.getId(),
+                        a.getClubApplyForm().getClub(),
+                        a.getUser(),
                         a.getUser().getEmail(),
-                        a.getStage()));
+                        a.getStage(),
+                        a.getStatus()));
             }
+            applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == null) {
             boolean hasPending = apps.stream()
@@ -366,12 +376,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getStage()));
             }
             for(Application a : rejected) {
-                applicationRepository.deleteById(a.getId());
                 publisher.publishEvent(new FinalRejectedEvent(
-                        a.getId(),
+                        a.getClubApplyForm().getClub(),
+                        a.getUser(),
                         a.getUser().getEmail(),
-                        a.getStage()));
+                        a.getStage(),
+                        a.getStatus()));
             }
+            applicationRepository.deleteAllInBatch(rejected);
         }
         return new SuccessResponseDto(true);
     }
@@ -394,5 +406,4 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .distinct()
                 .toList();
     }
-
 }

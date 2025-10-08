@@ -2,12 +2,14 @@ package com.kakaotech.team18.backend_server.domain.email.eventListener;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -35,17 +37,17 @@ public class ApplicationNotificationListener {
     public void onInterviewApproved(InterviewApprovedEvent event) {
         Application application = applicationRepository.findById(event.applicationId()).orElse(null);
         if (application == null) return;
-
-        emailService.sendInterviewApprovedResultToApplicant(application, event.message());
+        Club club = application.getClubApplyForm().getClub();
+        User user = application.getUser();
+        emailService.sendInterviewApprovedResultToApplicant(club, user,  event.message());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onInterviewRejected(InterviewRejectedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
-
-        emailService.sendInterviewRejectedResultToApplicant(application);
+        Club club = event.club();
+        User user = event.user();
+        emailService.sendInterviewRejectedResultToApplicant(club, user);
     }
 
     @Async
@@ -53,16 +55,16 @@ public class ApplicationNotificationListener {
     public void onFinalApproved(FinalApprovedEvent event) {
         Application application = applicationRepository.findById(event.applicationId()).orElse(null);
         if (application == null) return;
-
-        emailService.sendFinalApprovedResultToApplicant(application, event.message());
+        Club club = application.getClubApplyForm().getClub();
+        User user = application.getUser();
+        emailService.sendFinalApprovedResultToApplicant(club, user, event.message());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onFinalRejected(FinalRejectedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
-
-        emailService.sendFinalRejectedResultToApplicant(application);
+        Club club = event.club();
+        User user = event.user();
+        emailService.sendFinalRejectedResultToApplicant(club, user);
     }
 }
