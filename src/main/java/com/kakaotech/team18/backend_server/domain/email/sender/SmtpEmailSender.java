@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.email.sender;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.EmailSendFailedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.RetryableEmailException;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,8 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(mime);
         } catch (Exception e) {
+            log.info("Email sent failed: replyTo={} to={}", replyTo, to);
+            throw new RuntimeException("SMTP send failed", e);
             if (SmtpFailureClassifier.isTemporary(e)) {
                 throw new RetryableEmailException("Temporary email failure, will retry", e);
             }
