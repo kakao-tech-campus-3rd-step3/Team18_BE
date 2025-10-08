@@ -52,7 +52,7 @@ public record ClubDetailResponseDto(
                 introductionActivity(clubIntroduction.map(ClubIntroduction::getActivities).orElse("")).
                 introductionIdeal(clubIntroduction.map(ClubIntroduction::getIdeal).orElse("")).
                 regularMeetingInfo(club.getRegularMeetingInfo()).
-                recruitStatus(RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd())).
+                recruitStatus(RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()).getDisplayName()).
                 presidentName(user.getName()).
                 presidentPhoneNumber(user.getPhoneNumber()).
                 recruitStart(club.getRecruitStart()).

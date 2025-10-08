@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
@@ -69,12 +70,12 @@ class ClubServiceImplTest {
             // try-with-resources 구문을 사용하여 테스트가 끝나면 mock이 자동으로 해제되도록 합니다.
             try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
                 // given
-                final String DUMMY_STATUS = "DUMMY_STATUS";
+                final RecruitStatus DUMMY_STATUS_ENUM = RecruitStatus.RECRUITING;
                 var summary = new TestClubSummary(1L, "A", Category.SPORTS, "si", null, null);
 
-                // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 "DUMMY_STATUS"를 반환하도록 설정
+                // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 DUMMY_STATUS_ENUM을 반환하도록 설정
                 mockedCalculator.when(() -> RecruitStatusCalculator.calculate(summary.getRecruitStart(), summary.getRecruitEnd()))
-                        .thenReturn(DUMMY_STATUS);
+                        .thenReturn(DUMMY_STATUS_ENUM);
 
                 when(clubRepository.findAllProjectedBy()).thenReturn(List.of(summary));
 
@@ -83,7 +84,8 @@ class ClubServiceImplTest {
 
                 //then
                 assertThat(result).hasSize(1);
-                assertThat(result.get(0).recruitStatus()).isEqualTo(DUMMY_STATUS);
+                // DTO의 필드는 Enum의 displayName과 일치하는지 검증
+                assertThat(result.get(0).recruitStatus()).isEqualTo(DUMMY_STATUS_ENUM.getDisplayName());
                 verify(clubRepository, times(1)).findAllProjectedBy();
                 verifyNoMoreInteractions(clubRepository);
             }

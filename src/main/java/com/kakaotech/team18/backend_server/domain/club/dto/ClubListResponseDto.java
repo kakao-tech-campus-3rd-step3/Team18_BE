@@ -19,7 +19,7 @@ public record ClubListResponseDto(
                 club.getName(),
                 club.getCategory(),
                 club.getShortIntroduction(),
-                RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd())
+                RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()).getDisplayName()
         );
     }
 
