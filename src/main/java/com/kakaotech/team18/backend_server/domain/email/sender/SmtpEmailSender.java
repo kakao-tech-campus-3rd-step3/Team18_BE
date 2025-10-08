@@ -2,12 +2,14 @@ package com.kakaotech.team18.backend_server.domain.email.sender;
 
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
 import jakarta.mail.internet.MimeMessage;
 
+@Slf4j
 @Component
 public class SmtpEmailSender implements EmailSender {
 
@@ -30,6 +32,7 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(mime);
         } catch (Exception e) {
+            log.info("Email sent failed: replyTo={} to={}", replyTo, to);
             throw new RuntimeException("SMTP send failed", e);
         }
     }

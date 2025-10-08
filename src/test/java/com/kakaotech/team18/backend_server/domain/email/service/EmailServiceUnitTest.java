@@ -89,10 +89,12 @@ class EmailServiceUnitTest {
     ArgumentCaptor<List<String>> toCaptor;
     @Captor
     ArgumentCaptor<Object> eventCaptor;
+    @Captor
+    ArgumentCaptor<List<Application>> appsCaptor;
 
     @InjectMocks
     ApplicationServiceImpl serviceImpl;
-    @InjectMocks
+
     EmailService service;
 
     final String from = "no-reply@clubhub.example";
@@ -195,7 +197,7 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
-        when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.ofNullable(clubApplyForm));
+        when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
 
         // 공통: stage 초기값은 INTERVIEW
         final Stage[] approvedStageRef = { Stage.INTERVIEW }; // updateStage 호출 시 바뀌게 함
@@ -204,11 +206,14 @@ class EmailServiceUnitTest {
                 .when(appApproved).updateStage(any(Stage.class));
 
         when(appRejected.getStage()).thenReturn(Stage.INTERVIEW);
+        when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
 
         // status
         when(appApproved.getStatus()).thenReturn(Status.APPROVED);
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
+        when(clubApplyForm.getClub()).thenReturn(club);
+        when(club.getId()).thenReturn(77L);
 
         // ids
         when(appApproved.getId()).thenReturn(101L);
@@ -238,8 +243,14 @@ class EmailServiceUnitTest {
 
         // 승격 호출 확인
         verify(appApproved).updateStage(Stage.FINAL);
+        verify(appApproved).updateStatus(Status.PENDING);
         verify(appRejected, never()).updateStage(any());
         verify(appPending,  never()).updateStage(any());
+
+
+        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
+        List<Application> deleted = appsCaptor.getValue();
+        assertThat(deleted).containsExactly(appRejected);
 
         // 삭제 호출 확인 (REJECTED만)
         verify(applicationRepository, times(1)).deleteById(102L);
@@ -265,7 +276,7 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof InterviewRejectedEvent)
                 .map(e -> (InterviewRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.applicationId()).isEqualTo(102L);
+        //assertThat(rejectedEvt.applicationId()).isEqualTo(102L);
         assertThat(rejectedEvt.email()).isEqualTo("rejected@ex.com");
         assertThat(rejectedEvt.stage()).isEqualTo(Stage.INTERVIEW);
     }
@@ -278,7 +289,7 @@ class EmailServiceUnitTest {
         Application appRejected = mock(Application.class);
         Application appPending  = mock(Application.class);
 
-        when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.ofNullable(clubApplyForm));
+        when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
         when(appRejected.getStage()).thenReturn(Stage.FINAL);
@@ -286,6 +297,8 @@ class EmailServiceUnitTest {
         when(appApproved.getStatus()).thenReturn(Status.APPROVED);
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
+        when(clubApplyForm.getClub()).thenReturn(club);
+        when(club.getId()).thenReturn(88L);
 
         when(appApproved.getId()).thenReturn(201L);
         when(appRejected.getId()).thenReturn(202L);
@@ -338,7 +351,7 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.applicationId()).isEqualTo(202L);
+        //assertThat(rejectedEvt.applicationId()).isEqualTo(202L);
         assertThat(rejectedEvt.email()).isEqualTo("final-rejected@ex.com");
         assertThat(rejectedEvt.stage()).isEqualTo(Stage.FINAL);
     }

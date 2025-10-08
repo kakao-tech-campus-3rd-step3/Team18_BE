@@ -38,11 +38,6 @@ public class EmailService {
         this.clubMemberRepository = clubMemberRepository;
     }
 
-    public enum ResultType {
-        INTERVIEW_APPROVED, INTERVIEW_REJECTED,
-        FINAL_APPROVED, FINAL_REJECTED
-    }
-
     public void sendToApplicant(Application application, List<AnswerEmailLine> emailLines) {
 
         Long clubId = application.getClubApplyForm().getClub().getId();
