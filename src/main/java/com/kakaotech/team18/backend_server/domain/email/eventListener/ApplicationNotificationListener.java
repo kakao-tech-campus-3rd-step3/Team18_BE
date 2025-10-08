@@ -32,6 +32,7 @@ public class ApplicationNotificationListener {
         if (application == null) return;
 
         emailService.sendToApplicant(application, event.emailLines());
+        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
     }
 
     @Async

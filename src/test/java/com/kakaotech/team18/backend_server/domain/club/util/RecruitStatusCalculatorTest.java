@@ -27,9 +27,9 @@ class RecruitStatusCalculatorTest {
 
         // when
         // package-private 메소드를 직접 호출하여 테스트
-        String statusBefore = RecruitStatusCalculator.calculate(startDate, endDate, beforeRecruiting);
-        String statusDuring = RecruitStatusCalculator.calculate(startDate, endDate, duringRecruiting);
-        String statusAfter = RecruitStatusCalculator.calculate(startDate, endDate, afterRecruiting);
+        String statusBefore = RecruitStatusCalculator.calculate(startDate, endDate, beforeRecruiting).getDisplayName();
+        String statusDuring = RecruitStatusCalculator.calculate(startDate, endDate, duringRecruiting).getDisplayName();
+        String statusAfter = RecruitStatusCalculator.calculate(startDate, endDate, afterRecruiting).getDisplayName();
 
         // then
         assertThat(statusBefore).isEqualTo("모집 준비중");
@@ -44,9 +44,9 @@ class RecruitStatusCalculatorTest {
         final LocalDateTime now = LocalDateTime.now();
 
         // when
-        String statusWithNullStart = RecruitStatusCalculator.calculate(null, now, now);
-        String statusWithNullEnd = RecruitStatusCalculator.calculate(now, null, now);
-        String statusWithBothNull = RecruitStatusCalculator.calculate(null, null, now);
+        String statusWithNullStart = RecruitStatusCalculator.calculate(null, now, now).getDisplayName();
+        String statusWithNullEnd = RecruitStatusCalculator.calculate(now, null, now).getDisplayName();
+        String statusWithBothNull = RecruitStatusCalculator.calculate(null, null, now).getDisplayName();
 
         // then
         assertThat(statusWithNullStart).isEqualTo("모집 일정 미정");

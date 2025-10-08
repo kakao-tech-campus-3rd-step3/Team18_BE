@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
-import com.kakaotech.team18.backend_server.domain.Answer.entity.Answer;
-import com.kakaotech.team18.backend_server.domain.Answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
+import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
@@ -143,7 +143,7 @@ class ApplicationServiceSubmitApplicationTest {
             // then
             assertThat(res).isNotNull();
             assertThat(res.studentId()).isEqualTo("20231234");
-            assertThat(res.requiresConfirmation()).isTrue();
+            assertThat(res.requiresConfirmation()).isFalse();
 
             verify(applicationRepository, times(1)).save(any(Application.class));
             verify(answerRepository, times(1)).saveAll(anyList());

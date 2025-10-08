@@ -30,13 +30,16 @@ public enum ErrorCode {
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
     PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
     COMMENT_ACCESS_DENIED("해당 댓글에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    EMAIL_POLICY_REJECTED   ("Gmail 정책/스팸/DMARC 거부", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND: 리소스를 찾을 수 없음
     USER_NOT_FOUND("해당 유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
@@ -50,9 +53,20 @@ public enum ErrorCode {
 
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),
+    TEMPORARY_SERVER_CONFLICT("일시적인 요청 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.CONFLICT),
+
+    // 422 UNPROCESSABLE_ENTITY
+    EMAIL_RECIPIENT_INVALID ("수신자 주소가 존재하지 않음", HttpStatus.UNPROCESSABLE_ENTITY),
 
     // 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
-    INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도
+    EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),
+
+    // 504 GATEWAY_TIMEOUT
+    EMAIL_TIMEOUT("SMTP 타임아웃", HttpStatus.GATEWAY_TIMEOUT);
 
     private final String message;
     private final HttpStatus httpStatus;

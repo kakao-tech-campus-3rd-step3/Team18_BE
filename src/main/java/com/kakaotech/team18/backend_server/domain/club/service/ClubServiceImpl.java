@@ -84,7 +84,7 @@ public class ClubServiceImpl implements ClubService {
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
         ClubApplyForm clubApplyForm = clubApplyFormRepository
-                .getByClub(club).orElseThrow(() -> {
+                .findByClubId(club.getId()).orElseThrow(() -> {
             log.warn("ClubApplyForm not found for id={}", clubId);
             return new ClubApplyFormNotFoundException("clubId = " + clubId);
         });
@@ -123,7 +123,7 @@ public class ClubServiceImpl implements ClubService {
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
         return summaries.stream()
                 .map(s -> ClubListResponseDto.from(s,
-                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd())))
+                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd()).getDisplayName()))
                 .toList();
     }
 }

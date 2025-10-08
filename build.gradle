@@ -53,6 +53,9 @@ dependencies {
     // Thymeleaf 템플릿 렌더링(나중에 제거할 것)
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
+    // 재시도 처리를 위함(@EnableRetry, @Retryable, @Recover)
+    implementation "org.springframework.retry:spring-retry"
+
     // Spring Security OAuth2 Client 추가
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
@@ -64,6 +67,10 @@ dependencies {
     // 테스트 코드에서 Lombok 사용을 위한 의존성 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
+    implementation 'org.springframework.retry:spring-retry'     // Spring Retry
+
 }
 
 tasks.named('test') {

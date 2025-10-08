@@ -22,6 +22,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.ClubCaution;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
@@ -81,7 +82,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(clubMember, "id", 1L);
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
-        given(clubApplyFormRepository.getByClub(eq(club))).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of(application));
 
@@ -96,7 +97,7 @@ public class ClubServiceMockTest {
         //then
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
-        verify(clubApplyFormRepository).getByClub(club);
+        verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
         verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
     }
@@ -118,7 +119,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(clubMember, "id", 1L);
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
-        given(clubApplyFormRepository.getByClub(eq(club))).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
 
@@ -130,7 +131,7 @@ public class ClubServiceMockTest {
         //then
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
-        verify(clubApplyFormRepository).getByClub(club);
+        verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
         verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
 
@@ -189,7 +190,7 @@ public class ClubServiceMockTest {
             // given
             // RecruitStatusCalculator.calculate가 어떤 인자로 호출되든 "모집중"을 반환하도록 설정합니다.
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
-                    .thenReturn("모집중");
+                    .thenReturn(RecruitStatus.RECRUITING);
 
             given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
@@ -256,7 +257,7 @@ public class ClubServiceMockTest {
         try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
             // given
             mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
-                    .thenReturn("모집중");
+                    .thenReturn(RecruitStatus.RECRUITING);
 
             given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
