@@ -91,6 +91,8 @@ class EmailServiceUnitTest {
     ArgumentCaptor<Object> eventCaptor;
     @Captor
     ArgumentCaptor<List<Application>> appsCaptor;
+    @Captor
+    ArgumentCaptor<List<Application>> deletedCaptor;
 
     @InjectMocks
     ApplicationServiceImpl serviceImpl;
@@ -190,12 +192,24 @@ class EmailServiceUnitTest {
     }
 
     @Test
-    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→삭제+불합격 이벤트, PENDING→무시")
+    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→삭제+불합격 이벤트(PENDING 없음)")
     void interview_flow() {
         // given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
-        Application appPending  = mock(Application.class);
+
+        Club club1 = mock(Club.class);
+        when(club1.getId()).thenReturn(77L);
+
+        User userApproved = mock(User.class);
+        User userRejected = mock(User.class);
+
+        when(userApproved.getEmail()).thenReturn("approved@ex.com");
+        when(userRejected.getEmail()).thenReturn("rejected@ex.com");
+
+        when(clubApplyForm.getClub()).thenReturn(club1);
+
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
 
@@ -206,29 +220,22 @@ class EmailServiceUnitTest {
                 .when(appApproved).updateStage(any(Stage.class));
 
         when(appRejected.getStage()).thenReturn(Stage.INTERVIEW);
-        when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
 
         // status
         when(appApproved.getStatus()).thenReturn(Status.APPROVED);
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
-        when(appPending.getStatus()).thenReturn(Status.PENDING);
-        when(clubApplyForm.getClub()).thenReturn(club);
-        when(club.getId()).thenReturn(77L);
 
         // ids
         when(appApproved.getId()).thenReturn(101L);
-        when(appRejected.getId()).thenReturn(102L);
 
         // emails
-        User userApproved = mock(User.class);
-        User userRejected = mock(User.class);
         when(userApproved.getEmail()).thenReturn("approved@ex.com");
         when(userRejected.getEmail()).thenReturn("rejected@ex.com");
         when(appApproved.getUser()).thenReturn(userApproved);
-        when(appRejected.getUser()).thenReturn(userRejected);;
+        when(appRejected.getUser()).thenReturn(userRejected);
 
         when(applicationRepository.findByClubApplyForm_Club_IdAndStage(77L, Stage.INTERVIEW))
-                .thenReturn(List.of(appApproved, appRejected, appPending));
+                .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("면접 합격 안내 메시지");
 
@@ -245,17 +252,10 @@ class EmailServiceUnitTest {
         verify(appApproved).updateStage(Stage.FINAL);
         verify(appApproved).updateStatus(Status.PENDING);
         verify(appRejected, never()).updateStage(any());
-        verify(appPending,  never()).updateStage(any());
-
 
         verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
         List<Application> deleted = appsCaptor.getValue();
         assertThat(deleted).containsExactly(appRejected);
-
-        // 삭제 호출 확인 (REJECTED만)
-        verify(applicationRepository, times(1)).deleteById(102L);
-        verify(applicationRepository, never()).deleteById(101L);
-        verify(applicationRepository, never()).deleteById(103L);
 
         // 이벤트 캡처
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -276,18 +276,27 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof InterviewRejectedEvent)
                 .map(e -> (InterviewRejectedEvent) e)
                 .findFirst().orElseThrow();
-        //assertThat(rejectedEvt.applicationId()).isEqualTo(102L);
-        assertThat(rejectedEvt.email()).isEqualTo("rejected@ex.com");
-        assertThat(rejectedEvt.stage()).isEqualTo(Stage.INTERVIEW);
+        assertThat(rejectedEvt.user().getEmail()).isEqualTo("rejected@ex.com");
+        assertThat(rejectedEvt.club().getId()).isEqualTo(77L);
     }
 
     @Test
-    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→삭제+최종 불합격 이벤트, PENDING→무시")
+    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→삭제+최종 불합격 이벤트(PENDING 없음)")
     void final_flow() {
         //given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
-        Application appPending  = mock(Application.class);
+
+        Club club1 = mock(Club.class);
+        when(club1.getId()).thenReturn(88L);
+
+        User userApproved = mock(User.class);
+        User userRejected = mock(User.class);
+
+        when(userApproved.getEmail()).thenReturn("final-approved@ex.com");
+        when(userRejected.getEmail()).thenReturn("final-rejected@ex.com");
+
+        when(clubApplyForm.getClub()).thenReturn(club1);
 
         when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
 
@@ -296,43 +305,36 @@ class EmailServiceUnitTest {
 
         when(appApproved.getStatus()).thenReturn(Status.APPROVED);
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
-        when(appPending.getStatus()).thenReturn(Status.PENDING);
-        when(clubApplyForm.getClub()).thenReturn(club);
-        when(club.getId()).thenReturn(88L);
 
         when(appApproved.getId()).thenReturn(201L);
-        when(appRejected.getId()).thenReturn(202L);
 
-        User userApproved = mock(User.class);
-        User userRejected = mock(User.class);
-        when(userApproved.getEmail()).thenReturn("final-approved@ex.com");
-        when(userRejected.getEmail()).thenReturn("final-rejected@ex.com");
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
+
         when(applicationRepository.findByClubApplyForm_Club_IdAndStage(88L, Stage.FINAL))
-                .thenReturn(List.of(appApproved, appRejected, appPending));
+                .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("최종 합격 안내 메시지");
 
-        //when
+        // when
         SuccessResponseDto resp = serviceImpl.sendPassFailMessage(88L, req, Stage.FINAL);
 
-        //then
+        // then
         assertThat(resp).isNotNull();
 
         verify(clubApplyFormRepository).findByClubId(88L);
         verify(clubApplyForm).updateFinalMessage("최종 합격 안내 메시지");
 
-        // FINAL 단계에서는 승격 호출 없음
         verify(appApproved, never()).updateStage(any());
+        verify(appApproved, never()).updateStatus(any());
         verify(appRejected, never()).updateStage(any());
-        verify(appPending,  never()).updateStage(any());
+        verify(appRejected, never()).updateStatus(any());
 
-        // 삭제 호출 확인 (REJECTED만)
-        verify(applicationRepository, times(1)).deleteById(202L);
-        verify(applicationRepository, never()).deleteById(201L);
-        verify(applicationRepository, never()).deleteById(203L);
+        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
+        List<Application> deleted = appsCaptor.getValue();
+        assertThat(deleted).containsExactly(appRejected);
 
         // 이벤트 캡처 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -351,8 +353,7 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        //assertThat(rejectedEvt.applicationId()).isEqualTo(202L);
-        assertThat(rejectedEvt.email()).isEqualTo("final-rejected@ex.com");
-        assertThat(rejectedEvt.stage()).isEqualTo(Stage.FINAL);
+        assertThat(rejectedEvt.user().getEmail()).isEqualTo("final-rejected@ex.com");
+        assertThat(rejectedEvt.club().getId()).isEqualTo(88L);
     }
 }

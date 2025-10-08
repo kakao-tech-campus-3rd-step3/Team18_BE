@@ -14,6 +14,8 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
@@ -55,6 +57,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
+    private final ClubRepository clubRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -322,10 +325,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 publisher.publishEvent(new InterviewRejectedEvent(
                         a.getClubApplyForm().getClub(),
-                        a.getUser(),
-                        a.getUser().getEmail(),
-                        a.getStage(),
-                        a.getStatus()));
+                        a.getUser()));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }
@@ -355,10 +355,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 publisher.publishEvent(new FinalRejectedEvent(
                         a.getClubApplyForm().getClub(),
-                        a.getUser(),
-                        a.getUser().getEmail(),
-                        a.getStage(),
-                        a.getStatus()));
+                        a.getUser()));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }
@@ -387,10 +384,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 publisher.publishEvent(new FinalRejectedEvent(
                         a.getClubApplyForm().getClub(),
-                        a.getUser(),
-                        a.getUser().getEmail(),
-                        a.getStage(),
-                        a.getStatus()));
+                        a.getUser()));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }

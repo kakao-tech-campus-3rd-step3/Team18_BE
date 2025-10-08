@@ -7,8 +7,5 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 
 public record FinalRejectedEvent(
         Club club,
-        User user,
-        String email,
-        Stage stage,
-        Status status
+        User user
 ) {}

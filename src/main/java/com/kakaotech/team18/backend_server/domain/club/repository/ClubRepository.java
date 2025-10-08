@@ -28,5 +28,4 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
     List<ClubSummary> findSummariesByCategory(Category category);
 
     List<ClubSummary> findSummariesByNameContaining(String name);
-
 }
