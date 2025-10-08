@@ -58,16 +58,24 @@ public class ApplicationController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @Operation(
+            summary = "지원서 제출",
+            description = "동아리 지원자가 지원서를 제출합니다. 기존 제출이 있으면 202(확인 필요)로 응답하고, overwrite=true로 다시 제출하면 덮어씁니다. 신규는 201."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "신규 제출 완료"),
+            @ApiResponse(responseCode = "202", description = "기존 제출이 있어 덮어쓰기 확인 필요")
+    })
     @PostMapping("/api/clubs/{clubId}/apply-submit")
     public ResponseEntity<ApplicationApplyResponseDto> submitApplication(
             @PathVariable("clubId") Long clubId,
             @Valid @RequestBody ApplicationApplyRequestDto request,
-            @RequestParam(value = "overwrite", defaultValue = "false" ) boolean requiresConfirmation
+            @RequestParam(value = "overwrite", defaultValue = "false" ) boolean overwrite
     ){
         ApplicationApplyResponseDto response = applicationService.submitApplication(
                 clubId,
                 request,
-                requiresConfirmation
+                overwrite
         );
 
         if(response.requiresConfirmation()){

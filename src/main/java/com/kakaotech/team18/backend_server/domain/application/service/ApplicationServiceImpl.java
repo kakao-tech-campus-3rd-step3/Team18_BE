@@ -113,7 +113,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public ApplicationApplyResponseDto submitApplication(
             Long clubId,
             ApplicationApplyRequestDto request,
-            boolean requiresConfirmation
+            boolean overwrite
     ) {
 
         //1. applicationForm 찾기
@@ -140,17 +140,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (existingApplicationOptional.isPresent()) {
             Application existingApplication = existingApplicationOptional.get();
 
-            //3.1.1 덮어쓰기가 false
-            if (!requiresConfirmation) {
-                return new ApplicationApplyResponseDto(
-                        existingApplication.getUser().getStudentId(),
-                        existingApplication.getLastModifiedAt(),
-                        true
-                );
+            //3.1.1 덮어쓰기가 true 이면
+            if (overwrite) {
+                return updateApplication(existingApplication, request);
             }
 
-            //3.1.2 덮어쓰기가 true
-            return updateApplication(existingApplication, request);
+            //3.1.2 덮어쓰기가 false(=default)
+            return new ApplicationApplyResponseDto(
+                    existingApplication.getUser().getStudentId(),
+                    existingApplication.getLastModifiedAt(),
+                    true
+            );
         } else {
             //3.2 제출내역이 없는경우
             return createApplication(user, form, request);
@@ -167,13 +167,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answerList());
-        //emailService.sendToApplicant(application, emailLines);
         publisher.publishEvent(new ApplicationSubmittedEvent(application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
                 application.getUser().getStudentId(),
                 application.getLastModifiedAt(),
-                true
+                false
         );
     }
 
@@ -185,6 +184,8 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();
         applicationRepository.save(newApplication);
+        log.info("새로운 답변 기록됨 applicationId={}", newApplication.getId());
+
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
         publisher.publishEvent(new ApplicationSubmittedEvent(newApplication.getId(), emailLines));
@@ -192,7 +193,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationApplyResponseDto(
                 newApplication.getUser().getStudentId(),
                 newApplication.getLastModifiedAt(),
-                true
+                false
         );
     }
 
@@ -240,7 +241,15 @@ public class ApplicationServiceImpl implements ApplicationService {
                 case CHECKBOX -> {
                     List<String> options = splitAndTrim(normalized);
                     if (q.getIsRequired() && options.isEmpty()) {
-                        throw new InvalidAnswerException("다중 선택 최소 1개 필요. questionId=" + q.getId());
+                        throw new InvalidAnswerException("최소 1개 필요. questionId=" + q.getId());
+                    }
+                    normalized = String.join(",", options);
+                }
+
+                case TIME_SLOT -> {
+                    List<String> options = splitAndTrim(normalized);
+                    if (q.getIsRequired() && options.isEmpty()) {
+                        throw new InvalidAnswerException("최소 1칸 필요. questionId=" + q.getId());
                     }
                     normalized = String.join(",", options);
                 }

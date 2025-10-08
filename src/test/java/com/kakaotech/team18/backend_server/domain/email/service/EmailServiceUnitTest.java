@@ -68,11 +68,10 @@ class EmailServiceUnitTest {
     EmailService service;
 
     final String from = "no-reply@clubhub.example";
-    final String subjectPrefix = "[동아리 지원서]";
 
     @BeforeEach
     void setUp() {
-        service = new EmailService(renderer, emailSender, from, subjectPrefix, clubMemberRepository);
+        service = new EmailService(renderer, emailSender, from, clubMemberRepository);
     }
 
     private void stubHappyPath() {
@@ -117,6 +116,7 @@ class EmailServiceUnitTest {
         assertThat(model.get("answers")).isEqualTo(lines);
 
         // 메일 전송 인자 검증
+        final String subjectPrefix = "[동아리 지원]";
         verify(emailSender).sendHtml(
                 eq(from),
                 eq("president@example.com"),
