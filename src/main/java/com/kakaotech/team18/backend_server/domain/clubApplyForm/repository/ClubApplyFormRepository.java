@@ -11,6 +11,4 @@ public interface ClubApplyFormRepository extends JpaRepository<ClubApplyForm,Lon
     Optional<ClubApplyForm> findByClubIdAndIsActiveTrue(Long clubId);
 
     Optional<ClubApplyForm> findByClubId(Long clubId);
-
-    ClubApplyForm findByClub_Id(Long clubId);
 }
