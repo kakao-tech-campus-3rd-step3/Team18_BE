@@ -51,12 +51,6 @@ class ClubControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    //자동으로 JavaMailSender bean을 생성하려해서 추가함
-    @MockitoBean private ApplicationNotificationListener applicationNotificationListener;
-    @MockitoBean private JavaMailSender javaMailSender;
-    @MockitoBean private SmtpEmailSender smtpEmailSender;
-    @MockitoBean private EmailService  emailService;
-
     @BeforeEach
     void setUp() {
         clubRepository.deleteAll();
