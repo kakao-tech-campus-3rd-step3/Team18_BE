@@ -21,6 +21,7 @@ import com.kakaotech.team18.backend_server.domain.email.sender.EmailSender;
 import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRenderer;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -356,4 +357,168 @@ class EmailServiceUnitTest {
         assertThat(rejectedEvt.user().getEmail()).isEqualTo("final-rejected@ex.com");
         assertThat(rejectedEvt.club().getId()).isEqualTo(88L);
     }
+    @Test
+    @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 배치 삭제, 메시지 업데이트 없음")
+    void nullStage_flow_success() {
+        // given
+        Long clubId = 99L;
+
+        Club clubN = mock(Club.class);
+        when(clubN.getId()).thenReturn(clubId);
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyForm.getClub()).thenReturn(clubN);
+
+        // 앱들 (모두 stage == null)
+        Application appApproved = mock(Application.class);
+        Application appRejected = mock(Application.class);
+
+        when(appApproved.getStage()).thenReturn(null);
+
+        when(appApproved.getStatus()).thenReturn(Status.APPROVED);
+        when(appRejected.getStatus()).thenReturn(Status.REJECTED);
+
+        when(appApproved.getId()).thenReturn(301L);
+
+        User userApproved = mock(User.class);
+        User userRejected = mock(User.class);
+        when(userApproved.getEmail()).thenReturn("nullstage-approved@ex.com");
+        when(userRejected.getEmail()).thenReturn("nullstage-rejected@ex.com");
+
+        when(appApproved.getUser()).thenReturn(userApproved);
+        when(appRejected.getUser()).thenReturn(userRejected);
+
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
+
+        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, null))
+                .thenReturn(List.of(appApproved, appRejected));
+
+        ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("공지 메시지");
+
+        // when
+        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(clubId, req, null);
+
+        // then
+        assertThat(resp).isNotNull();
+
+        // 메시지 템플릿 업데이트는 호출되지 않아야 함
+        verify(clubApplyForm, never()).updateInterviewMessage(anyString());
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+
+        // stage/status 변경 없음
+        verify(appApproved, never()).updateStage(any());
+        verify(appApproved, never()).updateStatus(any());
+        verify(appRejected, never()).updateStage(any());
+        verify(appRejected, never()).updateStatus(any());
+
+        // REJECTED만 배치 삭제
+        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
+        List<Application> deleted = appsCaptor.getValue();
+        assertThat(deleted).containsExactly(appRejected);
+
+        // 이벤트 2건 (approved 1, rejected 1)
+        verify(publisher, times(2)).publishEvent(eventCaptor.capture());
+        List<Object> events = eventCaptor.getAllValues();
+
+        // FinalApprovedEvent (stage 가 null 이어야 함)
+        FinalApprovedEvent approvedEvt = events.stream()
+                .filter(e -> e instanceof FinalApprovedEvent)
+                .map(e -> (FinalApprovedEvent) e)
+                .findFirst().orElseThrow();
+        assertThat(approvedEvt.applicationId()).isEqualTo(301L);
+        assertThat(approvedEvt.email()).isEqualTo("nullstage-approved@ex.com");
+        assertThat(approvedEvt.message()).isEqualTo("공지 메시지");
+        assertThat(approvedEvt.stage()).isNull();
+
+        // FinalRejectedEvent (club/user 페이로드 확인)
+        FinalRejectedEvent rejectedEvt = events.stream()
+                .filter(e -> e instanceof FinalRejectedEvent)
+                .map(e -> (FinalRejectedEvent) e)
+                .findFirst().orElseThrow();
+        assertThat(rejectedEvt.user().getEmail()).isEqualTo("nullstage-rejected@ex.com");
+        assertThat(rejectedEvt.club().getId()).isEqualTo(clubId);
+    }
+
+    @Test
+    @DisplayName("stage=interview, PENDING 존재 시 PendingApplicationsExistException 던지고 아무 것도 하지 않음")
+    void interviewStage_flow_pending_exists_throws() {
+        // given
+        Long clubId = 100L;
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+
+        Application appPending = mock(Application.class);
+        when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
+        when(appPending.getStatus()).thenReturn(Status.PENDING);
+
+        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, Stage.INTERVIEW))
+                .thenReturn(List.of(appPending));
+
+        ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
+
+        // when / then
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW))
+                .isInstanceOf(PendingApplicationsExistException.class);
+
+        // 부수효과 없음
+        verify(publisher, never()).publishEvent(any());
+        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(clubApplyForm, never()).updateInterviewMessage(anyString());
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+    }
+
+    @Test
+    @DisplayName("stage=final, PENDING 존재 시 PendingApplicationsExistException 던지고 아무 것도 하지 않음")
+    void finalStage_flow_pending_exists_throws() {
+        // given
+        Long clubId = 100L;
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+
+        Application appPending = mock(Application.class);
+        when(appPending.getStage()).thenReturn(Stage.FINAL);
+        when(appPending.getStatus()).thenReturn(Status.PENDING);
+
+        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, Stage.FINAL))
+                .thenReturn(List.of(appPending));
+
+        ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
+
+        // when / then
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.FINAL))
+                .isInstanceOf(PendingApplicationsExistException.class);
+
+        // 부수효과 없음
+        verify(publisher, never()).publishEvent(any());
+        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(clubApplyForm, never()).updateInterviewMessage(anyString());
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+    }
+
+    @Test
+    @DisplayName("stage=null, PENDING 존재 시 PendingApplicationsExistException 던지고 아무 것도 하지 않음")
+    void nullStage_flow_pending_exists_throws() {
+        // given
+        Long clubId = 100L;
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+
+        Application appPending = mock(Application.class);
+        when(appPending.getStatus()).thenReturn(Status.PENDING);
+
+        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, null))
+                .thenReturn(List.of(appPending));
+
+        ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
+
+        // when / then
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, null))
+                .isInstanceOf(PendingApplicationsExistException.class);
+
+        // 부수효과 없음
+        verify(publisher, never()).publishEvent(any());
+        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(clubApplyForm, never()).updateInterviewMessage(anyString());
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+    }
+
 }

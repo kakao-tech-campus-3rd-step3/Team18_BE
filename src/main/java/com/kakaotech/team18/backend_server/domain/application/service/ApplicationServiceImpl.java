@@ -361,17 +361,14 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if(stage == null) {
             boolean hasPending = apps.stream()
-                    .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {
                 throw new PendingApplicationsExistException();
             }
             List<Application> approved = apps.stream()
-                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
                     .toList();
             List<Application> rejected = apps.stream()
-                    .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
             for(Application a : approved) {
