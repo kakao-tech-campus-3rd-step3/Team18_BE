@@ -69,7 +69,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
-    implementation "org.springframework.retry:spring-retry"     // Spring Retry
+    implementation "org.springframework.retry:spring-retry:2.0.12"     // Spring Retry
 
 }
 
