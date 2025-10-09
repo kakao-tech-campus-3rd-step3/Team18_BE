@@ -54,9 +54,9 @@ public class ClubController{
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/search/category")
     public ResponseEntity<List<ClubListResponseDto>> listClubsByCategory(
-            @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String categoryName
+            @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String category
     ){
-        List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(categoryName));
+        List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
         return ResponseEntity.ok(response);
     }
 

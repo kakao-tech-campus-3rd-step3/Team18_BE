@@ -20,6 +20,8 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -121,9 +123,13 @@ public class ClubServiceImpl implements ClubService {
 
     // ---- private helpers ----
     private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
-        return summaries.stream()
-                .map(s -> ClubListResponseDto.from(s,
-                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd()).getDisplayName()))
+        List<ClubListResponseDto.ClubsInfo> clubs = summaries.stream()
+                .map(s -> ClubListResponseDto.from(
+                        s,
+                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd()).getDisplayName()
+                ))
                 .toList();
+
+        return Collections.singletonList(new ClubListResponseDto(clubs));
     }
 }
