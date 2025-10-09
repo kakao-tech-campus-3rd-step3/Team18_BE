@@ -43,4 +43,6 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
 
     List<Application> findByClubApplyForm_Club_IdAndStage(Long clubId, Stage stage);
+
+    List<Application> findByClubApplyForm_Club_Id(Long clubId);
 }

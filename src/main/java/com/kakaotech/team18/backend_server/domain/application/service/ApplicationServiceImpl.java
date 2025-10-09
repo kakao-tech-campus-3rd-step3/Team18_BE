@@ -320,8 +320,6 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
 
-        List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
-
         ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> {
                             log.warn("ClubApplyForm not found, clubId={}", clubId);
@@ -330,6 +328,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 );
 
         if(stage == Stage.INTERVIEW) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -362,6 +361,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == Stage.FINAL) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -392,6 +392,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == null) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_Id(clubId);
             boolean hasPending = apps.stream()
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {
