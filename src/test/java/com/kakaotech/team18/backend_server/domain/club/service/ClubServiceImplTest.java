@@ -80,13 +80,12 @@ class ClubServiceImplTest {
                 when(clubRepository.findAllProjectedBy()).thenReturn(List.of(summary));
 
                 //when
-                List<ClubListResponseDto> result = clubService.getAllClubs();
+                ClubListResponseDto result = clubService.getAllClubs();
 
                 //then
-                assertThat(result).hasSize(1);
-                ClubListResponseDto wrapper = result.get(0);
-                assertThat(wrapper.clubs()).hasSize(1);
-                assertThat(wrapper.clubs().get(0).recruitStatus()).isEqualTo(DUMMY_STATUS_ENUM.getDisplayName());
+                assertThat(result.clubs()).hasSize(1);
+                assertThat(result.clubs().get(0).recruitStatus()).isEqualTo(DUMMY_STATUS_ENUM.getDisplayName());
+
                 verify(clubRepository, times(1)).findAllProjectedBy();
                 verifyNoMoreInteractions(clubRepository);
             }
@@ -102,10 +101,9 @@ class ClubServiceImplTest {
         void nullCategoryUsesAll() {
             when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory("ALL");
+            ClubListResponseDto result = clubService.getClubByCategory("ALL");
 
-            assertThat(result).hasSize(1);
-            assertThat(result.get(0).clubs()).isEmpty();
+            assertThat(result.clubs()).isEmpty();
             verify(clubRepository, times(1)).findAllProjectedBy();
             verify(clubRepository, never()).findSummariesByCategory(ArgumentMatchers.any());
         }
@@ -113,16 +111,14 @@ class ClubServiceImplTest {
         @Test
         @DisplayName("category 가 주어지면 카테고리 요약을 조회한다")
         void givenCategoryUsesByCategory() {
-            when(clubRepository.findSummariesByCategory(Category.SPORTS)).thenReturn(List.of(
-                    new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null)
-            ));
+            when(clubRepository.findSummariesByCategory(Category.SPORTS)).thenReturn(
+                    List.of(new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null))
+            );
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory(String.valueOf(Category.SPORTS));
+            ClubListResponseDto result = clubService.getClubByCategory(String.valueOf(Category.SPORTS));
 
-            assertThat(result).hasSize(1);
-            ClubListResponseDto wrapper = result.get(0);
-            assertThat(wrapper.clubs()).hasSize(1);
-            assertThat(wrapper.clubs().get(0).name()).isEqualTo("Run Club");
+            assertThat(result.clubs()).hasSize(1);
+            assertThat(result.clubs().get(0).name()).isEqualTo("Run Club");
 
             verify(clubRepository, times(1)).findSummariesByCategory(Category.SPORTS);
             verify(clubRepository, never()).findAllProjectedBy();
@@ -138,20 +134,15 @@ class ClubServiceImplTest {
         void blankUsesAll() {
             when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
-            List<ClubListResponseDto> r1 = clubService.getClubByName(null);
-            List<ClubListResponseDto> r2 = clubService.getClubByName("");
-            List<ClubListResponseDto> r3 = clubService.getClubByName("   ");
+            ClubListResponseDto r1 = clubService.getClubByName(null);
+            ClubListResponseDto r2 = clubService.getClubByName("");
+            ClubListResponseDto r3 = clubService.getClubByName("   ");
 
-            assertThat(r1).hasSize(1);
-            assertThat(r1.get(0).clubs()).isEmpty();
+            assertThat(r1.clubs()).isEmpty();
+            assertThat(r2.clubs()).isEmpty();
+            assertThat(r3.clubs()).isEmpty();
 
-            assertThat(r2).hasSize(1);
-            assertThat(r2.get(0).clubs()).isEmpty();
-
-            assertThat(r3).hasSize(1);
-            assertThat(r3.get(0).clubs()).isEmpty();
-
-            verify(clubRepository, times(3)).findAllProjectedBy(); // 세 번 호출
+            verify(clubRepository, times(3)).findAllProjectedBy();
             verify(clubRepository, never()).findSummariesByNameContaining(anyString());
         }
 
@@ -161,12 +152,10 @@ class ClubServiceImplTest {
             when(clubRepository.findSummariesByNameContaining("Inter"))
                     .thenReturn(List.of(new TestClubSummary(7L, "InterX", Category.STUDY, "si", null, null)));
 
-            List<ClubListResponseDto> result = clubService.getClubByName("Inter");
+            ClubListResponseDto result = clubService.getClubByName("Inter");
 
-            assertThat(result).hasSize(1);
-            ClubListResponseDto wrapper = result.get(0);
-            assertThat(wrapper.clubs()).hasSize(1);
-            assertThat(wrapper.clubs().get(0).name()).isEqualTo("InterX");
+            assertThat(result.clubs()).hasSize(1);
+            assertThat(result.clubs().get(0).name()).isEqualTo("InterX");
 
             verify(clubRepository, times(1)).findSummariesByNameContaining("Inter");
             verify(clubRepository, never()).findAllProjectedBy();
