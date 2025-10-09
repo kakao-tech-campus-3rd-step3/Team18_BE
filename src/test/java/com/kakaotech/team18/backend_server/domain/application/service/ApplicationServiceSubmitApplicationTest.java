@@ -131,9 +131,9 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                      "stud@example.com", "홍길동","20231234","010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "안녕하세요"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "여"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "A,B")
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","안녕하세요"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","여"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","A,B")
                     )
             );
 
@@ -184,9 +184,9 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                      "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "수정본문"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "남"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "A")
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","수정본문"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","남"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","A")
                     )
             );
 
@@ -230,9 +230,9 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "수정본문"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "여"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "B")
+                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","수정본문"),
+                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","여"),
+                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","B")
                     )
             );
 
@@ -276,9 +276,9 @@ class ApplicationServiceSubmitApplicationTest {
 
             // TEXT 값, RADIO 값, CHECKBOX 공란
             List<ApplicationApplyRequestDto.AnswerDto> answers = List.of(
-                    new ApplicationApplyRequestDto.AnswerDto(101L, "자소서"),
-                    new ApplicationApplyRequestDto.AnswerDto(102L, "남"),
-                    new ApplicationApplyRequestDto.AnswerDto(103L, "")
+                    new ApplicationApplyRequestDto.AnswerDto(101L, "q","자소서"),
+                    new ApplicationApplyRequestDto.AnswerDto(102L, "q","남"),
+                    new ApplicationApplyRequestDto.AnswerDto(103L, "q","")
             );
 
             // when
