@@ -65,7 +65,8 @@ public enum ErrorCode {
     EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),
 
     // 504 GATEWAY_TIMEOUT
-    EMAIL_TIMEOUT("SMTP 타임아웃", HttpStatus.GATEWAY_TIMEOUT);
+    EMAIL_TIMEOUT("SMTP 타임아웃", HttpStatus.GATEWAY_TIMEOUT),
+    KAKAO_API_TIMEOUT("카카오 API 응답이 지연되고 있습니다. 잠시 후 다시 시도해주세요.", HttpStatus.GATEWAY_TIMEOUT);
 
     private final String message;
     private final HttpStatus httpStatus;
