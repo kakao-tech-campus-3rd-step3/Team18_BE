@@ -41,7 +41,7 @@ public class ClubServiceImpl implements ClubService {
 
 
     @Override
-    public List<ClubListResponseDto> getClubByCategory(String category) {
+    public ClubListResponseDto getClubByCategory(String category) {
         if (category.equals("ALL")) {
             return mapToResponse(clubRepository.findAllProjectedBy());
         }
@@ -49,7 +49,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubListResponseDto> getClubByName(String name) {
+    public ClubListResponseDto getClubByName(String name) {
         if (name == null || name.isBlank()) {
             return mapToResponse(clubRepository.findAllProjectedBy());
         }
@@ -57,7 +57,7 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public List<ClubListResponseDto> getAllClubs() {
+    public ClubListResponseDto getAllClubs() {
         return mapToResponse(clubRepository.findAllProjectedBy());
     }
 
@@ -87,9 +87,9 @@ public class ClubServiceImpl implements ClubService {
                 });
         ClubApplyForm clubApplyForm = clubApplyFormRepository
                 .findByClubId(club.getId()).orElseThrow(() -> {
-            log.warn("ClubApplyForm not found for id={}", clubId);
-            return new ClubApplyFormNotFoundException("clubId = " + clubId);
-        });
+                    log.warn("ClubApplyForm not found for id={}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
         List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
         List<Application> pendingApplication = applicationRepository.findByClubApplyFormIdAndStatus(clubApplyForm.getId(), Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
@@ -120,16 +120,15 @@ public class ClubServiceImpl implements ClubService {
         }
     }
 
-
     // ---- private helpers ----
-    private List<ClubListResponseDto> mapToResponse(List<ClubSummary> summaries) {
+    private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {
         List<ClubListResponseDto.ClubsInfo> clubs = summaries.stream()
-                .map(s -> ClubListResponseDto.from(
-                        s,
-                        RecruitStatusCalculator.calculate(s.getRecruitStart(), s.getRecruitEnd()).getDisplayName()
+                .map(summary -> ClubListResponseDto.from(
+                        summary,
+                        RecruitStatusCalculator.calculate(summary.getRecruitStart(), summary.getRecruitEnd()).getDisplayName()
                 ))
                 .toList();
 
-        return Collections.singletonList(new ClubListResponseDto(clubs));
+        return new ClubListResponseDto(clubs);
     }
 }

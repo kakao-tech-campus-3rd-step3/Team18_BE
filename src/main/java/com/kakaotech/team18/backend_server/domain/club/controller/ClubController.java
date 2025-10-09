@@ -32,8 +32,8 @@ public class ClubController{
     @Operation(summary = "전체 동아리 목록 조회", description = "모집 상태와 함께 전체 동아리 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping
-    public ResponseEntity<List<ClubListResponseDto>> getAllClubs() {
-        List<ClubListResponseDto> response = clubService.getAllClubs();
+    public ResponseEntity<ClubListResponseDto> getAllClubs() {
+        ClubListResponseDto response = clubService.getAllClubs();
         return ResponseEntity.ok(response);
     }
 
@@ -53,11 +53,10 @@ public class ClubController{
     @Operation(summary = "카테고리별 동아리 목록 조회", description = "특정 카테고리에 속한 동아리 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/search/category")
-    public ResponseEntity<List<ClubListResponseDto>> listClubsByCategory(
+    public ResponseEntity<ClubListResponseDto> listClubsByCategory(
             @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String category
     ){
-        //List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
-        List<ClubListResponseDto> response = clubService.getClubByCategory(category);
+        ClubListResponseDto response = clubService.getClubByCategory(category);
         return ResponseEntity.ok(response);
     }
 
