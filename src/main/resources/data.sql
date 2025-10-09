@@ -134,6 +134,9 @@ VALUES
 INSERT INTO form_question (club_apply_form_id, question, field_type, is_required, display_order, options)
 VALUES
     (1,'자기소개를 작성해주세요.','TEXT', true, 1, NULL),
+    (1,'개발 경험이 있으신가요?','RADIO', false, 2, '["예", "아니오"]'),
+    (1,'자기소개를 간단히 적어주세요.','TEXT', true, 3, NULL),
+    (1,'면접가능 날짜는?','TIME_SLOT', true, 4, NULL),
     (2,'지원 동기를 작성해주세요.','TEXT', true, 1, NULL),
     (3,'활동 가능 요일을 적어주세요.','TEXT', true, 1, NULL),
     (4,'관련 경험을 소개해주세요.','TEXT', true, 1, NULL),
@@ -153,6 +156,11 @@ VALUES
     (18,'강점 3가지를 적어주세요.','TEXT', true, 1, NULL),
     (19,'약점 3가지를 적어주세요.','TEXT', true, 1, NULL),
     (20,'마지막으로 하고 싶은 말','TEXT', true, 1, NULL);
+
+INSERT INTO time_slot_options (form_question_id, date, start_time, end_time)
+VALUES
+    (4, '2025-10-15', '10:00', '12:00'),
+    (4, '2025-10-16', '14:00', '16:00');
 
 -- =========================
 -- 7) APPLICATION (20)
