@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto.ClubsInfo;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
@@ -52,32 +53,37 @@ class ClubControllerTest {
     @Test
     void getAllClubs_test() throws Exception {
         // given
-        ClubListResponseDto club1 = new ClubListResponseDto(
+        ClubListResponseDto.ClubsInfo club1 = new ClubListResponseDto.ClubsInfo(
                 1L,
                 "동아리1",
                 Category.STUDY,
                 "짧은 소개1",
-                "모집중");
-        ClubListResponseDto club2 = new ClubListResponseDto(
+                "모집중"
+        );
+
+        ClubListResponseDto.ClubsInfo club2 = new ClubListResponseDto.ClubsInfo(
                 2L,
                 "동아리2",
                 Category.SPORTS,
                 "짧은 소개2",
-                "모집 종료");
-        List<ClubListResponseDto> mockClubList = List.of(club1, club2);
+                "모집 종료"
+        );
 
-        when(clubService.getAllClubs()).thenReturn(mockClubList);
+        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2));
+        List<ClubListResponseDto> mockList = List.of(mockResponse);
+
+        when(clubService.getAllClubs()).thenReturn(mockList);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/clubs"));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].name").value("동아리1"))
+                .andExpect(jsonPath("$[0].clubs.size()").value(2))
+                .andExpect(jsonPath("$[0].clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$[0].clubs[1].recruitStatus").value("모집 종료"))
                 .andDo(print());
     }
-
     @DisplayName("동아리 상세 페이지를 조회한다.")
     @Test
     void getClubDetail_test() throws Exception {
