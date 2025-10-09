@@ -108,13 +108,14 @@ class ClubControllerIntegrationTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("동아리1"))
-                .andExpect(jsonPath("$[0].category").value("STUDY"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("동아리2"))
-                .andExpect(jsonPath("$[1].category").value("SPORTS"))
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].clubs.size()").value(2))
+                .andExpect(jsonPath("$[0].clubs[0].id").value(1))
+                .andExpect(jsonPath("$[0].clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$[0].clubs[0].category").value("STUDY"))
+                .andExpect(jsonPath("$[0].clubs[1].id").value(2))
+                .andExpect(jsonPath("$[0].clubs[1].name").value("동아리2"))
+                .andExpect(jsonPath("$[0].clubs[1].category").value("SPORTS"))
                 .andDo(print());
     }
 }

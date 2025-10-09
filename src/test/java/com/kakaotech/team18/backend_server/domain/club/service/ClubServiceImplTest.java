@@ -84,8 +84,9 @@ class ClubServiceImplTest {
 
                 //then
                 assertThat(result).hasSize(1);
-                // DTO의 필드는 Enum의 displayName과 일치하는지 검증
-                assertThat(result.get(0).recruitStatus()).isEqualTo(DUMMY_STATUS_ENUM.getDisplayName());
+                ClubListResponseDto wrapper = result.get(0);
+                assertThat(wrapper.clubs()).hasSize(1);
+                assertThat(wrapper.clubs().get(0).recruitStatus()).isEqualTo(DUMMY_STATUS_ENUM.getDisplayName());
                 verify(clubRepository, times(1)).findAllProjectedBy();
                 verifyNoMoreInteractions(clubRepository);
             }
@@ -101,9 +102,10 @@ class ClubServiceImplTest {
         void nullCategoryUsesAll() {
             when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory(null);
+            List<ClubListResponseDto> result = clubService.getClubByCategory("ALL");
 
-            assertThat(result).isEmpty();
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).clubs()).isEmpty();
             verify(clubRepository, times(1)).findAllProjectedBy();
             verify(clubRepository, never()).findSummariesByCategory(ArgumentMatchers.any());
         }
@@ -115,10 +117,12 @@ class ClubServiceImplTest {
                     new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null)
             ));
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory(Category.SPORTS);
+            List<ClubListResponseDto> result = clubService.getClubByCategory(String.valueOf(Category.SPORTS));
 
             assertThat(result).hasSize(1);
-            assertThat(result.getFirst().name()).isEqualTo("Run Club");
+            ClubListResponseDto wrapper = result.get(0);
+            assertThat(wrapper.clubs()).hasSize(1);
+            assertThat(wrapper.clubs().get(0).name()).isEqualTo("Run Club");
 
             verify(clubRepository, times(1)).findSummariesByCategory(Category.SPORTS);
             verify(clubRepository, never()).findAllProjectedBy();
@@ -134,9 +138,18 @@ class ClubServiceImplTest {
         void blankUsesAll() {
             when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
-            assertThat(clubService.getClubByName(null)).isEmpty();
-            assertThat(clubService.getClubByName("")).isEmpty();
-            assertThat(clubService.getClubByName("   ")).isEmpty();
+            List<ClubListResponseDto> r1 = clubService.getClubByName(null);
+            List<ClubListResponseDto> r2 = clubService.getClubByName("");
+            List<ClubListResponseDto> r3 = clubService.getClubByName("   ");
+
+            assertThat(r1).hasSize(1);
+            assertThat(r1.get(0).clubs()).isEmpty();
+
+            assertThat(r2).hasSize(1);
+            assertThat(r2.get(0).clubs()).isEmpty();
+
+            assertThat(r3).hasSize(1);
+            assertThat(r3.get(0).clubs()).isEmpty();
 
             verify(clubRepository, times(3)).findAllProjectedBy(); // 세 번 호출
             verify(clubRepository, never()).findSummariesByNameContaining(anyString());
@@ -151,7 +164,9 @@ class ClubServiceImplTest {
             List<ClubListResponseDto> result = clubService.getClubByName("Inter");
 
             assertThat(result).hasSize(1);
-            assertThat(result.getFirst().name()).isEqualTo("InterX");
+            ClubListResponseDto wrapper = result.get(0);
+            assertThat(wrapper.clubs()).hasSize(1);
+            assertThat(wrapper.clubs().get(0).name()).isEqualTo("InterX");
 
             verify(clubRepository, times(1)).findSummariesByNameContaining("Inter");
             verify(clubRepository, never()).findAllProjectedBy();
