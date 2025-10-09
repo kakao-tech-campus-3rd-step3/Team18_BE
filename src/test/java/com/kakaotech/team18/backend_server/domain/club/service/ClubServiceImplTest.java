@@ -102,7 +102,7 @@ class ClubServiceImplTest {
         void nullCategoryUsesAll() {
             when(clubRepository.findAllProjectedBy()).thenReturn(List.of());
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory(null);
+            List<ClubListResponseDto> result = clubService.getClubByCategory("ALL");
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0).clubs()).isEmpty();
@@ -117,7 +117,7 @@ class ClubServiceImplTest {
                     new TestClubSummary(10L, "Run Club", Category.SPORTS, "run", null, null)
             ));
 
-            List<ClubListResponseDto> result = clubService.getClubByCategory(Category.SPORTS);
+            List<ClubListResponseDto> result = clubService.getClubByCategory(String.valueOf(Category.SPORTS));
 
             assertThat(result).hasSize(1);
             ClubListResponseDto wrapper = result.get(0);

@@ -41,11 +41,11 @@ public class ClubServiceImpl implements ClubService {
 
 
     @Override
-    public List<ClubListResponseDto> getClubByCategory(Category category) {
-        if (category == null) {
+    public List<ClubListResponseDto> getClubByCategory(String category) {
+        if (category.equals("ALL")) {
             return mapToResponse(clubRepository.findAllProjectedBy());
         }
-        return mapToResponse(clubRepository.findSummariesByCategory(category));
+        return mapToResponse(clubRepository.findSummariesByCategory(Category.valueOf(category)));
     }
 
     @Override
