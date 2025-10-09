@@ -70,18 +70,17 @@ class ClubControllerTest {
         );
 
         ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2));
-        List<ClubListResponseDto> mockList = List.of(mockResponse);
 
-        when(clubService.getAllClubs()).thenReturn(mockList);
+        when(clubService.getAllClubs()).thenReturn(mockResponse);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/clubs"));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].clubs.size()").value(2))
-                .andExpect(jsonPath("$[0].clubs[0].name").value("동아리1"))
-                .andExpect(jsonPath("$[0].clubs[1].recruitStatus").value("모집 종료"))
+                .andExpect(jsonPath("$.clubs.size()").value(2))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[1].recruitStatus").value("모집 종료"))
                 .andDo(print());
     }
     @DisplayName("동아리 상세 페이지를 조회한다.")
