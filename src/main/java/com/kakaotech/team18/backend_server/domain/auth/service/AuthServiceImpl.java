@@ -10,8 +10,9 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
-import com.kakaotech.team18.backend_server.global.security.JwtProvider; // 경로 수정
+import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
@@ -152,21 +154,31 @@ public class AuthServiceImpl implements AuthService {
         params.add("client_secret", kakaoClientSecret);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", authorizationCode);
-        
-        return restClient.post()
-                .uri(kakaoTokenUri)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(params)
-                .retrieve()
-                .body(KakaoTokenResponseDto.class);
+
+        try {
+            return restClient.post()
+                    .uri(kakaoTokenUri)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(params)
+                    .retrieve()
+                    .body(KakaoTokenResponseDto.class);
+        } catch (ResourceAccessException e) {
+            log.warn("카카오 Access Token 요청 중 타임아웃 발생", e);
+            throw new KakaoApiTimeoutException();
+        }
     }
 
     private KakaoUserInfoResponseDto getKakaoUserInfo(String accessToken) {
-        return restClient.get()
-                .uri(kakaoUserInfoUri)
-                .header("Authorization", "Bearer " + accessToken)
-                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
-                .retrieve()
-                .body(KakaoUserInfoResponseDto.class);
+        try {
+            return restClient.get()
+                    .uri(kakaoUserInfoUri)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
+                    .retrieve()
+                    .body(KakaoUserInfoResponseDto.class);
+        } catch (ResourceAccessException e) {
+            log.warn("카카오 사용자 정보 요청 중 타임아웃 발생", e);
+            throw new KakaoApiTimeoutException();
+        }
     }
 }
