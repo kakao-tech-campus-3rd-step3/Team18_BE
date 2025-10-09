@@ -47,7 +47,7 @@ public class Application extends BaseEntity {
     private Application(User user, ClubApplyForm clubApplyForm, Status status) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
-        this.status = status;
+        this.status = (status != null) ? status : Status.PENDING; // 기본값 보존
         this.averageRating = 0.0;
     }
 
