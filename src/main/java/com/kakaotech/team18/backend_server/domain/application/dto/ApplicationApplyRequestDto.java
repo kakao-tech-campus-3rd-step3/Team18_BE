@@ -28,6 +28,7 @@ public record ApplicationApplyRequestDto(
 ) {
         public record AnswerDto(
                 Long questionId,
+                String question,
                 String answerContent
         ) {}
 }
