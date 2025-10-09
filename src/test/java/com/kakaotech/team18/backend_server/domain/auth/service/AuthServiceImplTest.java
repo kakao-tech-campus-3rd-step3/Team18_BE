@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.*;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
@@ -64,6 +66,24 @@ class AuthServiceImplTest {
         ReflectionTestUtils.setField(authService, "kakaoRedirectUri", KAKAO_REDIRECT_URI);
         ReflectionTestUtils.setField(authService, "kakaoTokenUri", KAKAO_TOKEN_URI);
         ReflectionTestUtils.setField(authService, "kakaoUserInfoUri", KAKAO_USER_INFO_URI);
+    }
+
+    @DisplayName("카카오 로그인 - 토큰 요청 타임아웃 시 예외 발생")
+    @Test
+    void kakaoLogin_timeout_throwsException() {
+        // given
+        String authorizationCode = "testAuthCode";
+
+        // Mocking: 카카오 토큰 요청 시 타임아웃(ResourceAccessException) 발생
+        given(restClient.post()).willReturn(requestBodyUriSpec);
+        given(requestBodyUriSpec.uri(KAKAO_TOKEN_URI)).willReturn(requestBodySpec);
+        given(requestBodySpec.contentType(any())).willReturn(requestBodySpec);
+        given(requestBodySpec.body(any(MultiValueMap.class))).willReturn(requestBodySpec);
+        given(requestBodySpec.retrieve()).willThrow(new ResourceAccessException("I/O error: Read timed out"));
+
+        // when & then
+        assertThatThrownBy(() -> authService.kakaoLogin(authorizationCode))
+                .isInstanceOf(KakaoApiTimeoutException.class);
     }
 
     @DisplayName("기존 회원 카카오 로그인 성공")
