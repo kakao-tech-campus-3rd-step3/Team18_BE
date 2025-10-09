@@ -56,7 +56,8 @@ public class ClubController{
     public ResponseEntity<List<ClubListResponseDto>> listClubsByCategory(
             @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String category
     ){
-        List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
+        //List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
+        List<ClubListResponseDto> response = clubService.getClubByCategory(category);
         return ResponseEntity.ok(response);
     }
 

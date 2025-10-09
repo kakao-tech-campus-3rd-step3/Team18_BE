@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ClubService {
 
-    List<ClubListResponseDto> getClubByCategory(Category category);
+    List<ClubListResponseDto> getClubByCategory(String category);
 
     List<ClubListResponseDto> getClubByName(String name);
 
