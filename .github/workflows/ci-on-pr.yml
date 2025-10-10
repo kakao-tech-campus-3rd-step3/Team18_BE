@@ -7,6 +7,7 @@ on:
 
 jobs:
   test:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     # 위에 synchronize가 pr에 commit이 추가될 때마다 돌아간다는 의미인데, job이 동시에 동작하지 않도록 함
     concurrency:
@@ -15,7 +16,11 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - uses: actions/setup-java@v4
         with:
