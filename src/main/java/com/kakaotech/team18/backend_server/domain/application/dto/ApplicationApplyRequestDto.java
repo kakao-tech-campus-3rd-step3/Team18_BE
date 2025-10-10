@@ -24,11 +24,11 @@ public record ApplicationApplyRequestDto(
         @NotBlank(message = "학과는 필수입니다.")
         String department,
 
-        List<AnswerDto> answerList
+        List<AnswerDto> answers
 ) {
         public record AnswerDto(
-                Long questionId,
+                Long questionNum,
                 String question,
-                String answerContent
+                String answer
         ) {}
 }

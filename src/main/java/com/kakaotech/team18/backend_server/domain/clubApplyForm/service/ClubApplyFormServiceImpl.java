@@ -100,10 +100,10 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
             ClubApplyForm findClubApplyForm
     ) {
         for (FormQuestionUpdateDto dto : request.formQuestions()) {
-            if (dto.questionId() != null && existingMap.containsKey(dto.questionId())) {
-                existingMap.get(dto.questionId()).updateFrom(dto);
-                log.info("Updated FormQuestionId: {}", dto.questionId());
-                incomingIds.add(dto.questionId());
+            if (dto.questionNum() != null && existingMap.containsKey(dto.questionNum())) {
+                existingMap.get(dto.questionNum()).updateFrom(dto);
+                log.info("Updated FormQuestionNum: {}", dto.questionNum());
+                incomingIds.add(dto.questionNum());
             } else {
                 FormQuestion newQuestion = createFormQuestion(dto, findClubApplyForm);
                 FormQuestion savedFormQuestion = formQuestionRepository.save(newQuestion);
