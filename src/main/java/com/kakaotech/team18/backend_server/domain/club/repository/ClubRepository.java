@@ -14,7 +14,7 @@ public interface ClubRepository extends JpaRepository<Club, Long> {
 
     Optional<Club> findById(Long id);
 
-    @EntityGraph(attributePaths = {"cautions","cautions.items","introduction.images"})
+    @EntityGraph(attributePaths = {"introduction.images"})
     Optional<Club> findClubDetailById(Long id);
 
     Optional<Club> findByName(String name);
