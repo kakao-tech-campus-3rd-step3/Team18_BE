@@ -57,7 +57,7 @@ public class ClubController{
 
     @Operation(summary = "특정 동아리 상세 정보 수정", description = "특정 동아리의 상세 정보를 수정합니다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
     @PostMapping("/{clubId}")

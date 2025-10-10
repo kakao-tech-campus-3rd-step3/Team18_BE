@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
@@ -17,14 +18,19 @@ import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantRespon
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 
 import java.util.Collections;
 import java.util.List;
+
+import jakarta.validation.Valid;
+import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.info.ProjectInfoProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +82,19 @@ public class ClubServiceImpl implements ClubService {
                     return new ClubMemberNotFoudException("해당 동아리의 동아리 회장을 찾을 수 없습니다 clubId = " + findClub.getId());
                 });
         return ClubDetailResponseDto.from(findClub, clubAdmin.getUser());
+    }
+
+    @Override
+    public SuccessResponseDto updateClubDetail(Long clubId, @Valid ClubDetailRequestDto dto){
+        log.info("getClubDetail called with clubId={}", clubId);
+        Club findClub = clubRepository.findClubDetailById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        log.info("Successfully found clubDetail: {}", findClub.getName());
+        findClub.updateDetail(dto);
+        return new SuccessResponseDto(true);
     }
 
     @Override
