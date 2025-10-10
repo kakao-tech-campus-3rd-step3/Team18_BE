@@ -45,7 +45,7 @@ class EmailServiceIntegrationTest {
 
         User applicant = Mockito.mock(User.class);
         given(applicant.getName()).willReturn("지원자");
-        given(applicant.getEmail()).willReturn(System.getenv().getOrDefault("MAIL_TO", "gjw0622@gmail.com"));//본인 이메일 넣어서 테스트 해보세요
+        given(applicant.getEmail()).willReturn(System.getenv().getOrDefault("MAIL_TO", "your-mail"));//본인 이메일 넣어서 테스트 해보세요
         given(applicant.getStudentId()).willReturn("20251234");
         given(applicant.getDepartment()).willReturn("컴퓨터정보");
         given(applicant.getPhoneNumber()).willReturn("010-1111-2222");
