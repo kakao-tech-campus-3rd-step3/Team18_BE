@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
@@ -32,6 +33,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +46,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -214,12 +218,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         final Long formId = application.getClubApplyForm().getId();
 
-        Map<Long, String> byQuestionNum = answers.stream()
+        Map<Long, JsonNode> byQuestionNum = answers.stream()
                 .filter(Objects::nonNull)
                 .filter(a -> a.questionNum() != null)
                 .collect(Collectors.toMap(
-                        AnswerDto::questionNum,
-                        a -> normalize(a.answer()),
+                        ApplicationApplyRequestDto.AnswerDto::questionNum,
+                        ApplicationApplyRequestDto.AnswerDto::answer,
                         (prev, next) -> next
                 ));
 
@@ -231,8 +235,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
         for (FormQuestion q : questions) {
-            String normalized = byQuestionNum.getOrDefault(q.getId(), "");
-            normalized = normalize(normalized);
+            JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
+            List<String> rawValues = extractTextValues(raw);
+            String normalized = coerceForFieldType(q, rawValues);
+
+            //String normalized = byQuestionNum.getOrDefault(q.getId(), "");
+            //normalized = normalize(normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
@@ -276,7 +284,12 @@ public class ApplicationServiceImpl implements ApplicationService {
                             .build()
             );
 
-            emailLines.add(new AnswerEmailLine(q.getId(), q.getDisplayOrder(), q.getQuestion(), isBlank(normalized) ? "(미입력)" : normalized));
+            emailLines.add(new AnswerEmailLine(
+                    q.getId(),
+                    q.getDisplayOrder(),
+                    q.getQuestion(),
+                    isBlank(normalized) ? "(미입력)" : normalized)
+            );
         }
 
         // 4) 일괄 저장
@@ -389,6 +402,97 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     //helper methods
+
+    private List<String> extractTextValues(JsonNode node) {
+        if (node == null || node.isNull()) return List.of();
+
+        if (node.isTextual() || node.isNumber() || node.isBoolean()) {
+            return List.of(node.asText());
+        }
+
+        if (node.isArray()) {
+            List<String> out = new ArrayList<>();
+            for (JsonNode item : node) {
+                if (item.isTextual() || item.isNumber() || item.isBoolean()) {
+                    out.add(item.asText());
+                } else if (item.isObject()) {
+                    JsonNode v = firstByCommonKeys(item);
+                    if (nonNull(v)) {
+                        if (v.isArray()) out.addAll(extractTextValues(v));
+                        else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
+                    }
+                }
+            }
+            return out;
+        }
+
+        if (node.isObject()) {
+            JsonNode v = firstByCommonKeys(node);
+            if (nonNull(v)) {
+                if (v.isArray()) return extractTextValues(v);
+                if (v.isTextual() || v.isNumber() || v.isBoolean()) return List.of(v.asText());
+            }
+            List<String> leaves = new ArrayList<>();
+            collectStringLeaves(node, leaves, 100);
+            return leaves;
+        }
+
+        return List.of(node.asText(""));
+    }
+
+    private JsonNode firstByCommonKeys(JsonNode obj) {
+        String[] keys = {
+                "interviewDateAnswer"
+        };
+        for (String k : keys) {
+            JsonNode v = obj.get(k);
+            if (nonNull(v) && !v.isNull()) return v;
+        }
+        return null;
+    }
+
+    private void collectStringLeaves(JsonNode node, List<String> out, int limit) {
+        if (out.size() >= limit) return;
+        if (node.isTextual() || node.isNumber() || node.isBoolean()) {
+            out.add(node.asText());
+            return;
+        }
+        if (node.isArray()) {
+            for (JsonNode n : node) {
+                if (out.size() >= limit) break;
+                collectStringLeaves(n, out, limit);
+            }
+            return;
+        }
+        if (node.isObject()) {
+            Iterator<Map.Entry<String, JsonNode>> it = node.fields();
+            while (it.hasNext() && out.size() < limit) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                JsonNode child = entry.getValue();
+                collectStringLeaves(child, out, limit);
+            }
+        }
+    }
+
+    private String coerceForFieldType(FormQuestion q, List<String> rawValues) {
+        List<String> vals = rawValues.stream()
+                .map(this::normalize)
+                .filter(s -> !isBlank(s))
+                .toList();
+
+        switch (q.getFieldType()) {
+            case TEXT -> {
+                return vals.isEmpty() ? "" : vals.get(0);
+            }
+            case RADIO -> {
+                return vals.isEmpty() ? "" : vals.get(0);
+            }
+            case CHECKBOX, TIME_SLOT -> {
+                return String.join(",", vals);
+            }
+            default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
+        }
+    }
 
     private boolean isBlank(String s) {
         return s == null || s.trim().isEmpty();

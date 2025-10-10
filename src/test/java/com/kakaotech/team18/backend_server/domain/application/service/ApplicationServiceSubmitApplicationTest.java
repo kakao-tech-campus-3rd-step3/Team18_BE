@@ -1,5 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
@@ -55,6 +57,10 @@ class ApplicationServiceSubmitApplicationTest {
     @Mock private UserRepository userRepository;
     @Mock private ApplicationEventPublisher publisher;
 
+    private static JsonNode tn(String s) {
+        return JsonNodeFactory.instance.textNode(s);
+    }
+
     private final User baseUser = User.builder()
             .studentId("20231234")
             .email("stud@example.com")
@@ -64,31 +70,46 @@ class ApplicationServiceSubmitApplicationTest {
             .build();
 
     private List<FormQuestion> sampleQuestions(ClubApplyForm form) {
-
         FormQuestion q1 = FormQuestion.builder()
-            .clubApplyForm(form)
-            .question("자기소개")
-            .fieldType(FieldType.TEXT)
-            .isRequired(true)
-            .displayOrder(1L)
-            .build();
+                .clubApplyForm(form)
+                .question("자기소개")
+                .fieldType(FieldType.TEXT)
+                .isRequired(true)
+                .displayOrder(1L)
+                .build();
+
         FormQuestion q2 = FormQuestion.builder()
-            .clubApplyForm(form)
-            .question("성별")
-            .fieldType(FieldType.RADIO)
-            .isRequired(true)
-            .displayOrder(2L)
-            .options(List.of("남", "여"))
-            .build();
+                .clubApplyForm(form)
+                .question("성별")
+                .fieldType(FieldType.RADIO)
+                .isRequired(true)
+                .displayOrder(2L)
+                .options(List.of("남", "여"))
+                .build();
+
         FormQuestion q3 = FormQuestion.builder()
-            .clubApplyForm(form)
-            .question("관심사").fieldType(FieldType.CHECKBOX).isRequired(false).displayOrder(3L).options(List.of("A", "B", "C")).build();
+                .clubApplyForm(form)
+                .question("관심사")
+                .fieldType(FieldType.CHECKBOX)
+                .isRequired(false)
+                .displayOrder(3L)
+                .options(List.of("A", "B", "C"))
+                .build();
+
+        FormQuestion q4 = FormQuestion.builder()
+                .clubApplyForm(form)
+                .question("면접 가능 일정")
+                .fieldType(FieldType.TIME_SLOT)
+                .isRequired(true)
+                .displayOrder(4L)
+                .build();
 
         ReflectionTestUtils.setField(q1, "id", 101L);
         ReflectionTestUtils.setField(q2, "id", 102L);
         ReflectionTestUtils.setField(q3, "id", 103L);
+        ReflectionTestUtils.setField(q4, "id", 104L);
 
-        return List.of(q1, q2, q3);
+        return List.of(q1, q2, q3, q4);
     }
 
     @Nested
@@ -128,12 +149,16 @@ class ApplicationServiceSubmitApplicationTest {
             when(answerRepository.saveAll(anyList()))
                     .thenAnswer(inv -> inv.getArgument(0));
 
+            // questionNum == displayOrder (1,2,3), answer is JsonNode
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                     "stud@example.com", "홍길동","20231234","010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동","20231234","010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","안녕하세요"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","여"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","A,B")
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("안녕하세요")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("여")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("A,B")),
+                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                    JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
+                            )
                     )
             );
 
@@ -149,13 +174,12 @@ class ApplicationServiceSubmitApplicationTest {
             verify(answerRepository, times(1)).saveAll(anyList());
             verify(answerRepository, never()).deleteByApplication(any());
 
-            // 이벤트 발행 검증
             ArgumentCaptor<ApplicationSubmittedEvent> captor =
                     ArgumentCaptor.forClass(ApplicationSubmittedEvent.class);
             verify(publisher, times(1)).publishEvent(captor.capture());
             ApplicationSubmittedEvent event = captor.getValue();
             assertThat(event.applicationId()).isEqualTo(100L);
-            assertThat(event.emailLines()).hasSize(3);
+            assertThat(event.emailLines()).hasSize(4);
         }
     }
 
@@ -182,11 +206,16 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(existing));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                     "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","수정본문"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","남"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","A")
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("수정본문")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("남")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("A")),
+                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                                    JsonNodeFactory.instance.arrayNode()
+                                            .add("2025-10-15 14:00")
+                                            .add("2025-10-16 10:00")
+                            )
                     )
             );
 
@@ -230,9 +259,12 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(101L, "q","수정본문"),
-                            new ApplicationApplyRequestDto.AnswerDto(102L, "q","여"),
-                            new ApplicationApplyRequestDto.AnswerDto(103L, "q","B")
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("수정본문")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("여")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("B")),
+                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                                    JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
+                            )
                     )
             );
 
@@ -276,24 +308,26 @@ class ApplicationServiceSubmitApplicationTest {
 
             // TEXT 값, RADIO 값, CHECKBOX 공란
             List<ApplicationApplyRequestDto.AnswerDto> answers = List.of(
-                    new ApplicationApplyRequestDto.AnswerDto(101L, "q","자소서"),
-                    new ApplicationApplyRequestDto.AnswerDto(102L, "q","남"),
-                    new ApplicationApplyRequestDto.AnswerDto(103L, "q","")
+                    new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("자소서")),
+                    new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("남")),
+                    new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("")),
+                    new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                            JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
+                    )
             );
 
             // when
             List<AnswerEmailLine> emailLines = service.saveApplicationAnswers(app, answers);
 
             // then
-            assertThat(emailLines).hasSize(3);
+            assertThat(emailLines).hasSize(4);
             assertThat(emailLines.get(2).question()).isEqualTo("관심사");
             assertThat(emailLines.get(2).answer()).isEqualTo("(미입력)");
 
-            // 저장 리스트 검증
             ArgumentCaptor<List> cap = ArgumentCaptor.forClass(List.class);
             verify(answerRepository, times(1)).saveAll(cap.capture());
             List saved = cap.getValue();
-            assertThat(saved).hasSize(3);
+            assertThat(saved).hasSize(4);
             Answer last = (Answer) saved.get(2);
             assertThat(last.getFormQuestion().getQuestion()).isEqualTo("관심사");
             assertThat(last.getAnswer()).isNull();
