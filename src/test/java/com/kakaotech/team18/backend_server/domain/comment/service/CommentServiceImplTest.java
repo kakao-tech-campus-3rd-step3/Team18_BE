@@ -23,6 +23,7 @@ import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.retry.annotation.EnableRetry;
 
 import java.util.Optional;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(OutputCaptureExtension.class)
+@ActiveProfiles("test")
 @SpringBootTest
 @EnableRetry(proxyTargetClass = true)
 class CommentServiceImplTest {
