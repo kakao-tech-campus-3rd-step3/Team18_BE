@@ -1,16 +1,25 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
-import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
-import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
+import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LITERATURE;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto.ClubsInfo;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
+import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
+import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +30,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static com.kakaotech.team18.backend_server.domain.club.entity.Category.LITERATURE;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
         controllers = ClubController.class,
@@ -104,6 +102,7 @@ class ClubControllerTest {
                 .presidentPhoneNumber("010-1234-5678")
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
+                .applicationNotices("주의사항")
                 .build();
 
         when(clubService.getClubDetail(clubId)).thenReturn(expected);
@@ -179,7 +178,7 @@ class ClubControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생하낟.")
+    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생한다.")
     @Test
     void getApplicantsByWrongStatus() throws Exception {
         // given
