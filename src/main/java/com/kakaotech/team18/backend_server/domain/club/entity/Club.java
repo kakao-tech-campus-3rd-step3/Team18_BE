@@ -11,12 +11,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,9 +44,7 @@ public class Club extends BaseEntity {
     @JoinColumn(name = "club_introduction_id")
     private ClubIntroduction introduction;
 
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, orphanRemoval = true)
-    @OrderBy("displayOrder ASC")
-    private List<ClubCaution> cautions = new ArrayList<>();
+    private String caution;
 
     private LocalDateTime recruitStart;
 
@@ -65,6 +59,7 @@ public class Club extends BaseEntity {
             String location,
             String shortIntroduction,
             ClubIntroduction introduction,
+            String caution,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
             String regularMeetingInfo) {
@@ -73,13 +68,9 @@ public class Club extends BaseEntity {
         this.location = location;
         this.shortIntroduction = shortIntroduction;
         this.introduction = introduction;
+        this.caution = caution;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
-    }
-
-    public void addCaution(ClubCaution caution) {
-        cautions.add(caution);
-        caution.setClub(this);
     }
 }
