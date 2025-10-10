@@ -166,7 +166,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), deleted);
 
 
-        List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answerList());
+        List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answers());
         publisher.publishEvent(new ApplicationSubmittedEvent(application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
@@ -187,7 +187,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         log.info("새로운 답변 기록됨 applicationId={}", newApplication.getId());
 
 
-        List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answerList());
+        List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answers());
         publisher.publishEvent(new ApplicationSubmittedEvent(newApplication.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
@@ -197,17 +197,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         );
     }
 
-    public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<AnswerDto> answerList) {
-        if (answerList == null) answerList = List.of();
+    public List<AnswerEmailLine> saveApplicationAnswers(Application application, List<AnswerDto> answers) {
+        if (answers == null) answers = List.of();
 
         final Long formId = application.getClubApplyForm().getId();
 
-        Map<Long, String> byQuestionId = answerList.stream()
+        Map<Long, String> byQuestionNum = answers.stream()
                 .filter(Objects::nonNull)
-                .filter(a -> a.questionId() != null)
+                .filter(a -> a.questionNum() != null)
                 .collect(Collectors.toMap(
-                        AnswerDto::questionId,
-                        a -> normalize(a.answerContent()),
+                        AnswerDto::questionNum,
+                        a -> normalize(a.answer()),
                         (prev, next) -> next
                 ));
 
@@ -219,12 +219,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
         for (FormQuestion q : questions) {
-            String normalized = byQuestionId.getOrDefault(q.getId(), "");
+            String normalized = byQuestionNum.getOrDefault(q.getId(), "");
             normalized = normalize(normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
-                throw new InvalidAnswerException("필수 문항 미응답: questionId=" + q.getId());
+                throw new InvalidAnswerException("필수 문항 미응답: questionNum=" + q.getId());
             }
 
             // 타입별 검증/정규화
@@ -234,14 +234,14 @@ public class ApplicationServiceImpl implements ApplicationService {
 
                 case RADIO -> {
                     if (q.getIsRequired() && isBlank(normalized)) {
-                        throw new InvalidAnswerException("단일 선택 값이 필요합니다. questionId=" + q.getId());
+                        throw new InvalidAnswerException("단일 선택 값이 필요합니다. questionNum=" + q.getId());
                     }
                 }
 
                 case CHECKBOX -> {
                     List<String> options = splitAndTrim(normalized);
                     if (q.getIsRequired() && options.isEmpty()) {
-                        throw new InvalidAnswerException("최소 1개 필요. questionId=" + q.getId());
+                        throw new InvalidAnswerException("최소 1개 필요. questionNum=" + q.getId());
                     }
                     normalized = String.join(",", options);
                 }
@@ -249,7 +249,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 case TIME_SLOT -> {
                     List<String> options = splitAndTrim(normalized);
                     if (q.getIsRequired() && options.isEmpty()) {
-                        throw new InvalidAnswerException("최소 1칸 필요. questionId=" + q.getId());
+                        throw new InvalidAnswerException("최소 1칸 필요. questionNum=" + q.getId());
                     }
                     normalized = String.join(",", options);
                 }

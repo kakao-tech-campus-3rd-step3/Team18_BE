@@ -12,7 +12,7 @@ import java.util.List;
 @Schema(description = "지원서 양식 개별 질문 수정 정보")
 public record FormQuestionUpdateDto(
         @Schema(description = "질문 ID", example = "1")
-        Long questionId,
+        Long questionNum,
 
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")
         @NotBlank(message = "질문은 필수 입니다.")
