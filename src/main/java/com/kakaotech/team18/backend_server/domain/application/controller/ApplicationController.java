@@ -91,7 +91,7 @@ public class ApplicationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
     })
-    @PatchMapping("/api/clubs/{clubId}/application-form/result")
+    @PatchMapping("/api/clubs/{clubId}/club-apply-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
             @RequestBody ApplicationApprovedRequestDto requestDto,
