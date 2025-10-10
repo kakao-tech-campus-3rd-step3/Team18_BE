@@ -223,16 +223,32 @@ public class ApplicationServiceImpl implements ApplicationService {
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
         for (FormQuestion q : questions) {
-            JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
+            Long disp = q.getDisplayOrder();
+
+            JsonNode raw = byQuestionNum.get(disp);
+
+            if (raw == null && disp != null && disp > 0) {
+                raw = byQuestionNum.get(disp - 1);
+            }
+
+            if (log.isDebugEnabled()) {
+                log.debug("문항 매칭: displayOrder={}, payloadKeys={}, hitZeroBasedFallback={}",
+                        disp, byQuestionNum.keySet(), (raw != null && !byQuestionNum.containsKey(disp)));
+            }
+
             List<String> rawValues = extractTextValues(raw);
             String normalized = coerceForFieldType(q, rawValues);
+            //JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
+            //List<String> rawValues = extractTextValues(raw);
+            //String normalized = coerceForFieldType(q, rawValues);
 
             //String normalized = byQuestionNum.getOrDefault(q.getId(), "");
             //normalized = normalize(normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
-                throw new InvalidAnswerException("필수 문항 미응답: questionNum=" + q.getId());
+                throw new InvalidAnswerException("필수 문항 미응답: displayOrder=%d, questionId=%d, question=\"%s\""
+                        .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
             }
 
             // 타입별 검증/정규화
@@ -242,14 +258,16 @@ public class ApplicationServiceImpl implements ApplicationService {
 
                 case RADIO -> {
                     if (q.getIsRequired() && isBlank(normalized)) {
-                        throw new InvalidAnswerException("단일 선택 값이 필요합니다. questionNum=" + q.getId());
+                        throw new InvalidAnswerException("단일 선택 값이 필요합니다: displayOrder=%d, questionId=%d, question=\"%s\""
+                                .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
                     }
                 }
 
                 case CHECKBOX -> {
                     List<String> options = splitAndTrim(normalized);
                     if (q.getIsRequired() && options.isEmpty()) {
-                        throw new InvalidAnswerException("최소 1개 필요. questionNum=" + q.getId());
+                        throw new InvalidAnswerException("최소 1개 선택 필요: displayOrder=%d, questionId=%d, question=\"%s\""
+                                .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
                     }
                     normalized = String.join(",", options);
                 }
@@ -257,7 +275,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 case TIME_SLOT -> {
                     List<String> options = splitAndTrim(normalized);
                     if (q.getIsRequired() && options.isEmpty()) {
-                        throw new InvalidAnswerException("최소 1칸 필요. questionNum=" + q.getId());
+                        throw new InvalidAnswerException("최소 1칸 필요: displayOrder=%d, questionId=%d, question=\"%s\""
+                                .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
                     }
                     normalized = String.join(",", options);
                 }
