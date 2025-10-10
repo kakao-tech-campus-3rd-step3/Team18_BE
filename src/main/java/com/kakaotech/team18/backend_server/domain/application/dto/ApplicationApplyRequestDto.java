@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.application.dto;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
@@ -13,7 +14,6 @@ public record ApplicationApplyRequestDto(
 
         @NotBlank(message = "이름은 필수입니다.")
         String name,
-
 
         @NotBlank(message = "학번은 필수입니다.")
         String studentId,
@@ -29,6 +29,6 @@ public record ApplicationApplyRequestDto(
         public record AnswerDto(
                 Long questionNum,
                 String question,
-                String answer
+                JsonNode answer
         ) {}
 }
