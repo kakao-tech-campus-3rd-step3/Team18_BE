@@ -135,7 +135,7 @@ VALUES
 -- =========================
 -- 6) FORM_QUESTION (20) — TEXT만 사용 (옵션/타임슬롯 NULL)
 -- =========================
-INSERT INTO form_question (club_apply_form_id, question, field_type, is_required, display_order, options)
+INSERT INTO form_question (club_apply_form_id, question, field_type, is_required, display_order, options, )
 VALUES
     (1,'자기소개를 작성해주세요.','TEXT', true, 1, NULL),
     (1,'개발 경험이 있으신가요?','RADIO', true, 2, '예,아니오'),
