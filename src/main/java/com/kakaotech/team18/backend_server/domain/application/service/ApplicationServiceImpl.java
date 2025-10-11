@@ -210,40 +210,27 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .filter(Objects::nonNull)
                 .filter(a -> a.questionNum() != null)
                 .collect(Collectors.toMap(
-                        ApplicationApplyRequestDto.AnswerDto::questionNum,
-                        ApplicationApplyRequestDto.AnswerDto::answer,
-                        (prev, next) -> next
+                        AnswerDto::questionNum,
+                        AnswerDto::answer
                 ));
 
         // 1) 폼의 질문을 표시순서대로 조회
-        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);
+        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);//해당 formId에 있는 질문만 조회
 
         // 2) 문항-답변 매칭(displayOrder 기반)
         List<Answer> toSave = new ArrayList<>(questions.size());
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
+        log.info("payload keys={}", byQuestionNum.keySet());
+
         for (FormQuestion q : questions) {
             Long disp = q.getDisplayOrder();
-
-            JsonNode raw = byQuestionNum.get(disp);
-
-            if (raw == null && disp != null && disp > 0) {
-                raw = byQuestionNum.get(disp - 1);
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("문항 매칭: displayOrder={}, payloadKeys={}, hitZeroBasedFallback={}",
-                        disp, byQuestionNum.keySet(), (raw != null && !byQuestionNum.containsKey(disp)));
-            }
+            JsonNode raw = byQuestionNum.get(disp-1);
 
             List<String> rawValues = extractTextValues(raw);
             String normalized = coerceForFieldType(q, rawValues);
-            //JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
-            //List<String> rawValues = extractTextValues(raw);
-            //String normalized = coerceForFieldType(q, rawValues);
 
-            //String normalized = byQuestionNum.getOrDefault(q.getId(), "");
-            //normalized = normalize(normalized);
+            log.info("Q(disp={}, id={}, type={}, req={}): raw={}, rawValues={}, normalized='{}'",disp, q.getId(), q.getFieldType(), q.getIsRequired(), raw, rawValues, normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
