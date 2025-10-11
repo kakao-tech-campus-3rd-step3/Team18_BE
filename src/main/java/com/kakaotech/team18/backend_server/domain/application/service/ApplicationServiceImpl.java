@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -307,10 +308,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                     out.add(item.asText());
                 } else if (item.isObject()) {
                     JsonNode v = firstByCommonKeys(item);
-                    if (nonNull(v)) {
+                    if (v != null) {
                         if (v.isArray()) out.addAll(extractTextValues(v));
                         else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
+                        else {
+                            collectStringLeaves(v, out, 100);
+                        }
+                    } else {
+                        collectStringLeaves(item, out, 100);
                     }
+                } else {
+                    out.addAll(extractTextValues(item));
                 }
             }
             return out;
@@ -364,6 +372,39 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
+
+    private String reassembleTimeSlots(List<String> vals) {
+        if (vals == null || vals.isEmpty()) return "";
+
+        boolean alreadyCombined = vals.stream().anyMatch(s -> s.contains(" ") && TR.matcher(s).find());
+        if (alreadyCombined) return String.join(",", vals);
+
+        List<String> out = new ArrayList<>();
+        String currentDate = null;
+
+        for (String raw : vals) {
+            String s = normalize(raw);
+            if (s.isEmpty()) continue;
+
+            boolean looksDate = DATE.matcher(s).matches();
+            boolean looksTimeRange = TR.matcher(s).matches();
+
+            if (looksDate) {
+                currentDate = s;
+                continue;
+            }
+            if (looksTimeRange) {
+                out.add(currentDate != null ? (currentDate + " " + s) : s);
+                continue;
+            }
+            out.add(s);
+        }
+        return String.join(",", out);
+    }
+
+
     private String coerceForFieldType(FormQuestion q, List<String> rawValues) {
         List<String> vals = rawValues.stream()
                 .map(this::normalize)
@@ -377,8 +418,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             case RADIO -> {
                 return vals.isEmpty() ? "" : vals.get(0);
             }
-            case CHECKBOX, TIME_SLOT -> {
+            case CHECKBOX -> {
                 return String.join(",", vals);
+            }
+            case TIME_SLOT -> {
+                return reassembleTimeSlots(vals);
             }
             default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
         }
