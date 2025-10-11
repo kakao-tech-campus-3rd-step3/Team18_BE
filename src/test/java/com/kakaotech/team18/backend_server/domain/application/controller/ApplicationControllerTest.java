@@ -188,10 +188,10 @@ class ApplicationControllerTest {
           "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
           "answers": [
-          {"questionNum":1,"question":"q","answer":"자기소개입니다"},
-          {"questionNum":2,"question":"q","answer":"여"},
-          {"questionNum":3,"question":"q","answer":"A,B"},
-          {"questionNum":4,"question":"interview","answer": { "interviewDateAnswer": ["2025-10-15 14:00","2025-10-16 10:00"] }}
+          {"questionNum":0,"question":"q","answer":"자기소개입니다"},
+          {"questionNum":1,"question":"q","answer":"여"},
+          {"questionNum":2,"question":"q","answer":"A,B"},
+          {"questionNum":3,"question":"interview","answer": { "interviewDateAnswer": ["2025-10-15 14:00","2025-10-16 10:00"] }}
           ]
         }
         """;
