@@ -1,0 +1,165 @@
+name: Deploy To EC2 With Docker
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch: {}
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ap-northeast-2
+      ECR_REPO_NAME: dongarium-server
+      REMOTE_DIR: /home/ec2-user/dongarium
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Prime Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle-
+
+      - name: Write application.yml from secret
+        run: |
+          mkdir -p ./src/main/resources
+          printf "%s" "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
+
+      - name: Build (Gradle)
+        run: ./gradlew clean build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR (for build host)
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: docker build -t $ECR_REPO_NAME .
+
+      - name: Tag image for ECR
+        run: docker tag $ECR_REPO_NAME:latest ${{ steps.ecr.outputs.registry }}/$ECR_REPO_NAME:latest
+
+      - name: Push image to ECR
+        run: docker push ${{ steps.ecr.outputs.registry }}/$ECR_REPO_NAME:latest
+
+      - name: Ensure remote directory structure
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            mkdir -p ${{ env.REMOTE_DIR }}/shared
+            mkdir -p ${{ env.REMOTE_DIR }}/current
+
+      - name: Upload docker-compose.yml to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          source: "docker-compose.yml"
+          target: "${{ env.REMOTE_DIR }}/current"
+
+      - name: Deploy on EC2 (create .env, set credHelpers, compose up)
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
+          script_stop: true
+          script: |
+            set -euo pipefail
+            rm -f ~/.docker/config.json || true
+            # Docker/compose 보장
+            if ! systemctl is-active --quiet docker; then
+              sudo systemctl start docker || true
+            fi
+            if ! docker compose version >/dev/null 2>&1; then
+              if command -v yum >/dev/null 2>&1; then
+                sudo yum install -y docker-compose-plugin || true
+              elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y docker-compose-plugin || true
+              fi
+              docker compose version || { echo "FATAL: docker compose not available"; exit 1; }
+            fi
+
+            # AWS 크레덴셜 (Instance Profile이 없을 때만)
+            export AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}'
+            export AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+            export AWS_REGION='${{ env.AWS_REGION }}'
+
+            # ECR credential helper 설치
+            if ! command -v docker-credential-ecr-login >/dev/null 2>&1; then
+              if command -v yum >/dev/null 2>&1; then
+                sudo yum install -y amazon-ecr-credential-helper || true
+              elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y amazon-ecr-credential-helper || true
+              fi
+            fi
+
+            # 기존 ~/.docker 오염 회피: 임시 DOCKER_CONFIG 사용
+            export DOCKER_CONFIG=/tmp/docker-config-ecr
+            mkdir -p "$DOCKER_CONFIG"
+
+            # credHelpers 설정을 jq로 생성 (heredoc NO)
+            REG='${{ steps.ecr.outputs.registry }}'
+            if ! command -v jq >/dev/null 2>&1; then
+              # jq가 없으면 설치 (Amazon Linux 계열)
+              if command -v yum >/dev/null 2>&1; then
+                sudo yum install -y jq || true
+              elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y jq || true
+              fi
+            fi
+            jq -n --arg reg "$REG" '{credHelpers:{($reg):"ecr-login"}}' > "$DOCKER_CONFIG/config.json"
+
+            # 디렉토리 이동
+            cd ${{ env.REMOTE_DIR }}
+
+            # .env 생성 (printf로 안전하게 생성)
+            tmp_env="$(mktemp)"
+            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\n' \
+            '${{ secrets.DB_NAME }}' \
+            '${{ secrets.DB_USER }}' \
+            '${{ secrets.DB_PASSWORD }}' \
+            '${{ secrets.DB_ROOT_PASSWORD }}' \
+            "$REG" > "$tmp_env"
+            install -m 600 "$tmp_env" ${{ env.REMOTE_DIR }}/shared/.env
+            rm -f "$tmp_env"
+            ln -sf ${{ env.REMOTE_DIR }}/shared/.env ${{ env.REMOTE_DIR }}/current/.env
+
+            echo "==> Pull latest image (credHelpers auto-auth)"
+            docker pull $REG/${{ env.ECR_REPO_NAME }}:latest
+
+            # 재기동
+            sudo fuser -k -n tcp 8080 || true
+            cd ${{ env.REMOTE_DIR }}/current
+            ECR_REGISTRY="$REG" docker compose down || true
+            ECR_REGISTRY="$REG" docker compose up -d --remove-orphans
+            docker compose ps

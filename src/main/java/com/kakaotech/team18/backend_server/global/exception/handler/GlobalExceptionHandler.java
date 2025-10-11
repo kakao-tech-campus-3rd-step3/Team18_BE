@@ -1,15 +1,19 @@
 package com.kakaotech.team18.backend_server.global.exception.handler;
 
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.dto.ErrorResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 /**
  * 애플리케이션 전역에서 발생하는 예외를 중앙에서 처리하는 클래스입니다.
@@ -78,6 +82,24 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
+    @ExceptionHandler({ MethodArgumentTypeMismatchException.class, ConversionFailedException.class })
+    public ResponseEntity<ErrorResponseDto> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
+        // Status 파라미터 변환 실패면 커스텀 메시지
+        if (e.getRequiredType() == Status.class || hasCause(e, StatusNotFoundException.class)) {
+            final ErrorCode errorCode = ErrorCode.STATUS_NOT_FOUND;
+            final String detail = "잘못된 상태값";
+            final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+            log.warn("TypeMisMatch for Status: {} (detail : {})", errorCode.getMessage(), detail);
+            return new ResponseEntity<>(response, errorCode.getHttpStatus());
+        }
+        // 그 외 파라미터 타입 오류
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("TypeMisMatch: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+
     /**
      * 모든 예상치 못한 예외를 처리
      */
@@ -91,6 +113,16 @@ public class GlobalExceptionHandler {
         log.error("Unhandled Exception : {}", errorCode.getMessage(), e);
 
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    private boolean hasCause(Throwable t, Class<? extends Throwable> target) {
+        while (t != null) {
+            if (target.isInstance(t)) {
+                return true;
+            }
+            t = t.getCause();
+        }
+        return false;
     }
 
 }

@@ -1,0 +1,29 @@
+language: "ko-KR"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: true
+  high_level_summary: true
+  review_status: true
+  collapse_walkthrough: true
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: ["develop"]
+
+  path_filters:
+    - "**/src/**"
+    - "pom.xml"
+    - "build.gradle*"
+    - "!**/build/**"
+    - "!**/target/**"
+
+  path_instructions:
+    - path: "src/main/java/**/*.java"
+      instructions: |
+        - import 와일드카드(`import java.util.*`) 사용 금지.
+    - path: "src/test/java/**/*.java"
+      instructions: |
+        - 단위테스트(UnitTest)와 통합테스트(IntegrationTest)를 명확히 분리.
