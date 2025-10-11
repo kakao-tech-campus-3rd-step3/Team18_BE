@@ -34,6 +34,7 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             select cm
             from ClubMember cm
             join fetch cm.application a
+            join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.status = :status
 
             """)
