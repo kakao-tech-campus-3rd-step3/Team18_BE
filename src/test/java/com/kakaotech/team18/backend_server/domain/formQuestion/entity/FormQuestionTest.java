@@ -1,10 +1,10 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
+package com.kakaotech.team18.backend_server.domain.formQuestion.entity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.TimeSlotOptionRequestDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.TimeSlotOptionRequestDto.TimeRange;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto.TimeRange;
 import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;

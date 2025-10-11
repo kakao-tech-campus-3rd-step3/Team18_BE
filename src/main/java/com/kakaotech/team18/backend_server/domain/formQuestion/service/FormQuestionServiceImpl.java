@@ -1,7 +1,7 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.service;
+package com.kakaotech.team18.backend_server.domain.formQuestion.service;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

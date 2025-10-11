@@ -1,11 +1,11 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.validate;
+package com.kakaotech.team18.backend_server.domain.formQuestion.validate;
 
-import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType.CHECKBOX;
-import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType.RADIO;
-import static com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType.TIME_SLOT;
+import static com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType.CHECKBOX;
+import static com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType.RADIO;
+import static com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType.TIME_SLOT;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionBaseDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 

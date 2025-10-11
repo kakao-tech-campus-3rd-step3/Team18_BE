@@ -14,10 +14,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
