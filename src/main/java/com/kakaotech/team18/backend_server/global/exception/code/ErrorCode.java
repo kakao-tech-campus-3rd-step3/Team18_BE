@@ -30,9 +30,14 @@ public enum ErrorCode {
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
+    ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_JWT_TOKEN("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    MALFORMED_JWT("잘못된 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_JWT_SIGNATURE("토큰의 서명이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    UNSUPPORTED_JWT("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음
