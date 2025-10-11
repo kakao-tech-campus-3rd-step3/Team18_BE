@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
@@ -31,7 +32,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -363,5 +366,82 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(last.getFormQuestion().getQuestion()).isEqualTo("관심사");
             assertThat(last.getAnswer()).isNull();
         }
+    }
+    @Test
+    @DisplayName("JSON 페이로드 → 서비스 실행 → emailLines 변환 검증")
+    void parseJsonPayload_throughService_emailLines_ok() throws Exception {
+
+        String jsonPayload = """
+        {"email":"gjw0622@gmail.com",
+        "name":"카카오톡",
+        "studentId":"234460",
+        "phoneNumber":"010-9045-7394",
+        "department":"컴공",
+        "answers":[
+        {"questionNum":0,"question":"자기소개","answer":"hello"},
+        {"questionNum":1,"question":"성별","answer":"남"},
+        {"questionNum":2,"question":"관심사","answer":"A"},
+        {"questionNum":3,"question":"면접 가능 일정","answer":{"interviewDateAnswer":[{"date":"2025-10-15","selectedTimes":["10:00-10:30","11:30-12:00"]}]}}]}
+        """;
+
+        ObjectMapper om = new ObjectMapper();
+        JsonNode root = om.readTree(jsonPayload.getBytes(StandardCharsets.UTF_8));
+
+        List<ApplicationApplyRequestDto.AnswerDto> answers = new ArrayList<>();
+        for (JsonNode a : root.get("answers")) {
+            long qnum = a.get("questionNum").asLong();
+            String qtext = a.get("question").asText();
+            JsonNode ans = a.get("answer");
+            answers.add(new ApplicationApplyRequestDto.AnswerDto(qnum, qtext, ans));
+        }
+
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(11L);
+
+        User user = User.builder()
+                .studentId(root.get("studentId").asText())
+                .email(root.get("email").asText())
+                .name(root.get("name").asText())
+                .phoneNumber(root.get("phoneNumber").asText())
+                .department(root.get("department").asText())
+                .build();
+
+        Application app = Application.builder()
+                .user(user)
+                .clubApplyForm(form)
+                .build();
+        ReflectionTestUtils.setField(app, "id", 999L);
+        ReflectionTestUtils.setField(app, "lastModifiedAt", LocalDateTime.now());
+
+        when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(11L))
+                .thenReturn(sampleQuestions(form));
+        when(answerRepository.saveAll(anyList()))
+                .thenAnswer(inv -> inv.getArgument(0));
+
+        List<AnswerEmailLine> emailLines = service.saveApplicationAnswers(app, answers);
+
+        assertThat(emailLines).hasSize(4);
+
+        assertThat(emailLines.get(0).question()).isEqualTo("자기소개");
+        assertThat(emailLines.get(0).answer()).isEqualTo("hello");
+
+        assertThat(emailLines.get(1).question()).isEqualTo("성별");
+        assertThat(emailLines.get(1).answer()).isEqualTo("남");
+
+        assertThat(emailLines.get(2).question()).isEqualTo("관심사");
+        assertThat(emailLines.get(2).answer()).isEqualTo("A");
+
+        assertThat(emailLines.get(3).question()).isEqualTo("면접 가능 일정");
+        String ts = emailLines.get(3).answer();
+        assertThat(ts).contains("2025-10-15 10:00-10:30");
+        assertThat(ts).contains("2025-10-15 11:30-12:00");
+
+        // 저장 엔티티 검증
+        @SuppressWarnings("rawtypes")
+        ArgumentCaptor<List> cap = ArgumentCaptor.forClass(List.class);
+        verify(answerRepository, times(1)).saveAll(cap.capture());
+        @SuppressWarnings("unchecked")
+        List<Answer> saved = cap.getValue();
+        assertThat(saved).hasSize(4);
     }
 }
