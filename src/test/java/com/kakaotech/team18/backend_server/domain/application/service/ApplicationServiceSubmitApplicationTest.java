@@ -19,6 +19,7 @@ import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmitted
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -117,6 +119,36 @@ class ApplicationServiceSubmitApplicationTest {
     class CreateFlow {
 
         @Test
+        @DisplayName("필수 문항(displayOrder=3) 누락 시 InvalidAnswerException")
+        void requiredMissing_at_disp3_throws() {
+            // given
+            ClubApplyForm form = mock(ClubApplyForm.class);
+            when(form.getId()).thenReturn(11L);
+            Application app = Application.builder().user(baseUser).clubApplyForm(form).build();
+
+            when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(11L))
+                    .thenReturn(sampleQuestions(form));
+
+            // disp=2 빠짐
+            List<ApplicationApplyRequestDto.AnswerDto> answers = List.of(
+                    new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("자기소개")),
+                    new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("여")),
+                    new ApplicationApplyRequestDto.AnswerDto(3L, "면접", JsonNodeFactory.instance
+                            .objectNode().put("interviewDateAnswer", "2025-10-15 14:00"))
+            );
+
+            // when / then
+            assertThatThrownBy(() ->
+                            service.saveApplicationAnswers(app, answers)
+                    ).isInstanceOf(InvalidAnswerException.class)
+                    .satisfies(t -> {
+                        InvalidAnswerException ex = (InvalidAnswerException) t;
+                        assertThat(ex.getDetail()).contains("displayOrder=2");
+                    });
+        }
+
+
+        @Test
         @DisplayName("기존 지원서가 없으면 저장 후 이벤트 발행")
         void create_thenPublishEvent() {
             // given
@@ -149,14 +181,13 @@ class ApplicationServiceSubmitApplicationTest {
             when(answerRepository.saveAll(anyList()))
                     .thenAnswer(inv -> inv.getArgument(0));
 
-            // questionNum == displayOrder (1,2,3), answer is JsonNode
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동","20231234","010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("안녕하세요")),
-                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("여")),
-                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("A,B")),
-                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                            new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("안녕하세요")),
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("A,B")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "면접 가능 일정",
                     JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
                             )
                     )
@@ -208,10 +239,10 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("수정본문")),
-                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("남")),
-                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("A")),
-                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                            new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("남")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("A")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "면접 가능 일정",
                                     JsonNodeFactory.instance.arrayNode()
                                             .add("2025-10-15 14:00")
                                             .add("2025-10-16 10:00")
@@ -259,10 +290,10 @@ class ApplicationServiceSubmitApplicationTest {
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동","20231234", "010-0000-0000", "컴공",
                     List.of(
-                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("수정본문")),
-                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("여")),
-                            new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("B")),
-                            new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                            new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
+                            new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
+                            new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("B")),
+                            new ApplicationApplyRequestDto.AnswerDto(3L, "면접 가능 일정",
                                     JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
                             )
                     )
@@ -308,10 +339,10 @@ class ApplicationServiceSubmitApplicationTest {
 
             // TEXT 값, RADIO 값, CHECKBOX 공란
             List<ApplicationApplyRequestDto.AnswerDto> answers = List.of(
-                    new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("자소서")),
-                    new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("남")),
-                    new ApplicationApplyRequestDto.AnswerDto(3L, "q", tn("")),
-                    new ApplicationApplyRequestDto.AnswerDto(4L, "면접 가능 일정",
+                    new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("자소서")),
+                    new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("남")),
+                    new ApplicationApplyRequestDto.AnswerDto(2L, "q", tn("")),
+                    new ApplicationApplyRequestDto.AnswerDto(3L, "면접 가능 일정",
                             JsonNodeFactory.instance.objectNode().put("interviewDateAnswer", "2025-10-15 14:00")
                     )
             );
