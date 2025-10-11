@@ -81,6 +81,44 @@ class ClubControllerTest {
                 .andExpect(jsonPath("$.clubs[1].recruitStatus").value("모집 종료"))
                 .andDo(print());
     }
+
+    @DisplayName("전체 동아리 목록을 필터링 조회한다.")
+    @Test
+    void getAllClubs_byCategory_test() throws Exception {
+        // given
+        ClubListResponseDto.ClubsInfo club1 = new ClubListResponseDto.ClubsInfo(
+                1L,
+                "동아리1",
+                Category.STUDY,
+                "짧은 소개1",
+                "모집중"
+        );
+
+        ClubListResponseDto.ClubsInfo club2 = new ClubListResponseDto.ClubsInfo(
+                2L,
+                "동아리2",
+                Category.SPORTS,
+                "짧은 소개2",
+                "모집 종료"
+        );
+
+        String category = "STUDY";
+
+        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1));
+
+        when(clubService.getClubByCategory(category)).thenReturn(mockResponse);
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/clubs").param("category", category));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.clubs.size()").value(1))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[0].recruitStatus").value("모집중"))
+                .andDo(print());
+    }
+
     @DisplayName("동아리 상세 페이지를 조회한다.")
     @Test
     void getClubDetail_test() throws Exception {

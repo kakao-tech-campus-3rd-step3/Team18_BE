@@ -117,4 +117,24 @@ class ClubControllerIntegrationTest {
                 .andExpect(jsonPath("$.clubs[1].category").value("SPORTS"))
                 .andDo(print());
     }
+
+    @DisplayName("전체 동아리 목록 필터링 조회 통합 테스트")
+    @Test
+    void getAllClubsByCategory_integration_test() throws Exception {
+        // given
+        String category = "STUDY";
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/clubs").param("category", category));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.clubs.size()").value(1))
+                .andExpect(jsonPath("$.clubs[0].id").value(1))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[0].category").value("STUDY"))
+                .andDo(print());
+    }
+
+
 }
