@@ -1,8 +1,8 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
+package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.TimeSlotOption;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 

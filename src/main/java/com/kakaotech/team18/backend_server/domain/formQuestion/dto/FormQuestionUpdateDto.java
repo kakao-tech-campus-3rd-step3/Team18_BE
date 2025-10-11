@@ -1,17 +1,19 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
+package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.validate.ValidFormQuestionRequest;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.formQuestion.validate.ValidFormQuestionRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import java.util.List;
 
 @ValidFormQuestionRequest
-@Schema(description = "지원서 양식 개별 질문 등록 정보")
-public record FormQuestionRequestDto(
+@Schema(description = "지원서 양식 개별 질문 수정 정보")
+public record FormQuestionUpdateDto(
+        @Schema(description = "질문 ID", example = "1")
+        Long questionNum,
+
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")
         @NotBlank(message = "질문은 필수 입니다.")
         String question,
@@ -33,8 +35,7 @@ public record FormQuestionRequestDto(
         List<String> optionList,
 
         @Schema(description = "(Time Slot)선택지")
-        @Valid
         List<TimeSlotOptionRequestDto> timeSlotOptions
-) implements FormQuestionBaseDto {
+) implements FormQuestionBaseDto{
 
 }

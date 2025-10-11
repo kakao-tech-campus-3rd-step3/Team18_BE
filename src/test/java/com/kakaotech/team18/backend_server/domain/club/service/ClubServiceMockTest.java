@@ -29,6 +29,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +84,8 @@ public class ClubServiceMockTest {
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of(application));
 
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1, 1,
-                "2025-09-03", "2025-09-20",
+                LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 20),
                 List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678",
                         "123@email.com", Status.PENDING)));
 
@@ -119,7 +121,9 @@ public class ClubServiceMockTest {
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
 
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(0, 0, "2025-09-03", "2025-09-20", List.of());
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(0, 0, LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 20),
+                List.of());
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);

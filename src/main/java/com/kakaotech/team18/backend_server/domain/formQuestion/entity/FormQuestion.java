@@ -1,7 +1,7 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
+package com.kakaotech.team18.backend_server.domain.formQuestion.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.global.converter.StringListConverter;
 import jakarta.persistence.CollectionTable;
