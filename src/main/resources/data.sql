@@ -138,8 +138,8 @@ VALUES
 INSERT INTO form_question (club_apply_form_id, question, field_type, is_required, display_order, options)
 VALUES
     (1,'자기소개를 작성해주세요.','TEXT', true, 1, NULL),
-    (1,'개발 경험이 있으신가요?','RADIO', false, 2, '["예", "아니오"]'),
-    (1,'자기소개를 간단히 적어주세요.','TEXT', true, 3, NULL),
+    (1,'개발 경험이 있으신가요?','RADIO', true, 2, '예,아니오'),
+    (1,'자기소개를 간단히 적어주세요.','TEXT', false, 3, NULL),
     (1,'면접가능 날짜는?','TIME_SLOT', true, 4, NULL),
     (2,'지원 동기를 작성해주세요.','TEXT', true, 1, NULL),
     (3,'활동 가능 요일을 적어주세요.','TEXT', true, 1, NULL),

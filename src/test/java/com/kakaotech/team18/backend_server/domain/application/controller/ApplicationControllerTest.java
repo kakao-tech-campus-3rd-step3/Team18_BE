@@ -182,15 +182,16 @@ class ApplicationControllerTest {
         private String validPayloadJson() {
             return """
         {
-          "studentId":"20231234",
           "email":"stud@example.com",
           "name":"홍길동",
+          "studentId":"20231234",
           "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
           "answers": [
-          {"questionNum":1,"question":"q","answer":"자기소개입니다"},
-          {"questionNum":2,"question":"q","answer":"여"},
-          {"questionNum":3,"question":"q","answer":"A,B"}
+          {"questionNum":0,"question":"q","answer":"자기소개입니다"},
+          {"questionNum":1,"question":"q","answer":"여"},
+          {"questionNum":2,"question":"q","answer":"A,B"},
+          {"questionNum":3,"question":"interview","answer": { "interviewDateAnswer": ["2025-10-15 14:00","2025-10-16 10:00"] }}
           ]
         }
         """;
@@ -200,9 +201,9 @@ class ApplicationControllerTest {
             // @Valid 위반: studentId 공백, email 형식 아님
             return """
         {
-          "studentId":" ",
           "email":"bad-email",
           "name":"",
+          "studentId":" ",
           "phoneNumber":"",
           "department":"",
           "answers":[]
