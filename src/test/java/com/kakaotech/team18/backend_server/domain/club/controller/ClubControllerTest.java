@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantRespon
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -157,7 +158,10 @@ class ClubControllerTest {
         //given
         long clubId = 1L;
 
-        ClubDashBoardResponseDto expected = new ClubDashBoardResponseDto(1, 1, "2025-09-15", "2025-09-20",
+        ClubDashBoardResponseDto expected = new ClubDashBoardResponseDto(1,
+                1,
+                LocalDate.of(2025, 9, 15),
+                LocalDate.of(2025, 9, 20),
                 List.of(new ApplicantResponseDto("춘식", "123456", "철학과", "010-1234-5678", "email.com", Status.PENDING)));
 
         //when
