@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.dto;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 

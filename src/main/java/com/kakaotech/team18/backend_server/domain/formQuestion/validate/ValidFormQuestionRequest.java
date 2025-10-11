@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.validate;
+package com.kakaotech.team18.backend_server.domain.formQuestion.validate;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
