@@ -313,7 +313,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 );
 
         if(stage == Stage.INTERVIEW) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
+            List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -346,7 +346,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == Stage.FINAL) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
+            List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -377,7 +377,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == null) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_Id(clubId);
+            List<Application> apps = applicationRepository.findAllByClubId(clubId);
             boolean hasPending = apps.stream()
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {

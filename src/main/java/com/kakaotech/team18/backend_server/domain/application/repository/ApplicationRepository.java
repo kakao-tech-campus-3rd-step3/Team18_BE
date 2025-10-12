@@ -42,7 +42,15 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
              WHERE a.id = :id""")
     Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
 
-    List<Application> findByClubApplyForm_Club_IdAndStage(Long clubId, Stage stage);
+    @Query("""
+            SELECT a
+            FROM Application a
+            WHERE a.clubApplyForm.club.id = :clubId AND a.stage = :stage""")
+    List<Application> findAllByClubIdAndStage(Long clubId, Stage stage);
 
-    List<Application> findByClubApplyForm_Club_Id(Long clubId);
+    @Query("""
+            SELECT a
+            FROM Application a
+            WHERE a.clubApplyForm.club.id = :clubId""")
+    List<Application> findAllByClubId(Long clubId);
 }
