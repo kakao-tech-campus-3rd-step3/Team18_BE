@@ -250,12 +250,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
             List<String> rawValues = extractTextValues(raw);
             String normalized = coerceForFieldType(q, rawValues);
-            //JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
-            //List<String> rawValues = extractTextValues(raw);
-            //String normalized = coerceForFieldType(q, rawValues);
-
-            //String normalized = byQuestionNum.getOrDefault(q.getId(), "");
-            //normalized = normalize(normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {

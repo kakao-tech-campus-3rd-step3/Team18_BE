@@ -1,6 +1,5 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;

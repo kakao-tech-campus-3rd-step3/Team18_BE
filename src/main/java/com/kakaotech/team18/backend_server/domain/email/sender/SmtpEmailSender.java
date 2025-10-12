@@ -42,7 +42,6 @@ public class SmtpEmailSender implements EmailSender {
             mailSender.send(mime);
         } catch (Exception e) {
             log.info("Email sent failed: replyTo={} to={}", replyTo, to);
-            throw new RuntimeException("SMTP send failed", e);
             if (SmtpFailureClassifier.isTemporary(e)) {
                 throw new RetryableEmailException("Temporary email failure, will retry", e);
             }

@@ -389,7 +389,7 @@ class EmailServiceUnitTest {
 
         when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
-        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, null))
+        when(applicationRepository.findByClubApplyForm_Club_Id(clubId))
                 .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("공지 메시지");
@@ -505,7 +505,7 @@ class EmailServiceUnitTest {
         Application appPending = mock(Application.class);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
 
-        when(applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, null))
+        when(applicationRepository.findByClubApplyForm_Club_Id(clubId))
                 .thenReturn(List.of(appPending));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
