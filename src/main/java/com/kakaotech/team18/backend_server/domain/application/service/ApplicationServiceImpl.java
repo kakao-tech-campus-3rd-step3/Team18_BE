@@ -6,6 +6,8 @@ import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerReposi
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
@@ -303,8 +305,6 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
 
-        List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
-
         ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> {
                             log.warn("ClubApplyForm not found, clubId={}", clubId);
@@ -313,6 +313,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 );
 
         if(stage == Stage.INTERVIEW) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -345,6 +346,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == Stage.FINAL) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -375,6 +377,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == null) {
+            List<Application> apps = applicationRepository.findByClubApplyForm_Club_Id(clubId);
             boolean hasPending = apps.stream()
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {
