@@ -83,7 +83,8 @@ public class ClubServiceImpl implements ClubService {
     }
 
     @Override
-    public SuccessResponseDto updateClubDetail(Long clubId, @Valid ClubDetailRequestDto dto){
+    @Transactional
+    public SuccessResponseDto updateClubDetail(Long clubId, ClubDetailRequestDto dto){
         log.info("getClubDetail called with clubId={}", clubId);
         Club findClub = clubRepository.findClubDetailById(clubId)
                 .orElseThrow(() -> {
