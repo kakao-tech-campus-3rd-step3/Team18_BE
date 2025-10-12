@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.domain.application.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
@@ -290,6 +292,110 @@ public class ApplicationServiceImpl implements ApplicationService {
         // 4) 일괄 저장
         answerRepository.saveAll(toSave);
         return emailLines;
+    }
+
+    @Transactional
+    @Override
+    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
+
+        List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
+
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                            log.warn("ClubApplyForm not found, clubId={}", clubId);
+                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                        }
+                );
+
+        if(stage == Stage.INTERVIEW) {
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            form.updateInterviewMessage(requestDto.message());
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                a.updateStage(Stage.FINAL);
+                a.updateStatus(Status.PENDING);
+                publisher.publishEvent(new InterviewApprovedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                publisher.publishEvent(new InterviewRejectedEvent(
+                        a.getClubApplyForm().getClub(),
+                        a.getUser()));
+            }
+            applicationRepository.deleteAllInBatch(rejected);
+        }
+        if(stage == Stage.FINAL) {
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            form.updateFinalMessage(requestDto.message());
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                publisher.publishEvent(new FinalApprovedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                publisher.publishEvent(new FinalRejectedEvent(
+                        a.getClubApplyForm().getClub(),
+                        a.getUser()));
+            }
+            applicationRepository.deleteAllInBatch(rejected);
+        }
+        if(stage == null) {
+            boolean hasPending = apps.stream()
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                publisher.publishEvent(new FinalApprovedEvent(
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                publisher.publishEvent(new FinalRejectedEvent(
+                        a.getClubApplyForm().getClub(),
+                        a.getUser()));
+            }
+            applicationRepository.deleteAllInBatch(rejected);
+        }
+        return new SuccessResponseDto(true);
     }
 
     //helper methods
