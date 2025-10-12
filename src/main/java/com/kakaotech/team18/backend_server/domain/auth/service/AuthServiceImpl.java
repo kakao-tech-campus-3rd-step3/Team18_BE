@@ -7,11 +7,14 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
+import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +39,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RestClient restClient;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtProperties jwtProperties;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -75,6 +80,10 @@ public class AuthServiceImpl implements AuthService {
             // 정식 토큰 발급
             String accessToken = jwtProvider.createAccessToken(user);
             String refreshToken = jwtProvider.createRefreshToken(user);
+
+            // Redis에 Refresh Token 저장
+            refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+            log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
             return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken);
         } else {
@@ -143,6 +152,10 @@ public class AuthServiceImpl implements AuthService {
         // 4. 정식 토큰 발급
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);
+
+        // Redis에 Refresh Token 저장
+        refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+        log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
         return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken);
     }
