@@ -127,6 +127,7 @@ class ClubControllerTest {
         long clubId = 1L;
 
         ClubDetailResponseDto expected = ClubDetailResponseDto.builder()
+                .clubId(clubId)
                 .clubName("카태켐")
                 .location("공대7호관 201호")
                 .category(LITERATURE)
@@ -149,7 +150,8 @@ class ClubControllerTest {
         //when //then
         mockMvc.perform(get("/api/clubs/{clubId}", clubId))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clubId").value(clubId));
     }
 
     @DisplayName("동아리 대쉬보드 페이지를 조회한다.")
