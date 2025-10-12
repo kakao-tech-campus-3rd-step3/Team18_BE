@@ -192,6 +192,7 @@ public class ClubServiceMockTest {
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
 
             ClubDetailResponseDto expect = new ClubDetailResponseDto(
+                    1L,
                     "카태켐",
                     "공7 1호관",
                     Category.LITERATURE,
