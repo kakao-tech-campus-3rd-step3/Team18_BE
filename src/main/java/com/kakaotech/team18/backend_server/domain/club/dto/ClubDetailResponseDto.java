@@ -16,6 +16,7 @@ import lombok.Builder;
 @Builder
 @Schema(description = "동아리 상세 정보 응답 데이터")
 public record ClubDetailResponseDto(
+        @Schema(description = "동아리 ID", example = "1") Long clubId,
         @Schema(description = "동아리 이름", example = "개발하는 사람들") String clubName,
         @Schema(description = "주요 활동 장소", example = "학생회관 101호") String location,
         @Schema(description = "동아리 카테고리", example = "STUDY") Category category,
@@ -37,6 +38,7 @@ public record ClubDetailResponseDto(
         Optional<ClubIntroduction> clubIntroduction = Optional.ofNullable(club.getIntroduction());
 
         return ClubDetailResponseDto.builder().
+                clubId(club.getId()).
                 clubName(club.getName()).
                 location(club.getLocation()).
                 category(club.getCategory()).
