@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.dto;
+package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.entity;
+package com.kakaotech.team18.backend_server.domain.formQuestion.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;

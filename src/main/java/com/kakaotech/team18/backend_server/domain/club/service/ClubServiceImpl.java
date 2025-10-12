@@ -96,8 +96,8 @@ public class ClubServiceImpl implements ClubService {
         return new ClubDashBoardResponseDto(
                 applicantList.size(),
                 pendingApplication.size(),
-                club.getRecruitStart().toLocalDate().toString(),
-                club.getRecruitEnd().toLocalDate().toString(),
+                club.getRecruitStart().toLocalDate(),
+                club.getRecruitEnd().toLocalDate(),
                 applicantList.stream()
                         .map(ApplicantResponseDto::from)
                         .toList());

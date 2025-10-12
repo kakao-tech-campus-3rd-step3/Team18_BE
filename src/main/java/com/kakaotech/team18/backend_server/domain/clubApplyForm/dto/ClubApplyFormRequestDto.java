@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.dto;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

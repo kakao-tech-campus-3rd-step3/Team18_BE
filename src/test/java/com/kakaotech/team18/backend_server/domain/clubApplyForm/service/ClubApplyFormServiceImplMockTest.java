@@ -9,14 +9,14 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.Mockito.mock;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionRequestDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionResponseDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.dto.TimeSlotOptionRequestDto;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.TimeSlotOption;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
+import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
@@ -193,7 +193,7 @@ class ClubApplyFormServiceImplMockTest {
                 "수정된 지원서 제목",
                 "수정된 지원서 설명",
                 List.of(
-                        new com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto(
+                        new com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto(
                                 1L,
                                 "수정된 질문 1",
                                 FieldType.TEXT,
@@ -202,7 +202,7 @@ class ClubApplyFormServiceImplMockTest {
                                 null,
                                 null
                         ),
-                        new com.kakaotech.team18.backend_server.domain.FormQuestion.dto.FormQuestionUpdateDto(
+                        new com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto(
                                 null,
                                 "새로운 질문 3",
                                 FieldType.CHECKBOX,

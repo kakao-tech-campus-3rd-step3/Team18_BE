@@ -16,7 +16,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;

@@ -3,28 +3,19 @@ package com.kakaotech.team18.backend_server.domain.application.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
-import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -38,9 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -61,7 +51,6 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
-    private final ClubRepository clubRepository;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -222,34 +211,27 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .filter(Objects::nonNull)
                 .filter(a -> a.questionNum() != null)
                 .collect(Collectors.toMap(
-                        ApplicationApplyRequestDto.AnswerDto::questionNum,
-                        ApplicationApplyRequestDto.AnswerDto::answer,
-                        (prev, next) -> next
+                        AnswerDto::questionNum,
+                        AnswerDto::answer
                 ));
 
         // 1) 폼의 질문을 표시순서대로 조회
-        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);
+        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);//해당 formId에 있는 질문만 조회
 
         // 2) 문항-답변 매칭(displayOrder 기반)
         List<Answer> toSave = new ArrayList<>(questions.size());
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
+        log.info("payload keys={}", byQuestionNum.keySet());
+
         for (FormQuestion q : questions) {
             Long disp = q.getDisplayOrder();
-
-            JsonNode raw = byQuestionNum.get(disp);
-
-            if (raw == null && disp != null && disp > 0) {
-                raw = byQuestionNum.get(disp - 1);
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("문항 매칭: displayOrder={}, payloadKeys={}, hitZeroBasedFallback={}",
-                        disp, byQuestionNum.keySet(), (raw != null && !byQuestionNum.containsKey(disp)));
-            }
+            JsonNode raw = byQuestionNum.get(disp-1);
 
             List<String> rawValues = extractTextValues(raw);
             String normalized = coerceForFieldType(q, rawValues);
+
+            log.info("Q(disp={}, id={}, type={}, req={}): raw={}, rawValues={}, normalized='{}'",disp, q.getId(), q.getFieldType(), q.getIsRequired(), raw, rawValues, normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
@@ -310,111 +292,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         return emailLines;
     }
 
-    @Transactional
-    @Override
-    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
-
-        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
-                .orElseThrow(() -> {
-                            log.warn("ClubApplyForm not found, clubId={}", clubId);
-                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
-                        }
-                );
-
-        if(stage == Stage.INTERVIEW) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
-            boolean hasPending = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .anyMatch(a -> a.getStatus() == Status.PENDING);
-            if (hasPending) {
-                throw new PendingApplicationsExistException();
-            }
-            form.updateInterviewMessage(requestDto.message());
-            List<Application> approved = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .filter(a -> a.getStatus() == Status.APPROVED)
-                    .toList();
-            List<Application> rejected = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .filter(a -> a.getStatus() == Status.REJECTED)
-                    .toList();
-            for(Application a : approved) {
-                a.updateStage(Stage.FINAL);
-                a.updateStatus(Status.PENDING);
-                publisher.publishEvent(new InterviewApprovedEvent(
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        a.getStage()));
-            }
-            for(Application a : rejected) {
-                publisher.publishEvent(new InterviewRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
-            }
-            applicationRepository.deleteAllInBatch(rejected);
-        }
-        if(stage == Stage.FINAL) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_IdAndStage(clubId, stage);
-            boolean hasPending = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .anyMatch(a -> a.getStatus() == Status.PENDING);
-            if (hasPending) {
-                throw new PendingApplicationsExistException();
-            }
-            form.updateFinalMessage(requestDto.message());
-            List<Application> approved = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .filter(a -> a.getStatus() == Status.APPROVED)
-                    .toList();
-            List<Application> rejected = apps.stream()
-                    .filter(a -> a.getStage() == stage)
-                    .filter(a -> a.getStatus() == Status.REJECTED)
-                    .toList();
-            for(Application a : approved) {
-                publisher.publishEvent(new FinalApprovedEvent(
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        a.getStage()));
-            }
-            for(Application a : rejected) {
-                publisher.publishEvent(new FinalRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
-            }
-            applicationRepository.deleteAllInBatch(rejected);
-        }
-        if(stage == null) {
-            List<Application> apps = applicationRepository.findByClubApplyForm_Club_Id(clubId);
-            boolean hasPending = apps.stream()
-                    .anyMatch(a -> a.getStatus() == Status.PENDING);
-            if (hasPending) {
-                throw new PendingApplicationsExistException();
-            }
-            List<Application> approved = apps.stream()
-                    .filter(a -> a.getStatus() == Status.APPROVED)
-                    .toList();
-            List<Application> rejected = apps.stream()
-                    .filter(a -> a.getStatus() == Status.REJECTED)
-                    .toList();
-            for(Application a : approved) {
-                publisher.publishEvent(new FinalApprovedEvent(
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        a.getStage()));
-            }
-            for(Application a : rejected) {
-                publisher.publishEvent(new FinalRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
-            }
-            applicationRepository.deleteAllInBatch(rejected);
-        }
-        return new SuccessResponseDto(true);
-    }
-
     //helper methods
 
     private List<String> extractTextValues(JsonNode node) {
@@ -431,10 +308,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                     out.add(item.asText());
                 } else if (item.isObject()) {
                     JsonNode v = firstByCommonKeys(item);
-                    if (nonNull(v)) {
+                    if (v != null) {
                         if (v.isArray()) out.addAll(extractTextValues(v));
                         else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
+                        else {
+                            collectStringLeaves(v, out, 100);
+                        }
+                    } else {
+                        collectStringLeaves(item, out, 100);
                     }
+                } else {
+                    out.addAll(extractTextValues(item));
                 }
             }
             return out;
@@ -488,6 +372,39 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
+
+    private String reassembleTimeSlots(List<String> vals) {
+        if (vals == null || vals.isEmpty()) return "";
+
+        boolean alreadyCombined = vals.stream().anyMatch(s -> s.contains(" ") && TR.matcher(s).find());
+        if (alreadyCombined) return String.join(",", vals);
+
+        List<String> out = new ArrayList<>();
+        String currentDate = null;
+
+        for (String raw : vals) {
+            String s = normalize(raw);
+            if (s.isEmpty()) continue;
+
+            boolean looksDate = DATE.matcher(s).matches();
+            boolean looksTimeRange = TR.matcher(s).matches();
+
+            if (looksDate) {
+                currentDate = s;
+                continue;
+            }
+            if (looksTimeRange) {
+                out.add(currentDate != null ? (currentDate + " " + s) : s);
+                continue;
+            }
+            out.add(s);
+        }
+        return String.join(",", out);
+    }
+
+
     private String coerceForFieldType(FormQuestion q, List<String> rawValues) {
         List<String> vals = rawValues.stream()
                 .map(this::normalize)
@@ -501,8 +418,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             case RADIO -> {
                 return vals.isEmpty() ? "" : vals.get(0);
             }
-            case CHECKBOX, TIME_SLOT -> {
+            case CHECKBOX -> {
                 return String.join(",", vals);
+            }
+            case TIME_SLOT -> {
+                return reassembleTimeSlots(vals);
             }
             default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
         }
@@ -524,4 +444,5 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .distinct()
                 .toList();
     }
+
 }

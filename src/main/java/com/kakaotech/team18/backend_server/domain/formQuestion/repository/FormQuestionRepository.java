@@ -1,6 +1,6 @@
-package com.kakaotech.team18.backend_server.domain.FormQuestion.repository;
+package com.kakaotech.team18.backend_server.domain.formQuestion.repository;
 
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
