@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -12,6 +13,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
@@ -28,6 +30,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -242,6 +245,108 @@ public class ClubServiceMockTest {
 
         //then
         verifyNoInteractions(clubMemberRepository);
+    }
+
+    @Test
+    @DisplayName("동아리 상세 업데이트: 기존 Introduction을 새 값으로 교체 (이미지 포함)")
+    void updateClubDetail_replaceIntroduction_allNew() {
+        // given
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg", "old2.jpg")
+        );
+
+        given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+
+        ClubDetailRequestDto dto = ClubDetailRequestDto.builder()
+                .clubName("새로운동아리")
+                .category(Category.SPORTS)
+                .location("인문대 2호관")
+                .shortIntroduction("new short")
+                .introductionOverview("new overview")
+                .introductionActivity("new activity")
+                .introductionIdeal("new ideal")
+                .introductionImages(List.of("n1.png", "n2.png", "n1.png"))
+                .applicationNotices("주의사항")
+                .recruitStart(LocalDateTime.of(2025, 10, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 10, 31, 23, 59))
+                .regularMeetingInfo("매주 수 18:00")
+                .build();
+
+        // when
+        SuccessResponseDto res = clubService.updateClubDetail(1L, dto);
+
+        // then
+        assertThat(res.success()).isTrue();
+
+        assertThat(club.getName()).isEqualTo("새로운동아리");
+        assertThat(club.getCategory()).isEqualTo(Category.SPORTS);
+        assertThat(club.getLocation()).isEqualTo("인문대 2호관");
+        assertThat(club.getShortIntroduction()).isEqualTo("new short");
+        assertThat(club.getCaution()).isEqualTo("주의사항");
+        assertThat(club.getRecruitStart()).isEqualTo(LocalDateTime.of(2025, 10, 1, 0, 0));
+        assertThat(club.getRecruitEnd()).isEqualTo(LocalDateTime.of(2025, 10, 31, 23, 59));
+        assertThat(club.getRegularMeetingInfo()).isEqualTo("매주 수 18:00");
+
+        // introduction 교체 확인
+        assertThat(club.getIntroduction()).isNotNull();
+        assertThat(club.getIntroduction().getOverview()).isEqualTo("new overview");
+        assertThat(club.getIntroduction().getActivities()).isEqualTo("new activity");
+        assertThat(club.getIntroduction().getIdeal()).isEqualTo("new ideal");
+
+        // 이미지 세팅 확인
+        assertThat(club.getIntroduction().getImages()).hasSize(3);
+        assertThat(club.getIntroduction().getImages())
+                .extracting(ClubImage::getImageUrl)
+                .containsExactly("n1.png", "n2.png", "n1.png");
+
+        // repository.save 호출이 없다면(더티체킹 전략) 이 검증은 생략 가능
+        //then(clubRepository).should().findClubDetailById(1L);
+        //then(clubRepository).shouldHaveNoMoreInteractions();
+    }
+    private Club sampleClubWithIntroduction(
+            String name,
+            Category category,
+            String location,
+            String shortIntro,
+            String overview,
+            String activity,
+            String ideal,
+            List<String> imageUrls
+    ) {
+        Club club = Club.builder()
+                .name(name)
+                .category(category)
+                .location(location)
+                .shortIntroduction(shortIntro)
+                .regularMeetingInfo("수 18:00")
+                .build();
+
+        ClubIntroduction intro = ClubIntroduction.builder()
+                .overview(overview)
+                .activities(activity)
+                .ideal(ideal)
+                .build();
+
+        for (String url : imageUrls) {
+            intro.addImage(ClubImage.builder().imageUrl(url).build());
+        }
+
+        club.updateDetail(
+                ClubDetailRequestDto.builder()
+                        .clubName(name)
+                        .category(category)
+                        .location(location)
+                        .shortIntroduction(shortIntro)
+                        .introductionOverview(overview)
+                        .introductionActivity(activity)
+                        .introductionIdeal(ideal)
+                        .introductionImages(imageUrls)
+                        .regularMeetingInfo("수 18:00")
+                        .build()
+        );
+        return club;
     }
 
 
