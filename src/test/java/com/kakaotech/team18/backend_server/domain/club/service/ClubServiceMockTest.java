@@ -7,11 +7,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
@@ -73,7 +76,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.PENDING);
+        Application application = createApplication(user, clubApplyForm, Status.PENDING, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -85,9 +88,8 @@ public class ClubServiceMockTest {
 
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1, 1,
                 LocalDate.of(2025, 9, 3),
-                LocalDate.of(2025, 9, 20),
-                List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678",
-                        "123@email.com", Status.PENDING)));
+                LocalDate.of(2025, 9, 20));
+                //List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678","123@email.com", Status.PENDING)));
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -111,7 +113,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.APPROVED);
+        Application application = createApplication(user, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -122,8 +124,9 @@ public class ClubServiceMockTest {
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
 
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(0, 0, LocalDate.of(2025, 9, 3),
-                LocalDate.of(2025, 9, 20),
-                List.of());
+                LocalDate.of(2025, 9, 20)
+                //List.of()
+        );
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -149,7 +152,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.APPROVED);
+        Application application = createApplication(user, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -248,19 +251,25 @@ public class ClubServiceMockTest {
     @DisplayName("지원자의 지원 상태에 따라 지원자를 필터링해 조회할 수 있다.")
     @ParameterizedTest
     @MethodSource("provideStatusAndClubMembers")
-    void viewApplicantsByFilter(Status status, List<ClubMember> mockResult, int expectedSize) {
+    void viewApplicantsByFilter(Status status, List<ClubMember> mockResult, int expectedSize, Stage stage) {
         // given
         Long clubId = 1L;
-        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(
-                eq(clubId), eq(Role.APPLICANT), eq(status)))
+
+        Club club = mock(Club.class);
+        when(club.getId()).thenReturn(clubId);
+        given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(mock(ClubApplyForm.class)));
+
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(
+                eq(clubId), eq(Role.APPLICANT), eq(status), eq(stage)))
                 .willReturn(mockResult);
 
         // when
-        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, status);
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(clubId, status, stage);
 
         // then
-        assertThat(actual).hasSize(expectedSize);
-        assertThat(actual).allMatch(dto -> dto.status().equals(status));
+        assertThat(actual.applicants()).hasSize(expectedSize);
+        assertThat(actual.applicants()).allMatch(dto -> dto.status().equals(status));
     }
 
     private static Stream<Arguments> provideStatusAndClubMembers() {
@@ -274,19 +283,19 @@ public class ClubServiceMockTest {
         User user3 = createUser("loginId3", "333333");
 
         ClubMember clubMember1 = createClubMember(user1, club,
-                createApplication(user1, clubApplyForm, Status.PENDING),
+                createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember2 = createClubMember(user2, club,
-                createApplication(user2, clubApplyForm, Status.PENDING),
+                createApplication(user2, clubApplyForm, Status.PENDING, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember3 = createClubMember(user3, club,
-                createApplication(user3, clubApplyForm, Status.REJECTED),
+                createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
 
         return Stream.of(
-                Arguments.of(Status.PENDING, List.of(clubMember1, clubMember2), 2),
-                Arguments.of(Status.REJECTED, List.of(clubMember3), 1),
-                Arguments.of(Status.APPROVED, List.of(), 0)
+                Arguments.of(Status.PENDING, List.of(clubMember1, clubMember2), 2, Stage.INTERVIEW),
+                Arguments.of(Status.REJECTED, List.of(clubMember3), 1, Stage.INTERVIEW),
+                Arguments.of(Status.APPROVED, List.of(), 0, Stage.INTERVIEW)
         );
     }
 
@@ -296,17 +305,22 @@ public class ClubServiceMockTest {
         //given
         Long clubId = 1L;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", clubId);
+
         User user1 = createUser( "loginId1", "111111");
         User user2 = createUser( "loginId2", "222222");
         User user3 = createUser( "loginId3", "333333");
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
 
-        ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
+
+        given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
+        given(clubApplyFormRepository.findByClubId(eq(clubId))).willReturn(Optional.of(clubApplyForm));
 
         // club -> clubMember -> user -> application
-        given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember1, clubMember2, clubMember3));
+        given(clubMemberRepository.findByClubIdAndRoleAndStage(eq(clubId), eq(Role.APPLICANT), eq(Stage.INTERVIEW))).willReturn(List.of(clubMember1, clubMember2, clubMember3));
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
@@ -318,10 +332,10 @@ public class ClubServiceMockTest {
         );
 
         //when
-        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, null);
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(1L, null, Stage.INTERVIEW);
 
         //then
-        assertThat(actual).isEqualTo(expect);
+        assertThat(actual.applicants()).isEqualTo(expect);
     }
 
 
@@ -388,11 +402,12 @@ public class ClubServiceMockTest {
                 .build();
     }
 
-    private static Application createApplication(User user, ClubApplyForm clubApplyForm, Status status) {
+    private static Application createApplication(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
         return Application.builder()
                 .user(user)
                 .clubApplyForm(clubApplyForm)
                 .status(status)
+                .stage(stage)
                 .build();
     }
 

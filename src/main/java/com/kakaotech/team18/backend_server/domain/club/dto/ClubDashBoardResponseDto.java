@@ -15,8 +15,6 @@ public record ClubDashBoardResponseDto(
         @Schema(description = "모집 시작일 (yyyy-MM-dd 형식)", example = "2024-09-01")
         LocalDate startDay,
         @Schema(description = "모집 마감일 (yyyy-MM-dd 형식)", example = "2024-09-15")
-        LocalDate endDay,
-        @Schema(description = "지원자 목록")
-        List<ApplicantResponseDto> applicants
+        LocalDate endDay
 ) {
 }

@@ -2,8 +2,10 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
@@ -95,27 +97,39 @@ public class ClubServiceImpl implements ClubService {
                 applicantList.size(),
                 pendingApplication.size(),
                 club.getRecruitStart().toLocalDate(),
-                club.getRecruitEnd().toLocalDate(),
-                applicantList.stream()
-                        .map(ApplicantResponseDto::from)
-                        .toList());
+                club.getRecruitEnd().toLocalDate());
     }
 
     @Override
-    public List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status) {
+    public ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage) {
+        List<ClubMember> applicants;
+        String message;
         if (status != null) {
-            List<ClubMember> filteredApplicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, status);
-            return filteredApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(clubId, Role.APPLICANT, status, stage);
         } else {
-            List<ClubMember> allApplicants = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
-            return allApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
         }
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        ClubApplyForm clubApplyForm = clubApplyFormRepository
+                .findByClubId(club.getId()).orElseThrow(() -> {
+                    log.warn("ClubApplyForm not found for id={}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
+        if (stage == Stage.INTERVIEW){
+            message = clubApplyForm.getInterviewMessage();
+        } else {
+            message = clubApplyForm.getFinalMessage();
+        }
+        return new ClubDashboardApplicantResponseDto(
+                applicants
+                        .stream()
+                        .map(ApplicantResponseDto::from)
+                        .toList(),
+                message);
     }
 
     // ---- private helpers ----
