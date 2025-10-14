@@ -13,6 +13,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefres
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
+import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.BeforeEach;
@@ -309,7 +310,7 @@ class AuthServiceImplTest {
         );
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary");
+        claims.setSubject(TokenType.TEMPORARY.name());
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -350,7 +351,7 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary");
+        claims.setSubject(TokenType.TEMPORARY.name());
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -392,7 +393,7 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary"); // subject를 "temporary"로 설정
+        claims.setSubject(TokenType.TEMPORARY.name()); // subject를 "TEMPORARY"로 설정
         claims.put("kakaoId", attackerKakaoId); // kakaoId 클레임 추가
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);

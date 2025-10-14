@@ -21,6 +21,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.Unauthent
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
+import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -113,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         Claims claims = jwtProvider.verify(temporaryToken);
 
         // 1-1. 토큰 타입 검증: 이 토큰이 '임시 토큰'이 맞는지 확인
-        if (!"temporary".equals(claims.getSubject())) {
+        if (!TokenType.TEMPORARY.name().equals(claims.getSubject())) {
             throw new UnauthenticatedUserException("회원가입에는 임시 토큰이 필요합니다.");
         }
 
@@ -175,7 +176,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 3. 토큰 타입 검증
         String tokenType = claims.get("tokenType", String.class);
-        if (!"REFRESH".equals(tokenType)) {
+        if (!TokenType.REFRESH.name().equals(tokenType)) {
             log.warn("Refresh Token 재발급 시도 실패: 토큰 타입이 REFRESH가 아님");
             throw new NotRefreshTokenException();
         }
