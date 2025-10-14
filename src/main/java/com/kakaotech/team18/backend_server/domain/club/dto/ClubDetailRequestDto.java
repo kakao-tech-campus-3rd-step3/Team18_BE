@@ -4,10 +4,8 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Builder;
-
-import java.time.LocalDateTime;
 import java.util.List;
+import lombok.Builder;
 
 @Builder
 @Schema(description = "동아리 상세 정보 등록/수정 요청 데이터")
@@ -54,14 +52,6 @@ public record ClubDetailRequestDto(
         @Schema(description = "등록/수정할 동아리 지원 유의사항", example = "지원 시 유의사항을 반드시 확인해주세요.")
         @NotBlank(message = "지원 유의사항은 필수입니다.")
         String caution,
-
-        @Schema(description = "모집 시작일")
-        @NotNull(message = "모집 시작일은 필수입니다.")
-        LocalDateTime recruitStart,
-
-        @Schema(description = "모집 마감일")
-        @NotNull(message = "모집 마감일은 필수입니다.")
-        LocalDateTime recruitEnd,
 
         String recruitStatus,
 
