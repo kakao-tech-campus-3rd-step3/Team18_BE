@@ -82,7 +82,7 @@ public class Club extends BaseEntity {
         this.category = dto.category();
         this.location = dto.location();
         this.shortIntroduction = dto.shortIntroduction();
-        this.caution = dto.applicationNotices();
+        this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
         this.introduction = buildNewIntroduction(dto);
     }

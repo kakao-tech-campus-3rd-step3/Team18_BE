@@ -57,5 +57,5 @@ public record ClubDetailRequestDto(
 
         @Schema(description = "등록/수정할 동아리 지원 유의사항", example = "지원 시 유의사항을 반드시 확인해주세요.")
         @NotBlank(message = "지원 유의사항은 필수입니다.")
-        String applicationNotices
+        String applicationNotice
 ) {}
