@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -269,8 +268,6 @@ public class ClubServiceMockTest {
                 .introductionIdeal("new ideal")
                 .introductionImages(List.of("n1.png", "n2.png", "n1.png"))
                 .applicationNotices("주의사항")
-                .recruitStart(LocalDateTime.of(2025, 10, 1, 0, 0))
-                .recruitEnd(LocalDateTime.of(2025, 10, 31, 23, 59))
                 .regularMeetingInfo("매주 수 18:00")
                 .build();
 
@@ -285,8 +282,6 @@ public class ClubServiceMockTest {
         assertThat(club.getLocation()).isEqualTo("인문대 2호관");
         assertThat(club.getShortIntroduction()).isEqualTo("new short");
         assertThat(club.getCaution()).isEqualTo("주의사항");
-        assertThat(club.getRecruitStart()).isEqualTo(LocalDateTime.of(2025, 10, 1, 0, 0));
-        assertThat(club.getRecruitEnd()).isEqualTo(LocalDateTime.of(2025, 10, 31, 23, 59));
         assertThat(club.getRegularMeetingInfo()).isEqualTo("매주 수 18:00");
 
         // introduction 교체 확인
