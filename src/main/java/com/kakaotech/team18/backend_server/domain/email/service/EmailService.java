@@ -12,6 +12,8 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +39,7 @@ public class EmailService {
         this.clubMemberRepository = clubMemberRepository;
     }
 
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendToApplicant(Application application, List<AnswerEmailLine> emailLines) {
 
         Long clubId = application.getClubApplyForm().getClub().getId();

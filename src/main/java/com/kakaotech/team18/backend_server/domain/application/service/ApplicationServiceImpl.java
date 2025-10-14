@@ -113,7 +113,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new SuccessResponseDto(true);
     }
 
-    @Transactional
+
     @Override
     public ApplicationApplyResponseDto submitApplication(
             Long clubId,
