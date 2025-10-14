@@ -25,12 +25,8 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFo
 
 import java.util.Collections;
 import java.util.List;
-
-import jakarta.validation.Valid;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.info.ProjectInfoProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
