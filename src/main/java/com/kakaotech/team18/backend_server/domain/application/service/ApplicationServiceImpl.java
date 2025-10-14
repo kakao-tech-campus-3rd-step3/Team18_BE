@@ -115,7 +115,6 @@ public class ApplicationServiceImpl implements ApplicationService {
 
 
     @Override
-    @Transactional(readOnly = true)
     public ApplicationApplyResponseDto submitApplication(
             Long clubId,
             ApplicationApplyRequestDto request,

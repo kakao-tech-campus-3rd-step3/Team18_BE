@@ -22,7 +22,8 @@ public class ApplicationNotificationListener {
 
     // 트랜잭션이 커밋된 뒤에만 이 메서드가 호출됨
     @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(readOnly = true)
+    //@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSubmitted(ApplicationSubmittedEvent event) {
         Application application = applicationRepository.findById(event.applicationId()).orElse(null);
         if (application == null) return;
