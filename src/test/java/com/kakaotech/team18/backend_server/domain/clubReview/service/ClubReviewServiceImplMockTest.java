@@ -3,18 +3,15 @@ package com.kakaotech.team18.backend_server.domain.clubReview.service;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
-import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember.ClubMemberBuilder;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.entity.ClubReview;
@@ -31,9 +28,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
+@ActiveProfiles("test")
 class ClubReviewServiceImplMockTest {
 
     @Mock
@@ -140,5 +139,4 @@ class ClubReviewServiceImplMockTest {
         then(clubRepository).should(never()).findById(any(Long.class));
         then(clubReviewRepository).should(never()).save(any(ClubReview.class));
     }
-
 }
