@@ -13,6 +13,9 @@ import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRe
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
@@ -174,7 +177,7 @@ public class AuthServiceImpl implements AuthService {
         String tokenType = claims.get("tokenType", String.class);
         if (!"REFRESH".equals(tokenType)) {
             log.warn("Refresh Token 재발급 시도 실패: 토큰 타입이 REFRESH가 아님");
-            throw new UnauthenticatedUserException("Refresh Token이 아닙니다.");
+            throw new NotRefreshTokenException();
         }
 
         // 4. 사용자 ID 추출
@@ -182,11 +185,11 @@ public class AuthServiceImpl implements AuthService {
 
         // 5. Redis에 저장된 토큰과 일치하는지 검증
         RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
-                .orElseThrow(() -> new UnauthenticatedUserException("로그아웃된 사용자이거나 유효하지 않은 토큰입니다."));
+                .orElseThrow(LoggedOutUserException::new);
 
         if (!storedRefreshToken.getRefreshToken().equals(refreshToken)) {
             log.warn("Refresh Token 재발급 시도 실패: Redis에 저장된 토큰과 불일치. userId={}", userId);
-            throw new UnauthenticatedUserException("유효하지 않은 Refresh Token입니다.");
+            throw new InvalidRefreshTokenException();
         }
 
         // 6. 사용자 정보 조회
