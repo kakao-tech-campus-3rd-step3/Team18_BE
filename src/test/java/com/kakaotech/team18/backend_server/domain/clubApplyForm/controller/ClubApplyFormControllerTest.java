@@ -242,6 +242,27 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(동아리 시작일이 마감일보다 이전인 경우 400 응답)")
+    @Test
+    void timeSlotQuestionWithWrongClubPeriod() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "테스트 지원서",
+                "설명",
+                LocalDateTime.of(2025, 10, 31, 0, 0),
+                LocalDateTime.of(2025, 10, 1, 23, 59),
+                List.of(new FormQuestionRequestDto("면접 가능한 시간대를 선택해 주세요.", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     @DisplayName("동아리 지원서 수정 API 호출 - 성공")
     @Test
     void updateClubApplyForm() throws Exception {
