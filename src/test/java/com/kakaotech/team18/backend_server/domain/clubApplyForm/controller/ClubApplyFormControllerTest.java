@@ -242,9 +242,9 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    @DisplayName("동아리 지원서 저장 API 호출 - 실패(동아리 시작일이 마감일보다 이전인 경우 400 응답)")
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(동아리 마감일이 시작일보다 이전인 경우 400 응답)")
     @Test
-    void timeSlotQuestionWithWrongClubPeriod() throws Exception {
+    void createClubApplyForm_invalidRecruitmentPeriod() throws Exception {
         Long clubId = 1L;
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
