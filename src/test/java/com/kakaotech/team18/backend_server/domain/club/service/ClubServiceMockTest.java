@@ -269,7 +269,7 @@ public class ClubServiceMockTest {
                 .introductionActivity("new activity")
                 .introductionIdeal("new ideal")
                 .introductionImages(List.of("n1.png", "n2.png", "n1.png"))
-                .applicationNotices("주의사항")
+                .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
                 .build();
 
