@@ -39,7 +39,7 @@ public class EmailService {
         this.clubMemberRepository = clubMemberRepository;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    //@Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendToApplicant(Application application, List<AnswerEmailLine> emailLines) {
 
         Long clubId = application.getClubApplyForm().getClub().getId();
