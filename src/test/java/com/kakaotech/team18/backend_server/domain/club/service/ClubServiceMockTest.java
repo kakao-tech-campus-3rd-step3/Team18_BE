@@ -89,7 +89,7 @@ public class ClubServiceMockTest {
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of(application));
 
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1, 1,
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L,1, 1,
                 LocalDate.of(2025, 9, 3),
                 LocalDate.of(2025, 9, 20));
                 //List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678","123@email.com", Status.PENDING)));
@@ -126,7 +126,7 @@ public class ClubServiceMockTest {
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
 
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(0, 0, LocalDate.of(2025, 9, 3),
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0, LocalDate.of(2025, 9, 3),
                 LocalDate.of(2025, 9, 20)
                 //List.of()
         );
