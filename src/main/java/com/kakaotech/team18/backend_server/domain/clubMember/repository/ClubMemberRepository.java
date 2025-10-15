@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import jakarta.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -68,4 +69,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     Optional<User> findUserByClubIdAndRoleAndStatus(Long clubId, Role role, ActiveStatus status);
 
     List<ClubMember> findByClubId(Long clubId);
+
+    Optional<ClubMember> findByClubIdAndUserStudentId(Long clubId, String studentId);
 }

@@ -68,6 +68,7 @@ class ClubReviewServiceImplMockTest {
                 .build();
 
         given(clubMemberRepository.findByClubId(clubId)).willReturn(List.of(clubMember));
+        given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId)).willReturn(Optional.of(clubMember));
         given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
         given(clubReviewRepository.save(any(ClubReview.class))).willReturn(clubReview);
 
@@ -102,6 +103,7 @@ class ClubReviewServiceImplMockTest {
                 .writer(requestDto.studentId())
                 .build();
         given(clubMemberRepository.findByClubId(clubId)).willReturn(List.of(clubMember));
+        given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId)).willReturn(Optional.of(clubMember));
         given(clubRepository.findById(clubId)).willReturn(Optional.empty());
 
         // when & then

@@ -31,8 +31,7 @@ public class ClubReviewServiceImpl implements ClubReviewService {
     @Transactional
     public SuccessResponseDto createClubReview(Long clubId, ClubReviewRequestDto request) {
         List<ClubMember> clubMembers = clubMemberRepository.findByClubId(clubId);
-        Optional<ClubMember> optionalClubMember = clubMembers.stream()
-                .filter(cm -> cm.getUser().getStudentId().equals(request.studentId())).findAny();
+        Optional<ClubMember> optionalClubMember = clubMemberRepository.findByClubIdAndUserStudentId(clubId, request.studentId());
 
         //후기 작성은 동아리 멤버만 가능
         if (optionalClubMember.isEmpty()) {
