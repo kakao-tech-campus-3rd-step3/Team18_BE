@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.clubReview;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -10,10 +11,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.clubReview.controller.ClubReviewController;
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.service.ClubReviewService;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,5 +108,44 @@ class ClubReviewControllerTest {
 
         then(clubReviewService).should(times(0)).createClubReview(clubId, requestDto);
     }
+
+    @DisplayName("동아리 후기 조회 - 성공")
+    @Test
+    void getClubReview_success() throws Exception {
+        // given
+        Long clubId = 1L;
+        ClubReviewResponseDto.Review review1 = new ClubReviewResponseDto.Review(1L, "익명1", "리뷰 내용 1", java.time.LocalDateTime.now());
+        ClubReviewResponseDto.Review review2 = new ClubReviewResponseDto.Review(2L, "익명2", "리뷰 내용 2", java.time.LocalDateTime.now());
+        ClubReviewResponseDto responseDto = new ClubReviewResponseDto(List.of(review1, review2));
+
+        given(clubReviewService.getClubReview(clubId)).willReturn(responseDto);
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/reviews", clubId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        then(clubReviewService).should(times(1)).getClubReview(clubId);
+    }
+
+    @DisplayName("동아리 후기 조회 - 후기가 없는 경우 빈 리스트 반환")
+    @Test
+    void getClubReview_noReviews_returnsEmptyList() throws Exception {
+        // given
+        Long clubId = 1L;
+        ClubReviewResponseDto responseDto = new ClubReviewResponseDto(List.of());
+
+        given(clubReviewService.getClubReview(clubId)).willReturn(responseDto);
+
+        // when & then
+        mockMvc.perform(get("/api/clubs/{clubId}/reviews", clubId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+
+        then(clubReviewService).should(times(1)).getClubReview(clubId);
+    }
+
 
 }
