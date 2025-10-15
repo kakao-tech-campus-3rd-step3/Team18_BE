@@ -67,7 +67,6 @@ class ClubReviewServiceImplMockTest {
                 .writer(requestDto.studentId())
                 .build();
 
-        given(clubMemberRepository.findByClubId(clubId)).willReturn(List.of(clubMember));
         given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId)).willReturn(Optional.of(clubMember));
         given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
         given(clubReviewRepository.save(any(ClubReview.class))).willReturn(clubReview);
@@ -102,7 +101,6 @@ class ClubReviewServiceImplMockTest {
                 .content(requestDto.content())
                 .writer(requestDto.studentId())
                 .build();
-        given(clubMemberRepository.findByClubId(clubId)).willReturn(List.of(clubMember));
         given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId)).willReturn(Optional.of(clubMember));
         given(clubRepository.findById(clubId)).willReturn(Optional.empty());
 
@@ -133,7 +131,6 @@ class ClubReviewServiceImplMockTest {
                 .user(user)
                 .club(club).build();
 
-        given(clubMemberRepository.findByClubId(clubId)).willReturn(List.of(clubMember));
 
         // when & then
         assertThatThrownBy(() -> clubReviewService.createClubReview(clubId, requestDto))
