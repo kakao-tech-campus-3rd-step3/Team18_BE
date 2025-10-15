@@ -30,7 +30,6 @@ public class ClubReviewServiceImpl implements ClubReviewService {
     @Override
     @Transactional
     public SuccessResponseDto createClubReview(Long clubId, ClubReviewRequestDto request) {
-        List<ClubMember> clubMembers = clubMemberRepository.findByClubId(clubId);
         Optional<ClubMember> optionalClubMember = clubMemberRepository.findByClubIdAndUserStudentId(clubId, request.studentId());
 
         //후기 작성은 동아리 멤버만 가능
