@@ -94,6 +94,7 @@ public class ClubServiceImpl implements ClubService {
         List<Application> pendingApplication = applicationRepository.findByClubApplyFormIdAndStatus(clubApplyForm.getId(), Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
         return new ClubDashBoardResponseDto(
+                clubId,
                 applicantList.size(),
                 pendingApplication.size(),
                 club.getRecruitStart().toLocalDate(),

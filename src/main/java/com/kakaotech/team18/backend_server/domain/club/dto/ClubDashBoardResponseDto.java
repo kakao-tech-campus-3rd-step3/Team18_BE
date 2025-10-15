@@ -8,6 +8,8 @@ import java.util.List;
 
 @Schema(description = "동아리 대시보드 조회 응답 데이터")
 public record ClubDashBoardResponseDto(
+        @Schema(description = "동아리 고유 ID", example = "1")
+        Long  clubId,
         @Schema(description = "총 지원자 수", example = "50")
         int totalApplicantCount,
         @Schema(description = "현재 대기중인 지원서 수", example = "15")

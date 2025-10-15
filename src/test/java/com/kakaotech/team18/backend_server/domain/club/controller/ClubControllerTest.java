@@ -162,7 +162,8 @@ class ClubControllerTest {
         //given
         long clubId = 1L;
 
-        ClubDashBoardResponseDto expected = new ClubDashBoardResponseDto(1,
+        ClubDashBoardResponseDto expected = new ClubDashBoardResponseDto(1L,
+                1,
                 1,
                 LocalDate.of(2025, 9, 15),
                 LocalDate.of(2025, 9, 20)
