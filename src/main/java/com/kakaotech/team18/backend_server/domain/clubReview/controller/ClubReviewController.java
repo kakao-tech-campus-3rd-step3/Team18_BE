@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubReview.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.service.ClubReviewService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,8 +9,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,6 +38,16 @@ public class ClubReviewController {
             @Valid @RequestBody ClubReviewRequestDto request
     ) {
         SuccessResponseDto response = clubReviewService.createClubReview(clubId, request);
-        return ResponseEntity.created(null).body(response); //TODO 조회 URI로 변경
+        return ResponseEntity.created(URI.create("/api/clubs/" + clubId + "/reviews")).body(response);
+    }
+
+    @Operation(summary = "동아리 후기 조회", description = "특정 동아리의 후기 목록을 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "후기 조회 성공")
+    })
+    @GetMapping("/{clubId}/reviews")
+    public ResponseEntity<ClubReviewResponseDto> getClubReview(@PathVariable Long clubId) {
+        ClubReviewResponseDto response = clubReviewService.getClubReview(clubId);
+        return ResponseEntity.ok(response);
     }
 }
