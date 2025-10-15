@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.entity.ClubReview;
 import com.kakaotech.team18.backend_server.domain.clubReview.repository.ClubReviewRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -48,6 +49,12 @@ public class ClubReviewServiceImpl implements ClubReviewService {
         clubReviewRepository.save(clubReview);
         log.info("ClubReview created for clubId: {}, reviewId: {}", clubId, clubReview.getId());
         return new SuccessResponseDto(true);
+    }
+
+    @Override
+    public ClubReviewResponseDto getClubReview(Long clubId) {
+        List<ClubReview> clubReviews = clubReviewRepository.findByClubId(clubId);
+        return ClubReviewResponseDto.from(clubReviews);
     }
 
     private Club findClub(Long clubId) {

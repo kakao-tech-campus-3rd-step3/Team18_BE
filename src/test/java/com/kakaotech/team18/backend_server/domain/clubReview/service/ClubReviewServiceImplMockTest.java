@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubReview.service;
 
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.entity.ClubReview;
 import com.kakaotech.team18.backend_server.domain.clubReview.repository.ClubReviewRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
@@ -139,4 +140,60 @@ class ClubReviewServiceImplMockTest {
         then(clubRepository).should(never()).findById(any(Long.class));
         then(clubReviewRepository).should(never()).save(any(ClubReview.class));
     }
+
+    @DisplayName("동아리 후기 조회 - 성공")
+    @Test
+    void getClubReview_Success() {
+        // given
+        Long clubId = 1L;
+        Club club = Club.builder().name("Test Club").build();
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        ClubReview review1 = ClubReview.builder()
+                .club(club)
+                .content("리뷰 내용 1")
+                .writer("20250001")
+                .build();
+        ReflectionTestUtils.setField(review1, "id", 1L);
+
+        ClubReview review2 = ClubReview.builder()
+                .club(club)
+                .content("리뷰 내용 2")
+                .writer("20250002")
+                .build();
+        ReflectionTestUtils.setField(review2, "id", 2L);
+
+        given(clubReviewRepository.findByClubId(clubId)).willReturn(List.of(review1, review2));
+
+        // when
+        ClubReviewResponseDto response = clubReviewService.getClubReview(clubId);
+
+        // then
+        String firstWriter = response.reviews().get(0).writer();
+        String secondWriter = response.reviews().get(1).writer();
+        assertThat(response.reviews().size()).isEqualTo(2);
+        assertThat(response.reviews().get(0).content()).isEqualTo("리뷰 내용 1");
+        assertThat(response.reviews().get(1).content()).isEqualTo("리뷰 내용 2");
+        assertThat(firstWriter).startsWith("익명");
+        assertThat(secondWriter).startsWith("익명");
+        assertThat(firstWriter).isNotEqualTo(secondWriter); // 서로 다른 학번이면 다른 익명번호여야 함
+
+        then(clubReviewRepository).should(times(1)).findByClubId(clubId);
+    }
+
+    @DisplayName("동아리 후기 조회 - 빈 리스트 (후기가 없는 경우)")
+    @Test
+    void getClubReview_NoReviews() {
+        // given
+        Long clubId = 1L;
+        given(clubReviewRepository.findByClubId(clubId)).willReturn(List.of());
+
+        // when
+        ClubReviewResponseDto response = clubReviewService.getClubReview(clubId);
+
+        // then
+        assertThat(response.reviews()).isEmpty();
+        then(clubReviewRepository).should(times(1)).findByClubId(clubId);
+    }
+
 }
