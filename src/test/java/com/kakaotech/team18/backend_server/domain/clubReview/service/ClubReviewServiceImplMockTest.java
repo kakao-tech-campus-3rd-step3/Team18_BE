@@ -174,11 +174,18 @@ class ClubReviewServiceImplMockTest {
         assertThat(response.reviews().size()).isEqualTo(2);
         assertThat(response.reviews().get(0).content()).isEqualTo("리뷰 내용 1");
         assertThat(response.reviews().get(1).content()).isEqualTo("리뷰 내용 2");
-        assertThat(firstWriter).startsWith("익명");
-        assertThat(secondWriter).startsWith("익명");
-        assertThat(firstWriter).isNotEqualTo(secondWriter); // 서로 다른 학번이면 다른 익명번호여야 함
 
-        then(clubReviewRepository).should(times(1)).findByClubId(clubId);
+        assertThat(firstWriter).containsAnyOf("코끼리", "여우", "펭귄", "돌고래", "사자", "호랑이");
+        assertThat(secondWriter).containsAnyOf("코끼리", "여우", "펭귄", "돌고래", "사자", "호랑이");
+        assertThat(firstWriter).isNotEqualTo(secondWriter);
+
+        //동일 학번이면 항상 같은 익명 이름 (재호출 테스트)
+        ClubReviewResponseDto again = clubReviewService.getClubReview(clubId);
+        assertThat(response.reviews().get(0).writer())
+                .isEqualTo(again.reviews().get(0).writer());
+
+        //위에서 재호출해서 2번
+        then(clubReviewRepository).should(times(2)).findByClubId(clubId);
     }
 
     @DisplayName("동아리 후기 조회 - 빈 리스트 (후기가 없는 경우)")
