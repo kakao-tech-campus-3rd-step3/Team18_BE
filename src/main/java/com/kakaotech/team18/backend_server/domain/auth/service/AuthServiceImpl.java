@@ -13,10 +13,10 @@ import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRe
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
@@ -167,6 +167,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public ReissueResponseDto reissue(String bearerToken) {
         // 1. Bearer 접두사 제거 및 토큰 추출
         String refreshToken = jwtProvider.extractToken(bearerToken);
@@ -197,12 +198,17 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저가 존재하지 않습니다."));
 
-        // 7. 새로운 Access Token 발급
+        // 7. 새로운 토큰 발급 (Access, Refresh 둘 다)
         String newAccessToken = jwtProvider.createAccessToken(user);
-        log.info("Access Token 재발급 성공: userId={}", userId);
+        String newRefreshToken = jwtProvider.createRefreshToken(user);
+        log.info("Access & Refresh Token 재발급 성공: userId={}", userId);
 
-        // 8. DTO로 감싸서 반환
-        return ReissueResponseDto.of(newAccessToken);
+        // 8. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
+        refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", user.getId());
+
+        // 9. DTO로 감싸서 반환
+        return ReissueResponseDto.of(newAccessToken, newRefreshToken);
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {
