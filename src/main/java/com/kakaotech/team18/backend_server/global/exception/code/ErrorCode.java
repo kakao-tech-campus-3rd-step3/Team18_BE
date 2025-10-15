@@ -43,12 +43,12 @@ public enum ErrorCode {
     LOGGED_OUT_USER("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지 않은 Refresh Token입니다.", HttpStatus.UNAUTHORIZED),
     EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
-    UNREGISTERED_USER("동아리에 가입되지 않은 유저입니다.", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
     COMMENT_ACCESS_DENIED("해당 댓글에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EMAIL_POLICY_REJECTED   ("Gmail 정책/스팸/DMARC 거부", HttpStatus.FORBIDDEN),
+    UNREGISTERED_USER("동아리에 가입되지 않은 유저입니다.", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND: 리소스를 찾을 수 없음
     USER_NOT_FOUND("해당 유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND),

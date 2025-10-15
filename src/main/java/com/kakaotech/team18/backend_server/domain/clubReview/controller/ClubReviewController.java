@@ -30,7 +30,7 @@ public class ClubReviewController {
     @Operation(summary = "동아리 후기 등록", description = "사용자가 동아리 후기를 등록합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "후기 등록 성공"),
-            @ApiResponse(responseCode = "401", description = "동아리에 등록된 학번이 일치하지 않습니다.")
+            @ApiResponse(responseCode = "403", description = "동아리에 등록된 학번이 일치하지 않습니다.")
     })
     @PostMapping("/{clubId}/reviews")
     public ResponseEntity<SuccessResponseDto> createClubReview(
