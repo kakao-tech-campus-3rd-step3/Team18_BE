@@ -5,13 +5,12 @@ import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,28 +81,31 @@ class AuthServiceImplTest {
         ReflectionTestUtils.setField(authService, "kakaoUserInfoUri", KAKAO_USER_INFO_URI);
     }
 
-    @DisplayName("Access Token 재발급 성공")
+    @DisplayName("Access Token 재발급 성공 (Refresh Token Rotation 적용)")
     @Test
     void reissue_success() {
         // given
         String bearerToken = "Bearer valid-refresh-token";
-        String refreshToken = "valid-refresh-token";
+        String oldRefreshToken = "valid-refresh-token";
         Long userId = 1L;
         String newAccessToken = "new-access-token";
+        String newRefreshToken = "new-refresh-token";
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
-        claims.put("tokenType", "REFRESH");
+        claims.put("tokenType", TokenType.REFRESH.name());
 
         User user = User.builder().build();
         ReflectionTestUtils.setField(user, "id", userId);
 
-        RefreshToken storedRefreshToken = new RefreshToken(userId, refreshToken, 3600L);
+        RefreshToken storedRefreshToken = new RefreshToken(userId, oldRefreshToken, 3600L);
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
-        given(jwtProvider.verify(refreshToken)).willReturn(claims);
+        given(jwtProvider.extractToken(bearerToken)).willReturn(oldRefreshToken);
+        given(jwtProvider.verify(oldRefreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(jwtProvider.createAccessToken(user)).willReturn(newAccessToken);
+        given(jwtProvider.createRefreshToken(user)).willReturn(newRefreshToken);
+        given(jwtProperties.refreshTokenValidityInSeconds()).willReturn(604800L);
 
         // when
         ReissueResponseDto result = authService.reissue(bearerToken);
@@ -109,6 +113,14 @@ class AuthServiceImplTest {
         // then
         assertThat(result).isNotNull();
         assertThat(result.accessToken()).isEqualTo(newAccessToken);
+        assertThat(result.refreshToken()).isEqualTo(newRefreshToken);
+
+        ArgumentCaptor<RefreshToken> refreshTokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
+        verify(refreshTokenRepository).save(refreshTokenCaptor.capture());
+        RefreshToken savedToken = refreshTokenCaptor.getValue();
+
+        assertThat(savedToken.getId()).isEqualTo(userId);
+        assertThat(savedToken.getRefreshToken()).isEqualTo(newRefreshToken);
     }
 
     @DisplayName("Access Token으로 재발급 요청 시 예외 발생")
@@ -120,7 +132,7 @@ class AuthServiceImplTest {
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
-        claims.put("tokenType", "ACCESS"); // 토큰 타입이 ACCESS
+        claims.put("tokenType", TokenType.ACCESS.name());
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(accessToken);
         given(jwtProvider.verify(accessToken)).willReturn(claims);
@@ -139,7 +151,7 @@ class AuthServiceImplTest {
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
-        claims.put("tokenType", "REFRESH");
+        claims.put("tokenType", TokenType.REFRESH.name());
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
         given(jwtProvider.verify(refreshToken)).willReturn(claims);
@@ -159,7 +171,7 @@ class AuthServiceImplTest {
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
-        claims.put("tokenType", "REFRESH");
+        claims.put("tokenType", TokenType.REFRESH.name());
 
         // Redis에는 다른 토큰이 저장되어 있는 상황
         RefreshToken storedRefreshToken = new RefreshToken(userId, "stored-but-different-token", 3600L);
