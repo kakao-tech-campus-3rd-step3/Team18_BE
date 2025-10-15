@@ -2,7 +2,6 @@ package com.kakaotech.team18.backend_server.domain.clubReview.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
