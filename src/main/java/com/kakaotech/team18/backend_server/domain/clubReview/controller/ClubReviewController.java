@@ -1,4 +1,4 @@
-package com.kakaotech.team18.backend_server.domain.clubReview;
+package com.kakaotech.team18.backend_server.domain.clubReview.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.service.ClubReviewService;

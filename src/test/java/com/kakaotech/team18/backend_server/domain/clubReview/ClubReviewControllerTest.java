@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaotech.team18.backend_server.domain.clubReview.controller.ClubReviewController;
 import com.kakaotech.team18.backend_server.domain.clubReview.dto.ClubReviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubReview.service.ClubReviewService;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
