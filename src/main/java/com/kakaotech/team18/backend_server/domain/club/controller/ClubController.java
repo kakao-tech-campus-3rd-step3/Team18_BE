@@ -1,19 +1,19 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -97,10 +97,12 @@ public class ClubController{
             @ApiResponse(responseCode = "200", description = "조회 성공"),
     })
     @GetMapping("/{clubId}/dashboard/applicants")
-    public ResponseEntity<List<ApplicantResponseDto>> getClubApplicants(
+    public ResponseEntity<ClubDashboardApplicantResponseDto> getClubApplicants(
             @PathVariable Long clubId,
-            @RequestParam(required = false) Status status) {
-        List<ApplicantResponseDto> response = clubService.getApplicantsByStatus(clubId, status);
+            @RequestParam(required = false) Status status,
+            @RequestParam Stage stage
+    ) {
+        ClubDashboardApplicantResponseDto response = clubService.getApplicantsByStatusAndStage(clubId, status, stage);
         return ResponseEntity.ok(response);
     }
 }

@@ -2,8 +2,10 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
@@ -26,11 +28,8 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFo
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.validation.Valid;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.info.ProjectInfoProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,30 +113,38 @@ public class ClubServiceImpl implements ClubService {
         List<Application> pendingApplication = applicationRepository.findByClubApplyFormIdAndStatus(clubApplyForm.getId(), Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
         return new ClubDashBoardResponseDto(
+                clubId,
                 applicantList.size(),
                 pendingApplication.size(),
                 club.getRecruitStart().toLocalDate(),
-                club.getRecruitEnd().toLocalDate(),
-                applicantList.stream()
-                        .map(ApplicantResponseDto::from)
-                        .toList());
+                club.getRecruitEnd().toLocalDate());
     }
 
     @Override
-    public List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status) {
+    public ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage) {
+        List<ClubMember> applicants;
+        String message;
         if (status != null) {
-            List<ClubMember> filteredApplicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, status);
-            return filteredApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(clubId, Role.APPLICANT, status, stage);
         } else {
-            List<ClubMember> allApplicants = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
-            return allApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
         }
+        ClubApplyForm clubApplyForm = clubApplyFormRepository
+                .findByClubId(clubId).orElseThrow(() -> {
+                    log.warn("ClubApplyForm not found for id={}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
+        if (stage == Stage.INTERVIEW){
+            message = clubApplyForm.getInterviewMessage();
+        } else {
+            message = clubApplyForm.getFinalMessage();
+        }
+        return new ClubDashboardApplicantResponseDto(
+                applicants
+                        .stream()
+                        .map(ApplicantResponseDto::from)
+                        .toList(),
+                message);
     }
 
     // ---- private helpers ----

@@ -48,10 +48,11 @@ public class Application extends BaseEntity {
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, ClubApplyForm clubApplyForm, Status status) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
         this.status = (status != null) ? status : Status.PENDING; // 기본값 보존
+        this.stage = (stage != null) ? stage : Stage.INTERVIEW;
         this.averageRating = 0.0;
     }
 

@@ -1,16 +1,13 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Category;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
-import jakarta.validation.Valid;
-
-import java.util.List;
 
 public interface ClubService {
 
@@ -24,7 +21,7 @@ public interface ClubService {
 
     ClubDashBoardResponseDto getClubDashBoard(Long clubId);
 
-    List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status);
+    SuccessResponseDto updateClubDetail(Long clubId, ClubDetailRequestDto dto);
 
-    SuccessResponseDto updateClubDetail(Long clubId, @Valid ClubDetailRequestDto dto);
+    ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage);
 }
