@@ -18,10 +18,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class Club extends BaseEntity {
 
     @Id
@@ -80,11 +82,15 @@ public class Club extends BaseEntity {
         this.category = dto.category();
         this.location = dto.location();
         this.shortIntroduction = dto.shortIntroduction();
-        this.caution = dto.applicationNotices();
-        this.recruitStart = dto.recruitStart();
-        this.recruitEnd = dto.recruitEnd();
+        this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
         this.introduction = buildNewIntroduction(dto);
+    }
+
+    public void updateRecruitDate(LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+        this.recruitStart = recruitStart;
+        this.recruitEnd = recruitEnd;
+        log.info("Updated recruit date for clubId: {} to start: {} end: {}", this.id, recruitStart, recruitEnd);
     }
 
     private ClubIntroduction buildNewIntroduction(ClubDetailRequestDto dto) {
@@ -104,5 +110,4 @@ public class Club extends BaseEntity {
         }
         return newIntro;
     }
-
 }
