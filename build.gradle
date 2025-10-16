@@ -26,7 +26,8 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//	implementation 'org.springframework.boot:spring-boot-starter-security'
+    // Spring Security 활성화
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
@@ -34,7 +35,8 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-//	testImplementation 'org.springframework.security:spring-security-test'
+    // Spring Security Test 활성화
+    testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     // validation 관련 의존성 추가
@@ -46,9 +48,29 @@ dependencies {
     // OpenAPI 3.0 및 Swagger UI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
 
+    // SMTP 전송 (JavaMailSender)
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // Thymeleaf 템플릿 렌더링(나중에 제거할 것)
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // 재시도 처리를 위함(@EnableRetry, @Retryable, @Recover)
+    implementation "org.springframework.retry:spring-retry"
+
+    // Spring Security OAuth2 Client 추가
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Java JWT (jjwt) 추가
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
     // 테스트 코드에서 Lombok 사용을 위한 의존성 추가
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
+    implementation 'org.springframework.retry:spring-retry'     // Spring Retry
+
 }
 
 tasks.named('test') {

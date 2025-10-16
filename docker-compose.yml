@@ -1,4 +1,3 @@
-# docker-compose.yml
 name: dongarium-stack
 
 services:
@@ -29,7 +28,7 @@ services:
       retries: 10
 
   app:
-    image: ${ECR_REGISTRY}/dongarium-server:latest   # GitHub Actions에서 채워서 pull
+    image: ${ECR_REGISTRY}/dongarium-server:latest
     container_name: dongarium-server
     restart: always
     depends_on:
@@ -38,22 +37,37 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # 프로필
+      # Spring Profile
       SPRING_PROFILES_ACTIVE: prod
 
-      # ✅ application.yml(prod) datasource를 환경변수로 덮어쓰기
+      # MySQL 관련
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
       SPRING_DATASOURCE_USERNAME: ${DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
-      # JPA 옵션(원하는 경우)
-      SPRING_JPA_HIBERNATE_DDL_AUTO: create
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+      # Kakao OAuth2
+      KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      KAKAO_REDIRECT_URI_PROD: ${KAKAO_REDIRECT_URI_PROD}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_ID: ${KAKAO_CLIENT_ID}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_KAKAO_REDIRECT_URI: ${KAKAO_REDIRECT_URI_PROD}
 
-      # 로깅(옵션)
-      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_AUTOCONFIGURE_JDBC: DEBUG
-      # LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_BOOT_CONTEXT_CONFIG: DEBUG
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+
+      # Mail
+      SPRING_MAIL_HOST: ${SMTP_HOST}
+      SPRING_MAIL_PORT: ${SMTP_PORT}
+      SPRING_MAIL_USERNAME: ${SMTP_USERNAME}
+      SPRING_MAIL_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      SPRING_EMAIL_SUBJECT_PREFIX: ${EMAIL_SUBJECT_PREFIX}
+
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]

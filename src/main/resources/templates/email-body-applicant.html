@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}">동아리 지원서</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 720px; margin: 24px auto; }
+        .box { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .kv { margin:6px 0; }
+        .k { color:#6b7280; display:inline-block; width:140px; }
+        .v { color:#111827; font-weight:600; }
+        .section-title { margin:18px 0 8px; font-size:16px; }
+        .muted { color:#6b7280; font-size:13px; }
+        .q { margin:12px 0; }
+        .q .lab { color:#374151; font-weight:700; margin-bottom:4px; }
+        .footer { color:#6b7280; margin-top:16px; font-size:12px; }
+        a { color:#2563eb; text-decoration:none; }
+    </style>
+</head>
+<body>
+
+<h1>
+    <span class="badge">지원 접수</span>
+    <span th:text="${clubName}">동아리명</span> - <span th:text="${applicantName}">지원자명</span>
+</h1>
+<div class="muted" th:text="${#temporals.format(submittedAt, 'yyyy-MM-dd HH:mm')}">2025-09-20 13:00</div>
+
+<h2 class="section-title">지원자 정보</h2>
+<div class="box">
+    <div class="kv"><span class="k">이름</span><span class="v" th:text="${applicantName}">홍길동</span></div>
+    <div class="kv"><span class="k">학번</span><span class="v" th:text="${studentId}">20251234</span></div>
+    <div class="kv"><span class="k">학과</span><span class="v" th:text="${department}">컴퓨터정보통신공학과</span></div>
+    <div class="kv"><span class="k">전화번호</span><span class="v" th:text="${phoneNumber}">010-0000-0000</span></div>
+    <div class="kv"><span class="k">이메일</span><span class="v" th:text="${applicantEmail}">user@example.com</span></div>
+</div>
+
+<h2 class="section-title">지원서 응답</h2>
+<div class="box" th:if="${answers}">
+    <div class="q" th:each="line : ${answers}">
+        <div class="lab" th:text="${line.question()}">질문</div>
+        <div th:utext="${#strings.escapeXml(line.answer()).replaceAll('\n','<br/>')}">답변</div>
+    </div>
+</div>
+
+<p class="footer">
+    본 메일은 지원서 제출 안내용으로 발송되었습니다. 문의는 회장/관리자에게 회신(Reply-To)으로 보내주세요.
+</p>
+
+</body>
+</html>

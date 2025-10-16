@@ -15,17 +15,30 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
+import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
+import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-@WebMvcTest(ClubController.class)
+@WebMvcTest(
+        controllers = ClubController.class,
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+        }
+)
+@Import(TestSecurityConfig.class)
 class ClubControllerTest {
 
     @Autowired
@@ -38,32 +51,36 @@ class ClubControllerTest {
     @Test
     void getAllClubs_test() throws Exception {
         // given
-        ClubListResponseDto club1 = new ClubListResponseDto(
+        ClubListResponseDto.ClubsInfo club1 = new ClubListResponseDto.ClubsInfo(
                 1L,
                 "동아리1",
                 Category.STUDY,
                 "짧은 소개1",
-                "모집중");
-        ClubListResponseDto club2 = new ClubListResponseDto(
+                "모집중"
+        );
+
+        ClubListResponseDto.ClubsInfo club2 = new ClubListResponseDto.ClubsInfo(
                 2L,
                 "동아리2",
                 Category.SPORTS,
                 "짧은 소개2",
-                "모집 종료");
-        List<ClubListResponseDto> mockClubList = List.of(club1, club2);
+                "모집 종료"
+        );
 
-        when(clubService.getAllClubs()).thenReturn(mockClubList);
+        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2));
+
+        when(clubService.getAllClubs()).thenReturn(mockResponse);
 
         // when
         ResultActions resultActions = mockMvc.perform(get("/api/clubs"));
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs.size()").value(2))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[1].recruitStatus").value("모집 종료"))
                 .andDo(print());
     }
-
     @DisplayName("동아리 상세 페이지를 조회한다.")
     @Test
     void getClubDetail_test() throws Exception {
@@ -85,6 +102,7 @@ class ClubControllerTest {
                 .presidentPhoneNumber("010-1234-5678")
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
+                .applicationNotices("주의사항")
                 .build();
 
         when(clubService.getClubDetail(clubId)).thenReturn(expected);
@@ -160,7 +178,7 @@ class ClubControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생하낟.")
+    @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생한다.")
     @Test
     void getApplicantsByWrongStatus() throws Exception {
         // given

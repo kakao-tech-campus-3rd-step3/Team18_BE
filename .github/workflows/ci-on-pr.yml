@@ -1,12 +1,13 @@
 name: CI on PR (build & test)
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened]
     branches: [develop]
 
 jobs:
   test:
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
     runs-on: ubuntu-latest
     # 위에 synchronize가 pr에 commit이 추가될 때마다 돌아간다는 의미인데, job이 동시에 동작하지 않도록 함
     concurrency:
@@ -15,7 +16,11 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
 
       - uses: actions/setup-java@v4
         with:
@@ -33,9 +38,18 @@ jobs:
 
       # 테스트용 yml을 임시 생성(H2)
       - name: application-test.yml (temp)
+        env:
+          KAKAO_CLIENT_ID: ${{ secrets.KAKAO_CLIENT_ID }}
+          KAKAO_CLIENT_SECRET: ${{ secrets.KAKAO_CLIENT_SECRET }}
+          KAKAO_REDIRECT_URI_TEST: ${{ secrets.KAKAO_REDIRECT_URI_TEST }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          SMTP_HOST: ${{secrets.SMTP_HOST}}
+          SMTP_PORT: ${{secrets.SMTP_PORT}}
+          SMTP_USERNAME: ${{secrets.SMTP_USERNAME}}
+          SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
         run: |
           mkdir -p ./src/main/resources
-          cat > ./src/main/resources/application-test.yml <<'YAML'
+          cat > ./src/main/resources/application-test.yml <<YAML
           spring:
             datasource:
               url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
@@ -45,6 +59,50 @@ jobs:
             jpa:
               hibernate.ddl-auto: create
               properties.hibernate.format_sql: true
+            sql.init.mode: never
+            security:
+              oauth2:
+                client:
+                  registration:
+                    kakao:
+                      client-id: ${KAKAO_CLIENT_ID}
+                      client-secret: ${KAKAO_CLIENT_SECRET}
+                      client-authentication-method: client_secret_post
+                      authorization-grant-type: authorization_code
+                      redirect-uri: ${KAKAO_REDIRECT_URI_TEST}
+                      scope:
+                        - profile_nickname
+                  provider:
+                    kakao:
+                      authorization-uri: https://kauth.kakao.com/oauth/authorize
+                      token-uri: https://kauth.kakao.com/oauth/token
+                      user-info-uri: https://kapi.kakao.com/v2/user/me
+                      user-name-attribute: id
+            jwt:
+              secret: ${JWT_SECRET}
+              access-token-validity-in-seconds: 1800
+              refresh-token-validity-in-seconds: 604800
+          
+            mail:
+              host: ${SMTP_HOST}
+              port: ${SMTP_PORT}
+              username: ${SMTP_USERNAME}
+              password: ${SMTP_PASSWORD}
+              properties:
+                mail:
+                  smtp:
+                    auth: true
+                    starttls:
+                      enable: true
+                      required: true
+                    connectiontimeout: 5000
+                    timeout: 5000
+                    writetimeout: 5000
+          
+            email:
+              from: ${EMAIL_FROM:no-reply@gmail.com}
+              subject-prefix: "[동아리 지원]"
+          
           YAML
 
       # 테스트 프로필로 빌드/테스트

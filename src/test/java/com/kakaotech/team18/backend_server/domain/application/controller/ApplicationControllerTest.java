@@ -1,38 +1,62 @@
 package com.kakaotech.team18.backend_server.domain.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
+import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
+import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Collections;
 
+import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ApplicationController.class)
+@WebMvcTest(
+        controllers = ApplicationController.class,
+        excludeFilters = {
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = SecurityConfig.class),
+                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = JwtAuthenticationFilter.class)
+        }
+)
+@Import(TestSecurityConfig.class)
 class ApplicationControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private ApplicationService applicationService;
 
     @Autowired
@@ -149,5 +173,108 @@ class ApplicationControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
+    }
+
+    @Nested
+    @DisplayName("POST /api/clubs/{clubId}/apply-submit")
+    class SubmitApplicationEndpoint {
+
+        private String validPayloadJson() {
+            return """
+        {
+          "studentId":"20231234",
+          "email":"stud@example.com",
+          "name":"홍길동",
+          "phoneNumber":"010-0000-0000",
+          "department":"컴퓨터공학과",
+          "answers": [
+          {"questionNum":1,"question":"q","answer":"자기소개입니다"},
+          {"questionNum":2,"question":"q","answer":"여"},
+          {"questionNum":3,"question":"q","answer":"A,B"}
+          ]
+        }
+        """;
+        }
+
+        private String invalidPayloadJson() {
+            // @Valid 위반: studentId 공백, email 형식 아님
+            return """
+        {
+          "studentId":" ",
+          "email":"bad-email",
+          "name":"",
+          "phoneNumber":"",
+          "department":"",
+          "answers":[]
+        }
+        """;
+        }
+
+        @Test
+        @DisplayName("requiresConfirmation=true → 202 ACCEPTED")
+        void
+        returnsAccepted_whenRequiresConfirmationTrue() throws Exception {
+            long clubId = 1L;
+
+            // overwrite 파라미터 기본값(false)
+            when(applicationService.submitApplication(
+                    eq(clubId),
+                    any(ApplicationApplyRequestDto.class),
+                    eq(false))
+            ).thenReturn(new ApplicationApplyResponseDto(
+                    "20231234", now(), true
+            ));
+
+            mockMvc.perform(post("/api/clubs/{clubId}/apply-submit", clubId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(validPayloadJson()))
+                    .andExpect(status().isAccepted());
+
+            verify(applicationService).submitApplication(
+                    eq(clubId),
+                    any(ApplicationApplyRequestDto.class),
+                    eq(false)
+            );
+        }
+
+        @Test
+        @DisplayName("requiresConfirmation=false → 201 CREATED (overwrite=true)")
+        void returnsCreated_whenRequiresConfirmationFalse() throws Exception {
+            long clubId = 1L;
+
+            when(applicationService.submitApplication(
+                    eq(clubId),
+                    any(ApplicationApplyRequestDto.class),
+                    eq(true))
+            ).thenReturn(new ApplicationApplyResponseDto(
+                    "20231234", now(), false
+            ));
+
+            mockMvc.perform(post("/api/clubs/{clubId}/apply-submit?overwrite=true", clubId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(validPayloadJson()))
+                    .andExpect(status().isCreated());
+
+            verify(applicationService).submitApplication(
+                    eq(clubId),
+                    any(ApplicationApplyRequestDto.class),
+                    eq(true)
+            );
+        }
+
+        @Test
+        @DisplayName("@Valid 위반 → 400 BAD_REQUEST & 서비스 미호출")
+        void returnsBadRequest_whenInvalidBody() throws Exception {
+            mockMvc.perform(post("/api/clubs/{clubId}/apply-submit", 1L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(invalidPayloadJson()))
+                    .andExpect(status().isBadRequest());
+
+            verify(applicationService, never()).submitApplication(
+                    anyLong(),
+                    any(ApplicationApplyRequestDto.class),
+                    anyBoolean()
+            );
+        }
     }
 }

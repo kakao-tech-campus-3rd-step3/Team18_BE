@@ -1,14 +1,22 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
 import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FieldType;
+import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationFormNotFoundException;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -17,13 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.*;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ClubApplyFormServiceImplTest {
@@ -35,7 +37,7 @@ class ClubApplyFormServiceImplTest {
     private FormQuestionRepository formQuestionRepository;
 
     @InjectMocks
-    private ApplicationFormServiceImpl applicationFormServiceImpl;
+    private ClubApplyFormServiceImpl applicationFormServiceImpl;
 
     @Mock
     private Club mockClub;
@@ -43,19 +45,41 @@ class ClubApplyFormServiceImplTest {
     @Mock
     private ClubApplyForm mockClubApplyForm;
 
-    @Mock
-    private Application mockApplication;
-
     private ClubApplyForm clubApplyForm;
     private List<FormQuestion> formFields;
 
     @BeforeEach
     void setUp() {
         clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        FormQuestion textQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("이름")
+                .fieldType(FieldType.TEXT)
+                .isRequired(true)
+                .displayOrder(1L)
+                .build();
+        ReflectionTestUtils.setField(textQuestion, "id", 1L);
 
-        FormQuestion textQuestion = new FormQuestion(1L, mockClubApplyForm, "이름", FieldType.TEXT, true, 1L, null);
-        FormQuestion radioQuestion = new FormQuestion(2L, mockClubApplyForm, "성별", FieldType.RADIO, true, 2L, List.of("남","여"));
-        FormQuestion checkboxQuestion = new FormQuestion(3L, mockClubApplyForm,"면접가능 요일",  FieldType.CHECKBOX, true, 3L, List.of("월","화","수","목","금","토"));
+        FormQuestion radioQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("성별")
+                .fieldType(FieldType.RADIO)
+                .isRequired(true)
+                .displayOrder(2L)
+                .options(List.of("남", "여"))
+                .build();
+        ReflectionTestUtils.setField(radioQuestion, "id", 2L);
+
+        FormQuestion checkboxQuestion = FormQuestion.builder()
+                .clubApplyForm(mockClubApplyForm)
+                .question("면접가능 요일")
+                .fieldType(FieldType.CHECKBOX)
+                .isRequired(true)
+                .displayOrder(3L)
+                .options(List.of("월", "화", "수", "목", "금", "토"))
+                .build();
+        ReflectionTestUtils.setField(checkboxQuestion, "id", 3L);
+
 
         formFields = List.of(textQuestion, radioQuestion, checkboxQuestion);
     }
@@ -147,7 +171,7 @@ class ClubApplyFormServiceImplTest {
 
                 // when & then
                 assertThatThrownBy(() -> applicationFormServiceImpl.getQuestionForm(clubId))
-                        .isInstanceOf(ApplicationFormNotFoundException.class);
+                        .isInstanceOf(ClubApplyFormNotFoundException.class);
 
                 verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
                 verifyNoInteractions(formQuestionRepository);

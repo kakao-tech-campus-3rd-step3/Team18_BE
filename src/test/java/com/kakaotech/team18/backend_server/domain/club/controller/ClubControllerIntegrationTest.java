@@ -3,6 +3,9 @@ package com.kakaotech.team18.backend_server.domain.club.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.email.eventListener.ApplicationNotificationListener;
+import com.kakaotech.team18.backend_server.domain.email.sender.SmtpEmailSender;
+import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +61,6 @@ class ClubControllerIntegrationTest {
 
         User user1 = User.builder()
                 .name("회장1")
-                .loginId("ex1")
-                .password("123")
                 .email("president1@test.com")
                 .phoneNumber("010-1234-5678")
                 .studentId("123456")
@@ -67,8 +70,6 @@ class ClubControllerIntegrationTest {
 
         User user2 = User.builder()
                 .name("회장2")
-                .loginId("ex2")
-                .password("123")
                 .email("president2@test.com")
                 .phoneNumber("010-2222-2222")
                 .studentId("456789")
@@ -107,13 +108,13 @@ class ClubControllerIntegrationTest {
 
         // then
         resultActions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("동아리1"))
-                .andExpect(jsonPath("$[0].category").value("STUDY"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("동아리2"))
-                .andExpect(jsonPath("$[1].category").value("SPORTS"))
+                .andExpect(jsonPath("$.clubs.size()").value(2))
+                .andExpect(jsonPath("$.clubs[0].id").value(1))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[0].category").value("STUDY"))
+                .andExpect(jsonPath("$.clubs[1].id").value(2))
+                .andExpect(jsonPath("$.clubs[1].name").value("동아리2"))
+                .andExpect(jsonPath("$.clubs[1].category").value("SPORTS"))
                 .andDo(print());
     }
 }

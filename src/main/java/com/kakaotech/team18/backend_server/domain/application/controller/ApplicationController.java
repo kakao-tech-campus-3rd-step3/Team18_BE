@@ -1,5 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.controller;
 
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
@@ -11,11 +13,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "지원서 API", description = "지원서 조회 및 상태 변경 관련 API")
@@ -51,5 +56,32 @@ public class ApplicationController {
     ) {
         SuccessResponseDto responseDto = applicationService.updateApplicationStatus(applicationId, requestDto);
         return ResponseEntity.ok(responseDto);
+    }
+
+    @Operation(
+            summary = "지원서 제출",
+            description = "동아리 지원자가 지원서를 제출합니다. 기존 제출이 있으면 202(확인 필요)로 응답하고, overwrite=true로 다시 제출하면 덮어씁니다. 신규는 201."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "신규 제출 완료"),
+            @ApiResponse(responseCode = "202", description = "기존 제출이 있어 덮어쓰기 확인 필요")
+    })
+    @PostMapping("/api/clubs/{clubId}/apply-submit")
+    public ResponseEntity<ApplicationApplyResponseDto> submitApplication(
+            @PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ApplicationApplyRequestDto request,
+            @RequestParam(value = "overwrite", defaultValue = "false" ) boolean overwrite
+    ){
+        ApplicationApplyResponseDto response = applicationService.submitApplication(
+                clubId,
+                request,
+                overwrite
+        );
+
+        if(response.requiresConfirmation()){
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);//기존 응답이 있어서 확인
+        } else {
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);//기존 응답이 없어서 바로 제출
+        }
     }
 }

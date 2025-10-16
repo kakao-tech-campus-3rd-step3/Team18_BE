@@ -1,7 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,9 +9,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
@@ -43,5 +45,10 @@ public class ClubApplyForm extends BaseEntity {
         this.title = title;
         this.description = description;
         this.isActive = isActive;
+    }
+
+    public void update(String title, String description) {
+        this.title = title;
+        this.description = description;
     }
 }

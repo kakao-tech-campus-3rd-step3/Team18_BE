@@ -4,14 +4,13 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +31,8 @@ public class ClubController{
     @Operation(summary = "전체 동아리 목록 조회", description = "모집 상태와 함께 전체 동아리 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping
-    public ResponseEntity<List<ClubListResponseDto>> getAllClubs() {
-        List<ClubListResponseDto> response = clubService.getAllClubs();
+    public ResponseEntity<ClubListResponseDto> getAllClubs() {
+        ClubListResponseDto response = clubService.getAllClubs();
         return ResponseEntity.ok(response);
     }
 
@@ -53,10 +52,10 @@ public class ClubController{
     @Operation(summary = "카테고리별 동아리 목록 조회", description = "특정 카테고리에 속한 동아리 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping("/search/category")
-    public ResponseEntity<List<ClubListResponseDto>> listClubsByCategory(
+    public ResponseEntity<ClubListResponseDto> listClubsByCategory(
             @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String category
     ){
-        List<ClubListResponseDto> response = clubService.getClubByCategory(Category.valueOf(category));
+        ClubListResponseDto response = clubService.getClubByCategory(category);
         return ResponseEntity.ok(response);
     }
 
@@ -73,6 +72,10 @@ public class ClubController{
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "동아리 대쉬보드에서 지원자 목록 필터링 조회", description = "운영진이 동아리 관리 페이지에서 지원자 목록을 필터링을 통해 조회합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+    })
     @GetMapping("/{clubId}/dashboard/applicants")
     public ResponseEntity<List<ApplicantResponseDto>> getClubApplicants(
             @PathVariable Long clubId,
