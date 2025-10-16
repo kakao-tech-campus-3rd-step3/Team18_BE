@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.email.eventListener;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
@@ -23,10 +24,9 @@ public class ApplicationNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSubmitted(ApplicationSubmittedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
+        ApplicationInfoDto info = event.info();
 
-        emailService.sendToApplicant(application, event.emailLines());
-        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
+        emailService.sendToApplicant(info, event.emailLines());
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 }
