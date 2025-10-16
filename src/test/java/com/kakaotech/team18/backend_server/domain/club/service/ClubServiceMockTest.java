@@ -4,11 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
@@ -304,9 +302,6 @@ public class ClubServiceMockTest {
                 .extracting(ClubImage::getImageUrl)
                 .containsExactly("n1.png", "n2.png", "n1.png");
 
-        // repository.save 호출이 없다면(더티체킹 전략) 이 검증은 생략 가능
-        //then(clubRepository).should().findClubDetailById(1L);
-        //then(clubRepository).shouldHaveNoMoreInteractions();
     }
     private Club sampleClubWithIntroduction(
             String name,
