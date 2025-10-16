@@ -167,7 +167,6 @@ class ClubControllerTest {
                 1,
                 LocalDate.of(2025, 9, 15),
                 LocalDate.of(2025, 9, 20)
-                //List.of(new ApplicantResponseDto("춘식", "123456", "철학과", "010-1234-5678", "email.com", Status.PENDING))
                 );
 
         //when
@@ -186,6 +185,7 @@ class ClubControllerTest {
         //given
         Long clubId = 1L;
         String status = "미정";
+        String stage = String.valueOf(Stage.INTERVIEW);
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
@@ -199,7 +199,8 @@ class ClubControllerTest {
 
         //then
         mockMvc.perform(get("/api/clubs/{clubId}/dashboard/applicants", clubId)
-                        .param("status", status))
+                        .param("status", status)
+                .param("stage", stage))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
@@ -210,6 +211,7 @@ class ClubControllerTest {
         //given
         Long clubId = 1L;
         String status = null;
+        String stage = String.valueOf(Stage.INTERVIEW);
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
@@ -224,7 +226,8 @@ class ClubControllerTest {
 
         //then
         mockMvc.perform(get("/api/clubs/{clubId}/dashboard/applicants", clubId)
-                        .param("status", status))
+                        .param("status", status)
+                .param("stage", stage))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

@@ -102,7 +102,7 @@ public class ClubController{
     public ResponseEntity<ClubDashboardApplicantResponseDto> getClubApplicants(
             @PathVariable Long clubId,
             @RequestParam(required = false) Status status,
-            @RequestParam(required = false) Stage stage
+            @RequestParam Stage stage
     ) {
         ClubDashboardApplicantResponseDto response = clubService.getApplicantsByStatusAndStage(clubId, status, stage);
         return ResponseEntity.ok(response);

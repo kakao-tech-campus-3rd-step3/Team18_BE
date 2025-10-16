@@ -361,8 +361,6 @@ public class ClubServiceMockTest {
         Long clubId = 1L;
 
         Club club = mock(Club.class);
-        when(club.getId()).thenReturn(clubId);
-        given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(mock(ClubApplyForm.class)));
 
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(
@@ -421,7 +419,6 @@ public class ClubServiceMockTest {
         ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
 
-        given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(eq(clubId))).willReturn(Optional.of(clubApplyForm));
 
         // club -> clubMember -> user -> application
