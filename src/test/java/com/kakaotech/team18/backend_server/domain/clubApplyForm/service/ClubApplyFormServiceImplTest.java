@@ -1,6 +1,5 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
@@ -50,7 +49,7 @@ class ClubApplyFormServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true);
+        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true, null, null);
         FormQuestion textQuestion = FormQuestion.builder()
                 .clubApplyForm(mockClubApplyForm)
                 .question("이름")

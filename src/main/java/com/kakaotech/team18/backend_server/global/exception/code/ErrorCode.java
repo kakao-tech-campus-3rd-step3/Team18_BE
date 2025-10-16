@@ -29,6 +29,7 @@ public enum ErrorCode {
     INVALID_RATING_UNIT("별점은 0.5 단위로만 입력 가능합니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
+    PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
 
