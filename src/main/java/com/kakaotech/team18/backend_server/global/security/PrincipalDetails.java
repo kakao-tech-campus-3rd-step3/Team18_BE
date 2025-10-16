@@ -1,19 +1,20 @@
 package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
 
 @Getter
 @RequiredArgsConstructor
 public class PrincipalDetails implements UserDetails {
 
     private final User user;
+    private final Map<String, String> memberships;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
