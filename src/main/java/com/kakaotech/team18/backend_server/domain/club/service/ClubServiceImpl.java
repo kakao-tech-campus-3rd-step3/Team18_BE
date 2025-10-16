@@ -24,6 +24,8 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+
+import java.util.Collections;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
