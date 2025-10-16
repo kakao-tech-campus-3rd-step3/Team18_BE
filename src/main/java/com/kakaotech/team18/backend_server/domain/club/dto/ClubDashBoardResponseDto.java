@@ -1,10 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.dto;
 
-
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
-import java.util.List;
 
 @Schema(description = "동아리 대시보드 조회 응답 데이터")
 public record ClubDashBoardResponseDto(
