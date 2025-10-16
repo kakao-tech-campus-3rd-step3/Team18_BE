@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
