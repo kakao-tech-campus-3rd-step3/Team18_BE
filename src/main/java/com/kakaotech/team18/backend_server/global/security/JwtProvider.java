@@ -1,5 +1,7 @@
 package com.kakaotech.team18.backend_server.global.security;
 
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -8,13 +10,15 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -22,6 +26,7 @@ import java.util.Date;
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
+    private final ClubMemberRepository clubMemberRepository;
 
     // 임시 토큰 유효 시간 (5분)
     private final long temporaryTokenValidityInSeconds = 300;
@@ -36,14 +41,23 @@ public class JwtProvider {
 
     // 정식 Access Token 생성
     public String createAccessToken(User user) {
-        // TODO: ClubMemberRepository를 통해 사용자의 역할(Role) 정보를 조회하는 로직 추가 필요
-        // Map<String, Object> claims = Map.of("memberships", structuredRoles);
+        // 사용자가 속한 모든 동아리의 멤버십 정보(clubId, role)를 DTO로 직접 조회합니다.
+        List<ClubMembershipInfo> membershipInfos = clubMemberRepository.findClubMembershipsByUser(user);
+
+        // 멤버십 정보를 {clubId: roleName} 형태의 Map으로 변환합니다.
+        Map<String, String> structuredMemberships = membershipInfos.stream()
+                .collect(Collectors.toMap(
+                        info -> info.clubId().toString(),
+                        info -> info.role().name()
+                ));
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + jwtProperties.accessTokenValidityInSeconds() * 1000);
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
+                .claim("tokenType", "ACCESS") // 토큰 타입: ACCESS
+                .claim("memberships", structuredMemberships) // 멤버십 정보 추가
                 .claim("tokenType", TokenType.ACCESS.name()) // 토큰 타입: ACCESS
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
