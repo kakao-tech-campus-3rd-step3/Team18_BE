@@ -39,6 +39,9 @@ public enum ErrorCode {
     MALFORMED_JWT("잘못된 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_SIGNATURE("토큰의 서명이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_JWT("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    NOT_REFRESH_TOKEN("Refresh Token이 아닙니다.", HttpStatus.UNAUTHORIZED),
+    LOGGED_OUT_USER("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED),
+    INVALID_REFRESH_TOKEN("유효하지 않은 Refresh Token입니다.", HttpStatus.UNAUTHORIZED),
     EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음

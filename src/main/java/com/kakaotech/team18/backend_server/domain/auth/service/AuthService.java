@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.auth.service;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 
 public interface AuthService {
 
@@ -23,5 +24,13 @@ public interface AuthService {
      * @return 회원가입 및 로그인 성공 결과로, 정식 토큰이 담긴 DTO
      */
     LoginSuccessResponseDto register(String temporaryToken, RegisterRequestDto registerRequestDto);
+
+    /**
+     * 유효한 Refresh Token을 사용하여 만료된 Access Token을 재발급합니다.
+     *
+     * @param bearerToken "Bearer " 접두사를 포함한 Refresh Token
+     * @return 새로 발급된 Access Token이 담긴 DTO
+     */
+    ReissueResponseDto reissue(String bearerToken);
 
 }

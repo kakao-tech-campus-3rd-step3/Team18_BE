@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.Map;
 
 @Slf4j
 @Component
@@ -45,7 +44,7 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
-                .claim("tokenType", "ACCESS") // 토큰 타입: ACCESS
+                .claim("tokenType", TokenType.ACCESS.name()) // 토큰 타입: ACCESS
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
@@ -59,20 +58,21 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
-                .claim("tokenType", "REFRESH") // 토큰 타입: REFRESH
+                .claim("tokenType", TokenType.REFRESH.name()) // 토큰 타입: REFRESH
                 .setIssuedAt(new Date())
                 .setExpiration(validity)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
+    // Temporary Token 생성
     public String createTemporaryToken(Long kakaoId, String nickname) {
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.temporaryTokenValidityInSeconds * 1000);
  
         return Jwts.builder()
-                .setSubject("temporary") // 임시 토큰 구분
-                .claim("tokenType", "TEMPORARY")
+                .setSubject(TokenType.TEMPORARY.name()) // 임시 토큰 구분
+                .claim("tokenType", TokenType.TEMPORARY.name())
                 .claim("kakaoId", kakaoId)
                 .claim("nickname", nickname)
                 .setIssuedAt(new Date())
