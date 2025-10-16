@@ -11,7 +11,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,8 +22,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
-
-import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -66,10 +66,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 5. 토큰의 subject(userId)로 UserDetails 객체를 조회한다.
-            UserDetails userDetails = principalDetailsService.loadUserByUsername(claims.getSubject());
+            // 5. 토큰에서 "memberships" 클레임을 추출한다.
+            // get(key, Class)를 사용하여 타입 안전하게 추출하고, 없을 경우를 대비해 기본값(빈 맵)을 설정한다.
+            Map<String, String> memberships = claims.get("memberships", Map.class);
+            if (memberships == null) {
+                memberships = Collections.emptyMap();
+            }
 
-            // 6. Authentication 객체 생성 (Principal, Credentials, Authorities)
+            // 6. 토큰의 subject(userId)와 memberships 정보로 UserDetails 객체를 조회한다.
+            UserDetails userDetails = principalDetailsService.loadUserByUsername(claims.getSubject(), memberships);
+
+            // 7. Authentication 객체 생성 (Principal, Credentials, Authorities)
             // 우리는 JWT를 사용하므로, 비밀번호(Credentials)는 null로 설정한다.
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userDetails,
@@ -77,7 +84,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails.getAuthorities()
             );
 
-            // 7. SecurityContextHolder에 Authentication 객체를 저장한다.
+            // 8. SecurityContextHolder에 Authentication 객체를 저장한다.
             // 이 작업이 완료되면, 해당 요청은 '인증된' 것으로 간주된다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -98,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 8. 다음 필터 체인을 실행한다.
+        // 9. 다음 필터 체인을 실행한다.
         filterChain.doFilter(request, response);
     }
 }
