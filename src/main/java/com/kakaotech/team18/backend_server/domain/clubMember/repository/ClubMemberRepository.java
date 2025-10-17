@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
@@ -23,6 +24,15 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     @Query("""
             select cm
             from ClubMember cm
+            join fetch cm.application a
+            join fetch cm.user
+            where cm.club.id = :clubId and cm.role = :role and a.stage = :stage
+            """)
+    List<ClubMember> findByClubIdAndRoleAndStage(Long clubId, Role role, Stage stage);
+
+    @Query("""
+            select cm
+            from ClubMember cm
             join fetch cm.club
             where cm.club.id = :clubId and cm.role = :role
             """)
@@ -37,6 +47,16 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
 
             """)
     List<ClubMember> findByClubIdAndRoleAndApplicationStatus(Long clubId, Role role, Status status);
+
+    @Query("""
+            select cm
+            from ClubMember cm
+            join fetch cm.application a
+            join fetch cm.user
+            where cm.club.id = :clubId and cm.role = :role and a.status = :status and a.stage = :stage
+
+            """)
+    List<ClubMember> findByClubIdAndRoleAndApplicationStatusAndStage(Long clubId, Role role, Status status, Stage stage);
 
     @Query("""
         select cm.user

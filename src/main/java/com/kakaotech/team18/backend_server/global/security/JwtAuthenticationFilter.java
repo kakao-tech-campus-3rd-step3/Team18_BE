@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 4-1. 토큰 타입 검증: "ACCESS" 타입의 토큰만 인증 처리
             String tokenType = claims.get("tokenType", String.class);
-            if (!"ACCESS".equals(tokenType)) {
+            if (!TokenType.ACCESS.name().equals(tokenType)) {
                 // ACCESS 토큰이 아니면 (예: REFRESH 토큰이면), 인증 처리하지 않고 다음 필터로 넘어간다.
                 filterChain.doFilter(request, response);
                 return;
