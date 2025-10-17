@@ -23,10 +23,10 @@ class EmailServiceIntegrationTest {
     @Autowired
     private EmailService emailService;
 
-    @DisplayName("실제 SMTP 발송")
+    @DisplayName("emailservice 부터 전송까지")
     @Test
     void sendToApplicant_realSmtp() {
-        String to = System.getenv().getOrDefault("MAIL_TO", "your@email.com");
+        String to = System.getenv().getOrDefault("MAIL_TO", "gjw0622@gmail.com");
         String replyTo = System.getenv().getOrDefault(
                 "MAIL_FROM",
                 System.getenv().getOrDefault("MAIL_USERNAME", "test@example.com")
