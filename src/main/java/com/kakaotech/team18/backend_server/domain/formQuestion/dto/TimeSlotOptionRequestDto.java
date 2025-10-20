@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalTime;
 
 @Schema(description = "동아리의 면접 가능 날짜")
 public record TimeSlotOptionRequestDto(
@@ -20,11 +21,11 @@ public record TimeSlotOptionRequestDto(
     public record TimeRange(
             @Schema(description = "면접 시작 시간", example = "10:00")
             @NotBlank(message = "면접 시작 시간은 필수 입니다.")
-            String start,
+            LocalTime start,
 
             @Schema(description = "면접 마감 시간", example = "21:00")
             @NotBlank(message = "면접 마감 시간은 필수 입니다.")
-            String end
+            LocalTime end
     ) {}
 }
 
