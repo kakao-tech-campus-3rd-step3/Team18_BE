@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionU
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto.TimeRange;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -64,12 +65,12 @@ class FormQuestionTest {
     @DisplayName("TIME_SLOT 타입 FormQuestionUpdateDto를 통해 필드를 수정할 수 있다.")
     @Test
     void updateFrom_shouldUpdateTimeSlotFieldsCorrectly() {
-        TimeSlotOption.TimeRange originalTimeRange = new TimeSlotOption.TimeRange("10:00", "18:00");
+        TimeSlotOption.TimeRange originalTimeRange = new TimeSlotOption.TimeRange(LocalTime.of(10, 0), LocalTime.of(18, 0));
         TimeSlotOption originalOption = new TimeSlotOption(LocalDate.of(2025, 9, 25), originalTimeRange);
         FormQuestion formQuestion = createFormQuestion("면접 가능한 시간대는?", FieldType.TIME_SLOT, 3L, null, List.of(originalOption));
         ReflectionTestUtils.setField(formQuestion, "id", 3L);
 
-        TimeSlotOptionRequestDto.TimeRange newTimeRange = new TimeRange("22:00", "23:00");
+        TimeSlotOptionRequestDto.TimeRange newTimeRange = new TimeRange(LocalTime.of(22, 0), LocalTime.of(23, 0));
         TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto("2025-09-26", newTimeRange);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
