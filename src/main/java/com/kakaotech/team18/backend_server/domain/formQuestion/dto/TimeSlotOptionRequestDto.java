@@ -22,7 +22,7 @@ public record TimeSlotOptionRequestDto(
             @NotBlank(message = "면접 시작 시간은 필수 입니다.")
             String start,
 
-            @Schema(description = "면점 마감 시간", example = "21:00")
+            @Schema(description = "면접 마감 시간", example = "21:00")
             @NotBlank(message = "면접 마감 시간은 필수 입니다.")
             String end
     ) {}
