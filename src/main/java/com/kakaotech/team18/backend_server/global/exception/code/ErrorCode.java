@@ -53,7 +53,7 @@ public enum ErrorCode {
     // 404 NOT_FOUND: 리소스를 찾을 수 없음
     USER_NOT_FOUND("해당 유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     CLUB_NOT_FOUND("해당 동아리가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    CLUB_MEMBER_NOT_FOUND("해당 클럽멤버 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    CLUB_MEMBER_NOT_FOUND("해당 클럽멤버가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     FORM_NOT_FOUND("지원폼이 존재하지 않습니다", HttpStatus.NOT_FOUND),
     APPLICATION_NOT_FOUND("해당 지원서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
