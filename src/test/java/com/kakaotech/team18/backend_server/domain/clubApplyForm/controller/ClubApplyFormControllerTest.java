@@ -310,11 +310,11 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    @DisplayName("동아리 지원서 저장 API 호출 - 실패(description이 200자를 초과하는 경우 400 응답)")
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(description이 100자를 초과하는 경우 400 응답)")
     @Test
     void createClubApplyForm_longDescription_shouldFailValidation() throws Exception {
         Long clubId = 1L;
-        String longDescription = "a".repeat(201); // 201 characters
+        String longDescription = "a".repeat(101);
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "제목",
                 longDescription,
@@ -534,15 +534,14 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
-    @DisplayName("동아리 지원서 수정 API 호출 - 실패(description이 200자를 초과하는 경우 400 응답)")
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(description이 100자를 초과하는 경우 400 응답)")
     @Test
     void updateClubApplyForm_longDescription_shouldFailValidation() throws Exception {
         Long clubId = 1L;
-        String longDescription = "a".repeat(201); // 201 characters
+        String longDescription = "a".repeat(101); // 201 characters
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "제목",
                 longDescription,
-
                 List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
