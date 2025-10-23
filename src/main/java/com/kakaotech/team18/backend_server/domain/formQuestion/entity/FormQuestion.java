@@ -87,7 +87,7 @@ public class FormQuestion extends BaseEntity {
             this.timeSlotOptions = dto.timeSlotOptions() != null
                     ? dto.timeSlotOptions().stream()
                     .map(tsoDto -> new TimeSlotOption(
-                            LocalDate.parse(tsoDto.date()),
+                            tsoDto.date(),
                             new TimeSlotOption.TimeRange(
                                     tsoDto.availableTime().start(),
                                     tsoDto.availableTime().end()

@@ -32,6 +32,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -247,6 +248,32 @@ public class ClubServiceMockTest {
         //then
         verifyNoInteractions(clubMemberRepository);
     }
+
+    @DisplayName("Club Detail 조회시 동아리 회장을 찾을 수 없을 때 ClubMemberNotFoundException이 실행된다.")
+    @Test
+    void getClubDetailWithNoClubAdmin() {
+        //given
+        Long clubId = 1L;
+
+        ClubIntroduction clubIntroduction = createClubIntroduction();
+        ClubImage image = createClubImage(clubIntroduction);
+        clubIntroduction.addImage(image);
+        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
+        given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.empty());
+
+        //when
+        assertThatThrownBy(() -> clubService.getClubDetail(clubId))
+                .isInstanceOf(ClubMemberNotFoundException.class)
+                .hasMessage("해당 클럽멤버가 존재하지 않습니다.");
+
+        //then
+        verify(clubRepository).findClubDetailById(eq(clubId));
+        verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
+    }
+
 
     @Test
     @DisplayName("동아리 상세 업데이트: 기존 Introduction을 새 값으로 교체 (이미지 포함)")

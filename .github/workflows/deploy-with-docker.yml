@@ -99,11 +99,6 @@ jobs:
           source: "docker-compose.yml"
           target: "${{ env.REMOTE_DIR }}/current"
 
-      - name: Debug Secrets (TEMPORARY)
-        run: |
-          echo "KAKAO_CLIENT_ID = ${{ secrets.KAKAO_CLIENT_ID }}"
-          echo "JWT_SECRET = ${{ secrets.JWT_SECRET }}"
-
       - name: Deploy on EC2 (create .env, set credHelpers, compose up)
         uses: appleboy/ssh-action@v1.0.3
         with:

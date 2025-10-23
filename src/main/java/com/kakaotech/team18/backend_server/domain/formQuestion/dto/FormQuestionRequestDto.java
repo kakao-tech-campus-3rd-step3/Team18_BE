@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @ValidFormQuestionRequest
@@ -14,6 +15,7 @@ import java.util.List;
 public record FormQuestionRequestDto(
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")
         @NotBlank(message = "질문은 필수 입니다.")
+        @Size(max = 100, message = "질문은 100자 이내로 입력해주세요.")
         String question,
 
         @Schema(description = "질문 유형", example = "[TEXT, RADIO, CHECKBOX, TIME_SLOT 중 하나 입력 가능]")
