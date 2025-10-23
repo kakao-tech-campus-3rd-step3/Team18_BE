@@ -153,7 +153,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
             builder.timeSlotOptions(timeSlots != null
                     ? timeSlots.stream()
                     .map(tsoDto -> new TimeSlotOption(
-                            LocalDate.parse(tsoDto.date()),
+                            tsoDto.date(),
                             new TimeSlotOption.TimeRange(
                                     tsoDto.availableTime().start(),
                                     tsoDto.availableTime().end()

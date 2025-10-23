@@ -71,7 +71,7 @@ class FormQuestionTest {
         ReflectionTestUtils.setField(formQuestion, "id", 3L);
 
         TimeSlotOptionRequestDto.TimeRange newTimeRange = new TimeRange(LocalTime.of(22, 0), LocalTime.of(23, 0));
-        TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto("2025-09-26", newTimeRange);
+        TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto(LocalDate.of(2025,9,26), newTimeRange);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
                 3L, "면접 불가능한 시간대는?", FieldType.TIME_SLOT, true, 3L, null, List.of(newOption)

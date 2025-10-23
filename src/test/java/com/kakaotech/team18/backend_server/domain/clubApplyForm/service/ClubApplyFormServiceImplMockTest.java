@@ -116,7 +116,7 @@ class ClubApplyFormServiceImplMockTest {
         FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
         FormQuestionRequestDto question2 = new FormQuestionRequestDto("질문 2", FieldType.RADIO,
                 false, 2L, List.of("옵션 1", "옵션 2"),
-                List.of(new TimeSlotOptionRequestDto("2025-09-24", new TimeSlotOptionRequestDto.TimeRange(LocalTime.of(10, 0), LocalTime.of(21, 0))))
+                List.of(new TimeSlotOptionRequestDto(LocalDate.of(2025,9,24), new TimeSlotOptionRequestDto.TimeRange(LocalTime.of(10, 0), LocalTime.of(21, 0))))
         );
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
                 "테스트 설명",
