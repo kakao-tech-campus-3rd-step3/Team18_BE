@@ -191,17 +191,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + application.getClubApplyForm().getClub().getId()));
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answers());
-        ApplicationInfoDto applicationInfoDto = new ApplicationInfoDto(
-                application.getClubApplyForm().getClub().getName(),
-                application.getUser().getName(),
-                application.getClubApplyForm().getClub().getId(),
-                president.getEmail(),
-                application.getUser().getStudentId(),
-                application.getUser().getDepartment(),
-                application.getUser().getPhoneNumber(),
-                application.getUser().getEmail(),
-                application.getLastModifiedAt()
-        );
+        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(application,  president);
         publisher.publishEvent(new ApplicationSubmittedEvent(applicationInfoDto, application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
@@ -226,17 +216,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + newApplication.getClubApplyForm().getClub().getId()));
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answers());
-        ApplicationInfoDto applicationInfoDto = new ApplicationInfoDto(
-                newApplication.getClubApplyForm().getClub().getName(),
-                newApplication.getUser().getName(),
-                newApplication.getClubApplyForm().getClub().getId(),
-                president.getEmail(),
-                newApplication.getUser().getStudentId(),
-                newApplication.getUser().getDepartment(),
-                newApplication.getUser().getPhoneNumber(),
-                newApplication.getUser().getEmail(),
-                newApplication.getLastModifiedAt()
-        );
+        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(newApplication, president);
         publisher.publishEvent(new ApplicationSubmittedEvent(applicationInfoDto, newApplication.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
@@ -346,6 +326,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                             return new ClubApplyFormNotFoundException("clubId = " + clubId);
                         }
                 );
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
 
         if(stage == Stage.INTERVIEW) {
             List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
@@ -365,18 +348,19 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
             for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 a.updateStage(Stage.FINAL);
                 a.updateStatus(Status.PENDING);
                 publisher.publishEvent(new InterviewApprovedEvent(
+                        applicationInfoDto,
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
                         a.getStage()));
             }
             for(Application a : rejected) {
-                publisher.publishEvent(new InterviewRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }
@@ -398,16 +382,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
             for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new FinalApprovedEvent(
+                        applicationInfoDto,
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
                         a.getStage()));
             }
             for(Application a : rejected) {
-                publisher.publishEvent(new FinalRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }
@@ -425,16 +410,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
             for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new FinalApprovedEvent(
+                        applicationInfoDto,
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
                         a.getStage()));
             }
             for(Application a : rejected) {
-                publisher.publishEvent(new FinalRejectedEvent(
-                        a.getClubApplyForm().getClub(),
-                        a.getUser()));
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
             }
             applicationRepository.deleteAllInBatch(rejected);
         }
@@ -442,6 +428,20 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     //helper methods
+
+    private ApplicationInfoDto buildApplicationInfo(Application a, User president) {
+        return new ApplicationInfoDto(
+                a.getClubApplyForm().getClub().getName(),
+                a.getUser().getName(),
+                a.getClubApplyForm().getClub().getId(),
+                president.getEmail(),
+                a.getUser().getStudentId(),
+                a.getUser().getDepartment(),
+                a.getUser().getPhoneNumber(),
+                a.getUser().getEmail(),
+                a.getLastModifiedAt()
+        );
+    }
 
     private List<String> extractTextValues(JsonNode node) {
         if (node == null || node.isNull()) return List.of();

@@ -9,6 +9,8 @@ import com.kakaotech.team18.backend_server.domain.application.service.Applicatio
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
@@ -90,8 +92,6 @@ class EmailServiceUnitTest {
     ArgumentCaptor<Object> eventCaptor;
     @Captor
     ArgumentCaptor<List<Application>> appsCaptor;
-    @Captor
-    ArgumentCaptor<List<Application>> deletedCaptor;
 
     @InjectMocks
     ApplicationServiceImpl serviceImpl;
@@ -99,7 +99,6 @@ class EmailServiceUnitTest {
     EmailService service;
 
     final String from = "no-reply@clubhub.example";
-    final String subjectPrefix = "[동아리 지원]";
 
     @BeforeEach
     void setUp() {
@@ -184,9 +183,16 @@ class EmailServiceUnitTest {
         // given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         Club club1 = mock(Club.class);
         when(club1.getId()).thenReturn(77L);
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(club1.getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
+
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -263,8 +269,8 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof InterviewRejectedEvent)
                 .map(e -> (InterviewRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(77L);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(77L);
     }
 
     @Test
@@ -273,9 +279,15 @@ class EmailServiceUnitTest {
         //given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         Club club1 = mock(Club.class);
         when(club1.getId()).thenReturn(88L);
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(club1.getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -340,14 +352,18 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("final-rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(88L);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("final-rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(88L);
     }
     @Test
     @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 배치 삭제, 메시지 업데이트 없음")
     void nullStage_flow_success() {
         // given
         Long clubId = 99L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         Club clubN = mock(Club.class);
         when(clubN.getId()).thenReturn(clubId);
@@ -357,6 +373,8 @@ class EmailServiceUnitTest {
         // 앱들 (모두 stage == null)
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(appApproved.getStage()).thenReturn(null);
 
@@ -420,8 +438,8 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("nullstage-rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(clubId);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("nullstage-rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(clubId);
     }
 
     @Test
@@ -429,6 +447,10 @@ class EmailServiceUnitTest {
     void interviewStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
@@ -457,6 +479,10 @@ class EmailServiceUnitTest {
     void finalStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
@@ -485,6 +511,10 @@ class EmailServiceUnitTest {
     void nullStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
