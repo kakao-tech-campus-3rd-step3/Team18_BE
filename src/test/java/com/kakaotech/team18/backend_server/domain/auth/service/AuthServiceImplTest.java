@@ -1,20 +1,36 @@
 package com.kakaotech.team18.backend_server.domain.auth.service;
 
-import com.kakaotech.team18.backend_server.domain.auth.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.kakaotech.team18.backend_server.domain.auth.dto.AuthStatus;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoTokenResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoUserInfoResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,15 +43,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
@@ -53,6 +60,8 @@ class AuthServiceImplTest {
     private RefreshTokenRepository refreshTokenRepository;
     @Mock
     private JwtProperties jwtProperties;
+    @Mock
+    private ClubMemberRepository clubMemberRepository;
 
     // RestClient의 플루언트 API를 Mocking하기 위한 추가 Mock 객체들
     @Mock
