@@ -3,11 +3,10 @@ package com.kakaotech.team18.backend_server.domain.application.repository;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -41,6 +40,22 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
              FROM Application a
              WHERE a.id = :id""")
     Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
+
+    /**
+     * applicationId를 사용하여, 해당 지원서가 속한 동아리의 ID(clubId)를 조회합니다.
+     * <p>
+     * 엔티티 전체를 로딩하지 않고 필요한 clubId 값만 직접 조회(Projection)하여 성능을 최적화합니다.
+     * CustomSecurityService에서 특정 지원서에 대한 권한을 검사할 때 사용됩니다.
+     *
+     * @param applicationId 조회할 지원서의 ID
+     * @return 해당 지원서가 속한 Club의 ID
+     */
+    @Query("""
+            SELECT a.clubApplyForm.club.id
+            FROM Application a
+            WHERE a.id = :applicationId
+            """)
+    Optional<Long> findClubIdByApplicationId(@Param("applicationId") Long applicationId);
 
     @Query("""
             SELECT a
