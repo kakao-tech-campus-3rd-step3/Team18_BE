@@ -51,7 +51,7 @@ class ClubApplyFormServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true, "interviewTimeMessage", "finalMessage");
+        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.","interviewTimeMessage", "finalMessage");
         FormQuestion textQuestion = FormQuestion.builder()
                 .clubApplyForm(mockClubApplyForm)
                 .question("이름")
@@ -100,7 +100,7 @@ class ClubApplyFormServiceImplTest {
                 //given
                 Long clubId = 100L;
 
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(
+                when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(
                         clubApplyForm));
                 when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId())).thenReturn(formFields);
@@ -127,7 +127,7 @@ class ClubApplyFormServiceImplTest {
                 assertThat(thirdQuestion.question()).isEqualTo("면접가능 요일");
                 assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
-                verify(clubApplyFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
                 verify(formQuestionRepository, times(1)).findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId());
             }
@@ -138,7 +138,7 @@ class ClubApplyFormServiceImplTest {
                 // given
                 Long clubId = 100L;
 
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                when(clubApplyFormRepository.findByClubId(clubId))
                         .thenReturn(Optional.of(clubApplyForm));
                 when(formQuestionRepository
                         .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
@@ -152,7 +152,7 @@ class ClubApplyFormServiceImplTest {
                 assertThat(result.description()).isEqualTo("함께 성장할 팀원을 찾습니다.");
                 assertThat(result.questions()).isEmpty();
 
-                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository).findByClubId(clubId);
                 verify(formQuestionRepository)
                         .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
             }
@@ -167,14 +167,14 @@ class ClubApplyFormServiceImplTest {
             void throwsException() {
                 // given
                 Long clubId = 999L;
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                when(clubApplyFormRepository.findByClubId(clubId))
                         .thenReturn(Optional.empty());
 
                 // when & then
                 assertThatThrownBy(() -> applicationFormServiceImpl.getQuestionForm(clubId))
                         .isInstanceOf(ClubApplyFormNotFoundException.class);
 
-                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository).findByClubId(clubId);
                 verifyNoInteractions(formQuestionRepository);
             }
         }

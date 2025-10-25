@@ -45,6 +45,22 @@ class FormQuestionTest {
             .containsExactly("먹기 싫은 메뉴는?", FieldType.CHECKBOX, false, 2L, List.of("피자", "치킨"), null);
     }
 
+    @DisplayName("RADIO 타입 FormQuestionUpdateDto를 통해 필드를 수정할 수 있다.")
+    @Test
+    void updateFrom_shouldUpdateRadioFieldsCorrectly() {
+        FormQuestion formQuestion = createFormQuestion("성별은?", FieldType.RADIO, 4L, List.of("남", "여"), null);
+        ReflectionTestUtils.setField(formQuestion, "id", 4L);
+
+        FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
+                2L, "성별?", FieldType.RADIO, false, 4L, List.of("남", "여", "응답안함"), null
+        );
+
+        formQuestion.updateFrom(dto);
+
+        assertThat(formQuestion).extracting("question", "fieldType", "isRequired", "displayOrder", "options", "timeSlotOptions")
+                .containsExactly("성별?", FieldType.RADIO, false, 4L, List.of("남", "여", "응답안함"), null);
+    }
+
     @DisplayName("TIME_SLOT 타입 FormQuestionUpdateDto를 통해 필드를 수정할 수 있다.")
     @Test
     void updateFrom_shouldUpdateTimeSlotFieldsCorrectly() {

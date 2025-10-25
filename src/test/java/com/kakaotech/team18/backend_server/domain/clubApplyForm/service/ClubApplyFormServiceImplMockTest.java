@@ -62,7 +62,7 @@ class ClubApplyFormServiceImplMockTest {
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
         FormQuestion formQuestion = createFormQuestion(clubApplyForm);
 
-        given(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
         given(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId())).willReturn(List.of(formQuestion));
 
         ClubApplyFormResponseDto expected = ClubApplyFormResponseDto.of(
@@ -85,7 +85,7 @@ class ClubApplyFormServiceImplMockTest {
 
         //then
         Assertions.assertThat(actual).isEqualTo(expected);
-        then(clubApplyFormRepository).should(times(1)).findByClubIdAndIsActiveTrue(clubId);
+        then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(formQuestionRepository).should(times(1)).findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
     }
 
@@ -94,14 +94,14 @@ class ClubApplyFormServiceImplMockTest {
     void getQuestionForm_ClubNotFound() {
         //given
         Long clubId = 1L;
-        given(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).willReturn(Optional.empty());
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.empty());
 
         //when, then
         Assertions.assertThatThrownBy(() -> clubApplyFormService.getQuestionForm(clubId))
                 .isInstanceOf(ClubApplyFormNotFoundException.class)
                 .hasMessageContaining("지원폼이 존재하지 않습니다");
 
-        then(clubApplyFormRepository).should(times(1)).findByClubIdAndIsActiveTrue(clubId);
+        then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(formQuestionRepository).should(never()).findByClubApplyFormIdOrderByDisplayOrderAsc(anyLong());
     }
 

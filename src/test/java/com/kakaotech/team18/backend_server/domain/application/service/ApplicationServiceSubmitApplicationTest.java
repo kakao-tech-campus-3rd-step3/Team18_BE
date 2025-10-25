@@ -159,7 +159,7 @@ class ApplicationServiceSubmitApplicationTest {
             ClubApplyForm form = mock(ClubApplyForm.class);
             when(form.getId()).thenReturn(11L);
 
-            when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(1L))
+            when(clubApplyFormRepository.findByClubId(1L))
                     .thenReturn(Optional.of(form));
 
             when(userRepository.findByStudentId("20231234"))
@@ -226,7 +226,7 @@ class ApplicationServiceSubmitApplicationTest {
         void existing_noOverwrite() {
             // given
             ClubApplyForm form = mock(ClubApplyForm.class);
-            when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(1L))
+            when(clubApplyFormRepository.findByClubId(1L))
                     .thenReturn(Optional.of(form));
 
             when(userRepository.findByStudentId("20231234"))
@@ -272,7 +272,7 @@ class ApplicationServiceSubmitApplicationTest {
             ClubApplyForm form = mock(ClubApplyForm.class);
             when(form.getId()).thenReturn(11L);
 
-            when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(1L))
+            when(clubApplyFormRepository.findByClubId(1L))
                     .thenReturn(Optional.of(form));
             when(userRepository.findByStudentId("20231234"))
                     .thenReturn(Optional.of(baseUser));

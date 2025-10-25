@@ -3,7 +3,6 @@ package com.kakaotech.team18.backend_server.domain.application.repository;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 

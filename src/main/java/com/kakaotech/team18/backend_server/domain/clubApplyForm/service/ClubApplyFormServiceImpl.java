@@ -38,7 +38,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
 
     @Transactional(readOnly = true)
     public ClubApplyFormResponseDto getQuestionForm(Long clubId){
-        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
