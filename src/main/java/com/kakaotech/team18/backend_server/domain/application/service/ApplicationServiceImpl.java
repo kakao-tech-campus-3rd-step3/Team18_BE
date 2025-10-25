@@ -60,6 +60,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
+    private static final int MAX_READ_LIMIT = 100;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -426,10 +427,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                         if (v.isArray()) out.addAll(extractTextValues(v));
                         else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
                         else {
-                            collectStringLeaves(v, out, 100);
+                            collectStringLeaves(v, out, MAX_READ_LIMIT);
                         }
                     } else {
-                        collectStringLeaves(item, out, 100);
+                        collectStringLeaves(item, out, MAX_READ_LIMIT);
                     }
                 } else {
                     out.addAll(extractTextValues(item));
@@ -445,7 +446,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 if (v.isTextual() || v.isNumber() || v.isBoolean()) return List.of(v.asText());
             }
             List<String> leaves = new ArrayList<>();
-            collectStringLeaves(node, leaves, 100);
+            collectStringLeaves(node, leaves, MAX_READ_LIMIT);
             return leaves;
         }
 
