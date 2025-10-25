@@ -11,6 +11,6 @@ public record ApplicationInfoDto(
         String userDepartment,
         String userPhoneNumber,
         String userEmail,
-        LocalDateTime LastModifiedAt
+        LocalDateTime lastModifiedAt
         ) {
 }

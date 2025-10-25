@@ -32,7 +32,7 @@ public class EmailService {
     public void sendToApplicant(ApplicationInfoDto info, List<AnswerEmailLine> emailLines) {
 
         Long clubId = info.clubId();
-       String replyTo = info.presidentEmail();
+        String replyTo = info.presidentEmail();
 
         Map<String, Object> model = new HashMap<>();
 
@@ -44,14 +44,12 @@ public class EmailService {
         model.put("phoneNumber", info.userPhoneNumber());
         model.put("applicantEmail", info.userEmail());
         model.put("answers", emailLines);
-        model.put("submittedAt", info.LastModifiedAt());
+        model.put("submittedAt", info.lastModifiedAt());
 
         String html = renderer.render("email-body-applicant", model);
 
         final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + info.clubName()
-                + " - " + info.userName();
+        String subject = subjectPrefix + " " + info.clubName() + " - " + info.userName();
 
         emailSender.sendHtml(from, replyTo,List.of(info.userEmail()),subject, html);
     }
@@ -75,9 +73,7 @@ public class EmailService {
 
         String html = renderer.render(templateName, model);
         final String subjectPrefix = "[동아리 지원]";
-        String subject = subjectPrefix + " "
-                + info.clubName()
-                + " - " + info.userName();
+        String subject = subjectPrefix + " " + info.clubName() + " - " + info.userName();
 
         emailSender.sendHtml(from, replyTo, List.of(info.userEmail()), subject, html);
     }

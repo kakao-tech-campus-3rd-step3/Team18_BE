@@ -246,7 +246,7 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.userPhoneNumber()).isEqualTo("010-0000-0000");
             assertThat(info.userEmail()).isEqualTo("stud@example.com");
             assertThat(info.presidentEmail()).isEqualTo("president@example.com");
-            assertThat(info.LastModifiedAt()).isNotNull();
+            assertThat(info.lastModifiedAt()).isNotNull();
         }
 
     }
@@ -376,7 +376,7 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.userPhoneNumber()).isEqualTo("010-0000-0000");
             assertThat(info.userEmail()).isEqualTo("stud@example.com");
             assertThat(info.presidentEmail()).isEqualTo("president@example.com");
-            assertThat(info.LastModifiedAt()).isNotNull();
+            assertThat(info.lastModifiedAt()).isNotNull();
         }
 
         @Nested

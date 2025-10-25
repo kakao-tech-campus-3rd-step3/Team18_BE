@@ -262,7 +262,7 @@ class EmailServiceUnitTest {
         assertThat(approvedEvt.applicationId()).isEqualTo(101L);
         assertThat(approvedEvt.email()).isEqualTo("approved@ex.com");
         assertThat(approvedEvt.message()).isEqualTo("면접 합격 안내 메시지");
-        assertThat(approvedEvt.stage()).isEqualTo(Stage.FINAL);
+        assertThat(approvedEvt.stage()).isEqualTo(Stage.INTERVIEW);
 
         // InterviewRejectedEvent
         InterviewRejectedEvent rejectedEvt = events.stream()

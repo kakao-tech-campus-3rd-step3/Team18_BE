@@ -22,10 +22,10 @@ class EmailServiceIntegrationTest {
     @Autowired
     private EmailService emailService;
 
-    @DisplayName("emailservice 부터 전송까지")
+    @DisplayName("emailservice 부터 전송까지")// 이걸로 LazyInitializationException 발생여부 확인 가능
     @Test
     void sendToApplicant_realSmtp() {
-        String to = System.getenv().getOrDefault("MAIL_TO", "gjw0622@gmail.com");
+        String to = System.getenv().getOrDefault("MAIL_TO", "your@email.com");
         String replyTo = System.getenv().getOrDefault(
                 "MAIL_FROM",
                 System.getenv().getOrDefault("MAIL_USERNAME", "test@example.com")

@@ -349,6 +349,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .toList();
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                Stage originalStage = a.getStage();
                 a.updateStage(Stage.FINAL);
                 a.updateStatus(Status.PENDING);
                 publisher.publishEvent(new InterviewApprovedEvent(
@@ -356,7 +357,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
-                        a.getStage()));
+                        originalStage));
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
