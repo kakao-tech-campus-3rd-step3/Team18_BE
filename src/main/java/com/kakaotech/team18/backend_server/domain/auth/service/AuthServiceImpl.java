@@ -10,6 +10,9 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
@@ -23,6 +26,7 @@ import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
     private final RestClient restClient;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
+    private final ClubMemberRepository clubMemberRepository;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -91,7 +96,15 @@ public class AuthServiceImpl implements AuthService {
             refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
             log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
-            return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken);
+            //clubId, Role 전달
+            List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+
+            //서비스 관리자가 로그인하는 경우
+            if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
+                clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+            }
+
+            return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
         } else {
             // 4-2. 신규 회원일 경우: 추가 정보 입력 필요
             log.info("신규 회원, 추가 정보 입력 필요");
@@ -155,6 +168,14 @@ public class AuthServiceImpl implements AuthService {
             userRepository.save(user);
         }
 
+        //clubId, Role 전달
+        List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+
+        //서비스 관리자가 로그인하는 경우
+        if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
+            clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+        }
+
         // 4. 정식 토큰 발급
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);
@@ -163,7 +184,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
         log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
-        return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken);
+        return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
     }
 
     @Override
@@ -244,5 +265,10 @@ public class AuthServiceImpl implements AuthService {
             log.warn("카카오 사용자 정보 요청 중 타임아웃 발생", e);
             throw new KakaoApiTimeoutException();
         }
+    }
+
+    private boolean isSystemAdmin(User user) {
+        return clubMemberRepository.findByUser(user).stream()
+                .anyMatch(cm -> cm.getRole() == Role.SYSTEM_ADMIN);
     }
 }
