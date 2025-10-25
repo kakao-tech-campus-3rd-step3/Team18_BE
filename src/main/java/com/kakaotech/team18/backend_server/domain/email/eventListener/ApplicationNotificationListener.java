@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.email.eventListener;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
@@ -28,50 +29,41 @@ public class ApplicationNotificationListener {
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onSubmitted(ApplicationSubmittedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
+        ApplicationInfoDto info = event.info();
 
-        emailService.sendToApplicant(application, event.emailLines());
-        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
+        emailService.sendToApplicant(info, event.emailLines());
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onInterviewApproved(InterviewApprovedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
-        Club club = application.getClubApplyForm().getClub();
-        User user = application.getUser();
-        emailService.sendInterviewApprovedResultToApplicant(club, user,  event.message());
-        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
+        ApplicationInfoDto info = event.info();
+        emailService.sendInterviewApprovedResultToApplicant(info,  event.message());
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onInterviewRejected(InterviewRejectedEvent event) {
-        Club club = event.club();
-        User user = event.user();
-        emailService.sendInterviewRejectedResultToApplicant(club, user);
-        log.info("Email sent successfully: clubName={} userName={}", club.getName(), user.getName());
+        ApplicationInfoDto info = event.info();
+        emailService.sendInterviewRejectedResultToApplicant(info);
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onFinalApproved(FinalApprovedEvent event) {
-        Application application = applicationRepository.findById(event.applicationId()).orElse(null);
-        if (application == null) return;
-        Club club = application.getClubApplyForm().getClub();
-        User user = application.getUser();
-        emailService.sendFinalApprovedResultToApplicant(club, user, event.message());
-        log.info("Email sent successfully: clubName={} userName={}", application.getClubApplyForm().getClub().getName(), application.getUser().getName());
+        ApplicationInfoDto info = event.info();
+        emailService.sendFinalApprovedResultToApplicant(info, event.message());
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onFinalRejected(FinalRejectedEvent event) {
-        Club club = event.club();
-        User user = event.user();
-        emailService.sendFinalRejectedResultToApplicant(club, user);
-        log.info("Email sent successfully: clubName={} userName={}", club.getName(), user.getName());
+        ApplicationInfoDto info = event.info();
+        emailService.sendFinalRejectedResultToApplicant(info);
+        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 }
