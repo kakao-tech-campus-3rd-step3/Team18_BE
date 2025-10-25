@@ -117,6 +117,7 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 성공")
     void updateApplicationStatus_success() throws Exception {
         // given
+        Long clubId = 1L;
         Long applicationId = 1L;
         ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
         given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
@@ -124,7 +125,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", applicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -138,6 +139,7 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (지원서 없음)")
     void updateApplicationStatus_fail_applicationNotFound() throws Exception {
         // given
+        Long clubId = 1L;
         Long nonExistentApplicationId = 999L;
         ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
         given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
@@ -145,7 +147,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", nonExistentApplicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, nonExistentApplicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -159,13 +161,14 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (잘못된 요청 값)")
     void updateApplicationStatus_fail_invalidInputValue() throws Exception {
         // given
+        Long clubId = 1L;
         Long applicationId = 1L;
         // status 필드가 없는 잘못된 요청
         String invalidRequestBody = "{}";
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", applicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestBody)
         );
