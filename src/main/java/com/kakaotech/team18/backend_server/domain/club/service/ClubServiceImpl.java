@@ -1,8 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
@@ -24,10 +24,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
-
-import java.util.Collections;
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

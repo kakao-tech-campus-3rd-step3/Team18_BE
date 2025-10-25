@@ -144,7 +144,7 @@ class ClubControllerTest {
                 .presidentPhoneNumber("010-1234-5678")
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
-                .applicationNotices("주의사항")
+                .applicationNotice("주의사항")
                 .build();
 
         when(clubService.getClubDetail(clubId)).thenReturn(expected);

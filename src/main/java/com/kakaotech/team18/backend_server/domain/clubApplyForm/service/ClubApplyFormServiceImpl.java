@@ -65,6 +65,8 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         ClubApplyForm savedClubApplyForm = clubApplyFormRepository.save(clubApplyForm);
         log.info("Saved ClubApplyFormId: {}", savedClubApplyForm.getId());
 
+        findClub.updateRecruitDate(request.recruitStart(), request.recruitEnd());
+
         request.formQuestions().forEach(formQuestionRequestDto -> {
             FormQuestion formQuestion = createFormQuestion(formQuestionRequestDto, savedClubApplyForm);
             formQuestionRepository.save(formQuestion);
@@ -75,13 +77,14 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     @Override
     @Transactional
     public void updateClubApplyForm(Long clubId, ClubApplyFormUpdateDto request) {
-        Club club = findClub(clubId);
-        ClubApplyForm findClubApplyForm = clubApplyFormRepository.findByClubId(club.getId())
+        Club findClub = findClub(clubId);
+        ClubApplyForm findClubApplyForm = clubApplyFormRepository.findByClubId(findClub.getId())
                 .orElseThrow(() -> {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
-                    return new ClubApplyFormNotFoundException("clubId = " + club.getId());
+                    return new ClubApplyFormNotFoundException("clubId = " + findClub.getId());
                 });
 
+        findClub.updateRecruitDate(request.recruitStart(), request.recruitEnd());
         findClubApplyForm.update(request.title(), request.description());
         //기존 FormQuestion 찾아서 Map에 등록
         Map<Long, FormQuestion> existingMap = formQuestionRepository.findByClubApplyForm(

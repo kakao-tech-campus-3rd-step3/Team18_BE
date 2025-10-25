@@ -27,6 +27,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubA
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -116,7 +117,11 @@ class ClubApplyFormServiceImplMockTest {
                 false, 2L, List.of("옵션 1", "옵션 2"),
                 List.of(new TimeSlotOptionRequestDto("2025-09-24", new TimeSlotOptionRequestDto.TimeRange("10:00", "21:00")))
         );
-        ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명", List.of(question1, question2));
+        ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
+                "테스트 설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(question1, question2));
 
         ClubApplyForm clubApplyForm = ClubApplyForm.builder()
                 .club(club)
@@ -147,7 +152,11 @@ class ClubApplyFormServiceImplMockTest {
         //given
         Long clubId = 1L;
         FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
-        ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명", List.of(question1));
+        ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
+                "테스트 설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(question1));
 
         given(clubRepository.findById(clubId)).willReturn(Optional.empty());
 
@@ -192,8 +201,10 @@ class ClubApplyFormServiceImplMockTest {
         ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
                 "수정된 지원서 제목",
                 "수정된 지원서 설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
                 List.of(
-                        new com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto(
+                        new FormQuestionUpdateDto(
                                 1L,
                                 "수정된 질문 1",
                                 FieldType.TEXT,
@@ -202,7 +213,7 @@ class ClubApplyFormServiceImplMockTest {
                                 null,
                                 null
                         ),
-                        new com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto(
+                        new FormQuestionUpdateDto(
                                 null,
                                 "새로운 질문 3",
                                 FieldType.CHECKBOX,
@@ -233,7 +244,12 @@ class ClubApplyFormServiceImplMockTest {
         Club club = mock(Club.class);
         ReflectionTestUtils.setField(club, "id", 1L);
         FormQuestionUpdateDto question1 = new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null);
-        ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto("테스트 지원서", "테스트 설명", List.of(question1));
+        ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "테스트 설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(question1));
 
         given(club.getId()).willReturn(1L);
         given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
@@ -247,7 +263,8 @@ class ClubApplyFormServiceImplMockTest {
         then(clubRepository).should(times(1)).findById(clubId);
         then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(clubApplyFormRepository).should(never()).save(any(ClubApplyForm.class));
-        then(formQuestionRepository).should(never()).save(any(FormQuestion.class));    }
+        then(formQuestionRepository).should(never()).save(any(FormQuestion.class));
+    }
 
 
     private ClubApplyForm createClubApplyForm(Club findClub) {
