@@ -11,7 +11,6 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
-import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
