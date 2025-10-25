@@ -132,7 +132,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     ) {
 
         //1. applicationForm 찾기
-        ClubApplyForm form = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
 
         //2. 유저 정보생성(없으면 생성)
