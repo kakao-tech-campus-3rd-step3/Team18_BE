@@ -40,14 +40,19 @@ public class Application extends BaseEntity {
     @Column(name = "status",  nullable = false)
     private Status status = Status.PENDING;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "stage")
+    private Stage stage;
+
     @Column(nullable = false)
     private Double averageRating = 0.0;
 
     @Builder
-    private Application(User user, ClubApplyForm clubApplyForm, Status status) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
         this.status = (status != null) ? status : Status.PENDING; // 기본값 보존
+        this.stage = (stage != null) ? stage : Stage.INTERVIEW;
         this.averageRating = 0.0;
     }
 
@@ -58,6 +63,10 @@ public class Application extends BaseEntity {
      */
     public void updateStatus(Status newStatus) {
         this.status = newStatus;
+    }
+
+    public void updateStage(Stage newStage) {
+        this.stage = newStage;
     }
 
     public void updateAverageRating(Double averageRating) {

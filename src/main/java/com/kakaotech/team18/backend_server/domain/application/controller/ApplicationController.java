@@ -2,8 +2,10 @@ package com.kakaotech.team18.backend_server.domain.application.controller;
 
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,5 +85,19 @@ public class ApplicationController {
         } else {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);//기존 응답이 없어서 바로 제출
         }
+    }
+
+    @Operation(summary = "합/불 처리 및 메세지 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 이메일을 보냅니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
+    })
+    @PatchMapping("/api/clubs/{clubId}/club-apply-form/result")
+    public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
+            @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
+            @RequestBody ApplicationApprovedRequestDto requestDto,
+            @Parameter(description = "면접과 최종을 구병래주는 변수", required = false, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage
+    ){
+        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
+        return ResponseEntity.ok(responseDto);
     }
 }

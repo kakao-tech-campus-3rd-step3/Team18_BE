@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -73,4 +74,35 @@ public class Club extends BaseEntity {
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
     }
+
+    public void updateDetail(ClubDetailRequestDto dto) {
+        this.name = dto.clubName();
+        this.category = dto.category();
+        this.location = dto.location();
+        this.shortIntroduction = dto.shortIntroduction();
+        this.caution = dto.applicationNotices();
+        this.recruitStart = dto.recruitStart();
+        this.recruitEnd = dto.recruitEnd();
+        this.regularMeetingInfo = dto.regularMeetingInfo();
+        this.introduction = buildNewIntroduction(dto);
+    }
+
+    private ClubIntroduction buildNewIntroduction(ClubDetailRequestDto dto) {
+        ClubIntroduction newIntro = ClubIntroduction.builder()
+                .overview(dto.introductionOverview())
+                .activities(dto.introductionActivity())
+                .ideal(dto.introductionIdeal())
+                .build();
+
+        if (dto.introductionImages() != null) {
+            for (String url : dto.introductionImages()) {
+                ClubImage image = ClubImage.builder()
+                        .imageUrl(url)
+                        .build();
+                newIntro.addImage(image);
+            }
+        }
+        return newIntro;
+    }
+
 }

@@ -5,9 +5,9 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,7 +18,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "인증 API", description = "카카오 소셜 로그인 및 회원가입 관련 API")
 @RestController
@@ -53,5 +57,18 @@ public class AuthController {
 
         LoginSuccessResponseDto responseDto = authService.register(temporaryToken, registerRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
+
+    @Operation(summary = "Access Token 재발급", description = "유효한 Refresh Token을 사용하여 만료된 Access Token을 재발급받습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공",
+                    content = @Content(schema = @Schema(implementation = ReissueResponseDto.class))),
+            @ApiResponse(responseCode = "401", description = "유효하지 않거나 만료된 Refresh Token")
+    })
+    @SecurityRequirement(name = "bearer-jwt")
+    @PostMapping("/reissue")
+    public ResponseEntity<ReissueResponseDto> reissue(@RequestHeader("Authorization") String bearerToken) {
+        ReissueResponseDto reissueResponseDto = authService.reissue(bearerToken);
+        return ResponseEntity.ok(reissueResponseDto);
     }
 }

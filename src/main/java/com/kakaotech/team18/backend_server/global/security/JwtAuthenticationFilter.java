@@ -1,26 +1,41 @@
 package com.kakaotech.team18.backend_server.global.security;
 
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidJwtException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
+    private final HandlerExceptionResolver resolver;
+
+    // Qualifier 를 이용하기 위해서 RequiredArgsConstructor 사용 X
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.jwtProvider = jwtProvider;
+        this.principalDetailsService = principalDetailsService;
+        this.resolver = resolver;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -45,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             // 4-1. 토큰 타입 검증: "ACCESS" 타입의 토큰만 인증 처리
             String tokenType = claims.get("tokenType", String.class);
-            if (!"ACCESS".equals(tokenType)) {
+            if (!TokenType.ACCESS.name().equals(tokenType)) {
                 // ACCESS 토큰이 아니면 (예: REFRESH 토큰이면), 인증 처리하지 않고 다음 필터로 넘어간다.
                 filterChain.doFilter(request, response);
                 return;
@@ -66,10 +81,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 이 작업이 완료되면, 해당 요청은 '인증된' 것으로 간주된다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        } catch (Exception e) {
-            // 토큰 검증 과정에서 예외 발생 시 (만료, 위변조 등), SecurityContext를 비운다.
-            // 이렇게 하면, 해당 요청은 '인증되지 않은' 것으로 처리된다.
-            SecurityContextHolder.clearContext();
+        } catch (SignatureException e) {
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.INVALID_JWT_SIGNATURE));
+            return;
+        } catch (MalformedJwtException e) {
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
+            return;
+        } catch (ExpiredJwtException e) {
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_JWT_TOKEN));
+            return;
+        } catch (UnsupportedJwtException e) {
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
+            return;
+        } catch (IllegalArgumentException e) {
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.ILLEGAL_ARGUMENT_JWT));
+            return;
         }
 
         // 8. 다음 필터 체인을 실행한다.

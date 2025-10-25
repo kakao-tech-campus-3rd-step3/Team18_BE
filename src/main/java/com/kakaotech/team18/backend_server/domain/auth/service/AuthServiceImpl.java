@@ -7,11 +7,21 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
+import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
-import com.kakaotech.team18.backend_server.global.security.JwtProvider; // 경로 수정
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
+import com.kakaotech.team18.backend_server.global.security.JwtProvider;
+import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.util.Optional;
@@ -34,6 +45,8 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RestClient restClient;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final JwtProperties jwtProperties;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -74,6 +87,10 @@ public class AuthServiceImpl implements AuthService {
             String accessToken = jwtProvider.createAccessToken(user);
             String refreshToken = jwtProvider.createRefreshToken(user);
 
+            // Redis에 Refresh Token 저장
+            refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+            log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
+
             return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken);
         } else {
             // 4-2. 신규 회원일 경우: 추가 정보 입력 필요
@@ -97,7 +114,7 @@ public class AuthServiceImpl implements AuthService {
         Claims claims = jwtProvider.verify(temporaryToken);
 
         // 1-1. 토큰 타입 검증: 이 토큰이 '임시 토큰'이 맞는지 확인
-        if (!"temporary".equals(claims.getSubject())) {
+        if (!TokenType.TEMPORARY.name().equals(claims.getSubject())) {
             throw new UnauthenticatedUserException("회원가입에는 임시 토큰이 필요합니다.");
         }
 
@@ -142,7 +159,56 @@ public class AuthServiceImpl implements AuthService {
         String accessToken = jwtProvider.createAccessToken(user);
         String refreshToken = jwtProvider.createRefreshToken(user);
 
+        // Redis에 Refresh Token 저장
+        refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+        log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
+
         return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken);
+    }
+
+    @Override
+    @Transactional
+    public ReissueResponseDto reissue(String bearerToken) {
+        // 1. Bearer 접두사 제거 및 토큰 추출
+        String refreshToken = jwtProvider.extractToken(bearerToken);
+
+        // 2. Refresh Token 자체 유효성 검증 (만료, 서명 등)
+        Claims claims = jwtProvider.verify(refreshToken);
+
+        // 3. 토큰 타입 검증
+        String tokenType = claims.get("tokenType", String.class);
+        if (!TokenType.REFRESH.name().equals(tokenType)) {
+            log.warn("Refresh Token 재발급 시도 실패: 토큰 타입이 REFRESH가 아님");
+            throw new NotRefreshTokenException();
+        }
+
+        // 4. 사용자 ID 추출
+        Long userId = Long.valueOf(claims.getSubject());
+
+        // 5. Redis에 저장된 토큰과 일치하는지 검증
+        RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
+                .orElseThrow(LoggedOutUserException::new);
+
+        if (!storedRefreshToken.getRefreshToken().equals(refreshToken)) {
+            log.warn("Refresh Token 재발급 시도 실패: Redis에 저장된 토큰과 불일치. userId={}", userId);
+            throw new InvalidRefreshTokenException();
+        }
+
+        // 6. 사용자 정보 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("해당 유저가 존재하지 않습니다."));
+
+        // 7. 새로운 토큰 발급 (Access, Refresh 둘 다)
+        String newAccessToken = jwtProvider.createAccessToken(user);
+        String newRefreshToken = jwtProvider.createRefreshToken(user);
+        log.info("Access & Refresh Token 재발급 성공: userId={}", userId);
+
+        // 8. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
+        refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshToken, jwtProperties.refreshTokenValidityInSeconds()));
+        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", user.getId());
+
+        // 9. DTO로 감싸서 반환
+        return ReissueResponseDto.of(newAccessToken, newRefreshToken);
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {
@@ -152,21 +218,31 @@ public class AuthServiceImpl implements AuthService {
         params.add("client_secret", kakaoClientSecret);
         params.add("redirect_uri", kakaoRedirectUri);
         params.add("code", authorizationCode);
-        
-        return restClient.post()
-                .uri(kakaoTokenUri)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .body(params)
-                .retrieve()
-                .body(KakaoTokenResponseDto.class);
+
+        try {
+            return restClient.post()
+                    .uri(kakaoTokenUri)
+                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                    .body(params)
+                    .retrieve()
+                    .body(KakaoTokenResponseDto.class);
+        } catch (ResourceAccessException e) {
+            log.warn("카카오 Access Token 요청 중 타임아웃 발생", e);
+            throw new KakaoApiTimeoutException();
+        }
     }
 
     private KakaoUserInfoResponseDto getKakaoUserInfo(String accessToken) {
-        return restClient.get()
-                .uri(kakaoUserInfoUri)
-                .header("Authorization", "Bearer " + accessToken)
-                .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
-                .retrieve()
-                .body(KakaoUserInfoResponseDto.class);
+        try {
+            return restClient.get()
+                    .uri(kakaoUserInfoUri)
+                    .header("Authorization", "Bearer " + accessToken)
+                    .header("Content-type", "application/x-www-form-urlencoded;charset=utf-8")
+                    .retrieve()
+                    .body(KakaoUserInfoResponseDto.class);
+        } catch (ResourceAccessException e) {
+            log.warn("카카오 사용자 정보 요청 중 타임아웃 발생", e);
+            throw new KakaoApiTimeoutException();
+        }
     }
 }
