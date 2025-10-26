@@ -7,12 +7,19 @@ import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.entity.Notice;
 import com.kakaotech.team18.backend_server.domain.notices.repository.NoticeRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoticeNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class NoticeServiceImpl implements NoticeService {
 
     NoticeRepository noticeRepository;
@@ -43,13 +50,16 @@ public class NoticeServiceImpl implements NoticeService {
                 .map(cm -> cm.getUser().getEmail())
                 .orElse("jnupole004@gmail.com");
 
+        String attachFile = "temp.txt";
+
         return new NoticeResponseDto(
                 n.getId(),
                 n.getTitle(),
                 n.getContent(),
                 n.getCreatedAt(),
                 authorName,
-                authorEmail
+                authorEmail,
+                attachFile
         );
     }
 }

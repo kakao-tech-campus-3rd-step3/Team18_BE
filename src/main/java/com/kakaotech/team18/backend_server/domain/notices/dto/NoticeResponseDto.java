@@ -8,6 +8,7 @@ public record NoticeResponseDto(
         String content,
         LocalDateTime createdAt,
         String author,
-        String email
+        String email,
+        String file
 ) {
 }
