@@ -58,6 +58,7 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PRESIDENT_NOT_FOUND("해당 동아리의 회장이 없습니다.", HttpStatus.NOT_FOUND),
     STATUS_NOT_FOUND("해당 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    NOTICE_NOT_FOUND("해당 공지사항을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),

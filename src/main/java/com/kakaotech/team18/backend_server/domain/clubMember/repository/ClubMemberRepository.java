@@ -66,4 +66,7 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
           and cm.activeStatus = :status
         """)
     Optional<User> findUserByClubIdAndRoleAndStatus(Long clubId, Role role, ActiveStatus status);
+
+    Optional<ClubMember> findFirstByRole(Role role);
+
 }
