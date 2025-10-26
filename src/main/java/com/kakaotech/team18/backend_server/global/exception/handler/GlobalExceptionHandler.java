@@ -162,6 +162,24 @@ public class GlobalExceptionHandler {
         return this.handleCustomException(customException);
     }
 
+    /**
+     * @PreAuthorize 와 같은 메소드 시큐리티에서 발생하는 인가 예외를 처리합니다.
+     * <p>
+     * Spring Security의 AuthorizationDeniedException을 우리가 정의한 ForbiddenAccessException으로 변환하고,
+     * 기존의 handleCustomException 로직을 재사용하여 일관된 에러 응답을 반환합니다.
+     *
+     * @param e AuthorizationDeniedException
+     * @return 403 Forbidden 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    protected ResponseEntity<ErrorResponseDto> handleAuthorizationDeniedException(final AuthorizationDeniedException e) {
+        // AuthorizationDeniedException을 우리의 커스텀 예외인 ForbiddenAccessException으로 변환합니다.
+        final ForbiddenAccessException customException = new ForbiddenAccessException();
+
+        // 기존의 CustomException 처리 로직을 재사용합니다.
+        return this.handleCustomException(customException);
+    }
+
 
     /**
      * 모든 예상치 못한 예외를 처리
