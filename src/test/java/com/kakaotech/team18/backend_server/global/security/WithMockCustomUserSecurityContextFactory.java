@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.global.security;
 
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
+import org.springframework.test.util.ReflectionTestUtils;
 
 public class WithMockCustomUserSecurityContextFactory
     implements WithSecurityContextFactory<WithMockCustomUser> {
