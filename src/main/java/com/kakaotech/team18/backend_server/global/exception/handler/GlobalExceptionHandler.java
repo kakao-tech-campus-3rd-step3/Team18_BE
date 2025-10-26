@@ -4,10 +4,12 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.dto.ErrorResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -97,6 +99,24 @@ public class GlobalExceptionHandler {
         final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
         log.warn("TypeMisMatch: {}", errorCode.getMessage(), e);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    /**
+     * @PreAuthorize 와 같은 메소드 시큐리티에서 발생하는 인가 예외를 처리합니다.
+     * <p>
+     * Spring Security의 AuthorizationDeniedException을 우리가 정의한 ForbiddenAccessException으로 변환하고,
+     * 기존의 handleCustomException 로직을 재사용하여 일관된 에러 응답을 반환합니다.
+     *
+     * @param e AuthorizationDeniedException
+     * @return 403 Forbidden 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    protected ResponseEntity<ErrorResponseDto> handleAuthorizationDeniedException(final AuthorizationDeniedException e) {
+        // AuthorizationDeniedException을 우리의 커스텀 예외인 ForbiddenAccessException으로 변환합니다.
+        final ForbiddenAccessException customException = new ForbiddenAccessException();
+
+        // 기존의 CustomException 처리 로직을 재사용합니다.
+        return this.handleCustomException(customException);
     }
 
 
