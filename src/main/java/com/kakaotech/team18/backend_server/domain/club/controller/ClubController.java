@@ -14,17 +14,20 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "동아리 API", description = "동아리 정보 조회 관련 API")
 @RestController
@@ -66,6 +69,19 @@ public class ClubController{
             @Valid @RequestBody ClubDetailRequestDto dto
     ) {
         SuccessResponseDto response = clubService.updateClubDetail(clubId,dto);
+        return ResponseEntity.ok(response);
+    }
+    @Operation(summary = "특정 동아리 상세 이미지 수정", description = "특정 동아리의 이미지 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
+    })
+    @PutMapping("/{clubId}/images")
+    public ResponseEntity<SuccessResponseDto> uploadClubImages(
+            @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable Long clubId,
+            @RequestPart("images") List<MultipartFile> images
+    ) {
+        SuccessResponseDto response = clubService.uploadClubImages(clubId, images);
         return ResponseEntity.ok(response);
     }
 
