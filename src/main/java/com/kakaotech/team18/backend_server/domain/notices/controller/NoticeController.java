@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,10 +44,10 @@ public class NoticeController {
     @GetMapping
     public ResponseEntity<List<NoticeBriefResponseDto>> getAllNotices(
             @Parameter(description = "페이지 번호 (1부터 시작)", example = "1")
-            @RequestParam(value = "page", required = false) Long page,
+            @RequestParam(value = "page", defaultValue = "1")@Min(1) Integer page,
 
             @Parameter(description = "페이지당 항목 수 ", example = "10")
-            @RequestParam(value = "size", required = false) Long size
+            @RequestParam(value = "size", defaultValue = "10")@Min(1) @Max(100) Integer size
     ) {
         List<NoticeBriefResponseDto> response = noticeService.getAllNotices(page, size);
         return ResponseEntity.ok(response);

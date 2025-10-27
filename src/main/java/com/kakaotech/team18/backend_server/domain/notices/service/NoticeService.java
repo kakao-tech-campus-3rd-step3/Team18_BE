@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface NoticeService {
 
-    List<NoticeBriefResponseDto> getAllNotices(Long page, Long size);
+    List<NoticeBriefResponseDto> getAllNotices(Integer page, Integer size);
 
     NoticeResponseDto getNoticeById(Long noticeId);
 

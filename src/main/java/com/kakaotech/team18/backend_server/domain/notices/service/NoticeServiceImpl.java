@@ -29,12 +29,12 @@ public class NoticeServiceImpl implements NoticeService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<NoticeBriefResponseDto> getAllNotices(Long page, Long size) {
+    public List<NoticeBriefResponseDto> getAllNotices(Integer page, Integer size) {
 
-        long p = (page == null ? 0L : page - 1L);
-        int s = size.intValue();
+        int p = (page == null ? 0 : page - 1);
+        int s = size;
 
-        Pageable pageable = PageRequest.of((int) p, s);
+        Pageable pageable = PageRequest.of(p, s);
 
         final String author = clubMemberRepository.findFirstByRole(Role.SYSTEM_ADMIN)
                 .map(cm -> cm.getUser().getName())

@@ -17,7 +17,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +29,6 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @Transactional
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class NoticeServiceIntegrationTest {
 
     @Autowired
@@ -85,7 +83,7 @@ class NoticeServiceIntegrationTest {
         @DisplayName("페이지 1(size=2): isAlive=true만 ASC(id) 순으로 2건 반환")
         void firstPage_size2_returnsTwoAliveAsc() {
             // when
-            List<NoticeBriefResponseDto> page1 = noticeService.getAllNotices(1L, 2L);
+            List<NoticeBriefResponseDto> page1 = noticeService.getAllNotices(1, 2);
 
             // then
             assertThat(page1).hasSize(2);
@@ -98,7 +96,7 @@ class NoticeServiceIntegrationTest {
         @DisplayName("페이지 2(size=2): 나머지 alive 1건 반환")
         void secondPage_size2_returnsLastAlive() {
             // when
-            List<NoticeBriefResponseDto> page2 = noticeService.getAllNotices(2L, 2L);
+            List<NoticeBriefResponseDto> page2 = noticeService.getAllNotices(2, 2);
 
             // then
             assertThat(page2).hasSize(1);
@@ -109,7 +107,7 @@ class NoticeServiceIntegrationTest {
         @DisplayName("페이지 범위를 넘기면 빈 배열 반환")
         void outOfRange_returnsEmpty() {
             // when
-            List<NoticeBriefResponseDto> page3 = noticeService.getAllNotices(3L, 2L);
+            List<NoticeBriefResponseDto> page3 = noticeService.getAllNotices(3, 2);
 
             // then
             assertThat(page3).isEmpty();
