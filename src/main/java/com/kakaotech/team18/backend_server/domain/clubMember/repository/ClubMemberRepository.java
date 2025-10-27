@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
@@ -66,6 +67,16 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
           and cm.activeStatus = :status
         """)
     Optional<User> findUserByClubIdAndRoleAndStatus(Long clubId, Role role, ActiveStatus status);
+
+    @Query("""
+        select new com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto(cm.club.id, cm.role)
+        from ClubMember cm
+        join cm.club
+        where cm.user = :user
+        """)
+    List<ClubIdAndRoleInfoDto> findClubIdAndRoleByUser(User user);
+
+    List<ClubMember> findByUser(User user);
 
     Optional<ClubMember> findByClubIdAndUserStudentId(Long clubId, String studentId);
 }
