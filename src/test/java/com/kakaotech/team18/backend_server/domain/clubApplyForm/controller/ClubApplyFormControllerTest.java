@@ -263,6 +263,156 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(RADIO 질문인데 optionList가 null이면 400 응답)")
+    @Test
+    void radioQuestionWithoutOptions_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "테스트 지원서",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(title이 blank인 경우 400 응답)")
+    @Test
+    void createClubApplyForm_blankTitle_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "", // Blank title
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(description이 blank인 경우 400 응답)")
+    @Test
+    void createClubApplyForm_blankDescription_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "제목",
+                "", // Blank description
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(title이 50자를 초과하는 경우 400 응답)")
+    @Test
+    void createClubApplyForm_longTitle_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longTitle = "a".repeat(51); // 51 characters
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                longTitle,
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(description이 100자를 초과하는 경우 400 응답)")
+    @Test
+    void createClubApplyForm_longDescription_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longDescription = "a".repeat(101);
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "제목",
+                longDescription,
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(FormQuestionRequest의 question이 blank인 경우 400 응답)")
+    @Test
+    void createClubApplyForm_blankQuestion_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "제목",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto("", FieldType.TEXT, true, 1L, null, null)) // Blank question
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 저장 API 호출 - 실패(FormQuestionRequest의 question이 100자를 초과하는 경우 400 응답)")
+    @Test
+    void createClubApplyForm_longQuestion_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longQuestion = "a".repeat(101); // 101 characters
+        ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
+                "제목",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionRequestDto(longQuestion, FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(post("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
     @DisplayName("동아리 지원서 수정 API 호출 - 성공")
     @Test
     void updateClubApplyForm() throws Exception {
@@ -361,6 +511,154 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(RADIO 질문인데 optionList가 null이면 400 응답)")
+    @Test
+    void updateClubApplyForm_radioQuestionWithoutOptions_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
+        );
 
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(title이 blank인 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_blankTitle_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "", // Blank title
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(description이 blank인 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_blankDescription_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "", // Blank description
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(title이 50자를 초과하는 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_longTitle_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longTitle = "a".repeat(51); // 51 characters
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                longTitle,
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(description이 100자를 초과하는 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_longDescription_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longDescription = "a".repeat(101); // 201 characters
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                longDescription,
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(FormQuestionUpdateDto의 question이 blank인 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_blankQuestion_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)) // Blank question
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(FormQuestionUpdateDto의 question이 100자를 초과하는 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_longQuestion_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        String longQuestion = "a".repeat(101); // 101 characters
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                LocalDateTime.of(2025, 10, 1, 0, 0),
+                LocalDateTime.of(2025, 10, 31, 23, 59),
+                List.of(new FormQuestionUpdateDto(1L, longQuestion, FieldType.TEXT, true, 1L, null, null))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
 
 }

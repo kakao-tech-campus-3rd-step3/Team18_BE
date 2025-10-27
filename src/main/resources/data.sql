@@ -144,28 +144,28 @@ VALUES
 -- =========================
 -- 5) CLUB_APPLY_FORM (20)
 -- =========================
-INSERT INTO club_apply_form (club_id, title, description, is_active)
+INSERT INTO club_apply_form (club_id, title, description)
 VALUES
-    (1,'클럽01 2025 상반기 모집','소개 및 지원 요강', true),
-    (2,'클럽02 2025 상반기 모집','소개 및 지원 요강', false),
-    (3,'클럽03 2025 상반기 모집','소개 및 지원 요강', true),
-    (4,'클럽04 2025 상반기 모집','소개 및 지원 요강', false),
-    (5,'클럽05 2025 상반기 모집','소개 및 지원 요강', true),
-    (6,'클럽06 2025 상반기 모집','소개 및 지원 요강', true),
-    (7,'클럽07 2025 상반기 모집','소개 및 지원 요강', true),
-    (8,'클럽08 2025 상반기 모집','소개 및 지원 요강', false),
-    (9,'클럽09 2025 상반기 모집','소개 및 지원 요강', true),
-    (10,'클럽10 2025 상반기 모집','소개 및 지원 요강', false),
-    (11,'클럽11 2025 상반기 모집','소개 및 지원 요강', true),
-    (12,'클럽12 2025 상반기 모집','소개 및 지원 요강', true),
-    (13,'클럽13 2025 상반기 모집','소개 및 지원 요강', false),
-    (14,'클럽14 2025 상반기 모집','소개 및 지원 요강', true),
-    (15,'클럽15 2025 상반기 모집','소개 및 지원 요강', false),
-    (16,'클럽16 2025 상반기 모집','소개 및 지원 요강', true),
-    (17,'클럽17 2025 상반기 모집','소개 및 지원 요강', true),
-    (18,'클럽18 2025 상반기 모집','소개 및 지원 요강', false),
-    (19,'클럽19 2025 상반기 모집','소개 및 지원 요강', true),
-    (20,'클럽20 2025 상반기 모집','소개 및 지원 요강', true);
+    (1,'클럽01 2025 상반기 모집','소개 및 지원 요강'),
+    (2,'클럽02 2025 상반기 모집','소개 및 지원 요강'),
+    (3,'클럽03 2025 상반기 모집','소개 및 지원 요강'),
+    (4,'클럽04 2025 상반기 모집','소개 및 지원 요강'),
+    (5,'클럽05 2025 상반기 모집','소개 및 지원 요강'),
+    (6,'클럽06 2025 상반기 모집','소개 및 지원 요강'),
+    (7,'클럽07 2025 상반기 모집','소개 및 지원 요강'),
+    (8,'클럽08 2025 상반기 모집','소개 및 지원 요강'),
+    (9,'클럽09 2025 상반기 모집','소개 및 지원 요강'),
+    (10,'클럽10 2025 상반기 모집','소개 및 지원 요강'),
+    (11,'클럽11 2025 상반기 모집','소개 및 지원 요강'),
+    (12,'클럽12 2025 상반기 모집','소개 및 지원 요강'),
+    (13,'클럽13 2025 상반기 모집','소개 및 지원 요강'),
+    (14,'클럽14 2025 상반기 모집','소개 및 지원 요강'),
+    (15,'클럽15 2025 상반기 모집','소개 및 지원 요강'),
+    (16,'클럽16 2025 상반기 모집','소개 및 지원 요강'),
+    (17,'클럽17 2025 상반기 모집','소개 및 지원 요강'),
+    (18,'클럽18 2025 상반기 모집','소개 및 지원 요강'),
+    (19,'클럽19 2025 상반기 모집','소개 및 지원 요강'),
+    (20,'클럽20 2025 상반기 모집','소개 및 지원 요강');
 
 -- =========================
 -- 6) FORM_QUESTION (20) — TEXT만 사용 (옵션/타임슬롯 NULL)
@@ -206,52 +206,52 @@ VALUES
 --  user_id = i, club_apply_form_id = i
 --  status 순환: PENDING, APPROVED, REJECTED
 -- =========================
-INSERT INTO application (user_id, club_apply_form_id, status, average_rating)
+INSERT INTO application (user_id, club_apply_form_id, status, stage, average_rating)
 VALUES
-    (1,1,'PENDING', 0.0),
-    (2,2,'APPROVED', 4.3),
-    (3,3,'REJECTED', 2.5),
-    (4,4,'PENDING', 0.0),
-    (5,5,'APPROVED', 4.1),
-    (6,6,'REJECTED', 2.7),
-    (7,7,'PENDING', 0.0),
-    (8,8,'APPROVED', 4.6),
-    (9,9,'REJECTED', 2.8),
-    (10,10,'PENDING', 0.0),
-    (11,11,'APPROVED', 4.2),
-    (12,12,'REJECTED', 2.9),
-    (13,13,'PENDING', 0.0),
-    (14,14,'APPROVED', 4.4),
-    (15,15,'REJECTED', 2.6),
-    (16,16,'PENDING', 0.0),
-    (17,17,'APPROVED', 4.5),
-    (18,18,'REJECTED', 2.4),
-    (19,19,'PENDING', 0.0),
-    (20,20,'APPROVED', 4.0),
-    (21,1,'PENDING', 0.0),
-    (22,1,'PENDING', 0.0),
-    (23,1,'APPROVED', 4.3),
-    (24,1,'REJECTED', 2.7),
-    (25,1,'APPROVED', 4.5),
-    (26,2,'APPROVED', 4.4),
-    (27,3,'APPROVED', 4.7),
-    (28,4,'APPROVED', 4.8),
-    (29,5,'APPROVED', 4.6),
-    (30,6,'APPROVED', 4.9),
-    (31,7,'APPROVED', 4.2),
-    (32,8,'APPROVED', 4.3),
-    (33,9,'APPROVED', 4.5),
-    (34,10,'APPROVED', 4.1),
-    (35,11,'APPROVED', 4.7),
-    (36,12,'APPROVED', 4.8),
-    (37,13,'APPROVED', 4.4),
-    (38,14,'APPROVED', 4.6),
-    (39,15,'APPROVED', 4.9),
-    (40,16,'APPROVED', 4.2),
-    (41,17,'APPROVED', 4.5),
-    (42,18,'APPROVED', 4.3),
-    (43,19,'APPROVED', 4.7),
-    (44,20,'APPROVED', 4.8);
+    (1,1,'PENDING', 'INTERVIEW',0.0),
+    (2,2,'APPROVED', 'FINAL',4.3),
+    (3,3,'REJECTED','INTERVIEW', 2.5),
+    (4,4,'PENDING', 'FINAL',0.0),
+    (5,5,'APPROVED','INTERVIEW', 4.1),
+    (6,6,'REJECTED','FINAL', 2.7),
+    (7,7,'PENDING', 'INTERVIEW',0.0),
+    (8,8,'APPROVED', 'FINAL',4.6),
+    (9,9,'REJECTED', 'INTERVIEW',2.8),
+    (10,10,'PENDING', 'FINAL',0.0),
+    (11,11,'APPROVED', 'INTERVIEW',4.2),
+    (12,12,'REJECTED', 'FINAL',2.9),
+    (13,13,'PENDING', 'INTERVIEW',0.0),
+    (14,14,'APPROVED', 'FINAL',4.4),
+    (15,15,'REJECTED', 'INTERVIEW',2.6),
+    (16,16,'PENDING', 'FINAL',0.0),
+    (17,17,'APPROVED', 'INTERVIEW',4.5),
+    (18,18,'REJECTED', 'FINAL',2.4),
+    (19,19,'PENDING', 'INTERVIEW',0.0),
+    (20,20,'APPROVED', 'FINAL',4.0),
+    (21,1,'PENDING', 'INTERVIEW',0.0),
+    (22,1,'PENDING', 'FINAL',0.0),
+    (23,1,'APPROVED', 'INTERVIEW',4.3),
+    (24,1,'REJECTED', 'FINAL',2.7),
+    (25,1,'APPROVED', 'INTERVIEW',4.5),
+    (26,2,'APPROVED', 'FINAL',4.4),
+    (27,3,'APPROVED', 'INTERVIEW',4.7),
+    (28,4,'APPROVED', 'FINAL',4.8),
+    (29,5,'APPROVED', 'INTERVIEW',4.6),
+    (30,6,'APPROVED', 'FINAL',4.9),
+    (31,7,'APPROVED', 'INTERVIEW',4.2),
+    (32,8,'APPROVED', 'FINAL',4.3),
+    (33,9,'APPROVED', 'INTERVIEW',4.5),
+    (34,10,'APPROVED', 'FINAL',4.1),
+    (35,11,'APPROVED', 'INTERVIEW',4.7),
+    (36,12,'APPROVED', 'FINAL',4.8),
+    (37,13,'APPROVED', 'INTERVIEW',4.4),
+    (38,14,'APPROVED', 'FINAL',4.6),
+    (39,15,'APPROVED', 'INTERVIEW',4.9),
+    (40,16,'APPROVED', 'FINAL',4.2),
+    (41,17,'APPROVED', 'INTERVIEW',4.5),
+    (42,18,'APPROVED', 'FINAL',4.3),
+    (43,19,'APPROVED', 'INTERVIEW',4.7),
+    (44,20,'APPROVED', 'FINAL',4.8);
 
 -- =========================
 -- 8) ANSWER (20) — application i, form_question i
@@ -477,8 +477,18 @@ VALUES
     (18,'봉사 인증 안내','활동 확인서 발급 방법'),
     (19,'운동기구 대여','대여 규칙 및 주의사항'),
     (20,'MT 일정','4월 초 MT 예정');
+
 -- =========================
--- NOTICE (20)
+-- 12) CLUB_REVIEW (3)
+-- =========================
+INSERT INTO club_review (club_id, content, writer)
+VALUES
+    (1, '사회 문제를 다루는 다양한 세미나가 정말 인상 깊었어요. 토론 분위기도 자유롭고 모두가 진지하게 의견을 나누는 모습이 좋았습니다.', '20250025'),
+    (1, '동아리원들끼리의 협업이 잘 되고, 실제 캠페인도 진행해볼 수 있어서 뜻깊은 경험이었습니다. 추천합니다!', '20250022'),
+    (1, '처음에는 낯설었지만 금방 친해지고, 사회문제에 대한 시각이 넓어졌어요. 프로젝트 중심이라 참여감이 높습니다.', '20250023');
+
+-- =========================
+-- 13) NOTICE (20)
 -- =========================
 INSERT INTO notice (title, content, is_alive)
 VALUES

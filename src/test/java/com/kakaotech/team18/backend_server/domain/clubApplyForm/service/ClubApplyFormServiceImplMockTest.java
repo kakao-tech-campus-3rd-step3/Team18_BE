@@ -28,6 +28,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.api.Assertions;
@@ -62,7 +63,7 @@ class ClubApplyFormServiceImplMockTest {
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
         FormQuestion formQuestion = createFormQuestion(clubApplyForm);
 
-        given(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
         given(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId())).willReturn(List.of(formQuestion));
 
         ClubApplyFormResponseDto expected = ClubApplyFormResponseDto.of(
@@ -85,7 +86,7 @@ class ClubApplyFormServiceImplMockTest {
 
         //then
         Assertions.assertThat(actual).isEqualTo(expected);
-        then(clubApplyFormRepository).should(times(1)).findByClubIdAndIsActiveTrue(clubId);
+        then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(formQuestionRepository).should(times(1)).findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
     }
 
@@ -94,14 +95,14 @@ class ClubApplyFormServiceImplMockTest {
     void getQuestionForm_ClubNotFound() {
         //given
         Long clubId = 1L;
-        given(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).willReturn(Optional.empty());
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.empty());
 
         //when, then
         Assertions.assertThatThrownBy(() -> clubApplyFormService.getQuestionForm(clubId))
                 .isInstanceOf(ClubApplyFormNotFoundException.class)
                 .hasMessageContaining("지원폼이 존재하지 않습니다");
 
-        then(clubApplyFormRepository).should(times(1)).findByClubIdAndIsActiveTrue(clubId);
+        then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(formQuestionRepository).should(never()).findByClubApplyFormIdOrderByDisplayOrderAsc(anyLong());
     }
 
@@ -115,7 +116,7 @@ class ClubApplyFormServiceImplMockTest {
         FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
         FormQuestionRequestDto question2 = new FormQuestionRequestDto("질문 2", FieldType.RADIO,
                 false, 2L, List.of("옵션 1", "옵션 2"),
-                List.of(new TimeSlotOptionRequestDto("2025-09-24", new TimeSlotOptionRequestDto.TimeRange("10:00", "21:00")))
+                List.of(new TimeSlotOptionRequestDto(LocalDate.of(2025,9,24), new TimeSlotOptionRequestDto.TimeRange(LocalTime.of(10, 0), LocalTime.of(21, 0))))
         );
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
                 "테스트 설명",
@@ -284,7 +285,7 @@ class ClubApplyFormServiceImplMockTest {
                 .displayOrder(1L)
                 .options(List.of("치킨", "피자", "햄버거"))
                 .timeSlotOptions(List.of(new TimeSlotOption(LocalDate.of(2024, 10, 26),
-                        new TimeSlotOption.TimeRange("10:00", "12:00")
+                        new TimeSlotOption.TimeRange(LocalTime.of(10, 0), LocalTime.of(12, 0))
                 )))
                 .build();
     }

@@ -38,7 +38,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
 
     @Transactional(readOnly = true)
     public ClubApplyFormResponseDto getQuestionForm(Long clubId){
-        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
@@ -153,7 +153,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
             builder.timeSlotOptions(timeSlots != null
                     ? timeSlots.stream()
                     .map(tsoDto -> new TimeSlotOption(
-                            LocalDate.parse(tsoDto.date()),
+                            tsoDto.date(),
                             new TimeSlotOption.TimeRange(
                                     tsoDto.availableTime().start(),
                                     tsoDto.availableTime().end()

@@ -36,18 +36,14 @@ public class ClubApplyForm extends BaseEntity {
 
     private String description;
 
-    @Column(nullable = false)
-    private boolean isActive;
-
     private String interviewMessage;
     private String finalMessage;
 
     @Builder
-    private ClubApplyForm(Club club, String title, String description, boolean isActive) {
+    private ClubApplyForm(Club club, String title, String description) {
         this.club = club;
         this.title = title;
         this.description = description;
-        this.isActive = isActive;
     }
 
     public void update(String title, String description) {

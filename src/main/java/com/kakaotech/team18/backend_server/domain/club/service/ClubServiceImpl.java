@@ -22,8 +22,9 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,7 +76,7 @@ public class ClubServiceImpl implements ClubService {
         ClubMember clubAdmin = clubMemberRepository.findClubAdminByClubIdAndRole(findClub.getId(), Role.CLUB_ADMIN)
                 .orElseThrow(() -> {
                     log.warn("ClubAdmin not found for id={}", findClub.getId());
-                    return new ClubMemberNotFoudException("해당 동아리의 동아리 회장을 찾을 수 없습니다 clubId = " + findClub.getId());
+                    return new ClubMemberNotFoundException("해당 동아리의 동아리 회장을 찾을 수 없습니다 clubId = " + findClub.getId());
                 });
         return ClubDetailResponseDto.from(findClub, clubAdmin.getUser());
     }
