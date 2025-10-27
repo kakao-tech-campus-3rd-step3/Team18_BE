@@ -19,7 +19,7 @@ public record ApplicantResponseDto(
         @Schema(description = "지원서 상태", example = "PENDING")
         Status status,
         @Schema(description = "지원서 ID", example = "1")
-        Long id
+        Long applicantId
 ) {
 
     public static ApplicantResponseDto from(ClubMember clubMember) {
