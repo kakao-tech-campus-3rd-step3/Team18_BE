@@ -48,6 +48,7 @@ public enum ErrorCode {
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
     COMMENT_ACCESS_DENIED("해당 댓글에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EMAIL_POLICY_REJECTED   ("Gmail 정책/스팸/DMARC 거부", HttpStatus.FORBIDDEN),
+    UNREGISTERED_USER("동아리에 가입되지 않은 유저입니다.", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND: 리소스를 찾을 수 없음
     USER_NOT_FOUND("해당 유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
