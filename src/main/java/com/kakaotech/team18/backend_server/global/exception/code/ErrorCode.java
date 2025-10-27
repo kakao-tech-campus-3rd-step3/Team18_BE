@@ -71,6 +71,7 @@ public enum ErrorCode {
     // 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
     INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    IO_EXCEPTION("파일 입출력 실패.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도
     EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),
