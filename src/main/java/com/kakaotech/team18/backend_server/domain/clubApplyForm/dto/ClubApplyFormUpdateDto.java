@@ -8,16 +8,19 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 
 @Schema(description = "지원서 양식 수정 정보")
 public record ClubApplyFormUpdateDto(
         @Schema(description = "지원서 제목", example = "카태켐 12기 지원서")
         @NotBlank(message = "제목은 필수 값입니다.")
+        @Size(max = 50, message = "제목은 50자 이내로 입력해주세요.")
         String title,
 
         @Schema(description = "지원서 설명", example = "카카오테크 캠퍼스 12기 모집을 위한 지원서입니다.")
         @NotBlank(message = "설명은 필수 값입니다.")
+        @Size(max = 100, message = "설명은 100자 이내로 입력해주세요.")
         String description,
 
         @Schema(description = "모집 시작일")

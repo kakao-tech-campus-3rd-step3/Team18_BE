@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Embeddable
 public record TimeSlotOption(
@@ -14,10 +15,10 @@ public record TimeSlotOption(
     @Embeddable
     public record TimeRange(
             @Column(name = "start_time")
-            String start,
+            LocalTime start,
 
             @Column(name = "end_time")
-            String end
+            LocalTime end
     ) {
     }
 }
