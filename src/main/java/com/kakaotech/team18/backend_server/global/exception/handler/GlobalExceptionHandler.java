@@ -13,6 +13,7 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -117,6 +118,28 @@ public class GlobalExceptionHandler {
 
         // 기존의 CustomException 처리 로직을 재사용합니다.
         return this.handleCustomException(customException);
+    }
+
+    /**
+     * MissingRequestCookieException 예외를 처리
+     * <p>
+     * @CookieValue 어노테이션으로 필수 쿠키가 지정되었으나, 요청에 해당 쿠키가 포함되지 않았을 때 발생합니다.
+     * HTTP 400 Bad Request와 함께 적절한 에러 메시지를 반환합니다.
+     *
+     * @param e MissingRequestCookieException
+     * @return 400 Bad Request 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(MissingRequestCookieException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(final MissingRequestCookieException e) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE; // 클라이언트 요청 오류이므로 INVALID_INPUT_VALUE 사용
+        final String detail = "필수 쿠키 '" + e.getCookieName() + "'가 요청에 포함되지 않았습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("MissingRequestCookieException: {} (detail: {})",
+                errorCode.getMessage(),
+                detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
 
