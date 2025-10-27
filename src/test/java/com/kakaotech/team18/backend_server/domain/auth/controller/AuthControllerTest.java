@@ -12,6 +12,7 @@ import com.kakaotech.team18.backend_server.domain.club.controller.ClubController
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,6 +57,9 @@ class AuthControllerTest {
 
     @MockBean
     private JwtProvider jwtProvider; // AuthController에 직접 주입되지는 않지만, JwtProvider가 필요한 경우를 대비하여 MockBean으로 등록
+
+    @MockBean
+    private JwtProperties jwtProperties;
 
     @DisplayName("카카오 로그인 성공 - 기존 회원")
     @Test
