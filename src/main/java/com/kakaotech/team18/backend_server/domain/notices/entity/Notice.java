@@ -7,11 +7,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notice extends BaseEntity {
 
@@ -28,4 +30,12 @@ public class Notice extends BaseEntity {
 
     @Column(name = "isAlive", nullable = false )
     private boolean isAlive;
+
+    @Builder
+    private Notice(Long  id, String title, String content, boolean isAlive) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.isAlive = isAlive;
+    }
 }

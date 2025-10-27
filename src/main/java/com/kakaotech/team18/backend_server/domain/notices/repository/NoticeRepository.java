@@ -17,11 +17,11 @@ public interface NoticeRepository extends JpaRepository<Notice, Integer> {
            select n
            from Notice n
            where n.isAlive = true
-           order by n.createdAt desc
+           order by n.id asc
            """)
     Page<Notice> findAlive(Pageable pageable);
 
-    Page<NoticeBriefResponseDto> findByIsAliveTrueOrderByCreatedAtDesc(Pageable pageable);
+    Page<NoticeBriefResponseDto> findByIsAliveTrueOrderByIdAsc(Pageable pageable);
 
     @Query("""
            select n
@@ -29,4 +29,5 @@ public interface NoticeRepository extends JpaRepository<Notice, Integer> {
            where n.id = :noticeId and n.isAlive = true
            """)
     Optional<Notice> findAliveById(Long noticeId);
+
 }

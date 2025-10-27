@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 public record NoticeBriefResponseDto(
         Long id,
         String title,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String author
 ) {
 }
