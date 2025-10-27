@@ -30,6 +30,10 @@ public class Notice extends BaseEntity {
     @Column(name = "isAlive", nullable = false )
     private boolean isAlive;
 
+    //TODO attachment 클래스 생성 필요
+    @Column(name = "attachment")
+    private String attachment;
+
     @Builder
     private Notice(Long  id, String title, String content, boolean isAlive) {
         this.id = id;

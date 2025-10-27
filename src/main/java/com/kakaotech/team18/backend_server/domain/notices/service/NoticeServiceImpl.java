@@ -36,6 +36,7 @@ public class NoticeServiceImpl implements NoticeService {
 
         Pageable pageable = PageRequest.of(p, s);
 
+        //TODO 실제 작성자 호출할 방법 필요
         final String author = clubMemberRepository.findFirstByRole(Role.SYSTEM_ADMIN)
                 .map(cm -> cm.getUser().getName())
                 .orElse("관리자");
@@ -56,6 +57,7 @@ public class NoticeServiceImpl implements NoticeService {
         Notice n = noticeRepository.findAliveById(noticeId)
                 .orElseThrow(() -> new NoticeNotFoundException("해당 공지사항을 찾을 수 없습니다. ID:" + noticeId) );
 
+        //TODO 실제 작성자 호출할 방법 필요
         Optional<ClubMember> clubMember = clubMemberRepository.findFirstByRole(Role.SYSTEM_ADMIN);
         String authorName = clubMember
                 .map(cm -> cm.getUser().getName())
@@ -65,6 +67,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .map(cm -> cm.getUser().getEmail())
                 .orElse("jnupole004@gmail.com");
 
+        //TODO 실제 첨부파일 로직으로 대체 필요
         String attachFile = "temp.txt";
 
         return new NoticeResponseDto(
