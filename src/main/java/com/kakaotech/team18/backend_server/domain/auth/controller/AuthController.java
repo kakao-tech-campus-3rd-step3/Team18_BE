@@ -20,6 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -93,13 +94,26 @@ public class AuthController {
     @Operation(summary = "Access Token 재발급", description = "유효한 Refresh Token을 사용하여 만료된 Access Token을 재발급받습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Access Token 재발급 성공",
-                    content = @Content(schema = @Schema(implementation = ReissueResponseDto.class))),
+                    content = @Content(schema = @Schema(implementation = ReissueResponseDto.Body.class))),
             @ApiResponse(responseCode = "401", description = "유효하지 않거나 만료된 Refresh Token")
     })
-    @SecurityRequirement(name = "bearer-jwt")
     @PostMapping("/reissue")
-    public ResponseEntity<ReissueResponseDto> reissue(@RequestHeader("Authorization") String bearerToken) {
-        ReissueResponseDto reissueResponseDto = authService.reissue(bearerToken);
-        return ResponseEntity.ok(reissueResponseDto);
+    public ResponseEntity<ReissueResponseDto.Body> reissue(
+            @CookieValue("refreshToken") String refreshToken) {
+
+        ReissueResponseDto reissueResponseDto = authService.reissue(refreshToken);
+
+        ResponseCookie responseCookie = ResponseCookie.from("refreshToken", reissueResponseDto.refreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(REFRESH_TOKEN_EXPIRE_TIME)
+                .build();
+
+        ReissueResponseDto.Body body = new ReissueResponseDto.Body(reissueResponseDto.accessToken());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
+                .body(body);
     }
 }
