@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -19,6 +21,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
 
@@ -36,19 +39,16 @@ public class SecurityConfig {
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        // =================== 개발 단계에서 모든 API 허용 ===================
-        // TODO: 배포 시, 아래 주석을 풀고 원래의 보안 설정을 적용해야 합니다.
-        http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
-        // ===============================================================
-
-        /*
-        // =================== 원래의 보안 설정 (배포 시 활성화) ===================
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                // 동아리 정보 조회 관련 API (공개)
+                .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/*").permitAll()
+                // 지원서 양식 조회 API (공개)
+                .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
+                // 지원서 제출 API (공개)
+                .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
                 .anyRequest().authenticated()
         );
-        // ====================================================================
-        */
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint())

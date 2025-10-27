@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/clubs")
-public class ClubController{
+public class ClubController {
 
     private final ClubService clubService;
 
@@ -60,12 +61,13 @@ public class ClubController{
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
+    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
     @PostMapping("/{clubId}")
     public ResponseEntity<SuccessResponseDto> updateClub(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable Long clubId,
             @Valid @RequestBody ClubDetailRequestDto dto
     ) {
-        SuccessResponseDto response = clubService.updateClubDetail(clubId,dto);
+        SuccessResponseDto response = clubService.updateClubDetail(clubId, dto);
         return ResponseEntity.ok(response);
     }
 
@@ -74,7 +76,7 @@ public class ClubController{
     @GetMapping(params = "category")
     public ResponseEntity<ClubListResponseDto> listClubsByCategory(
             @Parameter(description = "조회할 동아리 카테고리", required = true, example = "SPORTS") @RequestParam String category
-    ){
+    ) {
         ClubListResponseDto response = clubService.getClubByCategory(category);
         return ResponseEntity.ok(response);
     }
@@ -84,6 +86,7 @@ public class ClubController{
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
+    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
     @GetMapping("/{clubId}/dashboard")
     public ResponseEntity<ClubDashBoardResponseDto> getClubDashboard(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable Long clubId
@@ -96,6 +99,7 @@ public class ClubController{
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
     })
+    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
     @GetMapping("/{clubId}/dashboard/applicants")
     public ResponseEntity<ClubDashboardApplicantResponseDto> getClubApplicants(
             @PathVariable Long clubId,
