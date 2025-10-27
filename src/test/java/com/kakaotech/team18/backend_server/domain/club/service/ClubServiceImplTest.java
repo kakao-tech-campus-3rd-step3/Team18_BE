@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -46,7 +47,8 @@ class ClubServiceImplTest {
         ClubMemberRepository clubMemberRepository = mock(ClubMemberRepository.class);
         ApplicationRepository applicationRepository = mock(ApplicationRepository.class);
         ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
-        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository);
+        S3Service s3Service = mock(S3Service.class);
+        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service);
     }
 
     @Getter

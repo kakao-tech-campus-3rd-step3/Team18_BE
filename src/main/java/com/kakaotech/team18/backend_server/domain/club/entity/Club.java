@@ -94,20 +94,10 @@ public class Club extends BaseEntity {
     }
 
     private ClubIntroduction buildNewIntroduction(ClubDetailRequestDto dto) {
-        ClubIntroduction newIntro = ClubIntroduction.builder()
+        return ClubIntroduction.builder()
                 .overview(dto.introductionOverview())
                 .activities(dto.introductionActivity())
                 .ideal(dto.introductionIdeal())
                 .build();
-
-        if (dto.introductionImages() != null) {
-            for (String url : dto.introductionImages()) {
-                ClubImage image = ClubImage.builder()
-                        .imageUrl(url)
-                        .build();
-                newIntro.addImage(image);
-            }
-        }
-        return newIntro;
     }
 }

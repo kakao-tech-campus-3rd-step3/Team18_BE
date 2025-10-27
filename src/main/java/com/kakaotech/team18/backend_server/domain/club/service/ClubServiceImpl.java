@@ -25,11 +25,13 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 
+import com.kakaotech.team18.backend_server.global.service.S3Service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -41,6 +43,7 @@ public class ClubServiceImpl implements ClubService {
     private final ApplicationRepository applicationRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
+    private final S3Service s3Service;
 
 
     @Override
@@ -143,6 +146,22 @@ public class ClubServiceImpl implements ClubService {
                         .map(ApplicantResponseDto::from)
                         .toList(),
                 message);
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto uploadClubImages(Long clubId, List<MultipartFile> images) {
+        Club findClub = clubRepository.findClubDetailById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        List<String> imageUrls = images.stream()
+            .map(s3Service::upload)
+            .toList();
+        findClub.getIntroduction().updateImages(imageUrls);
+        log.info("Successfully uploaded and updated images for clubId: {}", clubId);
+        return new SuccessResponseDto(true);
     }
 
     // ---- private helpers ----
