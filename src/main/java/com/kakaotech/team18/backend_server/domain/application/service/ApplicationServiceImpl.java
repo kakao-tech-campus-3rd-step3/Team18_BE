@@ -67,6 +67,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
     private final ClubMemberRepository clubMemberRepository;
+    private static final int MAX_READ_LIMIT = 100;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -138,7 +139,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     ) {
 
         //1. applicationForm 찾기
-        ClubApplyForm form = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
 
         //2. 유저 정보생성(없으면 생성)
@@ -462,10 +463,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                         if (v.isArray()) out.addAll(extractTextValues(v));
                         else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
                         else {
-                            collectStringLeaves(v, out, 100);
+                            collectStringLeaves(v, out, MAX_READ_LIMIT);
                         }
                     } else {
-                        collectStringLeaves(item, out, 100);
+                        collectStringLeaves(item, out, MAX_READ_LIMIT);
                     }
                 } else {
                     out.addAll(extractTextValues(item));
@@ -481,7 +482,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 if (v.isTextual() || v.isNumber() || v.isBoolean()) return List.of(v.asText());
             }
             List<String> leaves = new ArrayList<>();
-            collectStringLeaves(node, leaves, 100);
+            collectStringLeaves(node, leaves, MAX_READ_LIMIT);
             return leaves;
         }
 
