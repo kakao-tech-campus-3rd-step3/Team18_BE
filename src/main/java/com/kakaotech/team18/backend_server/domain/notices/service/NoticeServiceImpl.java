@@ -31,7 +31,7 @@ public class NoticeServiceImpl implements NoticeService {
     @Transactional(readOnly = true)
     public List<NoticeBriefResponseDto> getAllNotices(Integer page, Integer size) {
 
-        int p = (page == null ? 0 : page - 1);
+        int p = page - 1;
         int s = size;
 
         Pageable pageable = PageRequest.of(p, s);

@@ -87,7 +87,7 @@ class NoticeServiceIntegrationTest {
 
             // then
             assertThat(page1).hasSize(2);
-            assertThat(page1.get(0).title()).isEqualTo("A-1");
+            assertThat(page1.get(0).title()).isEqualTo("A-3");
             assertThat(page1.get(0).author()).isEqualTo("관리자");
             assertThat(page1.get(1).title()).isEqualTo("A-2");
         }
@@ -100,7 +100,7 @@ class NoticeServiceIntegrationTest {
 
             // then
             assertThat(page2).hasSize(1);
-            assertThat(page2.get(0).title()).isEqualTo("A-3");
+            assertThat(page2.get(0).title()).isEqualTo("A-1");
         }
 
         @Test

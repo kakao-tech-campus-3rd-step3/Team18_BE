@@ -16,7 +16,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
            select n
            from Notice n
            where n.isAlive = true
-           order by n.id asc
+           order by n.id desc
            """)
     Page<Notice> findAlive(Pageable pageable);
 
