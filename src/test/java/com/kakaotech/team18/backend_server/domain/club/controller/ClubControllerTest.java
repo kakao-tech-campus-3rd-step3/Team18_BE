@@ -189,9 +189,9 @@ class ClubControllerTest {
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING),
+                        Status.PENDING, 1L),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING)),
+                        Status.PENDING, 2L)),
                 "message");
 
         //when
@@ -215,9 +215,9 @@ class ClubControllerTest {
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING),
+                        Status.PENDING, 1L),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED)),
+                        Status.APPROVED, 2L)),
                 "message"
         );
 
