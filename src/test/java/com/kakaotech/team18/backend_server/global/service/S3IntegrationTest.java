@@ -1,20 +1,19 @@
 package com.kakaotech.team18.backend_server.global.service;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.amazonaws.services.s3.AmazonS3;
-import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.localstack.LocalStackContainer;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.mock.web.MockMultipartFile;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 @SpringBootTest
 @Testcontainers
@@ -33,7 +32,7 @@ class S3IntegrationTest {
 
     @Test
     @Disabled("LocalStack 환경 필요 - CI에서는 무시")
-    void uploadAndDeleteFile() throws Exception {
+    void uploadAndDeleteFile() {
         // given
         String bucketName = "test-bucket213";
         amazonS3.createBucket(bucketName);
