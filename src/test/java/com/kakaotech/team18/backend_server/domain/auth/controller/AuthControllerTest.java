@@ -87,7 +87,7 @@ class AuthControllerTest {
         // when
         // 2. 로그아웃에 사용했던 Access Token으로 보호된 API에 접근을 시도합니다.
         ResultActions resultActions = mockMvc.perform(
-                get("/api/auth/reissue")
+                post("/api/auth/reissue")
                         .header("Authorization", "Bearer " + accessToken)
         );
 
