@@ -7,6 +7,7 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.service.AuthService;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-    private final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24 * 14; // 14일
+    private final JwtProperties jwtProperties;
 
     @Operation(summary = "카카오 인가 코드로 로그인/회원가입", description = "클라이언트가 카카오로부터 받은 인가 코드를 전송하면, 서버는 이를 검증하여 기존 회원이면 즉시 로그인 처리하고, 신규 회원이면 추가 정보 입력을 위한 임시 토큰을 발급합니다.")
     @ApiResponses(value = {
@@ -50,7 +51,7 @@ public class AuthController {
                     .httpOnly(true)
                     .secure(true)
                     .path("/")
-                    .maxAge(REFRESH_TOKEN_EXPIRE_TIME)
+                    .maxAge(jwtProperties.refreshTokenValidityInSeconds())
                     .build();
 
             LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(dto.status(), dto.accessToken());
@@ -81,7 +82,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(REFRESH_TOKEN_EXPIRE_TIME)
+                .maxAge(jwtProperties.refreshTokenValidityInSeconds())
                 .build();
 
         LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(responseDto.status(), responseDto.accessToken());
@@ -107,7 +108,7 @@ public class AuthController {
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(REFRESH_TOKEN_EXPIRE_TIME)
+                .maxAge(jwtProperties.refreshTokenValidityInSeconds())
                 .build();
 
         ReissueResponseDto.Body body = new ReissueResponseDto.Body(reissueResponseDto.accessToken());
