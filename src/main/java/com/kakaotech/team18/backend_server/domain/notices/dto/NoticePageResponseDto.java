@@ -33,15 +33,15 @@ public record NoticePageResponseDto(
         public record PageInfo(
 
                 @Schema(description = "현재 페이지", example = "1")
-                Long currentPage,
+                Integer currentPage,
 
                 @Schema(description = "페이지 크기", example = "10")
-                Long pageSize,
+                Integer pageSize,
 
                 @Schema(description = "전체 페이지 수", example = "5")
-                Long totalPages,
+                Integer totalPages,
 
                 @Schema(description = "전체 공지 수", example = "47")
-                Long totalElements
+                Integer totalElements
         ){}
 }
