@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @Tag(name = "공지사항 API", description = "공지사항 목록 및 상세 조회 API")
 @RestController
 @RequiredArgsConstructor

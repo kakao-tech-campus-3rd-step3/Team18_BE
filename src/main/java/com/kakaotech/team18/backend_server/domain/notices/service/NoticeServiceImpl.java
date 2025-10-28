@@ -53,7 +53,7 @@ public class NoticeServiceImpl implements NoticeService {
                 .getContent();
 
         Integer totalElements =  noticeRepository.countByIsAliveTrue();
-        Integer totalPages = totalElements / page;
+        Integer totalPages = (totalElements + size -1) / size;
 
         NoticePageResponseDto.PageInfo pageInfo = new NoticePageResponseDto.PageInfo(
                 page,

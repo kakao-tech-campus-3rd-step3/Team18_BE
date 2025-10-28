@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.notices.service;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
-import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeBriefResponseDto;
+import com.kakaotech.team18.backend_server.domain.notices.dto.NoticePageResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.entity.Notice;
 import com.kakaotech.team18.backend_server.domain.notices.repository.NoticeRepository;
@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -83,34 +82,43 @@ class NoticeServiceIntegrationTest {
         @DisplayName("페이지 1(size=2): isAlive=true만 ASC(id) 순으로 2건 반환")
         void firstPage_size2_returnsTwoAliveAsc() {
             // when
-            List<NoticeBriefResponseDto> page1 = noticeService.getAllNotices(1, 2);
+            NoticePageResponseDto page1 = noticeService.getAllNotices(1, 2);
 
             // then
-            assertThat(page1).hasSize(2);
-            assertThat(page1.get(0).title()).isEqualTo("A-3");
-            assertThat(page1.get(0).author()).isEqualTo("관리자");
-            assertThat(page1.get(1).title()).isEqualTo("A-2");
+            assertThat(page1.content()).hasSize(2);
+            assertThat(page1.content().get(0).title()).isEqualTo("A-3");
+            assertThat(page1.content().get(0).author()).isEqualTo("관리자");
+            assertThat(page1.content().get(1).title()).isEqualTo("A-2");
+            assertThat(page1.pageInfo().pageSize()).isEqualTo(2);
+            assertThat(page1.pageInfo().currentPage()).isEqualTo(1);
+            assertThat(page1.pageInfo().totalPages()).isEqualTo(2);
+            assertThat(page1.pageInfo().totalElements()).isEqualTo(3);
         }
 
         @Test
         @DisplayName("페이지 2(size=2): 나머지 alive 1건 반환")
         void secondPage_size2_returnsLastAlive() {
             // when
-            List<NoticeBriefResponseDto> page2 = noticeService.getAllNotices(2, 2);
+            NoticePageResponseDto page2 = noticeService.getAllNotices(2, 2);
 
             // then
-            assertThat(page2).hasSize(1);
-            assertThat(page2.get(0).title()).isEqualTo("A-1");
+            assertThat(page2.content()).hasSize(1);
+            assertThat(page2.content().get(0).title()).isEqualTo("A-1");
+            assertThat(page2.pageInfo().pageSize()).isEqualTo(2);
+            assertThat(page2.pageInfo().currentPage()).isEqualTo(2);
+            assertThat(page2.pageInfo().totalPages()).isEqualTo(2);
+            assertThat(page2.pageInfo().totalElements()).isEqualTo(3);
+
         }
 
         @Test
         @DisplayName("페이지 범위를 넘기면 빈 배열 반환")
         void outOfRange_returnsEmpty() {
             // when
-            List<NoticeBriefResponseDto> page3 = noticeService.getAllNotices(3, 2);
+            NoticePageResponseDto page3 = noticeService.getAllNotices(3, 2);
 
             // then
-            assertThat(page3).isEmpty();
+            assertThat(page3.content()).isEmpty();
         }
     }
 
