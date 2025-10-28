@@ -28,8 +28,8 @@ public record RegisterRequestDto(
     @NotEmpty(message = "학과는 비어 있을 수 없습니다.")
     String department,
 
-    @Schema(description = "전화번호 (하이픈(-) 제외)", requiredMode = Schema.RequiredMode.REQUIRED, example = "01012345678")
-    @Pattern(regexp = "^\\d{10,11}$", message = "올바른 전화번호 형식이 아닙니다.")
+    @Schema(description = "전화번호 (하이픈(-) 포함)", requiredMode = Schema.RequiredMode.REQUIRED, example = "010-1234-5678")
+    @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호는 010-xxxx-xxxx 형식이어야 합니다.")
     String phoneNumber
 ) {
 }
