@@ -2,9 +2,13 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -34,6 +38,7 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -50,7 +55,9 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubServiceMockTest {
@@ -63,6 +70,8 @@ public class ClubServiceMockTest {
     ApplicationRepository applicationRepository;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
+    @Mock
+    S3Service s3Service;
 
     @InjectMocks
     ClubServiceImpl clubService;
@@ -360,6 +369,60 @@ public class ClubServiceMockTest {
                         .build()
         );
         return club;
+    }
+    @DisplayName("동아리 운영진이 동아리 상세페이지에 이미지를 수정할 수 있다.")
+    @Test
+    void uploadClubImages_shouldUploadAndReplaceImages() {
+        // given
+        Long clubId = 1L;
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg", "old2.jpg")
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        MultipartFile newImage1 = new MockMultipartFile("image1", "new1.jpg", "image/jpeg", "new image data 1".getBytes());
+        MultipartFile newImage2 = new MockMultipartFile("image2", "new2.jpg", "image/jpeg", "new image data 2".getBytes());
+        List<MultipartFile> newImages = List.of(newImage1, newImage2);
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.of(club));
+        club.getIntroduction().getImages().forEach(
+                image -> willDoNothing().given(s3Service).deleteFile(image.getImageUrl())
+        );
+        given(s3Service.upload(newImage1)).willReturn("http://s3.amazon.com/new1.jpg");
+        given(s3Service.upload(newImage2)).willReturn("http://s3.amazon.com/new2.jpg");
+
+        // when
+        SuccessResponseDto response = clubService.uploadClubImages(clubId, newImages);
+
+        // then
+        assertThat(response.success()).isTrue();
+        assertThat(club.getIntroduction().getImages()).hasSize(2);
+        assertThat(club.getIntroduction().getImages().get(0).getImageUrl()).isEqualTo("http://s3.amazon.com/new1.jpg");
+        assertThat(club.getIntroduction().getImages().get(1).getImageUrl()).isEqualTo("http://s3.amazon.com/new2.jpg");
+        verify(s3Service).upload(newImage1);
+        verify(s3Service).upload(newImage2);
+    }
+
+    @DisplayName("동아리 운영진이 동아리 상세페이지에 이미지를 수정할 때, 동아리가 존재하지 않으면 예외가 발생한다.")
+    @Test
+    void uploadClubImages_shouldThrowException_whenClubNotFound() {
+        // given
+        Long clubId = 999L; // 존재하지 않는 클럽 ID
+        List<MultipartFile> newImages = List.of(
+                new MockMultipartFile("image1", "new1.jpg", "image/jpeg", "new image data 1".getBytes())
+        );
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> clubService.uploadClubImages(clubId, newImages))
+                .isInstanceOf(ClubNotFoundException.class)
+                .hasMessageContaining("해당 동아리가 존재하지 않습니다.");
+
+        verify(s3Service, times(0)).deleteFile(anyString());
+        verify(s3Service, times(0)).upload(any(MultipartFile.class));
     }
 
 

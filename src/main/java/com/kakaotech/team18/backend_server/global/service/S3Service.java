@@ -35,8 +35,7 @@ public class S3Service {
         return amazonS3.getUrl(bucket, fileName).toString();
     }
 
-    public void deleteFile(ClubImage clubImage) {
-        String fileUrl = clubImage.getImageUrl();
+    public void deleteFile(String fileUrl) {
         String key = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         amazonS3.deleteObject(bucket, key);
     }

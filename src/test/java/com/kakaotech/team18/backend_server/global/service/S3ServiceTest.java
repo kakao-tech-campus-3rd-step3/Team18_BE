@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,7 +67,7 @@ class S3ServiceTest {
         ReflectionTestUtils.setField(s3Service, "bucket", bucket);
 
         // when
-        s3Service.deleteFile(ClubImage.builder().imageUrl(url).build());
+        s3Service.deleteFile(url);
 
         // then
         verify(amazonS3, times(1)).deleteObject(eq(bucket), eq("test.png"));

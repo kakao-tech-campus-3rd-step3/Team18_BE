@@ -49,7 +49,7 @@ class S3IntegrationTest {
         // then
         assertThat(amazonS3.doesObjectExist(bucketName, extractKey(url))).isTrue();
 
-        s3Service.deleteFile(ClubImage.builder().imageUrl(url).build());
+        s3Service.deleteFile(url);
         assertThat(amazonS3.doesObjectExist(bucketName, extractKey(url))).isFalse();
     }
 

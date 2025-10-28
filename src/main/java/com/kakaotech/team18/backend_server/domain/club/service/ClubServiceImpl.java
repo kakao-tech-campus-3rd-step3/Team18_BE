@@ -157,7 +157,8 @@ public class ClubServiceImpl implements ClubService {
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
 
-        findClub.getIntroduction().getImages().forEach(s3Service::deleteFile);
+        findClub.getIntroduction().getImages()
+                .forEach(image -> s3Service.deleteFile(image.getImageUrl()));
         log.info("S3 기존 이미지 삭제 완료 for clubId: {}", clubId);
 
         List<String> imageUrls = images.stream()
