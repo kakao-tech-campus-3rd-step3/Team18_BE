@@ -15,6 +15,7 @@ import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /**
  * 애플리케이션 전역에서 발생하는 예외를 중앙에서 처리하는 클래스입니다.
@@ -123,6 +124,15 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<Object> handleMissingServletRequestPartException(
+            MissingServletRequestPartException e)
+    {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
 
     /**
      * 모든 예상치 못한 예외를 처리
