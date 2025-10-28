@@ -156,9 +156,15 @@ public class ClubServiceImpl implements ClubService {
                     log.warn("Club not found for id={}", clubId);
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
+
+        findClub.getIntroduction().getImages().forEach(s3Service::deleteFile);
+        log.info("S3 기존 이미지 삭제 완료 for clubId: {}", clubId);
+
         List<String> imageUrls = images.stream()
             .map(s3Service::upload)
             .toList();
+        log.info("S3에 이미지 업로드 완료 for clubId: {}", clubId);
+
         findClub.getIntroduction().updateImages(imageUrls);
         log.info("Successfully uploaded and updated images for clubId: {}", clubId);
         return new SuccessResponseDto(true);
