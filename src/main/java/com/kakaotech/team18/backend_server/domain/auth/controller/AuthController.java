@@ -96,8 +96,6 @@ public class AuthController {
     })
     @GetMapping("/kakao/logout")
     public String kakaoLogout() {
-        // TODO: AuthService에 로그아웃 로직 구현 및 호출
-        // authService.logout( ... );
 
         // 최종적으로 프론트엔드의 메인 페이지로 리다이렉트
         return "redirect:https://www.dongarium.co.kr/";
