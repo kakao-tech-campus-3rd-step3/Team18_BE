@@ -19,7 +19,8 @@ public class S3Service {
     private String bucket;
 
     public String upload(MultipartFile file)  {
-        String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+        String dir = "club_detail_image/";
+        String fileName = dir + UUID.randomUUID() + "-" + file.getOriginalFilename();
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
@@ -35,7 +36,7 @@ public class S3Service {
     }
 
     public void deleteFile(String fileUrl) {
-        String key = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+        String key = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
         amazonS3.deleteObject(bucket, key);
     }
 }
