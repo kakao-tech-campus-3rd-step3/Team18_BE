@@ -58,6 +58,9 @@ jobs:
           SMTP_PORT: ${{secrets.SMTP_PORT}}
           SMTP_USERNAME: ${{secrets.SMTP_USERNAME}}
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
+          KAKAO_LOGOUT_REDIRECT_URI_TEST: ${{ secrets.KAKAO_LOGOUT_REDIRECT_URI_TEST }}
+          FRONTEND_MAIN_PAGE_URI_TEST: ${{ secrets.FRONTEND_MAIN_PAGE_URI_TEST }}
+
         run: |
           mkdir -p ./src/main/resources
           cat > ./src/main/resources/application-test.yml <<YAML
@@ -92,6 +95,11 @@ jobs:
                       token-uri: https://kauth.kakao.com/oauth/token
                       user-info-uri: https://kapi.kakao.com/v2/user/me
                       user-name-attribute: id
+                      logout-redirect-uri: ${KAKAO_LOGOUT_REDIRECT_URI_TEST}
+          
+            frontend:
+              main-page-uri: ${FRONTEND_MAIN_PAGE_URI_TEST}
+          
             jwt:
               secret: ${JWT_SECRET}
               access-token-validity-in-seconds: 1800
