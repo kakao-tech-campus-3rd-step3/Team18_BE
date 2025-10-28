@@ -4,8 +4,9 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
-
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.transaction.annotation.Transactional;
+
 public interface AuthService {
 
     /**
@@ -34,12 +35,6 @@ public interface AuthService {
      */
     ReissueResponseDto reissue(String bearerToken);
 
-    /**
-     * 사용자의 Access Token을 블랙리스트에 추가하고, Refresh Token을 무효화하여 로그아웃 처리합니다.
-     *
-     * @param bearerToken "Bearer " 접두사를 포함한 Access Token
-     * @param response    HttpOnly 쿠키에 저장된 Refresh Token을 만료시키기 위한 HttpServletResponse
-     */
-    void logout(String bearerToken, HttpServletResponse response);
-
+    @Transactional
+    void logout(String bearerAccessToken, HttpServletResponse response);
 }
