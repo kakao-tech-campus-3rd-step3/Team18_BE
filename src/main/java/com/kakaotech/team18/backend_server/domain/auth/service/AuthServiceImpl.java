@@ -15,8 +15,6 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
@@ -248,8 +246,8 @@ public class AuthServiceImpl implements AuthService {
         return ReissueResponseDto.of(newAccessToken, newRefreshToken);
     }
 
-    @Override
     @Transactional
+    @Override
     public void logout(String bearerAccessToken, HttpServletResponse response) {
         // 1. "Bearer " 접두사를 제거하고 순수한 Access Token을 추출합니다.
         String accessToken = jwtProvider.extractToken(bearerAccessToken);
