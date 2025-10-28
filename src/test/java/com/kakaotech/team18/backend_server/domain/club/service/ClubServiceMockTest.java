@@ -433,9 +433,17 @@ public class ClubServiceMockTest {
         User user3 = createUser( "loginId3", "333333");
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
 
-        ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW), Role.APPLICANT, ActiveStatus.ACTIVE);
+        Application application1 = createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW);
+        Application application2 = createApplication(user2, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
+        Application application3 = createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW);
+
+        ReflectionTestUtils.setField(application1, "id", 1L);
+        ReflectionTestUtils.setField(application2, "id", 2L);
+        ReflectionTestUtils.setField(application3, "id", 3L);
+
+        ClubMember clubMember1 = createClubMember(user1, club, application1, Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember2 = createClubMember(user2, club, application2, Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember3 = createClubMember(user3, club, application3, Role.APPLICANT, ActiveStatus.ACTIVE);
 
         given(clubApplyFormRepository.findByClubId(eq(clubId))).willReturn(Optional.of(clubApplyForm));
 
@@ -444,11 +452,11 @@ public class ClubServiceMockTest {
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING),
+                        Status.PENDING, 1L),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED),
+                        Status.APPROVED, 2L),
                 new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
-                        Status.REJECTED)
+                        Status.REJECTED, 3L)
         );
 
         //when

@@ -17,7 +17,9 @@ public record ApplicantResponseDto(
         @Schema(description = "이메일", example = "test@test.com")
         String email,
         @Schema(description = "지원서 상태", example = "PENDING")
-        Status status
+        Status status,
+        @Schema(description = "지원서 ID", example = "1")
+        Long applicantId
 ) {
 
     public static ApplicantResponseDto from(ClubMember clubMember) {
@@ -27,7 +29,8 @@ public record ApplicantResponseDto(
                 clubMember.getUser().getDepartment(),
                 clubMember.getUser().getPhoneNumber(),
                 clubMember.getUser().getEmail(),
-                clubMember.getApplication().getStatus()
+                clubMember.getApplication().getStatus(),
+                clubMember.getApplication().getId()
         );
     }
 }
