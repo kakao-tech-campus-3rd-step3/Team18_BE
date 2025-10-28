@@ -75,6 +75,10 @@ dependencies {
 
     //aws
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    //Test Container
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.3'
+    testImplementation 'org.testcontainers:localstack:1.20.3'
 }
 
 tasks.named('test') {
