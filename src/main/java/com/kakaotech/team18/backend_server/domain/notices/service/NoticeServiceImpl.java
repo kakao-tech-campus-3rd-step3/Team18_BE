@@ -3,7 +3,7 @@ package com.kakaotech.team18.backend_server.domain.notices.service;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
-import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeBriefResponseDto;
+import com.kakaotech.team18.backend_server.domain.notices.dto.NoticePageResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.entity.Notice;
 import com.kakaotech.team18.backend_server.domain.notices.repository.NoticeRepository;
@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,10 +27,11 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final ClubMemberRepository clubMemberRepository;
+    private final RestClient.Builder builder;
 
     @Override
     @Transactional(readOnly = true)
-    public List<NoticeBriefResponseDto> getAllNotices(Integer page, Integer size) {
+    public NoticePageResponseDto getAllNotices(Integer page, Integer size) {
 
         int p = page - 1;
         int s = size;
@@ -41,14 +43,29 @@ public class NoticeServiceImpl implements NoticeService {
                 .map(cm -> cm.getUser().getName())
                 .orElse("관리자");
 
-        return noticeRepository.findAlive(pageable)
-                .map(n -> new NoticeBriefResponseDto(
+        List<NoticePageResponseDto.NoticeBriefResponseDto> brief = noticeRepository.findAlive(pageable)
+                .map(n -> new NoticePageResponseDto.NoticeBriefResponseDto(
                         n.getId(),
                         n.getTitle(),
                         n.getCreatedAt(),
                         author
                 ))
                 .getContent();
+
+        Integer totalElements =  noticeRepository.countByIsAliveTrue();
+        Integer totalPages = (totalElements + size -1) / size;
+
+        NoticePageResponseDto.PageInfo pageInfo = new NoticePageResponseDto.PageInfo(
+                page,
+                size,
+                totalPages,
+                totalElements
+        );
+
+        return new NoticePageResponseDto(
+                brief,
+                pageInfo
+        );
     }
 
     @Override

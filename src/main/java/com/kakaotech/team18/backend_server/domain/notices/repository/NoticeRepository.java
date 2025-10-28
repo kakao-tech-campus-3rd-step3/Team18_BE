@@ -26,4 +26,6 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
            where n.id = :noticeId and n.isAlive = true
            """)
     Optional<Notice> findAliveById(Long noticeId);
+
+    Integer countByIsAliveTrue();
 }
