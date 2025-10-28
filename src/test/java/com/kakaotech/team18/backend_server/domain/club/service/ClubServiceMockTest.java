@@ -295,7 +295,6 @@ public class ClubServiceMockTest {
                 .introductionOverview("new overview")
                 .introductionActivity("new activity")
                 .introductionIdeal("new ideal")
-                .introductionImages(List.of("n1.png", "n2.png", "n1.png"))
                 .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
                 .build();
@@ -318,12 +317,6 @@ public class ClubServiceMockTest {
         assertThat(club.getIntroduction().getOverview()).isEqualTo("new overview");
         assertThat(club.getIntroduction().getActivities()).isEqualTo("new activity");
         assertThat(club.getIntroduction().getIdeal()).isEqualTo("new ideal");
-
-        // 이미지 세팅 확인
-        assertThat(club.getIntroduction().getImages()).hasSize(3);
-        assertThat(club.getIntroduction().getImages())
-                .extracting(ClubImage::getImageUrl)
-                .containsExactly("n1.png", "n2.png", "n1.png");
 
     }
     private Club sampleClubWithIntroduction(
@@ -363,7 +356,6 @@ public class ClubServiceMockTest {
                         .introductionOverview(overview)
                         .introductionActivity(activity)
                         .introductionIdeal(ideal)
-                        .introductionImages(imageUrls)
                         .regularMeetingInfo("수 18:00")
                         .build()
         );
