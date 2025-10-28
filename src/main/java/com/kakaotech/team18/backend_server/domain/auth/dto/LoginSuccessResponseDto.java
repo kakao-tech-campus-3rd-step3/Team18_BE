@@ -24,7 +24,10 @@ public record LoginSuccessResponseDto(
                 AuthStatus status,
 
                 @Schema(description = "우리 서비스의 Access Token")
-                String accessToken
+                String accessToken,
+
+                @Schema(description = "clubId와 Role 정보를 담은 리스트")
+                List<ClubIdAndRoleInfoDto> clubIdAndRoleList
         ) implements LoginResponse {
                 // LoginResponse 인터페이스를 구현합니다.
         }
