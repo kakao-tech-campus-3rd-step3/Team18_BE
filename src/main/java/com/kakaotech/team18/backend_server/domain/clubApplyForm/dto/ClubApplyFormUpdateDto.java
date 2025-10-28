@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -37,6 +38,8 @@ public record ClubApplyFormUpdateDto(
         List<@Valid FormQuestionUpdateDto> formQuestions
 ) {
         @AssertTrue(message = "모집 마감일은 시작일과 같거나 이후여야 합니다.")
+        @JsonIgnore
+        @Schema(hidden = true)
         public boolean isRecruitPeriodValid() {
                 return recruitStart == null || recruitEnd == null || !recruitEnd.isBefore(recruitStart);
         }
