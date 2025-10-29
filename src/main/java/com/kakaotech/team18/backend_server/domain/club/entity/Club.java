@@ -70,7 +70,7 @@ public class Club extends BaseEntity {
         this.category = category;
         this.location = location;
         this.shortIntroduction = shortIntroduction;
-        this.introduction = introduction;
+        this.introduction = (introduction != null) ? introduction : new ClubIntroduction();
         this.caution = caution;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
