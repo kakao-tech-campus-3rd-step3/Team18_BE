@@ -90,7 +90,7 @@ public class ClubRestClientTest {
 
     @DisplayName("동아리 이미지 업로드 시, 5MB 초과 파일은 실패한다.")
     @Test
-    void uploadTooLargeFile_exceed1MB() {
+    void uploadTooLargeFile_exceed5MB() {
 
         // RestClient 인스턴스
         RestClient restClient = RestClient.builder()
