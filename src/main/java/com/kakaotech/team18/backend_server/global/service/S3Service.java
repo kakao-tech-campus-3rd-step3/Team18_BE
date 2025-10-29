@@ -3,10 +3,12 @@ package com.kakaotech.team18.backend_server.global.service;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.S3DeleteException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.S3Exception;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
@@ -28,6 +30,34 @@ public class S3Service {
             "image/jpeg",
             "image/png"
     );
+
+    public List<String> listAllFiles() {
+        try {
+            ListObjectsV2Result result = amazonS3.listObjectsV2(bucket);
+
+            if (result == null || result.getObjectSummaries().isEmpty()) {
+                log.info("S3 bucket [{}] has no objects.", bucket);
+                return List.of();
+            }
+
+            return result.getObjectSummaries().stream()
+                    .map(S3ObjectSummary::getKey)
+                    .map(key -> amazonS3.getUrl(bucket, key).toString())
+                    .toList();
+
+        } catch (AmazonServiceException e) {
+            log.warn("AWS returned an error while listing objects in bucket [{}]: {}", bucket, e.getMessage());
+            throw new S3Exception("S3 객체 목록 조회 실패 (AWS 오류) bucket=" + bucket);
+
+        } catch (SdkClientException e) {
+            log.warn("SDK client error while connecting to S3: {}", e.getMessage());
+            throw new S3Exception("S3 객체 목록 조회 실패 (네트워크 오류) bucket=" + bucket);
+
+        } catch (Exception e) {
+            log.error("Unexpected error while listing S3 objects: {}", e.getMessage(), e);
+            throw new S3Exception("S3 객체 목록 조회 실패 (예상치 못한 오류) bucket=" + bucket);
+        }
+    }
 
     public String upload(MultipartFile file)  {
         if (file.isEmpty()) {
@@ -67,11 +97,11 @@ public class S3Service {
         } catch (AmazonServiceException e) {
             // AWS 응답 오류 (권한, 버킷, region 문제 등)
             log.warn("AWS S3 AmazonServiceException error: [{}], key: [{}]", e.getMessage(), key);
-            throw new S3DeleteException("S3 객체 삭제 실패 (AWS 오류) key=" + key);
+            throw new S3Exception("S3 객체 삭제 실패 (AWS 오류) key=" + key);
         } catch (SdkClientException e) {
             // 네트워크 / 연결 오류
             log.warn("AWS S3 SdkClientException error: [{}], key: [{}]", e.getMessage(), key);
-            throw new S3DeleteException("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
+            throw new S3Exception("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
         }
     }
 }
