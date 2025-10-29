@@ -3,7 +3,14 @@ package com.kakaotech.team18.backend_server.domain.club.controller;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ByteArrayResource;
@@ -17,11 +24,37 @@ import org.springframework.web.client.RestClient;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
-class ClubControllerRestClientTest {
+public class ClubRestClientTest {
+
+    @Autowired
+    private ClubRepository clubRepository;
+
 
     @LocalServerPort
     int port;
 
+    @BeforeEach
+    void setUp() {
+        Club club = Club.builder()
+                .name("Test Club")
+                .category(com.kakaotech.team18.backend_server.domain.club.entity.Category.STUDY)
+                .shortIntroduction("Test Short Introduction")
+                .location("Test Location")
+                .introduction(ClubIntroduction.builder()
+                        .overview("Test Overview")
+                        .activities("Test Activities")
+                        .ideal("Test Ideal")
+                        .build())
+                .build();
+        clubRepository.save(club);
+    }
+
+    @AfterEach
+    void tearDown() {
+        clubRepository.deleteAll();
+    }
+
+    @DisplayName("동아리 이미지 업로드 시, 5MB 이하의 파일은 성공한다.")
     @Test
     void uploadWithinLimit_200OK() {
 
@@ -55,6 +88,7 @@ class ClubControllerRestClientTest {
         assertThat(response.getStatusCode().value()).isEqualTo(200);
     }
 
+    @DisplayName("동아리 이미지 업로드 시, 5MB 초과 파일은 실패한다.")
     @Test
     void uploadTooLargeFile_exceed1MB() {
 
@@ -89,6 +123,8 @@ class ClubControllerRestClientTest {
                 HttpClientErrorException.BadRequest.class
         );
     }
+
+    @DisplayName("동아리 이미지 업로드 시, 총 50MB 초과 파일은 실패한다.")
     @Test
     void uploadTotalSizeExceed_throwsException() {
 
