@@ -94,7 +94,6 @@ class AuthServiceImplTest {
     @Test
     void reissue_success() {
         // given
-        String bearerToken = "Bearer valid-refresh-token";
         String oldRefreshToken = "valid-refresh-token";
         Long userId = 1L;
         String newAccessToken = "new-access-token";
@@ -108,7 +107,6 @@ class AuthServiceImplTest {
 
         RefreshToken storedRefreshToken = new RefreshToken(userId, oldRefreshToken, 3600L);
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(oldRefreshToken);
         given(jwtProvider.verify(oldRefreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -117,7 +115,7 @@ class AuthServiceImplTest {
         given(jwtProperties.refreshTokenValidityInSeconds()).willReturn(604800L);
 
         // when
-        ReissueResponseDto result = authService.reissue(bearerToken);
+        ReissueResponseDto result = authService.reissue(oldRefreshToken);
 
         // then
         assertThat(result).isNotNull();
@@ -136,18 +134,16 @@ class AuthServiceImplTest {
     @Test
     void reissue_withWrongTokenType_throwsException() {
         // given
-        String bearerToken = "Bearer access-token";
         String accessToken = "access-token";
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
         claims.put("tokenType", TokenType.ACCESS.name());
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(accessToken);
         given(jwtProvider.verify(accessToken)).willReturn(claims);
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(accessToken))
                 .isInstanceOf(NotRefreshTokenException.class);
     }
 
@@ -155,19 +151,17 @@ class AuthServiceImplTest {
     @Test
     void reissue_withLoggedOutToken_throwsException() {
         // given
-        String bearerToken = "Bearer logged-out-token";
         String refreshToken = "logged-out-token";
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
         claims.put("tokenType", TokenType.REFRESH.name());
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
         given(jwtProvider.verify(refreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.empty()); // Redis에 토큰이 없음
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
                 .isInstanceOf(LoggedOutUserException.class);
     }
 
@@ -175,7 +169,6 @@ class AuthServiceImplTest {
     @Test
     void reissue_withMismatchedToken_throwsException() {
         // given
-        String bearerToken = "Bearer valid-but-mismatched-token";
         String refreshToken = "valid-but-mismatched-token";
         Long userId = 1L;
 
@@ -185,12 +178,11 @@ class AuthServiceImplTest {
         // Redis에는 다른 토큰이 저장되어 있는 상황
         RefreshToken storedRefreshToken = new RefreshToken(userId, "stored-but-different-token", 3600L);
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
         given(jwtProvider.verify(refreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
                 .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
