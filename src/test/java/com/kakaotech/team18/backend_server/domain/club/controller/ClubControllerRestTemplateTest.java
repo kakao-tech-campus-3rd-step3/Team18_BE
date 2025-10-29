@@ -28,8 +28,8 @@ class ClubControllerRestClientTest {
                 .baseUrl("http://localhost:" + port)
                 .build();
 
-        // given: 500KB 정상 파일 (1MB 이하)
-        byte[] smallFile = new byte[500 * 1024];
+        // given: 5MB
+        byte[] smallFile = new byte[5 * 1024 * 1024];
 
         ByteArrayResource resource = new ByteArrayResource(smallFile) {
             @Override
@@ -61,8 +61,8 @@ class ClubControllerRestClientTest {
                 .baseUrl("http://localhost:" + port)
                 .build();
 
-        // given: 2MB 파일
-        byte[] bigFile = new byte[2 * 1024 * 1024];
+        // given: 6MB 파일
+        byte[] bigFile = new byte[6 * 1024 * 1024];
 
         ByteArrayResource resource = new ByteArrayResource(bigFile) {
             @Override
@@ -75,6 +75,40 @@ class ClubControllerRestClientTest {
         body.add("images", resource);
 
         // when & then: Tomcat에서 연결을 끊기 때문에 ResourceAccessException 발생
+        assertThatThrownBy(() ->
+                restClient.put()
+                        .uri("/api/clubs/1/images")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .body(body)
+                        .retrieve()
+                        .toBodilessEntity()
+        ).isInstanceOfAny(
+                ResourceAccessException.class,
+                HttpClientErrorException.BadRequest.class
+        );
+    }
+    @Test
+    void uploadTotalSizeExceed_throwsException() {
+
+        RestClient restClient = RestClient.builder()
+                .baseUrl("http://localhost:" + port)
+                .build();
+
+        // 5MB 파일 11개 → 총 55MB
+        byte[] fileData = new byte[5 * 1024 * 1024];
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+
+        for (int i = 0; i < 11; i++) {
+            ByteArrayResource resource = new ByteArrayResource(fileData) {
+                @Override
+                public String getFilename() {
+                    return "image_" + System.nanoTime() + ".jpg";
+                }
+            };
+            body.add("images", resource);
+        }
+
         assertThatThrownBy(() ->
                 restClient.put()
                         .uri("/api/clubs/1/images")
