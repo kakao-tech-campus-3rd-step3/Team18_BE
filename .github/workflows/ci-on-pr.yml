@@ -62,7 +62,6 @@ jobs:
 
         run: |
           mkdir -p ./src/main/resources
-          printf "%s" "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application.yml
-      # 테스트 프로필로 빌드/테스트
+          echo "${{ secrets.APPLICATION_YML_BASE64 }}" | base64 --decode > ./src/main/resources/application.yml      # 테스트 프로필로 빌드/테스트
       - name: Build & Test
         run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build
