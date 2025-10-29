@@ -55,7 +55,7 @@ public class ClubIntroduction extends BaseEntity {
                     .imageUrl(url)
                     .clubIntroduction(this)
                     .build();
-            this.images.add(image);
+            this.addImage(image);
         }
     }
 }

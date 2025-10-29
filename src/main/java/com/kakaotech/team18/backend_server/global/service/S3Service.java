@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStre
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.S3Exception;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -91,7 +92,9 @@ public class S3Service {
     }
 
     public void deleteFile(String fileUrl) {
-        String key = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
+        String path = URI.create(fileUrl).getPath(); // ex) "/club_detail_image/..."
+        String key = path.startsWith("/") ? path.substring(1) : path;
+        amazonS3.deleteObject(bucket, key);
         try {
             amazonS3.deleteObject(bucket, key);
         } catch (AmazonServiceException e) {
