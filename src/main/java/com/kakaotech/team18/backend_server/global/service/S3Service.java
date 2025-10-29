@@ -1,19 +1,24 @@
 package com.kakaotech.team18.backend_server.global.service;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.S3DeleteException;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class S3Service {
 
     private final AmazonS3 amazonS3;
@@ -57,6 +62,16 @@ public class S3Service {
 
     public void deleteFile(String fileUrl) {
         String key = fileUrl.substring(fileUrl.indexOf(bucket) + bucket.length() + 1);
-        amazonS3.deleteObject(bucket, key);
+        try {
+            amazonS3.deleteObject(bucket, key);
+        } catch (AmazonServiceException e) {
+            // AWS 응답 오류 (권한, 버킷, region 문제 등)
+            log.warn("AWS S3 AmazonServiceException error: [{}], key: [{}]", e.getMessage(), key);
+            throw new S3DeleteException("S3 객체 삭제 실패 (AWS 오류) key=" + key);
+        } catch (SdkClientException e) {
+            // 네트워크 / 연결 오류
+            log.warn("AWS S3 SdkClientException error: [{}], key: [{}]", e.getMessage(), key);
+            throw new S3DeleteException("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
+        }
     }
 }

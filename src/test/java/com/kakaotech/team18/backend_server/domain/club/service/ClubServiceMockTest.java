@@ -55,6 +55,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -72,6 +73,8 @@ public class ClubServiceMockTest {
     ClubApplyFormRepository clubApplyFormRepository;
     @Mock
     S3Service s3Service;
+    @Mock
+    ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     ClubServiceImpl clubService;

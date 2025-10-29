@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 
 class ClubServiceImplTest {
 
@@ -48,7 +49,8 @@ class ClubServiceImplTest {
         ApplicationRepository applicationRepository = mock(ApplicationRepository.class);
         ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
         S3Service s3Service = mock(S3Service.class);
-        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service);
+        ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
+        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service, applicationEventPublisher);
     }
 
     @Getter
