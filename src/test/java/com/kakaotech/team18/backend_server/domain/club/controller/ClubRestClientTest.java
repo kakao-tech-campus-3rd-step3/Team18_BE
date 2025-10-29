@@ -2,16 +2,20 @@ package com.kakaotech.team18.backend_server.domain.club.controller;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -21,6 +25,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.multipart.MultipartFile;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -28,6 +33,9 @@ public class ClubRestClientTest {
 
     @Autowired
     private ClubRepository clubRepository;
+
+    @MockBean
+    private S3Service s3Service;
 
 
     @LocalServerPort
@@ -47,6 +55,8 @@ public class ClubRestClientTest {
                         .build())
                 .build();
         clubRepository.save(club);
+
+        given(s3Service.upload(any(MultipartFile.class))).willReturn("https://mock-s3/test-image.jpg");
     }
 
     @AfterEach
