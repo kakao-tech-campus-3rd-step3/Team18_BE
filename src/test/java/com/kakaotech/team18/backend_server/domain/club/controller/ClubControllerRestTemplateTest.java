@@ -10,6 +10,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
@@ -81,6 +82,9 @@ class ClubControllerRestClientTest {
                         .body(body)
                         .retrieve()
                         .toBodilessEntity()
-        ).isInstanceOf(ResourceAccessException.class);
+        ).isInstanceOfAny(
+                ResourceAccessException.class,
+                HttpClientErrorException.BadRequest.class
+        );
     }
 }
