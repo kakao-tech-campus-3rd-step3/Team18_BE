@@ -37,7 +37,8 @@ public enum ErrorCode {
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
-    EXPIRED_JWT_TOKEN("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_ACCESS_TOKEN("만료된 Access Token입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_REFRESH_TOKEN("만료된 Refresh Token입니다. 다시 로그인해주세요.", HttpStatus.UNAUTHORIZED),
     MALFORMED_JWT("잘못된 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_SIGNATURE("토큰의 서명이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_JWT("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
