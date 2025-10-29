@@ -425,6 +425,33 @@ public class ClubServiceMockTest {
         verify(s3Service, times(0)).upload(any(MultipartFile.class));
     }
 
+    @DisplayName("동아리 운영진이 동아리 상세페이지에 이미지를 수정할 때, 이미지 확장자가 잘못된 경우 예외가 발생한다.")
+    @Test
+    void uploadClubImages_shouldThrowException_whenInvalidImageExtension() {
+        // given
+        Long clubId = 1L;
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg")
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        MultipartFile invalidImage = new MockMultipartFile("image1", "invalid.gif", "image/gif", "invalid image data".getBytes());
+        List<MultipartFile> newImages = List.of(invalidImage);
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.of(club));
+        given(s3Service.upload(any(MultipartFile.class))).willThrow(new com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException("JPG 또는 PNG 파일만 업로드 가능합니다."));
+
+        // when & then
+        assertThatThrownBy(() -> clubService.uploadClubImages(clubId, newImages))
+                .isInstanceOf(com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException.class)
+                .hasMessageContaining("잘못된 파일 형식입니다.");
+
+        verify(s3Service, times(1)).upload(invalidImage); // 잘못된 파일이라도 upload 시도는 한 번 발생
+        verify(s3Service, times(0)).deleteFile(anyString()); // 파일 업로드 실패 시 기존 파일 삭제는 일어나지 않음
+    }
+
 
     @DisplayName("지원자의 지원 상태에 따라 지원자를 필터링해 조회할 수 있다.")
     @ParameterizedTest

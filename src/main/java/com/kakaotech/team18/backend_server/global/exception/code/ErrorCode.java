@@ -32,6 +32,7 @@ public enum ErrorCode {
     PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE("잘못된 파일 형식입니다.", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
