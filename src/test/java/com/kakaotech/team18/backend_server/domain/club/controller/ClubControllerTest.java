@@ -326,12 +326,12 @@ class ClubControllerTest {
         mockMvc.perform(
                         multipart("/api/clubs/{clubId}/images", clubId)
                                 .file(new MockMultipartFile(
-                                        "images",               // 컨트롤러에서 받는 파라미터 이름
+                                        "images",
                                         "newImage.jpg",
                                         "image/jpeg",
                                         "image-content".getBytes()
                                 ))
-                                .with(request -> { request.setMethod("PUT"); return request; }) // ✅ PUT으로 바꾸기
+                                .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isOk());

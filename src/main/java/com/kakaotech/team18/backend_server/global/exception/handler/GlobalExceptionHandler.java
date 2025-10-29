@@ -15,6 +15,7 @@ import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /**
@@ -125,12 +126,20 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<Object> handleMissingServletRequestPartException(
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(
             MissingServletRequestPartException e)
     {
         final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
         log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponseDto> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        final ErrorCode errorCode = ErrorCode.TOO_LARGE_FILE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MaxUploadSizeExceededException: {}", errorCode.getMessage(), e);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
