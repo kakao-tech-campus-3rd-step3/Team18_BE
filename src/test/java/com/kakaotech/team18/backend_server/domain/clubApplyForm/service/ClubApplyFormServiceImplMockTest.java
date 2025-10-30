@@ -9,6 +9,13 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.Mockito.mock;
 
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
@@ -17,17 +24,8 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -116,12 +114,11 @@ class ClubApplyFormServiceImplMockTest {
         FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
         FormQuestionRequestDto question2 = new FormQuestionRequestDto("질문 2", FieldType.RADIO,
                 false, 2L, List.of("옵션 1", "옵션 2"),
-                List.of(new TimeSlotOptionRequestDto(LocalDate.of(2025,9,24), new TimeSlotOptionRequestDto.TimeRange(LocalTime.of(10, 0), LocalTime.of(21, 0))))
+                List.of(new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", new TimeSlotOptionRequestDto.TimeRange(LocalTime.of(10, 0), LocalTime.of(21, 0))))
         );
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(question1, question2));
 
         ClubApplyForm clubApplyForm = ClubApplyForm.builder()
@@ -155,8 +152,7 @@ class ClubApplyFormServiceImplMockTest {
         FormQuestionRequestDto question1 = new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null);
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto("테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(question1));
 
         given(clubRepository.findById(clubId)).willReturn(Optional.empty());
@@ -202,8 +198,7 @@ class ClubApplyFormServiceImplMockTest {
         ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
                 "수정된 지원서 제목",
                 "수정된 지원서 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(
                         new FormQuestionUpdateDto(
                                 1L,
@@ -248,8 +243,7 @@ class ClubApplyFormServiceImplMockTest {
         ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(question1));
 
         given(club.getId()).willReturn(1L);
@@ -284,7 +278,7 @@ class ClubApplyFormServiceImplMockTest {
                 .isRequired(true)
                 .displayOrder(1L)
                 .options(List.of("치킨", "피자", "햄버거"))
-                .timeSlotOptions(List.of(new TimeSlotOption(LocalDate.of(2024, 10, 26),
+                .timeSlotOptions(List.of(new TimeSlotOption("2025-10-01 ~ 2025-10-31",
                         new TimeSlotOption.TimeRange(LocalTime.of(10, 0), LocalTime.of(12, 0))
                 )))
                 .build();
