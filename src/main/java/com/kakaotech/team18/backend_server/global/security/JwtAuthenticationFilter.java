@@ -88,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
             return;
         } catch (ExpiredJwtException e) {
-            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_JWT_TOKEN));
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_ACCESS_TOKEN));
             return;
         } catch (UnsupportedJwtException e) {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
