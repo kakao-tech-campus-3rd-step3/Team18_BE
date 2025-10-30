@@ -81,7 +81,7 @@ class JwtAuthenticationFilterTest {
         // then
         resultActions
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(ErrorCode.EXPIRED_JWT_TOKEN.getMessage()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.EXPIRED_ACCESS_TOKEN.getMessage()))
                 .andDo(print());
     }
 
