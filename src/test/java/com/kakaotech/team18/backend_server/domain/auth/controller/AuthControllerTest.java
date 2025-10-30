@@ -8,6 +8,8 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.service.AuthService;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
@@ -116,7 +118,7 @@ class AuthControllerTest {
         String accessToken = "newAccessToken";
         String refreshToken = "newRefreshToken";
         RegisterRequestDto requestDto = new RegisterRequestDto(
-                "testUser", "test@example.com", "123456", "컴퓨터공학과", "01012345678"
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
         );
 
         LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, List.of());
@@ -169,5 +171,22 @@ class AuthControllerTest {
         // when & then
         mockMvc.perform(post("/api/auth/reissue")) // 쿠키 없이 요청
                 .andExpect(status().isBadRequest()); // @CookieValue는 쿠키가 없으면 400 Bad Request 반환
+    }
+
+    @DisplayName("Access Token 재발급 실패 - Refresh Token 만료")
+    @Test
+    void reissue_fail_expiredRefreshToken() throws Exception {
+        // given
+        String expiredRefreshToken = "expiredMockRefreshToken";
+        // authService.reissue가 CustomException(EXPIRED_REFRESH_TOKEN)을 던지도록 설정
+        given(authService.reissue(expiredRefreshToken))
+                .willThrow(new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN));
+
+
+        // when & then
+        mockMvc.perform(post("/api/auth/reissue")
+                        .cookie(new Cookie("refreshToken", expiredRefreshToken)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error_code").value("EXPIRED_REFRESH_TOKEN"));
     }
 }
