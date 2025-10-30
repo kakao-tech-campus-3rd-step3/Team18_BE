@@ -17,7 +17,6 @@ import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
@@ -50,11 +49,8 @@ public class S3Service {
                 ListObjectsV2Response result = s3Client.listObjectsV2(request);
 
                 result.contents().stream()
-                    .map(S3Object::key)
-                    .map(key -> s3Client.utilities()
-                        .getUrl(GetUrlRequest.builder().bucket(bucket).key(key).build()).toString())
-                    .forEach(urls::add);
-
+                        .map(S3Object::key)
+                        .map(key -> String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key)).forEach(urls::add);
                 continuationToken =
                     result.isTruncated() ? result.nextContinuationToken() : null;
             } while (continuationToken != null);
@@ -82,7 +78,12 @@ public class S3Service {
             throw new InvalidFileException("빈 파일은 업로드할 수 없습니다.");
         }
 
-        if (!ALLOWED_CONTENT_TYPES.contains(file.getContentType())) {
+
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            throw new InvalidFileException("파일의 Content-Type을 확인할 수 없습니다.");
+        }
+        if (!ALLOWED_CONTENT_TYPES.contains(contentType)) {
             throw new InvalidFileException("JPG 또는 PNG 파일만 업로드 가능합니다.");
         }
 
@@ -91,7 +92,12 @@ public class S3Service {
             throw new InvalidFileException("파일명이 없습니다.");
         }
 
-        originalName = originalName.toLowerCase();
+        // 경로 구분자 제거 및 base name만 추출
+        originalName = originalName.replaceAll("[\\\\/]", "");
+        if (originalName.isBlank()) {
+            throw new InvalidFileException("유효하지 않은 파일명입니다.");
+        }
+        originalName = originalName.toLowerCase(java.util.Locale.ROOT);
 
         if (!(originalName.endsWith(".png") || originalName.endsWith(".jpg") || originalName.endsWith(".jpeg"))) {
             throw new InvalidFileException("확장자가 JPG 또는 PNG가 아닙니다.");
