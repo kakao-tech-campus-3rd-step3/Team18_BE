@@ -10,23 +10,35 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class JwtProvider {
 
     private final JwtProperties jwtProperties;
     private final ClubMemberRepository clubMemberRepository;
+
+    private Key key;
+
+    public JwtProvider(JwtProperties jwtProperties, ClubMemberRepository clubMemberRepository) {
+        this.jwtProperties = jwtProperties;
+        this.clubMemberRepository = clubMemberRepository;
+    }
+
+    @PostConstruct
+    public void init() {
+        byte[] keyBytes = jwtProperties.secret().getBytes(StandardCharsets.UTF_8);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+    }
 
     // 임시 토큰 유효 시간 (5분)
     private final long temporaryTokenValidityInSeconds = 300;
@@ -35,8 +47,7 @@ public class JwtProvider {
     private static final String HEADER = "Authorization";
 
     private Key getSigningKey() {
-        byte[] keyBytes = jwtProperties.secret().getBytes(StandardCharsets.UTF_8);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return this.key;
     }
 
     // 정식 Access Token 생성
