@@ -56,7 +56,7 @@ public class CommentController {
             @Valid @RequestBody CommentRequestDto commentRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        Long currentUserId = principalDetails.getUser().getId();
+        Long currentUserId = Long.parseLong(principalDetails.getUsername());
 
         CommentResponseDto newComment = commentService.createComment(applicationId, commentRequestDto, currentUserId);
 
@@ -77,7 +77,7 @@ public class CommentController {
             @Valid @RequestBody CommentRequestDto commentRequestDto,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        Long currentUserId = principalDetails.getUser().getId();
+        Long currentUserId = Long.parseLong(principalDetails.getUsername());
 
         CommentResponseDto updatedComment = commentService.updateComment(commentId, commentRequestDto, currentUserId);
 
@@ -97,7 +97,7 @@ public class CommentController {
             @Parameter(description = "삭제할 댓글의 고유 ID", required = true, example = "20") @PathVariable("commentId") Long commentId,
             @AuthenticationPrincipal PrincipalDetails principalDetails
     ) {
-        Long currentUserId = principalDetails.getUser().getId();
+        Long currentUserId = Long.parseLong(principalDetails.getUsername());
 
         commentService.deleteComment(commentId, currentUserId);
 

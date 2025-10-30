@@ -1,6 +1,5 @@
 package com.kakaotech.team18.backend_server.global.security;
 
-import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,7 +8,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
-import org.springframework.test.util.ReflectionTestUtils;
 
 public class WithMockCustomUserSecurityContextFactory
     implements WithSecurityContextFactory<WithMockCustomUser> {
@@ -25,13 +23,8 @@ public class WithMockCustomUserSecurityContextFactory
             .map(s -> s.split(":"))
             .collect(Collectors.toMap(a -> a[0], a -> a[1]));
 
-    // 3. 어노테이션의 정보를 바탕으로 가짜 User 객체와 PrincipalDetails 객체를 생성합니다.
-    User mockUser =
-        User.builder()
-            .name(customUser.nickname())
-            .build();
-    ReflectionTestUtils.setField(mockUser, "id", customUser.userId());
-    PrincipalDetails principalDetails = new PrincipalDetails(mockUser, memberships);
+    // 3. 어노테이션의 정보를 바탕으로 PrincipalDetails 객체를 직접 생성합니다.
+    PrincipalDetails principalDetails = new PrincipalDetails(customUser.userId(), memberships);
 
     // 4. Authentication 객체를 생성합니다.
     Authentication authentication =
