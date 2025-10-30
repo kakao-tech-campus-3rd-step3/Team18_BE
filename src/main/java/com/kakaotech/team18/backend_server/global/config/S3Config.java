@@ -8,6 +8,7 @@ import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvide
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 public class S3Config {
@@ -35,6 +36,25 @@ public class S3Config {
 
         // EC2 배포 환경(IAM Role 자동 사용)
         return S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(InstanceProfileCredentialsProvider.create())
+                .build();
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+
+        // 로컬 개발 환경(키 존재)
+        if (!accessKey.isBlank() && !secretKey.isBlank()) {
+            return S3Presigner.builder()
+                    .region(Region.of(region))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(accessKey, secretKey)))
+                    .build();
+        }
+
+        // EC2 배포 환경(IAM Role 자동 사용)
+        return S3Presigner.builder()
                 .region(Region.of(region))
                 .credentialsProvider(InstanceProfileCredentialsProvider.create())
                 .build();
