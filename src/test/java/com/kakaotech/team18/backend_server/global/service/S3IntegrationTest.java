@@ -61,7 +61,8 @@ class S3IntegrationTest {
         }
     }
     private String extractKey(String url) {
-        return url.substring(url.lastIndexOf("/") + 1);
-    }
-
+        // URL 형식: https://{bucket}.s3.{region}.amazonaws.com/{key}
+        // 세 번째 "/" 이후가 key
+        int thirdSlash = url.indexOf("/", url.indexOf("//") + 2);
+        return url.substring(thirdSlash + 1);    }
 }
