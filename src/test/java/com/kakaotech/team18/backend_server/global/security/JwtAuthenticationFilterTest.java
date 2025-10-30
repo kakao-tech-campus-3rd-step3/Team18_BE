@@ -22,6 +22,7 @@ import java.security.Key;
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -120,6 +121,39 @@ class JwtAuthenticationFilterTest {
         resultActions
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(ErrorCode.MALFORMED_JWT.getMessage()))
+                .andDo(print());
+    }
+
+    @DisplayName("인증 필터 무시 - /api/auth/reissue 경로")
+    @Test
+    void doFilterInternal_should_ignore_reissue_path() throws Exception {
+        // given
+        // 일부러 만료된 토큰을 생성. 필터가 동작한다면 이 토큰 때문에 401이 발생할 것.
+        Date now = new Date();
+        Date expiredValidity = new Date(now.getTime() - 10000); // 10초 전에 만료된 시간
+        Key key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
+
+        String expiredToken = Jwts.builder()
+                .setSubject(testUser.getId().toString())
+                .claim("tokenType", "ACCESS")
+                .setIssuedAt(now)
+                .setExpiration(expiredValidity)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        // when
+        // 만료된 토큰을 헤더에 담아 /api/auth/reissue 로 요청
+        ResultActions resultActions = mockMvc.perform(
+                post("/api/auth/reissue")
+                        .header("Authorization", "Bearer " + expiredToken)
+        );
+
+        // then
+        // JwtAuthenticationFilter가 무시되었다면, 요청은 컨트롤러까지 도달한다.
+        // 컨트롤러에서는 @CookieValue에 refreshToken이 없으므로 400 Bad Request를 반환한다.
+        // 만약 필터가 동작했다면 401 Unauthorized가 반환될 것이다.
+        resultActions
+                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
