@@ -1,8 +1,9 @@
 package com.kakaotech.team18.backend_server.global.service;
 
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.S3Exception;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AwsS3Exception;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -61,15 +62,15 @@ public class S3Service {
             return urls;
         } catch (S3Exception e) {
             log.warn("AWS returned an error while listing objects in bucket [{}]: {}", bucket, e.getMessage());
-            throw new S3Exception("S3 객체 목록 조회 실패 (AWS 오류) bucket=" + bucket);
+            throw new AwsS3Exception("S3 객체 목록 조회 실패 (AWS 오류) bucket=" + bucket);
 
         } catch (SdkClientException e) {
             log.warn("SDK client error while connecting to S3: {}", e.getMessage());
-            throw new S3Exception("S3 객체 목록 조회 실패 (네트워크 오류) bucket=" + bucket);
+            throw new AwsS3Exception("S3 객체 목록 조회 실패 (네트워크 오류) bucket=" + bucket);
 
         } catch (Exception e) {
             log.error("Unexpected error while listing S3 objects: {}", e.getMessage(), e);
-            throw new S3Exception("S3 객체 목록 조회 실패 (예상치 못한 오류) bucket=" + bucket);
+            throw new AwsS3Exception("S3 객체 목록 조회 실패 (예상치 못한 오류) bucket=" + bucket);
         }
     }
 
@@ -135,11 +136,11 @@ public class S3Service {
         } catch (S3Exception e) {
             // AWS 응답 오류 (권한, 버킷, region 문제 등)
             log.warn("AWS S3 S3Exception error: [{}], key: [{}]", e.getMessage(), key);
-            throw new S3Exception("S3 객체 삭제 실패 (AWS 오류) key=" + key);
+            throw new AwsS3Exception("S3 객체 삭제 실패 (AWS 오류) key=" + key);
         } catch (SdkClientException e) {
             // 네트워크 / 연결 오류
             log.warn("AWS S3 SdkClientException error: [{}], key: [{}]", e.getMessage(), key);
-            throw new S3Exception("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
+            throw new AwsS3Exception("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
         }
     }
 }
