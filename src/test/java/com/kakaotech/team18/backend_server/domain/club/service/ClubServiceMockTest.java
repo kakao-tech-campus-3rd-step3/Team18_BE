@@ -103,7 +103,6 @@ public class ClubServiceMockTest {
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L,1, 1,
                 LocalDate.of(2025, 9, 3),
                 LocalDate.of(2025, 9, 20));
-                //List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678","123@email.com", Status.PENDING)));
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -139,7 +138,6 @@ public class ClubServiceMockTest {
 
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0, LocalDate.of(2025, 9, 3),
                 LocalDate.of(2025, 9, 20)
-                //List.of()
         );
 
         //when

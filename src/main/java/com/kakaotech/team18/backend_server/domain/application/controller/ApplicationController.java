@@ -95,7 +95,7 @@ public class ApplicationController {
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
             @RequestBody ApplicationApprovedRequestDto requestDto,
-            @Parameter(description = "면접과 최종을 구병래주는 변수", required = false, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage
+            @Parameter(description = "면접과 최종을 구별해주는 변수", required = true, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage
     ){
         SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
         return ResponseEntity.ok(responseDto);

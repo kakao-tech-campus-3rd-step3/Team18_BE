@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.EmailSendFailedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.RetryableEmailException;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.retry.annotation.Backoff;
@@ -41,7 +40,7 @@ public class SmtpEmailSender implements EmailSender {
 
             mailSender.send(mime);
         } catch (Exception e) {
-            log.info("Email sent failed: replyTo={} to={}", replyTo, to);
+            log.warn("Email sent failed: replyTo={} to={}", replyTo, to);
             if (SmtpFailureClassifier.isTemporary(e)) {
                 throw new RetryableEmailException("Temporary email failure, will retry", e);
             }

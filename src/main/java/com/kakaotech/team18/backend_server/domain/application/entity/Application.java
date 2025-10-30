@@ -41,7 +41,7 @@ public class Application extends BaseEntity {
     private Status status = Status.PENDING;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "stage")
+    @Column(name = "stage", nullable = false)
     private Stage stage;
 
     @Column(nullable = false)
