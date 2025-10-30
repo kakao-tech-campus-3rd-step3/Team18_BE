@@ -10,6 +10,8 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.service.AuthService;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
@@ -116,7 +118,7 @@ class AuthControllerTest {
         String accessToken = "newAccessToken";
         String refreshToken = "newRefreshToken";
         RegisterRequestDto requestDto = new RegisterRequestDto(
-                "testUser", "test@example.com", "123456", "컴퓨터공학과", "01012345678"
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
         );
 
         LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, List.of());
@@ -169,5 +171,24 @@ class AuthControllerTest {
         // when & then
         mockMvc.perform(post("/api/auth/reissue")) // 쿠키 없이 요청
                 .andExpect(status().isBadRequest()); // @CookieValue는 쿠키가 없으면 400 Bad Request 반환
+    }
+
+    @DisplayName("카카오 로그인 실패 - 카카오 API 오류")
+    @Test
+    void kakaoLogin_fail_kakaoApiError() throws Exception {
+        // given
+        String authorizationCode = "testAuthCode";
+        KakaoLoginRequestDto requestDto = new KakaoLoginRequestDto(authorizationCode);
+
+        // when
+        // authService.kakaoLogin이 호출될 때 KakaoApiException을 던지도록 설정
+        given(authService.kakaoLogin(authorizationCode)).willThrow(new KakaoApiException());
+
+        // then
+        mockMvc.perform(post("/api/auth/kakao/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isInternalServerError()) // 500 응답 확인
+                .andExpect(jsonPath("$.message").value(ErrorCode.KAKAO_API_ERROR.getMessage())); // 에러 메시지 확인
     }
 }

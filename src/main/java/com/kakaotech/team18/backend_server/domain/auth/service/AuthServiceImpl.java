@@ -16,9 +16,10 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFoundException;
@@ -27,6 +28,7 @@ import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +39,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
+import org.springframework.web.client.RestClientResponseException;
 
 @Slf4j
 @Service
@@ -247,6 +248,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (ResourceAccessException e) {
             log.warn("카카오 Access Token 요청 중 타임아웃 발생", e);
             throw new KakaoApiTimeoutException();
+        } catch (RestClientResponseException e) {
+            log.warn("카카오 Access Token 요청 실패: " + e.getResponseBodyAsString(), e);
+            throw new KakaoApiException();
         }
     }
 
@@ -261,6 +265,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (ResourceAccessException e) {
             log.warn("카카오 사용자 정보 요청 중 타임아웃 발생", e);
             throw new KakaoApiTimeoutException();
+        } catch (RestClientResponseException e) {
+            log.warn("카카오 사용자 정보 요청 실패: " + e.getResponseBodyAsString(), e);
+            throw new KakaoApiException();
         }
     }
 

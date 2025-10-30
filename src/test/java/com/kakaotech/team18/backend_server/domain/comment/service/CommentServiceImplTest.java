@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.TemporaryServerConflictException;
@@ -215,6 +216,28 @@ class CommentServiceImplTest {
     }
 
     @Test
+    @DisplayName("댓글 수정 - 실패 (존재하지 않는 댓글)")
+    void updateComment_fail_commentNotFound() {
+        // given
+        final Long nonExistentCommentId = 999L;
+        final Long userId = 1L;
+        final CommentRequestDto requestDto = new CommentRequestDto("수정 시도", 3.0);
+
+        // commentRepository.findById가 Optional.empty()를 반환하도록 설정
+        when(commentRepository.findById(nonExistentCommentId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(CommentNotFoundException.class, () -> {
+            commentService.updateComment(nonExistentCommentId, requestDto, userId);
+        });
+
+        // then
+        // 예외가 발생했으므로, 후속 로직인 평균 별점 계산 등이 호출되지 않았는지 검증
+        verify(applicationRepository, never()).findByIdWithPessimisticLock(anyLong());
+    }
+
+
+    @Test
     @DisplayName("댓글 삭제 - 성공")
     void deleteComment_success(CapturedOutput output) {
         // given
@@ -277,5 +300,26 @@ class CommentServiceImplTest {
                 .contains("requesterId: " + requesterId);
 
         verify(commentRepository, never()).delete(any(Comment.class));
+    }
+
+    @Test
+    @DisplayName("댓글 삭제 - 실패 (존재하지 않는 댓글)")
+    void deleteComment_fail_commentNotFound() {
+        // given
+        final Long nonExistentCommentId = 999L;
+        final Long userId = 1L;
+
+        // commentRepository.findById가 Optional.empty()를 반환하도록 설정
+        when(commentRepository.findById(nonExistentCommentId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThrows(CommentNotFoundException.class, () -> {
+            commentService.deleteComment(nonExistentCommentId, userId);
+        });
+
+        // then
+        // 예외가 발생했으므로, 후속 로직인 delete나 평균 별점 계산 등이 호출되지 않았는지 검증
+        verify(commentRepository, never()).delete(any(Comment.class));
+        verify(applicationRepository, never()).findByIdWithPessimisticLock(anyLong());
     }
 }
