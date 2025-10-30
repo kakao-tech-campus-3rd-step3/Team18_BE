@@ -185,7 +185,7 @@ class ApplicationControllerTest {
           "email":"stud@example.com",
           "name":"홍길동",
           "studentId":"202312",
-          "phoneNumber":"01000000000",
+          "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
           "answers": [
           {"questionNum":0,"question":"q","answer":"자기소개입니다"},
@@ -218,7 +218,7 @@ class ApplicationControllerTest {
           "email":"tester@email.com",
           "name":"김@@",
           "studentId":"@@@1@",
-          "phoneNumber":"01012345678",
+          "phoneNumber":"010-1234-5678",
           "department":"소프트웨어공학과",
           "answers": [
           {"questionNum":0,"question":"q","answer":"자기소개입니다"},

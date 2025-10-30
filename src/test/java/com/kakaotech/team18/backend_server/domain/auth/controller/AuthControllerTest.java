@@ -116,7 +116,7 @@ class AuthControllerTest {
         String accessToken = "newAccessToken";
         String refreshToken = "newRefreshToken";
         RegisterRequestDto requestDto = new RegisterRequestDto(
-                "testUser", "test@example.com", "123456", "컴퓨터공학과", "01012345678"
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
         );
 
         LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, List.of());
