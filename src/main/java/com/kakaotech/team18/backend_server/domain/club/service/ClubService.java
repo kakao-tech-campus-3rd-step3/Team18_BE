@@ -8,6 +8,8 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplican
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface ClubService {
 
@@ -24,4 +26,6 @@ public interface ClubService {
     SuccessResponseDto updateClubDetail(Long clubId, ClubDetailRequestDto dto);
 
     ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage);
+
+    SuccessResponseDto uploadClubImages(Long clubId, List<MultipartFile> images);
 }

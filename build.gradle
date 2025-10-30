@@ -73,6 +73,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
     implementation 'org.springframework.retry:spring-retry'     // Spring Retry
 
+    //aws
+    implementation platform('software.amazon.awssdk:bom:2.20.28')
+    implementation 'software.amazon.awssdk:s3'
+
+    //Test Container
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.3'
+    testImplementation 'org.testcontainers:localstack:1.20.3'
 }
 
 tasks.named('test') {
