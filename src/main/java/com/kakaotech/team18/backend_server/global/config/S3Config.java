@@ -1,13 +1,13 @@
 package com.kakaotech.team18.backend_server.global.config;
 
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.auth.InstanceProfileCredentialsProvider;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.InstanceProfileCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
 
 @Configuration
 public class S3Config {
@@ -22,20 +22,21 @@ public class S3Config {
     private String secretKey;
 
     @Bean
-    public AmazonS3 amazonS3() {
+    public S3Client s3Client() {
 
         // 로컬 개발 환경(키 존재)
         if (!accessKey.isBlank() && !secretKey.isBlank()) {
-            return AmazonS3ClientBuilder.standard()
-                    .withRegion(region)
-                    .withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
+            return S3Client.builder()
+                    .region(Region.of(region))
+                    .credentialsProvider(StaticCredentialsProvider.create(
+                            AwsBasicCredentials.create(accessKey, secretKey)))
                     .build();
         }
 
         // EC2 배포 환경(IAM Role 자동 사용)
-        return AmazonS3ClientBuilder.standard()
-                .withRegion(region)
-                .withCredentials(InstanceProfileCredentialsProvider.getInstance())
+        return S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(InstanceProfileCredentialsProvider.create())
                 .build();
     }
 }
