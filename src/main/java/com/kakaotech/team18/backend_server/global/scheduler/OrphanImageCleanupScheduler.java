@@ -15,8 +15,12 @@ public class OrphanImageCleanupScheduler {
 
     @Scheduled(cron = "0 0 3 * * *")
     public void cleanupOrphanImages() {
-        log.info("Starting orphan image cleanup process...");
-        int deleted = cleanupService.cleanupOrphanImagesLogic();
-        log.info("Cleanup completed. Deleted {} orphan images.", deleted);
+        try {
+            log.info("Starting orphan image cleanup process...");
+            int deleted = cleanupService.cleanupOrphanImagesLogic();
+            log.info("Cleanup completed. Deleted {} orphan images.", deleted);
+        } catch (Exception e) {
+            log.error("Failed to cleanup orphan images", e);
+        }
     }
 }

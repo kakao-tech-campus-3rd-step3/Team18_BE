@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.global.service;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
 import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
@@ -11,6 +12,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFi
 import com.kakaotech.team18.backend_server.global.exception.exceptions.S3Exception;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -34,18 +36,26 @@ public class S3Service {
 
     public List<String> listAllFiles() {
         try {
-            ListObjectsV2Result result = amazonS3.listObjectsV2(bucket);
+            List<String> urls = new ArrayList<>();
+            String continuationToken = null;
+            do {
+                ListObjectsV2Request request = new ListObjectsV2Request()
+                        .withBucketName(bucket)
+                        .withContinuationToken(continuationToken);
+                ListObjectsV2Result result = amazonS3.listObjectsV2(request);
 
-            if (result == null || result.getObjectSummaries().isEmpty()) {
+                result.getObjectSummaries().stream()
+                        .map(S3ObjectSummary::getKey)
+                        .map(key -> amazonS3.getUrl(bucket, key).toString())
+                        .forEach(urls::add);
+
+                continuationToken = result.isTruncated() ? result.getNextContinuationToken() : null;
+            } while (continuationToken != null);
+
+            if (urls.isEmpty()) {
                 log.info("S3 bucket [{}] has no objects.", bucket);
-                return List.of();
             }
-
-            return result.getObjectSummaries().stream()
-                    .map(S3ObjectSummary::getKey)
-                    .map(key -> amazonS3.getUrl(bucket, key).toString())
-                    .toList();
-
+            return urls;
         } catch (AmazonServiceException e) {
             log.warn("AWS returned an error while listing objects in bucket [{}]: {}", bucket, e.getMessage());
             throw new S3Exception("S3 객체 목록 조회 실패 (AWS 오류) bucket=" + bucket);
@@ -69,14 +79,19 @@ public class S3Service {
             throw new InvalidFileException("JPG 또는 PNG 파일만 업로드 가능합니다.");
         }
 
-        String originalName = file.getOriginalFilename().toLowerCase();
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || originalName.isBlank()) {
+            throw new InvalidFileException("파일명이 없습니다.");
+            }
+
+        originalName = originalName.toLowerCase();
 
         if (!(originalName.endsWith(".png") || originalName.endsWith(".jpg") || originalName.endsWith(".jpeg"))) {
             throw new InvalidFileException("확장자가 JPG 또는 PNG가 아닙니다.");
         }
 
         String dir = "club_detail_image/";
-        String fileName = dir + UUID.randomUUID() + "-" + file.getOriginalFilename();
+        String fileName = dir + UUID.randomUUID() + "-" + originalName;
 
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(file.getSize());
