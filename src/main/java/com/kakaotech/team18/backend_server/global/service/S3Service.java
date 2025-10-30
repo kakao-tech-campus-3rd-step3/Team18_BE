@@ -82,7 +82,7 @@ public class S3Service {
         String originalName = file.getOriginalFilename();
         if (originalName == null || originalName.isBlank()) {
             throw new InvalidFileException("파일명이 없습니다.");
-            }
+        }
 
         originalName = originalName.toLowerCase();
 
