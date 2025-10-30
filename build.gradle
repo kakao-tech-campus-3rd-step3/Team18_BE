@@ -73,6 +73,12 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
     implementation 'org.springframework.retry:spring-retry'     // Spring Retry
 
+    // S3
+    //implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation platform('software.amazon.awssdk:bom:2.25.66')
+    implementation 'software.amazon.awssdk:s3'
+
 }
 
 tasks.named('test') {
