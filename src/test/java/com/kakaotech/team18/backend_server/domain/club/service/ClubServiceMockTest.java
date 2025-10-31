@@ -20,6 +20,7 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponse
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto.ClubImageResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
@@ -214,7 +215,7 @@ public class ClubServiceMockTest {
                     "공7 1호관",
                     Category.LITERATURE,
                     "함께 배우는 카태켐",
-                    List.of("image1.url"),
+                    List.of(new ClubImageResponseDto(1L,"image1.url")),
                     "overview",
                     "activities",
                     "ideal",
