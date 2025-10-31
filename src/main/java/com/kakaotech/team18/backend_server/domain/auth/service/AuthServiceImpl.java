@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
@@ -200,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
             claims = jwtProvider.verify(refreshToken);
         } catch (ExpiredJwtException e) {
             // Refresh Token이 만료된 경우, 새로운 에러 코드로 예외 발생
-            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+            throw new ExpiredRefreshTokenException();
         }
 
         // 2. 토큰 타입 검증
