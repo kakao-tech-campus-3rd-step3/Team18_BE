@@ -32,8 +32,8 @@ public class ClubMember extends BaseEntity {
     @Column(name = "active_status", nullable = false)
     private ActiveStatus activeStatus;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "application_id")
+    @OneToOne(fetch = FetchType.LAZY, optional = true)
+    @JoinColumn(name = "application_id", nullable = true)
     private Application application;
 
     @Enumerated(EnumType.STRING)
@@ -48,5 +48,9 @@ public class ClubMember extends BaseEntity {
         this.activeStatus = activeStatus;
         this.application = application;
         this.role = role;
+    }
+
+    public void unlinkApplication() {
+        this.application = null;
     }
 }

@@ -45,6 +45,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -90,8 +91,6 @@ class EmailServiceUnitTest {
     ArgumentCaptor<List<String>> toCaptor;
     @Captor
     ArgumentCaptor<Object> eventCaptor;
-    @Captor
-    ArgumentCaptor<List<Application>> appsCaptor;
 
     @InjectMocks
     ApplicationServiceImpl serviceImpl;
@@ -146,7 +145,6 @@ class EmailServiceUnitTest {
         assertThat(model.get("applicantName")).isEqualTo("홍길동");
         assertThat(model.get("answers")).isEqualTo(lines);
 
-        // then
         final String subjectPrefix = "[동아리 지원]";
         verify(emailSender).sendHtml(
                 eq(from),
@@ -178,7 +176,7 @@ class EmailServiceUnitTest {
     }
 
     @Test
-    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→삭제+불합격 이벤트(PENDING 없음)")
+    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→ClubMember 참조 끊기 후 삭제+불합격 이벤트(PENDING 없음)")
     void interview_flow() {
         // given
         Application appApproved = mock(Application.class);
@@ -193,7 +191,6 @@ class EmailServiceUnitTest {
                 .build();
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(club1.getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
-
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
 
@@ -201,9 +198,7 @@ class EmailServiceUnitTest {
         when(userRejected.getEmail()).thenReturn("rejected@ex.com");
 
         when(clubApplyForm.getClub()).thenReturn(club1);
-
         when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
-
         when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
 
         // 공통: stage 초기값은 INTERVIEW
@@ -220,10 +215,9 @@ class EmailServiceUnitTest {
 
         // ids
         when(appApproved.getId()).thenReturn(101L);
+        when(appRejected.getId()).thenReturn(102L); // ★ 삭제/끊기 검증용
 
         // emails
-        when(userApproved.getEmail()).thenReturn("approved@ex.com");
-        when(userRejected.getEmail()).thenReturn("rejected@ex.com");
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
@@ -235,7 +229,7 @@ class EmailServiceUnitTest {
         // when
         SuccessResponseDto resp = serviceImpl.sendPassFailMessage(77L, req, Stage.INTERVIEW);
 
-        //then
+        // then
         assertThat(resp).isNotNull();
 
         verify(clubApplyFormRepository).findByClubId(77L);
@@ -246,9 +240,9 @@ class EmailServiceUnitTest {
         verify(appApproved).updateStatus(Status.PENDING);
         verify(appRejected, never()).updateStage(any());
 
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // 참조 끊기 + 단건 삭제 검증
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(102L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 캡처
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -274,7 +268,7 @@ class EmailServiceUnitTest {
     }
 
     @Test
-    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→삭제+최종 불합격 이벤트(PENDING 없음)")
+    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→ClubMember 참조 끊기 후 삭제+최종 불합격 이벤트(PENDING 없음)")
     void final_flow() {
         //given
         Application appApproved = mock(Application.class);
@@ -296,7 +290,6 @@ class EmailServiceUnitTest {
         when(userRejected.getEmail()).thenReturn("final-rejected@ex.com");
 
         when(clubApplyForm.getClub()).thenReturn(club1);
-
         when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
@@ -306,11 +299,10 @@ class EmailServiceUnitTest {
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
 
         when(appApproved.getId()).thenReturn(201L);
+        when(appRejected.getId()).thenReturn(202L); //삭제/끊기 검증용
 
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
-
-        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(applicationRepository.findAllByClubIdAndStage(88L, Stage.FINAL))
                 .thenReturn(List.of(appApproved, appRejected));
@@ -331,9 +323,9 @@ class EmailServiceUnitTest {
         verify(appRejected, never()).updateStage(any());
         verify(appRejected, never()).updateStatus(any());
 
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // 참조 끊기 + 단건 삭제
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(202L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 캡처 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -355,8 +347,9 @@ class EmailServiceUnitTest {
         assertThat(rejectedEvt.info().userEmail()).isEqualTo("final-rejected@ex.com");
         assertThat(rejectedEvt.info().clubId()).isEqualTo(88L);
     }
+
     @Test
-    @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 배치 삭제, 메시지 업데이트 없음")
+    @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 참조 끊기 후 삭제, 메시지 업데이트 없음")
     void nullStage_flow_success() {
         // given
         Long clubId = 99L;
@@ -382,6 +375,7 @@ class EmailServiceUnitTest {
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
 
         when(appApproved.getId()).thenReturn(301L);
+        when(appRejected.getId()).thenReturn(302L); // 삭제/끊기 검증용
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -390,8 +384,6 @@ class EmailServiceUnitTest {
 
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
-
-        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(applicationRepository.findAllByClubId(clubId))
                 .thenReturn(List.of(appApproved, appRejected));
@@ -414,10 +406,9 @@ class EmailServiceUnitTest {
         verify(appRejected, never()).updateStage(any());
         verify(appRejected, never()).updateStatus(any());
 
-        // REJECTED만 배치 삭제
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // REJECTED만 참조 끊기 + 단건 삭제
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(302L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 2건 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -469,7 +460,9 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        // 단건 삭제/참조 끊기
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
@@ -501,7 +494,8 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
@@ -532,9 +526,9 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
-
 }
