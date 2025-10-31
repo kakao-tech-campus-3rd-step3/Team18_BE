@@ -530,7 +530,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (vals == null || vals.isEmpty()) return "";
 
         boolean alreadyCombined = vals.stream().anyMatch(s -> s.contains(" ") && TR.matcher(s).find());
-        if (alreadyCombined) return String.join(",", vals);
+        if (alreadyCombined) return String.join(", " + System.lineSeparator(), vals);
 
         List<String> out = new ArrayList<>();
         String currentDate = null;
@@ -552,7 +552,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
             out.add(s);
         }
-        return String.join(",", out);
+        return String.join(", " + System.lineSeparator(), out);
     }
 
 
