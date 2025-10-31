@@ -143,7 +143,9 @@ class ClubControllerTest {
                 .location("공대7호관 201호")
                 .category(LITERATURE)
                 .shortIntroduction("카카오 부트캠프")
-                .introductionImages(List.of("ex.image","ex.image2","ex.image3"))
+                .introductionImages(List.of(new ClubDetailResponseDto.ClubImageResponseDto(1L, "ex.image"),
+                        new ClubDetailResponseDto.ClubImageResponseDto(2L, "ex.image2"),
+                        new ClubDetailResponseDto.ClubImageResponseDto(3L, "ex.image3")))
                 .introductionOverview("개발자로 성장할 수 있는 부트캠프입니다.")
                 .introductionActivity("총 3단계로 이루어진 코스")
                 .introductionIdeal("열심열심")
