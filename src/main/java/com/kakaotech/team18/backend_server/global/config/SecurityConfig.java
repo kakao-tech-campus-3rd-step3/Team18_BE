@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
@@ -39,12 +40,11 @@ public class SecurityConfig {
 
     /**
      * 정적 리소스나 인증이 전혀 필요 없는 경로들을 Spring Security 필터 체인에서 제외합니다.
-     * 이 설정은 filterChain(HttpSecurity http) 보다 우선적으로 적용됩니다.
      */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring()
-                .requestMatchers("/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**");
+                .requestMatchers("/h2-console/**", "/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**");
     }
 
     @Bean
@@ -52,6 +52,8 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
         http.formLogin(formLogin -> formLogin.disable());
         http.httpBasic(httpBasic -> httpBasic.disable());
+
+        http.headers(headers -> headers.frameOptions(FrameOptionsConfig::disable));
 
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
