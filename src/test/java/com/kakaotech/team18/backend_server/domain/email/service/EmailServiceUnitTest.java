@@ -25,6 +25,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +58,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 class EmailServiceUnitTest {
 
@@ -73,17 +73,9 @@ class EmailServiceUnitTest {
     ApplicationEventPublisher publisher;
 
     @Mock
-    Application application;
-    @Mock
     ClubApplyForm clubApplyForm;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
-    @Mock
-    Club club;
-    @Mock
-    User applicant;
-    @Mock
-    User president;
 
     @Captor
     ArgumentCaptor<Map<String,Object>> modelCaptor;
