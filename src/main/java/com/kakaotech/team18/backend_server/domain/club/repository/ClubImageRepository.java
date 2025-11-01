@@ -3,10 +3,35 @@ package com.kakaotech.team18.backend_server.domain.club.repository;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ClubImageRepository extends JpaRepository<ClubImage, Long> {
 
     @Query("SELECT ci.imageUrl FROM ClubImage ci")
     List<String> findAllImageUrls();
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            DELETE FROM ClubImage ci
+            WHERE ci.clubIntroduction.club.id = :clubId
+            AND ci.id NOT IN :keepImageId
+            """)
+    void deleteAllByClubIdAndIdNotIn(Long clubId, List<Long> keepImageId);
+
+    @Query("""
+            SELECT ci
+            FROM ClubImage ci
+            JOIN ci.clubIntroduction ci_intro
+            JOIN ci_intro.club c
+            WHERE c.id = :clubId
+            """)
+    List<ClubImage> findAllByClubId(Long clubId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            DELETE FROM ClubImage ci
+            WHERE ci.clubIntroduction.club.id = :clubId
+            """)
+    void deleteAllByClubId(Long clubId);
 }
