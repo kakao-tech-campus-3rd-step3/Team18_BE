@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.eventListener.ClubImageDeletedEvent;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubImageRepository;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
@@ -48,6 +49,7 @@ public class ClubServiceImpl implements ClubService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final S3Service s3Service;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final ClubImageRepository clubImageRepository;
 
 
     @Override
@@ -154,42 +156,51 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     @Transactional
-    public SuccessResponseDto uploadClubImages(Long clubId, List<MultipartFile> images) {
+    public SuccessResponseDto uploadClubImages(Long clubId, List<Long> keepImageId, List<MultipartFile> newImages) {
         Club findClub = clubRepository.findClubDetailById(clubId)
                 .orElseThrow(() -> {
                     log.warn("Club not found for id={}", clubId);
                     return new ClubNotFoundException("clubId = " + clubId);
                 });
 
-        // 기존 이미지 URL 백업
-        List<String> oldImageUrls = findClub.getIntroduction().getImages()
-                .stream()
+        List<ClubImage> existingImages = clubImageRepository.findAllByClubId(clubId);
+
+        // 삭제 대상 URL 추출
+        List<String> deleteTargetUrls = existingImages.stream()
+                .filter(img -> keepImageId == null || !keepImageId.contains(img.getId()))
                 .map(ClubImage::getImageUrl)
                 .toList();
 
-        List<String> imageUrls = new ArrayList<>();
+        // DB + 영속성 컨텍스트 삭제 동기화
+        if (keepImageId == null || keepImageId.isEmpty()) {
+            clubImageRepository.deleteAllByClubId(clubId);
+            findClub.getIntroduction().getImages().clear();
+        } else {
+            clubImageRepository.deleteAllByClubIdAndIdNotIn(clubId, keepImageId);
+            findClub.getIntroduction().getImages().removeIf(img -> !keepImageId.contains(img.getId()));
+        }
+        log.info("Successfully deleted old images for clubId: {}", clubId);
+
+        // 새 이미지 업로드
+        List<String> newImageUrls = new ArrayList<>();
         try {
-            for (MultipartFile image : images) {
-                imageUrls.add(s3Service.upload(image));
+            if (newImages != null) {
+                for (MultipartFile image : newImages) {
+                    newImageUrls.add(s3Service.upload(image));
+                }
             }
         } catch (Exception e) {
-            // 이미 업로드된 새로운 이미지들 삭제 (보상 트랜잭션)
-            log.warn("S3 이미지 업로드 중 오류 발생. 롤백을 위해 업로드된 이미지 삭제 시도 for clubId: {}, [error : {}]", clubId, e.getMessage());
-            imageUrls.forEach(url -> {
+            log.warn("S3 업로드 중 오류 → 보상 트랜잭션 실행. clubId={}, error={}", clubId, e.getMessage());
+            newImageUrls.forEach(url -> {
                 try { s3Service.deleteFile(url); } catch (Exception ignore) {}
             });
-            throw e; // 그대로 예외 던져서 트랜잭션 롤백
+            throw e;
         }
-        log.info("S3에 이미지 업로드 완료 for clubId: {}", clubId);
-
-        findClub.getIntroduction().updateImages(imageUrls);
+        findClub.getIntroduction().addImages(newImageUrls);
         log.info("Successfully uploaded and updated images for clubId: {}", clubId);
-
-        // 커밋 이후 삭제를 위해 이벤트 발행
-        applicationEventPublisher.publishEvent(new ClubImageDeletedEvent(clubId, oldImageUrls));
+        applicationEventPublisher.publishEvent(new ClubImageDeletedEvent(clubId, deleteTargetUrls));
         return new SuccessResponseDto(true);
     }
-
     // ---- private helpers ----
     private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {
         List<ClubListResponseDto.ClubsInfo> clubs = summaries.stream()
