@@ -38,6 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
+        // 요청 URI를 확인하여 /api/auth/** 경로의 요청은 필터를 그냥 통과시킨다.
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. 헤더에서 "Authorization" 값을 가져온다.
         String bearerToken = request.getHeader("Authorization");
 
