@@ -15,12 +15,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -116,5 +118,32 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
                 .body(body);
+    }
+
+    @Operation(summary = "서비스 로그아웃", description = "사용자의 Access Token과 Refresh Token을 무효화하여 로그아웃 처리합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+            @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰")
+    })
+    @SecurityRequirement(name = "bearer-jwt")
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+            @RequestHeader("Authorization") String bearerToken,
+            HttpServletResponse response) {
+
+        authService.logout(bearerToken, response);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "카카오계정과 함께 로그아웃", description = "카카오 로그아웃 처리 후, 서비스 자체 로그아웃을 수행하고 사용자를 메인 페이지로 리다이렉트합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "302", description = "로그아웃 성공 및 메인 페이지로 리다이렉트")
+    })
+    @GetMapping("/kakao/logout")
+    public String kakaoLogout() {
+
+        // 최종적으로 프론트엔드의 메인 페이지로 리다이렉트
+        return "redirect:https://www.dongarium.co.kr/";
     }
 }

@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseD
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 
+import jakarta.servlet.http.HttpServletResponse;
 public interface AuthService {
 
     /**
@@ -32,5 +33,13 @@ public interface AuthService {
      * @return 새로 발급된 Access Token이 담긴 DTO
      */
     ReissueResponseDto reissue(String bearerToken);
+
+    /**
+     * 사용자의 Access Token을 블랙리스트에 추가하고, Refresh Token을 무효화하여 로그아웃 처리합니다.
+     *
+     * @param bearerToken "Bearer " 접두사를 포함한 Access Token
+     * @param response    HttpOnly 쿠키에 저장된 Refresh Token을 만료시키기 위한 HttpServletResponse
+     */
+    void logout(String bearerToken, HttpServletResponse response);
 
 }
