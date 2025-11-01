@@ -114,13 +114,13 @@ public class ClubServiceImpl implements ClubService {
                     log.warn("ClubApplyForm not found for id={}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
                 });
-        List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
-        List<Application> pendingApplication = applicationRepository.findByClubApplyFormIdAndStatus(clubApplyForm.getId(), Status.PENDING);
+        List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);//role이 applicant 이면서 status가 pending인 지원서 수를 세어야함
+        List<ClubMember> pendingApplications = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
         return new ClubDashBoardResponseDto(
                 clubId,
                 applicantList.size(),
-                pendingApplication.size(),
+                pendingApplications.size(),
                 club.getRecruitStart().toLocalDate(),
                 club.getRecruitEnd().toLocalDate());
     }

@@ -183,7 +183,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             Application application,
             ApplicationApplyRequestDto request
     ) {
-
         long deleted = answerRepository.deleteByApplication(application);
         log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), deleted);
 
@@ -207,7 +206,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             ClubApplyForm form,
             ApplicationApplyRequestDto request
     ) {
-
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();
         applicationRepository.save(newApplication);
         log.info("새로운 답변 기록됨 applicationId={}", newApplication.getId());

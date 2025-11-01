@@ -45,7 +45,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             join fetch cm.application a
             join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.status = :status
-
             """)
     List<ClubMember> findByClubIdAndRoleAndApplicationStatus(Long clubId, Role role, Status status);
 
@@ -55,7 +54,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             join fetch cm.application a
             join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.status = :status and a.stage = :stage
-
             """)
     List<ClubMember> findByClubIdAndRoleAndApplicationStatusAndStage(Long clubId, Role role, Status status, Stage stage);
 

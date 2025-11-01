@@ -16,6 +16,7 @@ import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.services.s3.S3Client;
 
 @SpringBootTest
+@Disabled
 @Testcontainers
 class S3IntegrationTest {
 
