@@ -662,3 +662,11 @@ VALUES
     ('동아리 홍보 영상', '신입생 환영회용 홍보 영상이 게시되었습니다.', true),
     ('출석 체크 공지', '활동 출석 확인은 매주 일요일까지 입력해주세요.', true),
     ('운영진 모집', '다음 학기 운영진을 모집합니다. 많은 지원 바랍니다.', true);
+
+-- =========================
+-- 14) File (1)
+-- =========================
+INSERT INTO file (name, notice_id, type, object_uri)
+VALUES
+    ('81층짜리 집.png',1,'png', 'https://file-bucket-test-004.s3.ap-northeast-2.amazonaws.com/81%EC%B8%B5%EC%A7%9C%EB%A6%AC+%EC%A7%91.png'),
+    ('[양식] 소중마일리지 신청서 양식.hwp',1,'hwp','https://file-bucket-test-004.s3.ap-northeast-2.amazonaws.com/%5B%EC%96%91%EC%8B%9D%5D+%EC%86%8C%EC%A4%91%EB%A7%88%EC%9D%BC%EB%A6%AC%EC%A7%80+%EC%8B%A0%EC%B2%AD%EC%84%9C+%EC%96%91%EC%8B%9D.hwp')

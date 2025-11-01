@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.notices.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Schema(description = "공지사항 상세 조회 응답 DTO")
 public record NoticeResponseDto(
@@ -26,5 +27,12 @@ public record NoticeResponseDto(
         String email,
 
         @Schema(description = "첨부파일 이름", example = "notice_guide.pdf")
-        String file
-) { }
+        List<FileDetail> file
+) {
+        public record FileDetail(
+                Long id,
+                String name,
+                String presignedUrl,
+                String objectUrl
+        ){}
+}
