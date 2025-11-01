@@ -2,9 +2,7 @@ package com.kakaotech.team18.backend_server.domain.answer.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
