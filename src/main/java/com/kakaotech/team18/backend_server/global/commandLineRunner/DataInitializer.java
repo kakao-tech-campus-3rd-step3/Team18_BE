@@ -41,7 +41,7 @@ import java.util.*;
 @Component
 @Order(1)
 @RequiredArgsConstructor
-@Profile({"local","prod"})
+@Profile({"prod", "default"})
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -61,7 +61,7 @@ public class DataInitializer implements CommandLineRunner {
         // 이미 데이터가 있으면 아무 것도 하지 않음 (재기동 안전)
         if (userRepository.count() > 0 || clubRepository.count() > 0) return;
 
-        // 1) USERS (64) — data.sql 패턴 그대로 생성
+        // 1) USERS (64) — data.sql.disabled 패턴 그대로 생성
         List<User> users = seedUsers();
 
         // 2) CLUB_INTRODUCTION + CLUB_IMAGE (20) & 3) CLUB (20)
@@ -73,7 +73,7 @@ public class DataInitializer implements CommandLineRunner {
         // 6) FORM_QUESTION (+ TIMESLOT for club#1 form)
         Map<ClubApplyForm, List<FormQuestion>> questionsByForm = seedFormQuestions(formByClub);
 
-        // 7) APPLICATION (대량, data.sql 패턴/값 재현)
+        // 7) APPLICATION (대량, data.sql.disabled 패턴/값 재현)
         List<Application> applications = seedApplications(users, formByClub);
 
         // 8) ANSWER (패턴 기반 — form#1 은 4문항, 그 외 폼은 1문항)
@@ -174,7 +174,7 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
         clubs.add(club1);
 
-        // 2)~20) 나머지 intro/club — data.sql 패턴 재현
+        // 2)~20) 나머지 intro/club — data.sql.disabled 패턴 재현
         String[] names = {
                 "클럽 02","코드마스터","클럽 04","아트픽","클럽 06","클럽 07","클럽 08","클럽 09","클럽 10",
                 "클럽 11","클럽 12","클럽 13","클럽 14","클럽 15","클럽 16","클럽 17","클럽 18","클럽 19","클럽 20"
@@ -401,7 +401,7 @@ public class DataInitializer implements CommandLineRunner {
             apps.add(a);
         }
 
-        // 45..64 : 모두 club#1 로 지원 (data.sql 패턴)
+        // 45..64 : 모두 club#1 로 지원 (data.sql.disabled 패턴)
         Club firstClub = clubOrdered.get(0);
         ClubApplyForm firstForm = formByClub.get(firstClub);
         Status[] s45 = {Status.PENDING,Status.PENDING,Status.APPROVED,Status.APPROVED,Status.REJECTED,Status.REJECTED,
@@ -511,7 +511,7 @@ public class DataInitializer implements CommandLineRunner {
                     .build());
         }
 
-        // 45..64 : 모두 club#1, ACTIVE, APPLICANT (data.sql 패턴)
+        // 45..64 : 모두 club#1, ACTIVE, APPLICANT (data.sql.disabled 패턴)
         Club club1 = clubs.get(0);
         for (int i = 45; i <= 64; i++) {
             cms.add(ClubMember.builder()
