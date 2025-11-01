@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
@@ -82,4 +83,8 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     List<ClubMember> findByUser(User user);
 
     Optional<ClubMember> findByClubIdAndUserStudentId(Long clubId, String studentId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update ClubMember cm set cm.application = null where cm.application.id = :applicationId")
+    int clearApplicationByApplicationId(Long applicationId);
 }
