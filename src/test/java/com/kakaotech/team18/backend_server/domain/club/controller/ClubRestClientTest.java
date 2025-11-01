@@ -141,7 +141,7 @@ public class ClubRestClientTest {
 
         // when & then: Tomcat에서 연결을 끊기 때문에 ResourceAccessException 발생
         assertThatThrownBy(() ->
-                restClient.put()
+                restClient.patch()
                         .uri("/api/clubs/1/images")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .body(body)
@@ -188,7 +188,7 @@ public class ClubRestClientTest {
 
 
         assertThatThrownBy(() ->
-                restClient.put()
+                restClient.patch()
                         .uri("/api/clubs/1/images")
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .body(body)
