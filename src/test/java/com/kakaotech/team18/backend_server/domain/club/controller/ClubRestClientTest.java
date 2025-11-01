@@ -83,11 +83,20 @@ public class ClubRestClientTest {
             }
         };
 
+        ByteArrayResource keepIdsResource = new ByteArrayResource("[]".getBytes()) {
+            @Override
+            public String getFilename() {
+                return "keepImageIds.json";
+            }
+        };
+
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("images", resource);
+        body.add("newImages", resource);
+
+        body.add("keepImageIds", keepIdsResource);
 
         // when
-        var response = restClient.put()
+        var response = restClient.patch()
                 .uri("/api/clubs/1/images")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
@@ -117,8 +126,18 @@ public class ClubRestClientTest {
             }
         };
 
+
+        ByteArrayResource keepIdsResource = new ByteArrayResource("[]".getBytes()) {
+            @Override
+            public String getFilename() {
+                return "keepImageIds.json";
+            }
+        };
+
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("images", resource);
+        body.add("newImages", resource);
+        body.add("keepImageIds", keepIdsResource);
+
 
         // when & then: Tomcat에서 연결을 끊기 때문에 ResourceAccessException 발생
         assertThatThrownBy(() ->
@@ -154,8 +173,19 @@ public class ClubRestClientTest {
                     return "image_" + System.nanoTime() + ".jpg";
                 }
             };
-            body.add("images", resource);
+            body.add("newImages", resource);
         }
+
+
+        ByteArrayResource keepIdsResource = new ByteArrayResource("[]".getBytes()) {
+            @Override
+            public String getFilename() {
+                return "keepImageIds.json";
+            }
+        };
+
+        body.add("keepImageIds", keepIdsResource);
+
 
         assertThatThrownBy(() ->
                 restClient.put()

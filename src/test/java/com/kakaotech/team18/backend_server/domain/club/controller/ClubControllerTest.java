@@ -324,22 +324,101 @@ class ClubControllerTest {
         //given
         Long clubId = 1L;
 
+        MockMultipartFile keepImageIdsPart = new MockMultipartFile(
+                "keepImageIds",
+                "",
+                "application/json",
+                "[1,2]".getBytes()
+        );
+
+        MockMultipartFile newImage = new MockMultipartFile(
+                "newImages",
+                "newImage.jpg",
+                "image/jpeg",
+                "image-content".getBytes()
+        );
+
         //when
         mockMvc.perform(
                         multipart("/api/clubs/{clubId}/images", clubId)
-                                .file(new MockMultipartFile(
-                                        "images",
-                                        "newImage.jpg",
-                                        "image/jpeg",
-                                        "image-content".getBytes()
-                                ))
-                                .with(request -> { request.setMethod("PUT"); return request; })
+                                .file(keepImageIdsPart)
+                                .file(newImage)
+                                .with(request -> { request.setMethod("PATCH"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
+
         //then
-        verify(clubService).uploadClubImages(eq(clubId), any(List.class));
+        verify(clubService).uploadClubImages(eq(clubId), any(List.class), any(List.class));
     }
+
+    @DisplayName("동아리 상세 페이지 수정에서 이미지를 변경할 때 keepImageIds가 유효하지 않으면 400 에러를 반환한다.")
+    @Test
+    void updateClubImage_invalidKeepImageIds() throws Exception {
+        //given
+        Long clubId = 1L;
+
+        MockMultipartFile keepImageIdsPart = new MockMultipartFile(
+                "keepImageIds",
+                "",
+                "application/json",
+                "invalid_json".getBytes()
+        );
+
+        MockMultipartFile newImage = new MockMultipartFile(
+                "newImages",
+                "newImage.jpg",
+                "image/jpeg",
+                "image-content".getBytes()
+        );
+
+        //when
+        mockMvc.perform(
+                        multipart("/api/clubs/{clubId}/images", clubId)
+                                .file(keepImageIdsPart)
+                                .file(newImage)
+                                .with(request -> { request.setMethod("PATCH"); return request; })
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        //then
+        verifyNoInteractions(clubService);
+    }
+
+    @DisplayName("동아리 상세 페이지 수정에서 이미지를 변경할 때 keepImageIds가 잘못된 형식으로 오면 400 에러를 반환한다.")
+    @Test
+    void updateClubImage_malformedKeepImageIds() throws Exception {
+        //given
+        Long clubId = 1L;
+
+        MockMultipartFile keepImageIdsPart = new MockMultipartFile(
+                "keepImageIds",
+                "",
+                "application/json",
+                "not_a_json_array".getBytes()
+        );
+
+        MockMultipartFile newImage = new MockMultipartFile(
+                "newImages",
+                "newImage.jpg",
+                "image/jpeg",
+                "image-content".getBytes()
+        );
+
+        //when
+        mockMvc.perform(
+                        multipart("/api/clubs/{clubId}/images", clubId)
+                                .file(keepImageIdsPart)
+                                .file(newImage)
+                                .with(request -> { request.setMethod("PATCH"); return request; })
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        //then
+        verifyNoInteractions(clubService);
+    }
+
+
     @DisplayName("동아리 상세 페이지 수정에서 이미지를 변경할 때 이미지가 없으면 400 에러를 반환한다.")
     @Test
     void updateClubImage_noImage() throws Exception {
@@ -349,7 +428,7 @@ class ClubControllerTest {
         //when
         mockMvc.perform(
                         multipart("/api/clubs/{clubId}/images", clubId)
-                                .with(request -> { request.setMethod("PUT"); return request; })
+                                .with(request -> { request.setMethod("PATCH"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
