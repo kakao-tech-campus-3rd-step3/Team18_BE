@@ -15,7 +15,10 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
@@ -25,6 +28,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFo
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Claims;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -191,7 +195,14 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ReissueResponseDto reissue(String refreshToken) {
         // 1. Refresh Token 자체 유효성 검증 (만료, 서명 등)
-        Claims claims = jwtProvider.verify(refreshToken);
+        // Refresh Token은 HttpOnly 쿠키 등으로 전달되어 이미 순수한 토큰 문자열로 가정합니다.
+        Claims claims;
+        try {
+            claims = jwtProvider.verify(refreshToken);
+        } catch (ExpiredJwtException e) {
+            // Refresh Token이 만료된 경우, 새로운 에러 코드로 예외 발생
+            throw new ExpiredRefreshTokenException();
+        }
 
         // 2. 토큰 타입 검증
         String tokenType = claims.get("tokenType", String.class);
