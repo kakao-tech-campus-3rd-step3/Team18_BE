@@ -91,7 +91,7 @@ public class ClubServiceImpl implements ClubService {
     @Override
     @Transactional
     public SuccessResponseDto updateClubDetail(Long clubId, ClubDetailRequestDto dto){
-        log.info("getClubDetail called with clubId={}", clubId);
+        log.info("updateClubDetail called with clubId={}", clubId);
         Club findClub = clubRepository.findClubDetailById(clubId)
                 .orElseThrow(() -> {
                     log.warn("Club not found for id={}", clubId);
