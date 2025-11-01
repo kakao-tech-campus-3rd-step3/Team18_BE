@@ -41,6 +41,11 @@ services:
     image: ${ECR_REGISTRY}/dongarium-server:latest
     container_name: dongarium-server
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
     depends_on:
       db:
         condition: service_healthy
