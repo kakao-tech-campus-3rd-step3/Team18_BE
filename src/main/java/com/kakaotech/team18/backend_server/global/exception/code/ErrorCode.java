@@ -32,6 +32,8 @@ public enum ErrorCode {
     PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE("잘못된 파일 형식입니다.", HttpStatus.BAD_REQUEST),
+    TOO_LARGE_FILE("업로드 하려는 파일 크기가 너무 큽니다", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
@@ -72,6 +74,8 @@ public enum ErrorCode {
     // 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
     INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    IO_EXCEPTION("파일 입출력 실패.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AWS_EXCEPTION("AWS 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도
     EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),

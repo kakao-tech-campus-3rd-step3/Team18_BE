@@ -197,24 +197,21 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public ReissueResponseDto reissue(String bearerToken) {
-        // 1. Bearer 접두사 제거 및 토큰 추출
-        String refreshToken = jwtProvider.extractToken(bearerToken);
-
-        // 2. Refresh Token 자체 유효성 검증 (만료, 서명 등)
+    public ReissueResponseDto reissue(String refreshToken) {
+        // 1. Refresh Token 자체 유효성 검증 (만료, 서명 등)
         Claims claims = jwtProvider.verify(refreshToken);
 
-        // 3. 토큰 타입 검증
+        // 2. 토큰 타입 검증
         String tokenType = claims.get("tokenType", String.class);
         if (!TokenType.REFRESH.name().equals(tokenType)) {
             log.warn("Refresh Token 재발급 시도 실패: 토큰 타입이 REFRESH가 아님");
             throw new NotRefreshTokenException();
         }
 
-        // 4. 사용자 ID 추출
+        // 3. 사용자 ID 추출
         Long userId = Long.valueOf(claims.getSubject());
 
-        // 5. Redis에 저장된 토큰과 일치하는지 검증
+        // 4. Redis에 저장된 토큰과 일치하는지 검증
         RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
                 .orElseThrow(LoggedOutUserException::new);
 
@@ -223,20 +220,20 @@ public class AuthServiceImpl implements AuthService {
             throw new InvalidRefreshTokenException();
         }
 
-        // 6. 사용자 정보 조회
+        // 5. 사용자 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("해당 유저가 존재하지 않습니다."));
 
-        // 7. 새로운 토큰 발급 (Access, Refresh 둘 다)
+        // 6. 새로운 토큰 발급 (Access, Refresh 둘 다)
         String newAccessToken = jwtProvider.createAccessToken(user);
         String newRefreshToken = jwtProvider.createRefreshToken(user);
         log.info("Access & Refresh Token 재발급 성공: userId={}", userId);
 
-        // 8. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
+        // 7. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
         refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshToken, jwtProperties.refreshTokenValidityInSeconds()));
         log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", user.getId());
 
-        // 9. DTO로 감싸서 반환
+        // 8. DTO로 감싸서 반환
         return ReissueResponseDto.of(newAccessToken, newRefreshToken);
     }
 

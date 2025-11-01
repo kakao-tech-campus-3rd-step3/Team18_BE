@@ -86,6 +86,10 @@ services:
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
 
+      #AWS S3
+      CLOUD_AWS_S3_BUCKET: ${CLOUD_AWS_S3_BUCKET}
+      CLOUD_AWS_REGION_STATIC: ${CLOUD_AWS_REGION_STATIC}
+
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]

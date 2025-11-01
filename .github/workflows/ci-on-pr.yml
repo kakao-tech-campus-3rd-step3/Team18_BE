@@ -60,6 +60,8 @@ jobs:
           SMTP_PASSWORD: ${{secrets.SMTP_PASSWORD}}
           KAKAO_LOGOUT_REDIRECT_URI_TEST: ${{ secrets.KAKAO_LOGOUT_REDIRECT_URI_TEST }}
           FRONTEND_MAIN_PAGE_URI_TEST: ${{ secrets.FRONTEND_MAIN_PAGE_URI_TEST }}
+          AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
         run: |
           mkdir -p ./src/main/resources
@@ -68,6 +70,10 @@ jobs:
             redis:
               host: localhost
               port: 6379
+            servlet:
+              multipart:
+                max-file-size: 5MB       
+                max-request-size: 50MB   
             datasource:
               url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
               driver-class-name: org.h2.Driver
@@ -124,7 +130,15 @@ jobs:
             email:
               from: ${EMAIL_FROM:no-reply@gmail.com}
               subject-prefix: "[동아리 지원]"
-          
+          cloud:
+            aws:
+              credentials:
+                access-key: ${AWS_ACCESS_KEY}
+                secret-key: ${AWS_SECRET_KEY}
+              s3:
+                bucket: dongarium
+              region:
+                static: ap-northeast-2
           YAML
 
       # 테스트 프로필로 빌드/테스트

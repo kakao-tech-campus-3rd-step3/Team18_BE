@@ -47,4 +47,15 @@ public class ClubIntroduction extends BaseEntity {
             image.setClubIntroductionInternal(null);
         }
     }
+
+    public void updateImages(List<String> imageUrl) {
+        this.images.clear();
+        for (String url : imageUrl) {
+            ClubImage image = ClubImage.builder()
+                    .imageUrl(url)
+                    .clubIntroduction(this)
+                    .build();
+            this.addImage(image);
+        }
+    }
 }
