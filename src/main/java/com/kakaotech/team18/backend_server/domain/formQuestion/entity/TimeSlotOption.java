@@ -3,12 +3,11 @@ package com.kakaotech.team18.backend_server.domain.formQuestion.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Embeddable
 public record TimeSlotOption(
-        LocalDate date,
+        String date,
         @Embedded
         TimeRange availableTime
 ) {
