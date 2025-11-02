@@ -66,12 +66,12 @@ class FormQuestionTest {
     @Test
     void updateFrom_shouldUpdateTimeSlotFieldsCorrectly() {
         TimeSlotOption.TimeRange originalTimeRange = new TimeSlotOption.TimeRange(LocalTime.of(10, 0), LocalTime.of(18, 0));
-        TimeSlotOption originalOption = new TimeSlotOption(LocalDate.of(2025, 9, 25), originalTimeRange);
+        TimeSlotOption originalOption = new TimeSlotOption("2025-10-01 ~ 2025-10-31", originalTimeRange);
         FormQuestion formQuestion = createFormQuestion("면접 가능한 시간대는?", FieldType.TIME_SLOT, 3L, null, List.of(originalOption));
         ReflectionTestUtils.setField(formQuestion, "id", 3L);
 
         TimeSlotOptionRequestDto.TimeRange newTimeRange = new TimeRange(LocalTime.of(22, 0), LocalTime.of(23, 0));
-        TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto(LocalDate.of(2025,9,26), newTimeRange);
+        TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", newTimeRange);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
                 3L, "면접 불가능한 시간대는?", FieldType.TIME_SLOT, true, 3L, null, List.of(newOption)
@@ -83,7 +83,7 @@ class FormQuestionTest {
             .containsExactly("면접 불가능한 시간대는?", FieldType.TIME_SLOT, true, 3L, null);
 
         assertThat(formQuestion.getTimeSlotOptions()).hasSize(1);
-        assertThat(formQuestion.getTimeSlotOptions().get(0).date()).isEqualTo(LocalDate.of(2025, 9, 26));
+        assertThat(formQuestion.getTimeSlotOptions().get(0).date()).isEqualTo("2025-10-01 ~ 2025-10-31");
         assertThat(formQuestion.getTimeSlotOptions().get(0).availableTime().start()).isEqualTo("22:00");
         assertThat(formQuestion.getTimeSlotOptions().get(0).availableTime().end()).isEqualTo("23:00");
     }
