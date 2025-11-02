@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -87,7 +88,7 @@ class AuthControllerLogoutTest {
         // when
         // 2. 로그아웃에 사용했던 Access Token으로 보호된 API에 접근을 시도합니다.
         ResultActions resultActions = mockMvc.perform(
-                get("/api/auth/reissue")
+                get("/api/clubs/1/dashboard")
                         .header("Authorization", "Bearer " + accessToken)
         );
 
@@ -110,7 +111,7 @@ class AuthControllerLogoutTest {
         // 2. 로그아웃 시 무효화된 Refresh Token으로 재발급을 시도합니다.
         ResultActions resultActions = mockMvc.perform(
                 post("/api/auth/reissue")
-                        .header("Authorization", "Bearer " + refreshToken)
+                        .cookie(new MockCookie("refreshToken", refreshToken))
         );
 
         // then
