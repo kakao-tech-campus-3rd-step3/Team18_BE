@@ -10,13 +10,11 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
@@ -101,11 +99,11 @@ public class AuthServiceImpl implements AuthService {
             log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
             //clubId, Role 전달
-            List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+            List<ClubListInfoDto> clubIdAndRoleList = clubMemberRepository.findClubListInfoByUser(user);
 
             //서비스 관리자가 로그인하는 경우
             if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
-                clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+                clubIdAndRoleList = List.of(new ClubListInfoDto(null, null, Role.SYSTEM_ADMIN));
             }
 
             return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
@@ -173,11 +171,11 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //clubId, Role 전달
-        List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+        List<ClubListInfoDto> clubIdAndRoleList = clubMemberRepository.findClubListInfoByUser(user);
 
         //서비스 관리자가 로그인하는 경우
         if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
-            clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+            clubIdAndRoleList = List.of(new ClubListInfoDto(null, null, Role.SYSTEM_ADMIN));
         }
 
         // 4. 정식 토큰 발급

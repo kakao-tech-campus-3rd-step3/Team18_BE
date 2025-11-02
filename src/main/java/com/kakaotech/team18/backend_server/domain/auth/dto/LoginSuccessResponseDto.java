@@ -1,6 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.auth.dto;
 
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
@@ -16,7 +16,7 @@ public record LoginSuccessResponseDto(
         String refreshToken,
 
         @Schema(description = "clubId와 Role 정보를 담은 리스트")
-        List<ClubIdAndRoleInfoDto> clubIdAndRoleList
+        List<ClubListInfoDto> clubIdAndRoleList
 ) implements LoginResponse {
         @Schema(description = "로그인 성공 시 실제 클라이언트에게 전달되는 응답 본문")
         public record Body(
@@ -27,7 +27,7 @@ public record LoginSuccessResponseDto(
                 String accessToken,
 
                 @Schema(description = "clubId와 Role 정보를 담은 리스트")
-                List<ClubIdAndRoleInfoDto> clubIdAndRoleList
+                List<ClubListInfoDto> clubIdAndRoleList
         ) implements LoginResponse {
                 // LoginResponse 인터페이스를 구현합니다.
         }
