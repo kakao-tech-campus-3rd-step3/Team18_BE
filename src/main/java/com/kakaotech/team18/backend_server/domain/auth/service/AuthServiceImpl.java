@@ -15,6 +15,8 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
@@ -26,7 +28,6 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFo
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
-
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
