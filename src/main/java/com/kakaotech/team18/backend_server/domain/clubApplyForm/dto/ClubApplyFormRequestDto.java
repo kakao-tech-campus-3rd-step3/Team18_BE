@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -29,7 +28,7 @@ public record ClubApplyFormRequestDto(
         String description,
 
         @Schema(description = "모집 일정", example = "2025-03-01 ~ 2025-03-31")
-        @NotNull(message = "모집 일정은 필수입니다.")
+        @NotBlank(message = "모집 일정은 필수입니다.")
         String recruitDate,
 
         @Schema(description = "질문 목록")
