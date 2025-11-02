@@ -668,5 +668,5 @@ VALUES
 -- =========================
 INSERT INTO file (name, notice_id, type, object_uri)
 VALUES
-    ('81층짜리 집.png',1,'png', 'https://file-bucket-test-004.s3.ap-northeast-2.amazonaws.com/81%EC%B8%B5%EC%A7%9C%EB%A6%AC+%EC%A7%91.png'),
-    ('[양식] 소중마일리지 신청서 양식.hwp',1,'hwp','https://file-bucket-test-004.s3.ap-northeast-2.amazonaws.com/%5B%EC%96%91%EC%8B%9D%5D+%EC%86%8C%EC%A4%91%EB%A7%88%EC%9D%BC%EB%A6%AC%EC%A7%80+%EC%8B%A0%EC%B2%AD%EC%84%9C+%EC%96%91%EC%8B%9D.hwp')
+    ('81층짜리 집.png',1,'png', 'https://dongarium.s3.ap-northeast-2.amazonaws.com/attachments/81%EC%B8%B5%EC%A7%9C%EB%A6%AC+%EC%A7%91.png'),
+    ('[양식] 소중마일리지 신청서 양식.hwp',1,'hwp','https://dongarium.s3.ap-northeast-2.amazonaws.com/attachments/%5B%EC%96%91%EC%8B%9D%5D+%EC%86%8C%EC%A4%91%EB%A7%88%EC%9D%BC%EB%A6%AC%EC%A7%80+%EC%8B%A0%EC%B2%AD%EC%84%9C+%EC%96%91%EC%8B%9D.hwp')

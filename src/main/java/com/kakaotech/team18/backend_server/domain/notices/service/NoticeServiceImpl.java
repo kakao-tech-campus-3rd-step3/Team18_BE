@@ -24,11 +24,13 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
@@ -115,15 +117,17 @@ public class NoticeServiceImpl implements NoticeService {
         List<NoticeResponseDto.FileDetail> fileDetailList = new ArrayList<>();
 
         for(File file:fileList) {
+
+            String objectKey = extractObjectKeyFromUri(file.getObjectUri(), bucketName);
+
             GetObjectRequest getReq = GetObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(file.getName())
+                    .key(objectKey)
                     .responseContentDisposition(contentDispositionAttachment(file.getName()))
-                    .responseContentType(file.getType())
                     .build();
 
             GetObjectPresignRequest presignReq = GetObjectPresignRequest.builder()
-                    .signatureDuration(Duration.ofMinutes(10))
+                    .signatureDuration(Duration.ofDays(7)) // 제출까지 테스트 가능하게 하기위해 30일 ,TODO 나중에 수정 필요
                     .getObjectRequest(getReq)
                     .build();
 
@@ -159,4 +163,17 @@ public class NoticeServiceImpl implements NoticeService {
         return "attachment; filename=\"" + asciiFallback + "\"; filename*=UTF-8''" + encoded;
     }
 
+    private static String extractObjectKeyFromUri(String objectUri, String bucketName) {
+
+        // 예: https://dongarium.s3.ap-northeast-2.amazonaws.com/attachments/%5B...%5D+...hwp
+        // → path: /attachments/%5B...%5D+...hwp
+        URI uri = URI.create(objectUri);
+
+        String rawPath = uri.getRawPath(); // 인코딩된 상태의 path
+
+        // 맨 앞의 '/' 제거
+        String encodedKey = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+
+        return java.net.URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
+    }
 }
