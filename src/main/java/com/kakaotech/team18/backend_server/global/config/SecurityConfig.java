@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -29,13 +30,16 @@ public class SecurityConfig {
     private final HandlerExceptionResolver resolver;
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
             JwtProvider jwtProvider,
-            PrincipalDetailsService principalDetailsService) {
+            PrincipalDetailsService principalDetailsService,
+            RedisTemplate<String, String> redisTemplate) {
         this.resolver = resolver;
         this.jwtProvider = jwtProvider;
         this.principalDetailsService = principalDetailsService;
+        this.redisTemplate = redisTemplate;
     }
 
     /**
@@ -77,7 +81,7 @@ public class SecurityConfig {
 
         // JWT 인증 필터를 UsernamePasswordAuthenticationFilter 앞에 추가
         http.addFilterBefore(
-                new JwtAuthenticationFilter(jwtProvider, principalDetailsService, resolver),
+                new JwtAuthenticationFilter(jwtProvider, principalDetailsService, resolver, redisTemplate),
                 UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

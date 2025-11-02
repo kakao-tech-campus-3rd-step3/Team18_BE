@@ -158,7 +158,7 @@ jobs:
 
             # .env 생성 (printf로 안전하게 생성)
             tmp_env="$(mktemp)"
-            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\nKAKAO_CLIENT_ID=%s\nKAKAO_CLIENT_SECRET=%s\nJWT_SECRET=%s\nKAKAO_REDIRECT_URI_PROD=%s\nSMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USERNAME=%s\nSMTP_PASSWORD=%s\nEMAIL_FROM=%s\nEMAIL_SUBJECT_PREFIX=%s\nREDIS_HOST=%s\nREDIS_PORT=%s\nCLOUD_AWS_S3_BUCKET=%s\nCLOUD_AWS_REGION_STATIC=%s\n' \
+            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\nKAKAO_CLIENT_ID=%s\nKAKAO_CLIENT_SECRET=%s\nJWT_SECRET=%s\nKAKAO_REDIRECT_URI_PROD=%s\nKAKAO_LOGOUT_REDIRECT_URI_PROD=%s\nFRONTEND_MAIN_PAGE_URI_PROD=%s\nSMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USERNAME=%s\nSMTP_PASSWORD=%s\nEMAIL_FROM=%s\nEMAIL_SUBJECT_PREFIX=%s\nREDIS_HOST=%s\nREDIS_PORT=%s\nCLOUD_AWS_S3_BUCKET=%s\nCLOUD_AWS_REGION_STATIC=%s\n' \
             '${{ secrets.DB_NAME }}' \
             '${{ secrets.DB_USER }}' \
             '${{ secrets.DB_PASSWORD }}' \
@@ -168,6 +168,8 @@ jobs:
             '${{ secrets.KAKAO_CLIENT_SECRET }}' \
             '${{ secrets.JWT_SECRET }}' \
             '${{ secrets.KAKAO_REDIRECT_URI_PROD }}' \
+            '${{ secrets.KAKAO_LOGOUT_REDIRECT_URI_PROD }}' \
+            '${{ secrets.FRONTEND_MAIN_PAGE_URI_PROD }}' \
             '${{ secrets.SMTP_HOST }}' \
             '${{ secrets.SMTP_PORT }}' \
             '${{ secrets.SMTP_USERNAME }}' \

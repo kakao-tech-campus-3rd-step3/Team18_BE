@@ -12,6 +12,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,12 +28,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
     private final HandlerExceptionResolver resolver;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // Qualifier 를 이용하기 위해서 RequiredArgsConstructor 사용 X
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, RedisTemplate<String, String> redisTemplate) {
         this.jwtProvider = jwtProvider;
         this.principalDetailsService = principalDetailsService;
         this.resolver = resolver;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -58,6 +62,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 3. "Bearer " 접두사를 제거하고 순수한 토큰을 추출한다.
             String token = jwtProvider.extractToken(bearerToken);
+
+            // 블랙리스트 확인
+            ValueOperations<String, String> values = redisTemplate.opsForValue();
+            if (values.get("blacklist:" + token) != null) {
+                // 블랙리스트에 존재하면, 로그아웃된 토큰으로 간주하고 예외를 발생시켜 요청을 차단합니다.
+                resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.BLACKLISTED_TOKEN));
+                return; // 필터 체인 진행을 중단합니다.
+            }
 
             // 4. 토큰 유효성 검증 및 클레임 추출
             Claims claims = jwtProvider.verify(token);
@@ -92,8 +104,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
             return;
         } catch (ExpiredJwtException e) {
-            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_ACCESS_TOKEN));
-            return;
+            // Access Token이 만료된 경우, 일단 통과시킨다.
+            // reissue 요청은 컨트롤러에서 Refresh Token의 유효성을 검증하여 처리할 것이고,
+            // 다른 일반 요청은 SecurityContext에 인증 정보가 없으므로 뒤따르는 필터에서 차단될 것이다.
+            filterChain.doFilter(request, response);
+            return; // 다음 로직을 타지 않도록 여기서 필터 실행을 종료합니다.
         } catch (UnsupportedJwtException e) {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
             return;
