@@ -137,6 +137,7 @@ jobs:
                 secret-key: ${AWS_SECRET_KEY}
               s3:
                 bucket: dongarium
+                bucket-attachments:dongarium
               region:
                 static: ap-northeast-2
           YAML
