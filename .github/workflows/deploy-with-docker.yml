@@ -179,6 +179,7 @@ jobs:
             '${{ secrets.REDIS_HOST }}' \
             '${{ secrets.REDIS_PORT }}' \
             '${{ secrets.S3_BUCKET }}' \
+            '${{ secrets.S3_BUCKET_ATTACHMENTS }}' \
             '${{ secrets.S3_REGION }}' > "$tmp_env"
             install -m 600 "$tmp_env" ${{ env.REMOTE_DIR }}/shared/.env
             rm -f "$tmp_env"
