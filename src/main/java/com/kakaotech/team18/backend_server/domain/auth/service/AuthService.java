@@ -4,6 +4,8 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
 import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface AuthService {
 
@@ -33,4 +35,6 @@ public interface AuthService {
      */
     ReissueResponseDto reissue(String bearerToken);
 
+    @Transactional
+    void logout(String bearerAccessToken, HttpServletResponse response);
 }

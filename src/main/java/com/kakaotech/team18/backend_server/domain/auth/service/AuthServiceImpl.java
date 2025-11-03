@@ -10,12 +10,13 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
@@ -25,11 +26,16 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.UserNotFo
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +43,8 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import java.util.Optional;
 
@@ -52,6 +60,7 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
     private final ClubMemberRepository clubMemberRepository;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String kakaoClientId;
@@ -97,11 +106,11 @@ public class AuthServiceImpl implements AuthService {
             log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
             //clubId, Role 전달
-            List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+            List<ClubListInfoDto> clubIdAndRoleList = clubMemberRepository.findClubListInfoByUser(user);
 
             //서비스 관리자가 로그인하는 경우
             if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
-                clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+                clubIdAndRoleList = List.of(new ClubListInfoDto(null, null, Role.SYSTEM_ADMIN));
             }
 
             return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
@@ -169,11 +178,11 @@ public class AuthServiceImpl implements AuthService {
         }
 
         //clubId, Role 전달
-        List<ClubIdAndRoleInfoDto> clubIdAndRoleList = clubMemberRepository.findClubIdAndRoleByUser(user);
+        List<ClubListInfoDto> clubIdAndRoleList = clubMemberRepository.findClubListInfoByUser(user);
 
         //서비스 관리자가 로그인하는 경우
         if (clubIdAndRoleList.isEmpty() && isSystemAdmin(user)) {
-            clubIdAndRoleList = List.of(new ClubIdAndRoleInfoDto(null, Role.SYSTEM_ADMIN));
+            clubIdAndRoleList = List.of(new ClubListInfoDto(null, null, Role.SYSTEM_ADMIN));
         }
 
         // 4. 정식 토큰 발급
@@ -191,7 +200,14 @@ public class AuthServiceImpl implements AuthService {
     @Transactional
     public ReissueResponseDto reissue(String refreshToken) {
         // 1. Refresh Token 자체 유효성 검증 (만료, 서명 등)
-        Claims claims = jwtProvider.verify(refreshToken);
+        // Refresh Token은 HttpOnly 쿠키 등으로 전달되어 이미 순수한 토큰 문자열로 가정합니다.
+        Claims claims;
+        try {
+            claims = jwtProvider.verify(refreshToken);
+        } catch (ExpiredJwtException e) {
+            // Refresh Token이 만료된 경우, 새로운 에러 코드로 예외 발생
+            throw new ExpiredRefreshTokenException();
+        }
 
         // 2. 토큰 타입 검증
         String tokenType = claims.get("tokenType", String.class);
@@ -227,6 +243,45 @@ public class AuthServiceImpl implements AuthService {
 
         // 8. DTO로 감싸서 반환
         return ReissueResponseDto.of(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    @Override
+    public void logout(String bearerAccessToken, HttpServletResponse response) {
+        // 1. "Bearer " 접두사를 제거하고 순수한 Access Token을 추출합니다.
+        String accessToken = jwtProvider.extractToken(bearerAccessToken);
+
+        // 2. Access Token을 검증하여 사용자 정보(Claims)를 얻습니다.
+        //    (이 단계에서 토큰이 유효하지 않으면 예외가 발생하여 아래 로직은 실행되지 않습니다.)
+        Claims claims = jwtProvider.verify(accessToken);
+
+        // 3. Access Token을 블랙리스트에 추가합니다.
+        //    - 토큰의 남은 유효 시간(TTL)을 계산합니다.
+        Date expiration = claims.getExpiration();
+        long now = System.currentTimeMillis();
+        long remainingTimeMillis = expiration.getTime() - now;
+
+        //    - 남은 유효 시간이 있다면 Redis에 (Key: "blacklist:{accessToken}", Value: "logout") 형태로 저장합니다.
+        if (remainingTimeMillis > 0) {
+            ValueOperations<String, String> values = redisTemplate.opsForValue();
+            values.set("blacklist:" + accessToken, "logout", remainingTimeMillis, TimeUnit.MILLISECONDS);
+            log.info("Access Token 블랙리스트 등록 완료: {}", accessToken.substring(0, 10) + "...");
+        }
+
+        // 4. Redis에 저장된 Refresh Token을 삭제합니다.
+        //    - Access Token에서 사용자 ID를 추출합니다.
+        Long userId = Long.valueOf(claims.getSubject());
+        refreshTokenRepository.deleteById(userId);
+        log.info("Redis에서 Refresh Token 삭제 완료: userId={}", userId);
+
+        // 5. 클라이언트의 브라우저에 있는 HttpOnly 쿠키를 무효화합니다.
+        //    - Max-Age를 0으로 설정한 동일한 이름의 쿠키를 응답에 추가하면 브라우저가 기존 쿠키를 삭제합니다.
+        Cookie cookie = new Cookie("refreshToken", null); // 실제 Refresh Token 쿠키 이름과 일치해야 합니다.
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+        log.info("HttpOnly Refresh Token 쿠키 무효화 완료: userId={}", userId);
     }
 
     private KakaoTokenResponseDto getKakaoAccessToken(String authorizationCode) {
