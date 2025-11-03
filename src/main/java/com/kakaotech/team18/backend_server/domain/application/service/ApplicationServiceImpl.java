@@ -44,7 +44,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
-
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -363,8 +362,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
             }
-            applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == Stage.FINAL) {
             List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
@@ -395,8 +395,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
             }
-            applicationRepository.deleteAllInBatch(rejected);
         }
         if(stage == null) {
             List<Application> apps = applicationRepository.findAllByClubId(clubId);
@@ -423,8 +424,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
             }
-            applicationRepository.deleteAllInBatch(rejected);
         }
         return new SuccessResponseDto(true);
     }

@@ -1,8 +1,11 @@
 package com.kakaotech.team18.backend_server.domain.application.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,10 +16,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -46,6 +53,12 @@ public class Application extends BaseEntity {
 
     @Column(nullable = false)
     private Double averageRating = 0.0;
+
+    @OneToMany(mappedBy = "application", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Answer> answers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "application", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
