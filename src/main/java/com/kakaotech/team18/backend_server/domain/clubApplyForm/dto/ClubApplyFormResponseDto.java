@@ -23,7 +23,9 @@ public record ClubApplyFormResponseDto(
             LocalDateTime recruitEnd,
             List<FormQuestionResponseDto> questions
     ) {
-        String recruitDate = String.format("%s ~ %s", recruitStart.toLocalDate().toString(), recruitEnd.toLocalDate().toString());
+        String recruitDate = (recruitStart != null && recruitEnd != null)
+                ? String.format("%s ~ %s", recruitStart.toLocalDate(), recruitEnd.toLocalDate())
+                : null;
         return new ClubApplyFormResponseDto(title, description, recruitDate, questions);
     }
 }
