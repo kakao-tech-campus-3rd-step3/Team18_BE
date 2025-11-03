@@ -26,6 +26,7 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOp
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -56,17 +57,23 @@ class ClubApplyFormServiceImplMockTest {
     void getQuestionForm() {
         //given
         Long clubId = 1L;
-        Club club = mock(Club.class);
+        Club club = Club.builder().
+                recruitStart(LocalDateTime.of(2024, 9, 1, 0, 0))
+                .recruitEnd(LocalDateTime.of(2024, 9, 30, 23, 59, 59))
+                .build();
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
         FormQuestion formQuestion = createFormQuestion(clubApplyForm);
 
         given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
         given(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId())).willReturn(List.of(formQuestion));
+        given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
 
         ClubApplyFormResponseDto expected = ClubApplyFormResponseDto.of(
                 clubApplyForm.getTitle(),
                 clubApplyForm.getDescription(),
+                LocalDateTime.of(2024, 9, 1, 0, 0),
+                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(formQuestion).stream().map(
                                 fq -> new FormQuestionResponseDto(
                                         fq.getId(),

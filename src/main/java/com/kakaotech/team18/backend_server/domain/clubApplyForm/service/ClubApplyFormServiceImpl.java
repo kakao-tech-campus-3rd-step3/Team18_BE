@@ -45,6 +45,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
                 });
+        Club club = findClub(clubId);
 
         Long formId = clubApplyForm.getId();
         String title = clubApplyForm.getTitle();
@@ -56,7 +57,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                         .map(FormQuestionResponseDto::from)
                         .toList();
 
-        return ClubApplyFormResponseDto.of(title, description, questions);
+        return ClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), questions);
     }
 
     @Override

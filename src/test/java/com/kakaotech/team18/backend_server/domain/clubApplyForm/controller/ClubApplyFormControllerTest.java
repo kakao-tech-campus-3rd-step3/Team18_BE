@@ -69,6 +69,8 @@ class ClubApplyFormControllerTest {
         ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
+                LocalDateTime.of(2024, 9, 1, 0, 0),
+                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 
@@ -80,9 +82,10 @@ class ClubApplyFormControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
-                .andExpect(jsonPath("$.questions[0].question").value("이름"))
-                .andExpect(jsonPath("$.questions[1].question").value("성별"))
-                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+                .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
+                .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
+                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
+                .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
         verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
     }
@@ -96,6 +99,8 @@ class ClubApplyFormControllerTest {
         ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
+                LocalDateTime.of(2024, 9, 1, 0, 0),
+                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 
@@ -107,9 +112,10 @@ class ClubApplyFormControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
-                .andExpect(jsonPath("$.questions[0].question").value("이름"))
-                .andExpect(jsonPath("$.questions[1].question").value("성별"))
-                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+                .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
+                .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
+                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
+                .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
         verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
     }
