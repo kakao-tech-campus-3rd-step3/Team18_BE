@@ -218,8 +218,7 @@ VALUES
 
 INSERT INTO time_slot_options (form_question_id, date, start_time, end_time)
 VALUES
-    (4, '2025-10-15', '10:00', '12:00'),
-    (4, '2025-10-16', '14:00', '16:00');
+    (4, '2025-10-15 ~ 2025-10-16', '10:00', '12:00');
 
 -- =========================
 -- 7) APPLICATION (20)
