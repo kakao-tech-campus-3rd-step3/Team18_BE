@@ -175,7 +175,8 @@ public class ClubServiceImpl implements ClubService {
             findClub.getIntroduction().getImages().clear();
         } else {
             findClub.getIntroduction().getImages().removeIf(img -> !keepImageId.contains(img.getId()));
-        }        log.info("Successfully deleted old images for clubId: {}", clubId);
+        }
+        log.info("Successfully deleted old images for clubId: {}", clubId);
 
         // 새 이미지 업로드
         List<String> newImageUrls = new ArrayList<>();

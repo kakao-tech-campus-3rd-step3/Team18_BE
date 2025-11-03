@@ -415,6 +415,7 @@ public class ClubServiceMockTest {
 
         // Mocking
         given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+        given(clubImageRepository.findAllByClubId(1L)).willReturn(List.of(existingImage1, existingImage2, existingImage3));
         given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
         given(s3Service.upload(newImageFile2)).willReturn("uploaded_new2.png");
 
