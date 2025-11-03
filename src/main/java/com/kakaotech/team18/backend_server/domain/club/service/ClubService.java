@@ -27,5 +27,5 @@ public interface ClubService {
 
     ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage);
 
-    SuccessResponseDto uploadClubImages(Long clubId, List<MultipartFile> images);
+    SuccessResponseDto uploadClubImages(Long clubId, List<Long> keepImageId, List<MultipartFile> images);
 }

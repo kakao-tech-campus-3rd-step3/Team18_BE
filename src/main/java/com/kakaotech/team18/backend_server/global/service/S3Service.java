@@ -104,8 +104,7 @@ public class S3Service {
             throw new InvalidFileException("확장자가 JPG 또는 PNG가 아닙니다.");
         }
 
-        String dir = "club_detail_image/";
-        String fileName = dir + UUID.randomUUID() + "-" + originalName;
+        String fileName = UUID.randomUUID() + "-" + originalName;
 
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
             .bucket(bucket)

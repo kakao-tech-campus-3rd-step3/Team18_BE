@@ -13,6 +13,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubImageRepository;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
@@ -50,7 +51,8 @@ class ClubServiceImplTest {
         ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
         S3Service s3Service = mock(S3Service.class);
         ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
-        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service, applicationEventPublisher);
+        ClubImageRepository clubImageRepository = mock(ClubImageRepository.class);
+        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service, applicationEventPublisher, clubImageRepository);
     }
 
     @Getter

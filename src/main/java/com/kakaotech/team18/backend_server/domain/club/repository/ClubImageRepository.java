@@ -9,4 +9,13 @@ public interface ClubImageRepository extends JpaRepository<ClubImage, Long> {
 
     @Query("SELECT ci.imageUrl FROM ClubImage ci")
     List<String> findAllImageUrls();
+
+    @Query("""
+            SELECT ci
+            FROM ClubImage ci
+            JOIN ci.clubIntroduction ci_intro
+            JOIN ci_intro.club c
+            WHERE c.id = :clubId
+            """)
+    List<ClubImage> findAllByClubId(Long clubId);
 }
