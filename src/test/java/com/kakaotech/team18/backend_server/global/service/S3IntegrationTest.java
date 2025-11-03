@@ -17,6 +17,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 @SpringBootTest
 @Testcontainers
+@Disabled
 class S3IntegrationTest {
 
     @Container

@@ -74,7 +74,8 @@ dependencies {
     implementation 'org.springframework.retry:spring-retry'     // Spring Retry
 
     //aws
-    implementation platform('software.amazon.awssdk:bom:2.20.28')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation platform('software.amazon.awssdk:bom:2.25.66')
     implementation 'software.amazon.awssdk:s3'
 
     //Test Container
