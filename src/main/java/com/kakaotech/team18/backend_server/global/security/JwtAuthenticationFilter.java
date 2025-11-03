@@ -42,9 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 요청 URI를 확인하여 /api/auth/** 경로의 요청은 필터를 그냥 통과시킨다.
+        // 요청 URI를 확인하여 /api/auth/reissue 경로의 요청은 필터를 그냥 통과시킨다.
         String requestURI = request.getRequestURI();
-        if (requestURI.startsWith("/api/auth/")) {
+        if (requestURI.equals("/api/auth/reissue")) {
             filterChain.doFilter(request, response);
             return;
         }
