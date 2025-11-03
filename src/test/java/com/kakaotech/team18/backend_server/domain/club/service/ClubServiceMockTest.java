@@ -415,7 +415,6 @@ public class ClubServiceMockTest {
 
         // Mocking
         given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
-        given(clubImageRepository.findAllByClubId(1L)).willReturn(List.of(existingImage1, existingImage2, existingImage3));
         given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
         given(s3Service.upload(newImageFile2)).willReturn("uploaded_new2.png");
 
@@ -435,9 +434,6 @@ public class ClubServiceMockTest {
         // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
         verify(s3Service, times(1)).upload(newImageFile1);
         verify(s3Service, times(1)).upload(newImageFile2);
-
-        // clubImageRepository의 deleteAllByClubIdAndIdNotIn 메서드가 호출되었는지 확인
-        verify(clubImageRepository, times(1)).deleteAllByClubIdAndIdNotIn(1L, keepImageIds);
 
         // 이벤트 발행 확인 (old2.jpg, old3.jpg가 삭제 대상이므로)
         verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));
@@ -494,9 +490,6 @@ public class ClubServiceMockTest {
         // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
         verify(s3Service, times(1)).upload(newImageFile1);
 
-        // clubImageRepository의 deleteAllByClubId 메서드가 호출되었는지 확인
-        verify(clubImageRepository, times(1)).deleteAllByClubId(1L);
-
         // 이벤트 발행 확인 (old1.jpg, old2.jpg가 삭제 대상이므로)
         verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));
     }
@@ -533,7 +526,6 @@ public class ClubServiceMockTest {
         verify(s3Service, times(1)).upload(newImageFile1);
         verify(s3Service, times(1)).upload(newImageFile2);
         verify(s3Service, times(1)).deleteFile("uploaded_new1.jpg");
-        verify(clubImageRepository, times(1)).deleteAllByClubId(clubId);
     }
 
     @DisplayName("이미지 수정 시, 유지할 이미지가 null이면 모든 이미지를 삭제하고 새 이미지를 추가한다.")
@@ -587,9 +579,6 @@ public class ClubServiceMockTest {
 
         // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
         verify(s3Service, times(1)).upload(newImageFile1);
-
-        // clubImageRepository의 deleteAllByClubId 메서드가 호출되었는지 확인
-        verify(clubImageRepository, times(1)).deleteAllByClubId(1L);
 
         // 이벤트 발행 확인 (old1.jpg, old2.jpg가 삭제 대상이므로)
         verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));

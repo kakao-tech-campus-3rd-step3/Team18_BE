@@ -171,15 +171,11 @@ public class ClubServiceImpl implements ClubService {
                 .map(ClubImage::getImageUrl)
                 .toList();
 
-        // DB + 영속성 컨텍스트 삭제 동기화
         if (keepImageId == null || keepImageId.isEmpty()) {
-            clubImageRepository.deleteAllByClubId(clubId);
             findClub.getIntroduction().getImages().clear();
         } else {
-            clubImageRepository.deleteAllByClubIdAndIdNotIn(clubId, keepImageId);
             findClub.getIntroduction().getImages().removeIf(img -> !keepImageId.contains(img.getId()));
-        }
-        log.info("Successfully deleted old images for clubId: {}", clubId);
+        }        log.info("Successfully deleted old images for clubId: {}", clubId);
 
         // 새 이미지 업로드
         List<String> newImageUrls = new ArrayList<>();
