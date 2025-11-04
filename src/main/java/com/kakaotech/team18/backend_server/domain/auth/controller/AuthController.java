@@ -24,12 +24,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Tag(name = "인증 API", description = "카카오 소셜 로그인 및 회원가입 관련 API")
 @RestController
@@ -142,9 +142,8 @@ public class AuthController {
             @ApiResponse(responseCode = "302", description = "로그아웃 성공 및 메인 페이지로 리다이렉트")
     })
     @GetMapping("/kakao/logout")
-    public String kakaoLogout() {
-
-        // 최종적으로 프론트엔드의 메인 페이지로 리다이렉트
-        return "redirect:https://www.dongarium.co.kr/";
+    public RedirectView kakaoLogout() {
+        // 최종적으로 프론트엔드의 메인 페이지로 리다이렉트합니다.
+        return new RedirectView("https://www.dongarium.co.kr/");
     }
 }

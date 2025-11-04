@@ -30,6 +30,9 @@ public class ClubIntroduction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String ideal;
 
+    @OneToOne(mappedBy = "introduction")
+    private Club club;
+
     @Builder
     private ClubIntroduction(String overview, String activities, String ideal, List<ClubImage> images) {
         this.overview = overview;
@@ -48,8 +51,7 @@ public class ClubIntroduction extends BaseEntity {
         }
     }
 
-    public void updateImages(List<String> imageUrl) {
-        this.images.clear();
+    public void addImages(List<String> imageUrl) {
         for (String url : imageUrl) {
             ClubImage image = ClubImage.builder()
                     .imageUrl(url)
