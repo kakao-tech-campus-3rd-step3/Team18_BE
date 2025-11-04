@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredAccessTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -111,7 +112,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         } catch (ExpiredJwtException e) {
             log.warn("만료된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
-            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_ACCESS_TOKEN));
+            // Access Token이 만료된 경우, ExpiredAccessTokenException 커스텀 예외를 발생시켜 401 에러를 응답합니다.
+            resolver.resolveException(request, response, null, new ExpiredAccessTokenException());
             return;
         } catch (UnsupportedJwtException e) {
             log.warn("지원하지 않는 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
