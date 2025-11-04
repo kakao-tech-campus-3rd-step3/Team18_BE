@@ -84,6 +84,10 @@ services:
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
 
+      # RestClient 타임아웃
+      API_REST-CLIENT_CONNECT-TIMEOUT: ${API_REST_CLIENT_CONNECT_TIMEOUT:-3000}
+      API_REST-CLIENT_READ-TIMEOUT: ${API_REST_CLIENT_READ_TIMEOUT:-3000}
+
     healthcheck:
       # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
