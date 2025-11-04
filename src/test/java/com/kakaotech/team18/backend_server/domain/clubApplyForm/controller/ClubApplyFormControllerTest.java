@@ -71,8 +71,6 @@ class ClubApplyFormControllerTest {
         UserClubApplyFormResponseDto mockResponse = UserClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
-                LocalDateTime.of(2024, 9, 1, 0, 0),
-                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 

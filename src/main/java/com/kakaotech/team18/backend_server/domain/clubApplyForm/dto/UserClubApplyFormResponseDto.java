@@ -3,7 +3,6 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.dto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Schema(description = "지원서 양식 조회 응답 데이터")
@@ -18,13 +17,8 @@ public record UserClubApplyFormResponseDto(
     public static UserClubApplyFormResponseDto of(
             String title,
             String description,
-            LocalDateTime recruitStart,
-            LocalDateTime recruitEnd,
             List<UserFormQuestionResponseDto> questions
     ) {
-        String recruitDate = (recruitStart != null && recruitEnd != null)
-                ? String.format("%s ~ %s", recruitStart.toLocalDate(), recruitEnd.toLocalDate())
-                : null;
         return new UserClubApplyFormResponseDto(title, description, questions);
     }
 }
