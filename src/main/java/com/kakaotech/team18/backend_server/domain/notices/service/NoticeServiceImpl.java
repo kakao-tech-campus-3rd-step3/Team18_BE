@@ -49,7 +49,7 @@ public class NoticeServiceImpl implements NoticeService {
             ClubMemberRepository clubMemberRepository,
             FileDataRepository fileDataRepository,
             S3Presigner presigner,
-            @Value("${cloud.aws.s3.bucket}") String bucketName
+            @Value("${cloud.aws.s3.bucket-attachments}") String bucketName
             ){
         this.noticeRepository = noticeRepository;
         this.clubMemberRepository = clubMemberRepository;
