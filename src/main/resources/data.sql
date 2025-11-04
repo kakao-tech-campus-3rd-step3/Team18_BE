@@ -70,7 +70,6 @@ VALUES
     (10065,'user65@example.com','홍길동65','20250065','010-0000-0065','Civil Engineering'),
     (10066,'user66@example.com','홍길동66','20250066','010-0000-0066','Architecture'),
     (10067,'user67@example.com','홍길동67','20250067','010-0000-0067','Korean Literature');
-
 -- =========================
 -- 2) CLUB_INTRODUCTION (20)
 -- =========================
@@ -634,7 +633,10 @@ VALUES
     (64, 1, 'ACTIVE', 64, 'APPLICANT'),
     (65, 3, 'ACTIVE', 65, 'APPLICANT'),
     (66, 3, 'ACTIVE', 66, 'APPLICANT'),
-    (67, 3, 'ACTIVE', 67, 'APPLICANT');
+    (67, 3, 'ACTIVE', 67, 'APPLICANT'),
+    (68, 1, 'ACTIVE', null, 'CLUB_ADMIN'),
+    (68, 3, 'ACTIVE', null, 'CLUB_ADMIN'),
+    (68, 5, 'ACTIVE', null, 'CLUB_ADMIN');
 
 -- =========================
 -- 11) NOTIFICATION (20) — club i

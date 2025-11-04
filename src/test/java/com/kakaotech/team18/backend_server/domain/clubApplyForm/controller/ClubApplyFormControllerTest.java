@@ -66,8 +66,8 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_success() throws Exception {
         // given
         Long clubId = 1L;
-        UserFormQuestionResponseDto question1 = new UserFormQuestionResponseDto(1L,"이름", FieldType.TEXT,  true, null, 1L,null);
-        UserFormQuestionResponseDto question2 = new UserFormQuestionResponseDto(2L, "성별", FieldType.RADIO,  true, List.of("남", "여"), 2L,null);
+        UserFormQuestionResponseDto question1 = new UserFormQuestionResponseDto(1L, FieldType.TEXT,  "이름",true, null, null);
+        UserFormQuestionResponseDto question2 = new UserFormQuestionResponseDto(2L, FieldType.RADIO,  "성별", true, List.of("남", "여"), null);
         UserClubApplyFormResponseDto mockResponse = UserClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
@@ -86,7 +86,6 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
                 .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
                 .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
-                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
                 .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
         verify(clubApplyFormService, times(1)).getUserQuestionForm(clubId);
