@@ -12,6 +12,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
@@ -60,9 +62,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String token = null; // try-catch 블록 밖에서 token 변수 선언
         try {
             // 3. "Bearer " 접두사를 제거하고 순수한 토큰을 추출한다.
-            String token = jwtProvider.extractToken(bearerToken);
+            token = jwtProvider.extractToken(bearerToken);
 
             // 블랙리스트 확인
             ValueOperations<String, String> values = redisTemplate.opsForValue();
@@ -97,21 +100,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 7. SecurityContextHolder에 Authentication 객체를 저장한다.
             // 이 작업이 완료되면, 해당 요청은 '인증된' 것으로 간주된다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("인증 성공: userId='{}', uri='{}'", userDetails.getUsername(), request.getRequestURI()); // 인증 성공 로그
 
         } catch (SignatureException e) {
+            log.warn("유효하지 않은 JWT 서명입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.INVALID_JWT_SIGNATURE));
             return;
         } catch (MalformedJwtException e) {
+            log.warn("손상된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
             return;
         } catch (ExpiredJwtException e) {
+            log.warn("만료된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
             // Access Token이 만료된 경우, ExpiredAccessTokenException 커스텀 예외를 발생시켜 401 에러를 응답합니다.
             resolver.resolveException(request, response, null, new ExpiredAccessTokenException());
             return;
         } catch (UnsupportedJwtException e) {
+            log.warn("지원하지 않는 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
             return;
         } catch (IllegalArgumentException e) {
+            log.warn("JWT 클레임이 비어있습니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.ILLEGAL_ARGUMENT_JWT));
             return;
         }
