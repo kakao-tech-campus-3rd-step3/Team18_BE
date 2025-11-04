@@ -181,7 +181,6 @@ jobs:
             '${{ secrets.S3_BUCKET }}' \
             '${{ secrets.S3_BUCKET_ATTACHMENTS }}' \
             '${{ secrets.S3_REGION }}' \
-            '${{ secrets.REDIS_PORT }}' \
             '${{ secrets.API_REST_CLIENT_CONNECT_TIMEOUT }}' \
             '${{ secrets.API_REST_CLIENT_READ_TIMEOUT }}' > "$tmp_env"
             install -m 600 "$tmp_env" ${{ env.REMOTE_DIR }}/shared/.env
