@@ -2,7 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
@@ -45,7 +46,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             join fetch cm.application a
             join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.status = :status
-
             """)
     List<ClubMember> findByClubIdAndRoleAndApplicationStatus(Long clubId, Role role, Status status);
 
@@ -55,7 +55,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
             join fetch cm.application a
             join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.status = :status and a.stage = :stage
-
             """)
     List<ClubMember> findByClubIdAndRoleAndApplicationStatusAndStage(Long clubId, Role role, Status status, Stage stage);
 
@@ -72,14 +71,18 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
 
 
     @Query("""
-        select new com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubIdAndRoleInfoDto(cm.club.id, cm.role)
+        select new com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto(cm.club.id, cm.club.name,cm.role)
         from ClubMember cm
         join cm.club
         where cm.user = :user
         """)
-    List<ClubIdAndRoleInfoDto> findClubIdAndRoleByUser(User user);
+    List<ClubListInfoDto> findClubListInfoByUser(User user);
 
     List<ClubMember> findByUser(User user);
 
     Optional<ClubMember> findByClubIdAndUserStudentId(Long clubId, String studentId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("update ClubMember cm set cm.application = null where cm.application.id = :applicationId")
+    int clearApplicationByApplicationId(Long applicationId);
 }

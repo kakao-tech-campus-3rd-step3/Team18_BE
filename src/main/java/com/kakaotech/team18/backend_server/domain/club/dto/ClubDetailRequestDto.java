@@ -30,9 +30,6 @@ public record ClubDetailRequestDto(
         @NotBlank(message = "한 줄 소개는 필수입니다.")
         String shortIntroduction,
 
-        @Schema(description = "등록/수정할 동아리 소개 이미지 URL 목록")
-        List<String> introductionImages,
-
         @Schema(description = "등록/수정할 동아리 소개 (개요)", example = "저희는 스프링부트와 리액트를 공부하는 스터디 동아리입니다...")
         @NotBlank(message = "소개 개요는 필수입니다.")
         String introductionOverview,

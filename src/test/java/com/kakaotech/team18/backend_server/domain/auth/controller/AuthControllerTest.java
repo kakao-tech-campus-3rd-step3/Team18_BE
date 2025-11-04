@@ -8,6 +8,8 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.service.AuthService;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
@@ -190,5 +192,22 @@ class AuthControllerTest {
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isInternalServerError()) // 500 응답 확인
                 .andExpect(jsonPath("$.message").value(ErrorCode.KAKAO_API_ERROR.getMessage())); // 에러 메시지 확인
+    }
+
+    @DisplayName("Access Token 재발급 실패 - Refresh Token 만료")
+    @Test
+    void reissue_fail_expiredRefreshToken() throws Exception {
+        // given
+        String expiredRefreshToken = "expiredMockRefreshToken";
+        // authService.reissue가 CustomException(EXPIRED_REFRESH_TOKEN)을 던지도록 설정
+        given(authService.reissue(expiredRefreshToken))
+                .willThrow(new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN));
+
+
+        // when & then
+        mockMvc.perform(post("/api/auth/reissue")
+                        .cookie(new Cookie("refreshToken", expiredRefreshToken)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.error_code").value("EXPIRED_REFRESH_TOKEN"));
     }
 }

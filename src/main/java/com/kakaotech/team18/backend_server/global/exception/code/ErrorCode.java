@@ -32,16 +32,20 @@ public enum ErrorCode {
     PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE("잘못된 파일 형식입니다.", HttpStatus.BAD_REQUEST),
+    TOO_LARGE_FILE("업로드 하려는 파일 크기가 너무 큽니다", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
-    EXPIRED_JWT_TOKEN("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_ACCESS_TOKEN("만료된 Access Token입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_REFRESH_TOKEN("만료된 Refresh Token입니다. 다시 로그인해주세요.", HttpStatus.UNAUTHORIZED),
     MALFORMED_JWT("잘못된 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_SIGNATURE("토큰의 서명이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_JWT("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     NOT_REFRESH_TOKEN("Refresh Token이 아닙니다.", HttpStatus.UNAUTHORIZED),
     LOGGED_OUT_USER("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지 않은 Refresh Token입니다.", HttpStatus.UNAUTHORIZED),
+    BLACKLISTED_TOKEN("로그아웃 처리된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음
@@ -60,6 +64,7 @@ public enum ErrorCode {
     PRESIDENT_NOT_FOUND("해당 동아리의 회장이 없습니다.", HttpStatus.NOT_FOUND),
     STATUS_NOT_FOUND("해당 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     NOTICE_NOT_FOUND("해당 공지사항을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    FILE_NOT_FOUND("해당 파일을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),
@@ -71,6 +76,8 @@ public enum ErrorCode {
     // 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
     INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    IO_EXCEPTION("파일 입출력 실패.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AWS_EXCEPTION("AWS 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
     KAKAO_API_ERROR("카카오 API 연동 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도

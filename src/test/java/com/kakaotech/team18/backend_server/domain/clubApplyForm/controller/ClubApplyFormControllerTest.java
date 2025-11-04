@@ -14,19 +14,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
-import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -64,15 +66,17 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_success() throws Exception {
         // given
         Long clubId = 1L;
-        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L,1L, FieldType.TEXT, "이름", true, null, null);
-        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, 2L, FieldType.RADIO, "성별", true, List.of("남", "여"), null);
-        ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
+        UserFormQuestionResponseDto question1 = new UserFormQuestionResponseDto(1L,"이름", FieldType.TEXT,  true, null, 1L,null);
+        UserFormQuestionResponseDto question2 = new UserFormQuestionResponseDto(2L, "성별", FieldType.RADIO,  true, List.of("남", "여"), 2L,null);
+        UserClubApplyFormResponseDto mockResponse = UserClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
+                LocalDateTime.of(2024, 9, 1, 0, 0),
+                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 
-        when(clubApplyFormService.getQuestionForm(clubId)).thenReturn(mockResponse);
+        when(clubApplyFormService.getUserQuestionForm(clubId)).thenReturn(mockResponse);
 
         // when & then
         mockMvc.perform(get("/api/clubs/{clubId}/apply", clubId))
@@ -80,11 +84,12 @@ class ClubApplyFormControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
-                .andExpect(jsonPath("$.questions[0].question").value("이름"))
-                .andExpect(jsonPath("$.questions[1].question").value("성별"))
-                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+                .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
+                .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
+                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
+                .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
-        verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
+        verify(clubApplyFormService, times(1)).getUserQuestionForm(clubId);
     }
     @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 성공")
     @Test
@@ -96,6 +101,8 @@ class ClubApplyFormControllerTest {
         ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
+                LocalDateTime.of(2024, 9, 1, 0, 0),
+                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 
@@ -107,9 +114,10 @@ class ClubApplyFormControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("테스트 동아리 지원서"))
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
-                .andExpect(jsonPath("$.questions[0].question").value("이름"))
-                .andExpect(jsonPath("$.questions[1].question").value("성별"))
-                .andExpect(jsonPath("$.questions[1].optionList[0]").value("남"));
+                .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
+                .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
+                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
+                .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
         verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
     }
@@ -119,7 +127,7 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_notFound() throws Exception {
         // given
         Long clubId = 999L;
-        when(clubApplyFormService.getQuestionForm(clubId))
+        when(clubApplyFormService.getUserQuestionForm(clubId))
                 .thenThrow(new ClubApplyFormNotFoundException("clubId = " + clubId));
 
         // when & then
@@ -127,7 +135,7 @@ class ClubApplyFormControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
+        verify(clubApplyFormService, times(1)).getUserQuestionForm(clubId);
     }
     @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 지원서 양식 없음")
     @Test
@@ -153,8 +161,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto clubApplyFormRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
                 );
 
@@ -180,8 +187,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto clubApplyFormRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -205,8 +211,7 @@ class ClubApplyFormControllerTest {
         Long clubId = 1L;
         // question 필드가 blank인 경우
         ClubApplyFormRequestDto clubApplyFormRequestDto = new ClubApplyFormRequestDto("테스트 지원서", "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("", FieldType.TEXT, true, 1L, null, null)));
 
         //when & then
@@ -228,8 +233,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
         );
 
@@ -249,8 +253,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
                 "설명",
-                LocalDateTime.of(2025, 10, 31, 0, 0),
-                LocalDateTime.of(2025, 10, 1, 23, 59),
+                "2025-10-31 ~ 2025-10-01",
                 List.of(new FormQuestionRequestDto("면접 가능한 시간대를 선택해 주세요.", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -270,8 +273,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "테스트 지원서",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
         );
 
@@ -291,8 +293,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "", // Blank title
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -312,8 +313,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "제목",
                 "", // Blank description
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -334,8 +334,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 longTitle,
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -356,8 +355,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "제목",
                 longDescription,
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -377,8 +375,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "제목",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto("", FieldType.TEXT, true, 1L, null, null)) // Blank question
         );
 
@@ -399,8 +396,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormRequestDto invalidRequestDto = new ClubApplyFormRequestDto(
                 "제목",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionRequestDto(longQuestion, FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -421,8 +417,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
@@ -447,8 +442,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
@@ -474,8 +468,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto clubApplyFormUpdateDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "테스트 설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)));
 
         //when & then
@@ -497,8 +490,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
         );
 
@@ -518,8 +510,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
         );
 
@@ -539,8 +530,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "", // Blank title
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -560,8 +550,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "제목",
                 "", // Blank description
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -582,8 +571,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 longTitle,
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -604,8 +592,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "제목",
                 longDescription,
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -625,8 +612,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "제목",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)) // Blank question
         );
 
@@ -647,8 +633,7 @@ class ClubApplyFormControllerTest {
         ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
                 "제목",
                 "설명",
-                LocalDateTime.of(2025, 10, 1, 0, 0),
-                LocalDateTime.of(2025, 10, 31, 23, 59),
+                "2025-10-01 ~ 2025-10-31",
                 List.of(new FormQuestionUpdateDto(1L, longQuestion, FieldType.TEXT, true, 1L, null, null))
         );
 

@@ -13,34 +13,43 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Slf4j
-@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
     private final HandlerExceptionResolver resolver;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // Qualifier 를 이용하기 위해서 RequiredArgsConstructor 사용 X
-    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, RedisTemplate<String, String> redisTemplate) {
         this.jwtProvider = jwtProvider;
         this.principalDetailsService = principalDetailsService;
         this.resolver = resolver;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        // 요청 URI를 확인하여 /api/auth/reissue 경로의 요청은 필터를 그냥 통과시킨다.
+        String requestURI = request.getRequestURI();
+        if (requestURI.equals("/api/auth/reissue")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 1. 헤더에서 "Authorization" 값을 가져온다.
         String bearerToken = request.getHeader("Authorization");
@@ -56,6 +65,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             // 3. "Bearer " 접두사를 제거하고 순수한 토큰을 추출한다.
             token = jwtProvider.extractToken(bearerToken);
+
+            // 블랙리스트 확인
+            ValueOperations<String, String> values = redisTemplate.opsForValue();
+            if (values.get("blacklist:" + token) != null) {
+                // 블랙리스트에 존재하면, 로그아웃된 토큰으로 간주하고 예외를 발생시켜 요청을 차단합니다.
+                resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.BLACKLISTED_TOKEN));
+                return; // 필터 체인 진행을 중단합니다.
+            }
 
             // 4. 토큰 유효성 검증 및 클레임 추출
             Claims claims = jwtProvider.verify(token);

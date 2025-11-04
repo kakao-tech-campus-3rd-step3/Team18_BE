@@ -3,31 +3,60 @@ package com.kakaotech.team18.backend_server.domain.notices.service;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.domain.files.entity.File;
+import com.kakaotech.team18.backend_server.domain.files.repository.FileDataRepository;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticePageResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.entity.Notice;
 import com.kakaotech.team18.backend_server.domain.notices.repository.NoticeRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.FileNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoticeNotFoundException;
-import lombok.RequiredArgsConstructor;
+
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestClient;
 
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final ClubMemberRepository clubMemberRepository;
-    private final RestClient.Builder builder;
+    private final FileDataRepository  fileDataRepository;
+    private final String bucketName;
+    private final S3Presigner presigner;
+
+    public NoticeServiceImpl(
+            NoticeRepository noticeRepository,
+            ClubMemberRepository clubMemberRepository,
+            FileDataRepository fileDataRepository,
+            S3Presigner presigner,
+            @Value("${cloud.aws.s3.bucket-attachments}") String bucketName
+            ){
+        this.noticeRepository = noticeRepository;
+        this.clubMemberRepository = clubMemberRepository;
+        this.fileDataRepository = fileDataRepository;
+        this.presigner = presigner;
+        this.bucketName = bucketName;
+    }
 
     @Override
     @Transactional(readOnly = true)
@@ -84,8 +113,33 @@ public class NoticeServiceImpl implements NoticeService {
                 .map(cm -> cm.getUser().getEmail())
                 .orElse("jnupole004@gmail.com");
 
-        //TODO 실제 첨부파일 로직으로 대체 필요
-        String attachFile = "temp.txt";
+        List<File> fileList = fileDataRepository.findAllByNoticeId(noticeId);
+        List<NoticeResponseDto.FileDetail> fileDetailList = new ArrayList<>();
+
+        for(File file:fileList) {
+
+            String objectKey = extractObjectKeyFromUri(file.getObjectUri(), bucketName);
+
+            GetObjectRequest getReq = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .responseContentDisposition(contentDispositionAttachment(file.getName()))
+                    .build();
+
+            GetObjectPresignRequest presignReq = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofDays(7)) // 제출까지 테스트 가능하게 하기위해 30일 ,TODO 나중에 수정 필요
+                    .getObjectRequest(getReq)
+                    .build();
+
+            String presignedUrl = presigner.presignGetObject(presignReq).url().toString();
+
+            fileDetailList.add(new NoticeResponseDto.FileDetail(
+                    file.getId(),
+                    file.getName(),
+                    presignedUrl,
+                    file.getObjectUri()
+            ));
+        }
 
         return new NoticeResponseDto(
                 n.getId(),
@@ -94,7 +148,32 @@ public class NoticeServiceImpl implements NoticeService {
                 n.getCreatedAt(),
                 authorName,
                 authorEmail,
-                attachFile
+                fileDetailList
         );
+    }
+    private static String contentDispositionAttachment(String filename) {
+        // 1) 브라우저 호환용 ASCII 대체 이름(간단히 공백/한글 제거 또는 기본값)
+        String asciiFallback = "download";
+
+        // 2) RFC 5987 방식 UTF-8 인코딩 (공백은 %20로)
+        String encoded = java.net.URLEncoder.encode(filename, StandardCharsets.UTF_8)
+                .replace("+", "%20");
+
+        // 3) Content-Disposition 조합
+        return "attachment; filename=\"" + asciiFallback + "\"; filename*=UTF-8''" + encoded;
+    }
+
+    private static String extractObjectKeyFromUri(String objectUri, String bucketName) {
+
+        // 예: https://dongarium.s3.ap-northeast-2.amazonaws.com/attachments/%5B...%5D+...hwp
+        // → path: /attachments/%5B...%5D+...hwp
+        URI uri = URI.create(objectUri);
+
+        String rawPath = uri.getRawPath(); // 인코딩된 상태의 path
+
+        // 맨 앞의 '/' 제거
+        String encodedKey = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
+
+        return java.net.URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
     }
 }

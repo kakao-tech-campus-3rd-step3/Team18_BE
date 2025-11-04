@@ -1,9 +1,11 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
@@ -18,6 +20,8 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubA
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,12 +41,35 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final ClubRepository clubRepository;
 
     @Transactional(readOnly = true)
+    public UserClubApplyFormResponseDto getUserQuestionForm(Long clubId){
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                    log.warn("ClubApplyForm not found for clubId: {}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
+        Club club = findClub(clubId);
+
+        Long formId = clubApplyForm.getId();
+        String title = clubApplyForm.getTitle();
+        String description = clubApplyForm.getDescription();
+
+        List<UserFormQuestionResponseDto> questions =
+                formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId)
+                        .stream()
+                        .map(UserFormQuestionResponseDto::from)
+                        .toList();
+
+        return UserClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), questions);
+    }
+
+    @Transactional(readOnly = true)
     public ClubApplyFormResponseDto getQuestionForm(Long clubId){
         ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
                 });
+        Club club = findClub(clubId);
 
         Long formId = clubApplyForm.getId();
         String title = clubApplyForm.getTitle();
@@ -54,7 +81,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                         .map(FormQuestionResponseDto::from)
                         .toList();
 
-        return ClubApplyFormResponseDto.of(title, description, questions);
+        return ClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), questions);
     }
 
     @Override
@@ -65,7 +92,8 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         ClubApplyForm savedClubApplyForm = clubApplyFormRepository.save(clubApplyForm);
         log.info("Saved ClubApplyFormId: {}", savedClubApplyForm.getId());
 
-        findClub.updateRecruitDate(request.recruitStart(), request.recruitEnd());
+        LocalDateTime[] recruitDates = changeToDate(request.recruitDate());
+        findClub.updateRecruitDate(recruitDates[0], recruitDates[1]);
 
         request.formQuestions().forEach(formQuestionRequestDto -> {
             FormQuestion formQuestion = createFormQuestion(formQuestionRequestDto, savedClubApplyForm);
@@ -83,8 +111,8 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + findClub.getId());
                 });
-
-        findClub.updateRecruitDate(request.recruitStart(), request.recruitEnd());
+        LocalDateTime[] recruitDates = changeToDate(request.recruitDate());
+        findClub.updateRecruitDate(recruitDates[0], recruitDates[1]);
         findClubApplyForm.update(request.title(), request.description());
         //기존 FormQuestion 찾아서 Map에 등록
         Map<Long, FormQuestion> existingMap = formQuestionRepository.findByClubApplyForm(
@@ -169,5 +197,21 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
 
     private boolean isTimeSlot(FormQuestionBaseDto dto) {
         return dto.fieldType() == FieldType.TIME_SLOT;
+    }
+
+    private LocalDateTime[] changeToDate(String recruitDate) {
+        String[] recruitDates = recruitDate.replaceAll("\\s+", "").split("~");
+
+        // 날짜 형식 지정 (yyyy-MM-dd)
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        // 문자열 → LocalDate 변환
+        LocalDate startDate = LocalDate.parse(recruitDates[0], formatter);
+        LocalDate endDate = LocalDate.parse(recruitDates[1], formatter);
+
+        LocalDateTime recruitStart = startDate.atStartOfDay();
+        LocalDateTime recruitEnd = endDate.atTime(23, 59, 59);
+
+        return new LocalDateTime[]{recruitStart, recruitEnd};
     }
 }

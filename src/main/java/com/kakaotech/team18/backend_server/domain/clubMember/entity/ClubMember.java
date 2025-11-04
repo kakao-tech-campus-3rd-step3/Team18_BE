@@ -32,7 +32,7 @@ public class ClubMember extends BaseEntity {
     @Column(name = "active_status", nullable = false)
     private ActiveStatus activeStatus;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "application_id")
     private Application application;
 

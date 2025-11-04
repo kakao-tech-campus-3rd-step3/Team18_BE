@@ -22,6 +22,7 @@ import java.security.Key;
 import java.util.Date;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -56,10 +57,11 @@ class JwtAuthenticationFilterTest {
         userRepository.save(testUser);
     }
 
-    @DisplayName("만료된 토큰으로 요청 시 401 응답을 반환한다")
+    @DisplayName("만료된 토큰으로 재발급 요청 시, 필터를 통과하여 컨트롤러에 도달한다")
     @Test
-    void doFilterInternal_with_expired_token_returns_401() throws Exception {
+    void doFilterInternal_should_pass_when_token_is_expired_for_reissue() throws Exception {
         // given
+        // 일부러 만료된 토큰을 생성. 필터가 만료 예외를 잡지 않고 통과시키는지 확인하기 위함.
         Date now = new Date();
         Date expiredValidity = new Date(now.getTime() - 10000); // 10초 전에 만료된 시간
         Key key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
@@ -68,21 +70,22 @@ class JwtAuthenticationFilterTest {
                 .setSubject(testUser.getId().toString())
                 .claim("tokenType", "ACCESS")
                 .setIssuedAt(now)
-                .setExpiration(expiredValidity) // 만료 시간을 직접 설정
+                .setExpiration(expiredValidity)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
 
         // when
+        // 만료된 토큰을 헤더에 담아 /api/auth/reissue 로 요청
         ResultActions resultActions = mockMvc.perform(
-                get("/api/clubs")
+                post("/api/auth/reissue")
                         .header("Authorization", "Bearer " + expiredToken)
         );
 
         // then
-        resultActions
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.message").value(ErrorCode.EXPIRED_JWT_TOKEN.getMessage()))
-                .andDo(print());
+        // JwtAuthenticationFilter가 만료된 토큰을 통과시켰다면, 요청은 컨트롤러까지 도달한다.
+        // 컨트롤러에서는 @CookieValue에 refreshToken이 없으므로 400 Bad Request를 반환한다.
+        // 만약 필터가 요청을 막았다면 401 Unauthorized가 반환될 것이다.
+        resultActions.andExpect(status().isBadRequest());
     }
 
     @DisplayName("잘못된 서명의 토큰으로 요청 시 401 응답을 반환한다")
@@ -120,6 +123,39 @@ class JwtAuthenticationFilterTest {
         resultActions
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.message").value(ErrorCode.MALFORMED_JWT.getMessage()))
+                .andDo(print());
+    }
+
+    @DisplayName("인증 필터 무시 - /api/auth/reissue 경로")
+    @Test
+    void doFilterInternal_should_ignore_reissue_path() throws Exception {
+        // given
+        // 일부러 만료된 토큰을 생성. 필터가 동작한다면 이 토큰 때문에 401이 발생할 것.
+        Date now = new Date();
+        Date expiredValidity = new Date(now.getTime() - 10000); // 10초 전에 만료된 시간
+        Key key = Keys.hmacShaKeyFor(jwtProperties.secret().getBytes(StandardCharsets.UTF_8));
+
+        String expiredToken = Jwts.builder()
+                .setSubject(testUser.getId().toString())
+                .claim("tokenType", "ACCESS")
+                .setIssuedAt(now)
+                .setExpiration(expiredValidity)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+
+        // when
+        // 만료된 토큰을 헤더에 담아 /api/auth/reissue 로 요청
+        ResultActions resultActions = mockMvc.perform(
+                post("/api/auth/reissue")
+                        .header("Authorization", "Bearer " + expiredToken)
+        );
+
+        // then
+        // JwtAuthenticationFilter가 무시되었다면, 요청은 컨트롤러까지 도달한다.
+        // 컨트롤러에서는 @CookieValue에 refreshToken이 없으므로 400 Bad Request를 반환한다.
+        // 만약 필터가 동작했다면 401 Unauthorized가 반환될 것이다.
+        resultActions
+                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 
