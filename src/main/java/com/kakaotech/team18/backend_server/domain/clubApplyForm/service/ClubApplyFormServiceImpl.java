@@ -59,7 +59,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                         .map(UserFormQuestionResponseDto::from)
                         .toList();
 
-        return UserClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), questions);
+        return UserClubApplyFormResponseDto.of(title, description, questions);
     }
 
     @Transactional(readOnly = true)
