@@ -111,7 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         } catch (ExpiredJwtException e) {
             log.warn("만료된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
-            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_JWT_TOKEN));
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.EXPIRED_ACCESS_TOKEN));
             return;
         } catch (UnsupportedJwtException e) {
             log.warn("지원하지 않는 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
