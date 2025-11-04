@@ -58,6 +58,7 @@ dependencies {
     // 재시도 처리를 위함(@EnableRetry, @Retryable, @Recover)
     implementation "org.springframework.retry:spring-retry"
 
+
     // Spring Security OAuth2 Client 추가
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
@@ -81,6 +82,10 @@ dependencies {
     //Test Container
     testImplementation 'org.testcontainers:junit-jupiter:1.20.3'
     testImplementation 'org.testcontainers:localstack:1.20.3'
+
+    //Logback 로그를 Discord Webhook으로 전송해주는 전용 Appender 라이브러리
+    implementation 'com.github.napstr:logback-discord-appender:1.0.0'
+
 }
 
 tasks.named('test') {
