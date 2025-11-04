@@ -62,6 +62,8 @@ jobs:
           FRONTEND_MAIN_PAGE_URI_TEST: ${{ secrets.FRONTEND_MAIN_PAGE_URI_TEST }}
           AWS_ACCESS_KEY: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          S3_BUCKET: ${{secrets.S3_BUCKET}}
+          S3_BUCKET_ATTACHMENTS: ${{secrets.S3_BUCKET_ATTACHMENTS}}
 
         run: |
           mkdir -p ./src/main/resources
@@ -136,8 +138,8 @@ jobs:
                 access-key: ${AWS_ACCESS_KEY}
                 secret-key: ${AWS_SECRET_KEY}
               s3:
-                bucket: dongarium
-                bucket-attachments:dongarium
+                bucket: ${S3_BUCKET}
+                bucket-attachments: ${S3_BUCKET_ATTACHMENTS}
               region:
                 static: ap-northeast-2
           YAML
