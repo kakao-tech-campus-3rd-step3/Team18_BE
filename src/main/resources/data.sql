@@ -633,10 +633,7 @@ VALUES
     (64, 1, 'ACTIVE', 64, 'APPLICANT'),
     (65, 3, 'ACTIVE', 65, 'APPLICANT'),
     (66, 3, 'ACTIVE', 66, 'APPLICANT'),
-    (67, 3, 'ACTIVE', 67, 'APPLICANT'),
-    (68, 1, 'ACTIVE', null, 'CLUB_ADMIN'),
-    (68, 3, 'ACTIVE', null, 'CLUB_ADMIN'),
-    (68, 5, 'ACTIVE', null, 'CLUB_ADMIN');
+    (67, 3, 'ACTIVE', 67, 'APPLICANT');
 
 -- =========================
 -- 11) NOTIFICATION (20) — club i
