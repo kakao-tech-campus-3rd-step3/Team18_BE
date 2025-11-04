@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredAccessTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidJwtException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -104,11 +105,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
             return;
         } catch (ExpiredJwtException e) {
-            // Access Token이 만료된 경우, 일단 통과시킨다.
-            // reissue 요청은 컨트롤러에서 Refresh Token의 유효성을 검증하여 처리할 것이고,
-            // 다른 일반 요청은 SecurityContext에 인증 정보가 없으므로 뒤따르는 필터에서 차단될 것이다.
-            filterChain.doFilter(request, response);
-            return; // 다음 로직을 타지 않도록 여기서 필터 실행을 종료합니다.
+            // Access Token이 만료된 경우, ExpiredAccessTokenException 커스텀 예외를 발생시켜 401 에러를 응답합니다.
+            resolver.resolveException(request, response, null, new ExpiredAccessTokenException());
+            return;
         } catch (UnsupportedJwtException e) {
             resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
             return;
