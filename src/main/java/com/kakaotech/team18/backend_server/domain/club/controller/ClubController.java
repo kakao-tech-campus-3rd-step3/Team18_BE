@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -82,7 +81,7 @@ public class ClubController{
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
-    @PatchMapping("/{clubId}/images")
+    @PostMapping("/{clubId}/images")
     public ResponseEntity<SuccessResponseDto> updateClubImages(
             @PathVariable Long clubId,
             @RequestPart("keepImageIds") String keepImageIdsJson,

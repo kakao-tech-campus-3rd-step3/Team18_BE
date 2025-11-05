@@ -96,7 +96,7 @@ public class ClubRestClientTest {
         body.add("keepImageIds", keepIdsResource);
 
         // when
-        var response = restClient.patch()
+        var response = restClient.post()
                 .uri("/api/clubs/1/images")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
