@@ -26,38 +26,46 @@ public enum ErrorCode {
 
     // 400 BAD_REQUEST: 잘못된 요청
     INVALID_INPUT_VALUE("입력 값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    REQUIRED_COOKIE_NOT_FOUND("필수 쿠키가 요청에 포함되지 않았습니다.", HttpStatus.BAD_REQUEST),
     INVALID_RATING_UNIT("별점은 0.5 단위로만 입력 가능합니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
     PENDING_APPLICATION_EXIST("미처리 지원서가 존재합니다. 모든 지원서를 승인/거절로 확정한 뒤 발송하세요.", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_MESSAGE("이메일 메시지 구성 오류", HttpStatus.BAD_REQUEST),
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
+    INVALID_FILE("잘못된 파일 형식입니다.", HttpStatus.BAD_REQUEST),
+    TOO_LARGE_FILE("업로드 하려는 파일 크기가 너무 큽니다", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
-    EXPIRED_JWT_TOKEN("만료된 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_ACCESS_TOKEN("만료된 Access Token입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_REFRESH_TOKEN("만료된 Refresh Token입니다. 다시 로그인해주세요.", HttpStatus.UNAUTHORIZED),
     MALFORMED_JWT("잘못된 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_JWT_SIGNATURE("토큰의 서명이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
     UNSUPPORTED_JWT("지원하지 않는 형식의 토큰입니다.", HttpStatus.UNAUTHORIZED),
     NOT_REFRESH_TOKEN("Refresh Token이 아닙니다.", HttpStatus.UNAUTHORIZED),
     LOGGED_OUT_USER("로그아웃된 사용자입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지 않은 Refresh Token입니다.", HttpStatus.UNAUTHORIZED),
+    BLACKLISTED_TOKEN("로그아웃 처리된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     EMAIL_AUTH_FAILED("SMTP 인증 실패", HttpStatus.UNAUTHORIZED),
 
     // 403 FORBIDDEN: 권한 없음
     FORBIDDEN("해당 요청에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
     COMMENT_ACCESS_DENIED("해당 댓글에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     EMAIL_POLICY_REJECTED   ("Gmail 정책/스팸/DMARC 거부", HttpStatus.FORBIDDEN),
+    UNREGISTERED_USER("동아리에 가입되지 않은 유저입니다.", HttpStatus.FORBIDDEN),
 
     // 404 NOT_FOUND: 리소스를 찾을 수 없음
     USER_NOT_FOUND("해당 유저가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     CLUB_NOT_FOUND("해당 동아리가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    CLUB_MEMBER_NOT_FOUND("해당 클럽멤버 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    CLUB_MEMBER_NOT_FOUND("해당 클럽멤버가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     FORM_NOT_FOUND("지원폼이 존재하지 않습니다", HttpStatus.NOT_FOUND),
     APPLICATION_NOT_FOUND("해당 지원서를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     COMMENT_NOT_FOUND("해당 댓글을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     PRESIDENT_NOT_FOUND("해당 동아리의 회장이 없습니다.", HttpStatus.NOT_FOUND),
     STATUS_NOT_FOUND("해당 상태를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    NOTICE_NOT_FOUND("해당 공지사항을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
+    FILE_NOT_FOUND("해당 파일을 찾을 수 없습니다", HttpStatus.NOT_FOUND),
 
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),
@@ -69,6 +77,9 @@ public enum ErrorCode {
     // 500 INTERNAL_SERVER_ERROR: 서버 내부 에러
     INTERNAL_SERVER_ERROR("서버 내부에 문제가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    IO_EXCEPTION("파일 입출력 실패.", HttpStatus.INTERNAL_SERVER_ERROR),
+    AWS_EXCEPTION("AWS 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
+    KAKAO_API_ERROR("카카오 API 연동 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도
     EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),

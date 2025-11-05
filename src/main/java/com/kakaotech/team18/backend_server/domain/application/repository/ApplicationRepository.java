@@ -7,6 +7,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import jakarta.persistence.LockModeType;
 import java.util.List;
 
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

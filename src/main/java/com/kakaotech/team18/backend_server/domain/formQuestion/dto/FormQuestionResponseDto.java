@@ -15,13 +15,13 @@ public record FormQuestionResponseDto(
         Long questionNum,
 
         @Schema(description = "질문 유형", example = "CHECK_BOX")
-        FieldType questionType,
+        FieldType fieldType,
 
         @Schema(description = "질문 내용", example = "가장 자신 있는 프로그래밍 언어는 무엇인가요?")
         String question,
 
         @Schema(description = "필수 응답 여부", example = "true")
-        Boolean required,
+        Boolean isRequired,
 
         @Schema(description = "선택지 목록 (객관식, 체크박스 유형일 경우에만 존재)", example = "[\"JAVA\", \"C\", \"C++\"]")
         List<String> optionList,

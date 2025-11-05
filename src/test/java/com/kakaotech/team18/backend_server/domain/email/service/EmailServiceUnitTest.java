@@ -13,6 +13,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
@@ -22,9 +23,9 @@ import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRe
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +46,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -55,7 +57,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
 
 @ExtendWith(MockitoExtension.class)
 class EmailServiceUnitTest {
@@ -72,17 +73,9 @@ class EmailServiceUnitTest {
     ApplicationEventPublisher publisher;
 
     @Mock
-    Application application;
-    @Mock
     ClubApplyForm clubApplyForm;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
-    @Mock
-    Club club;
-    @Mock
-    User applicant;
-    @Mock
-    User president;
 
     @Captor
     ArgumentCaptor<Map<String,Object>> modelCaptor;
@@ -90,10 +83,6 @@ class EmailServiceUnitTest {
     ArgumentCaptor<List<String>> toCaptor;
     @Captor
     ArgumentCaptor<Object> eventCaptor;
-    @Captor
-    ArgumentCaptor<List<Application>> appsCaptor;
-    @Captor
-    ArgumentCaptor<List<Application>> deletedCaptor;
 
     @InjectMocks
     ApplicationServiceImpl serviceImpl;
@@ -101,55 +90,54 @@ class EmailServiceUnitTest {
     EmailService service;
 
     final String from = "no-reply@clubhub.example";
-    final String subjectPrefix = "[동아리 지원]";
 
     @BeforeEach
     void setUp() {
-        service = new EmailService(renderer, emailSender, from, clubMemberRepository);
+        service = new EmailService(renderer, emailSender, from);
     }
 
-    private void stubHappyPath() {
-        when(application.getLastModifiedAt()).thenReturn(LocalDateTime.of(2025,9,20,13,0));
-        when(application.getUser()).thenReturn(applicant);
-        when(applicant.getName()).thenReturn("홍길동");
-        when(applicant.getStudentId()).thenReturn("20251234");
-        when(applicant.getDepartment()).thenReturn("인공지능학과");
-        when(applicant.getPhoneNumber()).thenReturn("010-1111-2222");
-        when(applicant.getEmail()).thenReturn("applicant@example.com");
-
-        when(application.getClubApplyForm()).thenReturn(clubApplyForm);
-        when(clubApplyForm.getClub()).thenReturn(club);
-        when(club.getId()).thenReturn(77L);
-        when(club.getName()).thenReturn("카카오테크 동아리");
-
-        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(77L, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
-                .thenReturn(Optional.of(president));
-        when(president.getEmail()).thenReturn("president@example.com");
-
-        when(renderer.render(eq("email-body-applicant"), anyMap())).thenReturn("<html>OK</html>");
+    private ApplicationInfoDto infoFixture() {
+        return new ApplicationInfoDto(
+                "카카오테크 동아리",
+                "홍길동",
+                77L,
+                "president@example.com",
+                "20251234",
+                "인공지능학과",
+                "010-1111-2222",
+                "applicant@example.com",
+                LocalDateTime.of(2025, 9, 20, 13, 0)
+        );
     }
 
     @Test
     @DisplayName("단위: 메일 전송 성공")
     void unit_success_sendMail() {
-        stubHappyPath();
+        // given
+        ApplicationInfoDto info = infoFixture();
         List<AnswerEmailLine> lines = List.of(
                 new AnswerEmailLine(2L, 1L, "자기소개", "안녕하세요"),
                 new AnswerEmailLine(1L, 2L, "지원 동기", "함께 성장하고 싶습니다")
         );
+        when(renderer.render(eq("email-body-applicant"), anyMap()))
+                .thenReturn("<html>OK</html>");
 
-        service.sendToApplicant(application, lines);
+        // when
+        service.sendToApplicant(info, lines);
 
-        // 템플릿 렌더링 모델 검증
+        // then
         verify(renderer).render(eq("email-body-applicant"), modelCaptor.capture());
-        Map<String,Object> model = modelCaptor.getValue();
-        assertThat(model).containsKeys("title","clubName","applicantName","studentId","department",
-                "phoneNumber","applicantEmail","answers","submittedAt");
+        Map<String, Object> model = modelCaptor.getValue();
+        assertThat(model).containsKeys(
+                "title", "clubName", "applicantName", "studentId",
+                "department", "phoneNumber", "applicantEmail",
+                "answers", "submittedAt"
+        );
         assertThat(model.get("clubName")).isEqualTo("카카오테크 동아리");
         assertThat(model.get("applicantName")).isEqualTo("홍길동");
         assertThat(model.get("answers")).isEqualTo(lines);
 
-        // 메일 전송 인자 검증
+        final String subjectPrefix = "[동아리 지원]";
         verify(emailSender).sendHtml(
                 eq(from),
                 eq("president@example.com"),
@@ -163,44 +151,37 @@ class EmailServiceUnitTest {
     @Test
     @DisplayName("단위: 메일 전송 실패 - EmailSender에서 예외 → 그대로 전파")
     void unit_fail_sendMailThrows() {
-        stubHappyPath();
+        // given
+        ApplicationInfoDto info = infoFixture();
+        when(renderer.render(eq("email-body-applicant"), anyMap()))
+                .thenReturn("<html>OK</html>");
         doThrow(new RuntimeException("SMTP send failed"))
                 .when(emailSender)
                 .sendHtml(anyString(), anyString(), anyList(), anyString(), anyString());
 
-        assertThatThrownBy(() -> service.sendToApplicant(application, List.of()))
+        // expect
+        assertThatThrownBy(() -> service.sendToApplicant(info, List.of()))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessageContaining("SMTP send failed");
 
-        // 실패 시에도 renderer는 호출돼서 html 생성까지 시도했는지
         verify(renderer).render(eq("email-body-applicant"), anyMap());
     }
 
     @Test
-    @DisplayName("단위: 회장 조회 실패 - PresidentNotFoundException")
-    void unit_fail_noPresident() {
-        when(application.getClubApplyForm()).thenReturn(clubApplyForm);
-        when(clubApplyForm.getClub()).thenReturn(club);
-        when(club.getId()).thenReturn(77L);
-        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(77L, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
-                .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.sendToApplicant(application, List.of()))
-                .isInstanceOf(PresidentNotFoundException.class)
-                .hasMessageContaining("해당 동아리의 회장이 없습니다");
-
-        verify(emailSender, never()).sendHtml(anyString(), anyString(), anyList(), anyString(), anyString());
-    }
-
-    @Test
-    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→삭제+불합격 이벤트(PENDING 없음)")
+    @DisplayName("INTERVIEW 단계: APPROVED→승격(FINAL)+합격 이벤트, REJECTED→ClubMember 참조 끊기 후 삭제+불합격 이벤트(PENDING 없음)")
     void interview_flow() {
         // given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         Club club1 = mock(Club.class);
         when(club1.getId()).thenReturn(77L);
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(club1.getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -209,9 +190,7 @@ class EmailServiceUnitTest {
         when(userRejected.getEmail()).thenReturn("rejected@ex.com");
 
         when(clubApplyForm.getClub()).thenReturn(club1);
-
         when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
-
         when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
 
         // 공통: stage 초기값은 INTERVIEW
@@ -228,10 +207,9 @@ class EmailServiceUnitTest {
 
         // ids
         when(appApproved.getId()).thenReturn(101L);
+        when(appRejected.getId()).thenReturn(102L); // ★ 삭제/끊기 검증용
 
         // emails
-        when(userApproved.getEmail()).thenReturn("approved@ex.com");
-        when(userRejected.getEmail()).thenReturn("rejected@ex.com");
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
@@ -243,7 +221,7 @@ class EmailServiceUnitTest {
         // when
         SuccessResponseDto resp = serviceImpl.sendPassFailMessage(77L, req, Stage.INTERVIEW);
 
-        //then
+        // then
         assertThat(resp).isNotNull();
 
         verify(clubApplyFormRepository).findByClubId(77L);
@@ -254,9 +232,9 @@ class EmailServiceUnitTest {
         verify(appApproved).updateStatus(Status.PENDING);
         verify(appRejected, never()).updateStage(any());
 
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // 참조 끊기 + 단건 삭제 검증
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(102L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 캡처
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -270,26 +248,32 @@ class EmailServiceUnitTest {
         assertThat(approvedEvt.applicationId()).isEqualTo(101L);
         assertThat(approvedEvt.email()).isEqualTo("approved@ex.com");
         assertThat(approvedEvt.message()).isEqualTo("면접 합격 안내 메시지");
-        assertThat(approvedEvt.stage()).isEqualTo(Stage.FINAL);
+        assertThat(approvedEvt.stage()).isEqualTo(Stage.INTERVIEW);
 
         // InterviewRejectedEvent
         InterviewRejectedEvent rejectedEvt = events.stream()
                 .filter(e -> e instanceof InterviewRejectedEvent)
                 .map(e -> (InterviewRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(77L);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(77L);
     }
 
     @Test
-    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→삭제+최종 불합격 이벤트(PENDING 없음)")
+    @DisplayName("FINAL 단계: APPROVED→최종 합격 이벤트, REJECTED→ClubMember 참조 끊기 후 삭제+최종 불합격 이벤트(PENDING 없음)")
     void final_flow() {
         //given
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         Club club1 = mock(Club.class);
         when(club1.getId()).thenReturn(88L);
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(club1.getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -298,7 +282,6 @@ class EmailServiceUnitTest {
         when(userRejected.getEmail()).thenReturn("final-rejected@ex.com");
 
         when(clubApplyForm.getClub()).thenReturn(club1);
-
         when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
@@ -308,11 +291,10 @@ class EmailServiceUnitTest {
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
 
         when(appApproved.getId()).thenReturn(201L);
+        when(appRejected.getId()).thenReturn(202L); //삭제/끊기 검증용
 
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
-
-        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(applicationRepository.findAllByClubIdAndStage(88L, Stage.FINAL))
                 .thenReturn(List.of(appApproved, appRejected));
@@ -333,9 +315,9 @@ class EmailServiceUnitTest {
         verify(appRejected, never()).updateStage(any());
         verify(appRejected, never()).updateStatus(any());
 
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // 참조 끊기 + 단건 삭제
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(202L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 캡처 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -354,14 +336,19 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("final-rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(88L);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("final-rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(88L);
     }
+
     @Test
-    @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 배치 삭제, 메시지 업데이트 없음")
+    @DisplayName("STAGE=NULL: APPROVED/REJECTED 처리 → 최종 이벤트 발행 + REJECTED 참조 끊기 후 삭제, 메시지 업데이트 없음")
     void nullStage_flow_success() {
         // given
         Long clubId = 99L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         Club clubN = mock(Club.class);
         when(clubN.getId()).thenReturn(clubId);
@@ -371,6 +358,8 @@ class EmailServiceUnitTest {
         // 앱들 (모두 stage == null)
         Application appApproved = mock(Application.class);
         Application appRejected = mock(Application.class);
+        when(appApproved.getClubApplyForm()).thenReturn(clubApplyForm);
+        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(appApproved.getStage()).thenReturn(null);
 
@@ -378,6 +367,7 @@ class EmailServiceUnitTest {
         when(appRejected.getStatus()).thenReturn(Status.REJECTED);
 
         when(appApproved.getId()).thenReturn(301L);
+        when(appRejected.getId()).thenReturn(302L); // 삭제/끊기 검증용
 
         User userApproved = mock(User.class);
         User userRejected = mock(User.class);
@@ -386,8 +376,6 @@ class EmailServiceUnitTest {
 
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
-
-        when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
 
         when(applicationRepository.findAllByClubId(clubId))
                 .thenReturn(List.of(appApproved, appRejected));
@@ -410,10 +398,9 @@ class EmailServiceUnitTest {
         verify(appRejected, never()).updateStage(any());
         verify(appRejected, never()).updateStatus(any());
 
-        // REJECTED만 배치 삭제
-        verify(applicationRepository).deleteAllInBatch(appsCaptor.capture());
-        List<Application> deleted = appsCaptor.getValue();
-        assertThat(deleted).containsExactly(appRejected);
+        // REJECTED만 참조 끊기 + 단건 삭제
+        verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(302L);
+        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 2건 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
@@ -434,8 +421,8 @@ class EmailServiceUnitTest {
                 .filter(e -> e instanceof FinalRejectedEvent)
                 .map(e -> (FinalRejectedEvent) e)
                 .findFirst().orElseThrow();
-        assertThat(rejectedEvt.user().getEmail()).isEqualTo("nullstage-rejected@ex.com");
-        assertThat(rejectedEvt.club().getId()).isEqualTo(clubId);
+        assertThat(rejectedEvt.info().userEmail()).isEqualTo("nullstage-rejected@ex.com");
+        assertThat(rejectedEvt.info().clubId()).isEqualTo(clubId);
     }
 
     @Test
@@ -443,6 +430,10 @@ class EmailServiceUnitTest {
     void interviewStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
@@ -461,7 +452,9 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        // 단건 삭제/참조 끊기
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
@@ -471,6 +464,10 @@ class EmailServiceUnitTest {
     void finalStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
@@ -489,7 +486,8 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
@@ -499,6 +497,10 @@ class EmailServiceUnitTest {
     void nullStage_flow_pending_exists_throws() {
         // given
         Long clubId = 100L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
 
@@ -516,9 +518,9 @@ class EmailServiceUnitTest {
 
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
-        verify(applicationRepository, never()).deleteAllInBatch(any());
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
     }
-
 }

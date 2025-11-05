@@ -13,9 +13,12 @@ import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /**
  * 애플리케이션 전역에서 발생하는 예외를 중앙에서 처리하는 클래스입니다.
@@ -101,6 +104,46 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
+    /**
+     * MissingRequestCookieException 예외를 처리
+     * <p>
+     * @CookieValue 어노테이션으로 필수 쿠키가 지정되었으나, 요청에 해당 쿠키가 포함되지 않았을 때 발생합니다.
+     * HTTP 400 Bad Request와 함께 적절한 에러 메시지를 반환합니다.
+     *
+     * @param e MissingRequestCookieException
+     * @return 400 Bad Request 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(MissingRequestCookieException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(final MissingRequestCookieException e) {
+        final ErrorCode errorCode = ErrorCode.REQUIRED_COOKIE_NOT_FOUND;
+        final String detail = "필수 쿠키 '" + e.getCookieName() + "'가 요청에 포함되지 않았습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("MissingRequestCookieException: {} (detail: {})",
+                errorCode.getMessage(),
+                detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(
+            MissingServletRequestPartException e)
+    {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponseDto> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        final ErrorCode errorCode = ErrorCode.TOO_LARGE_FILE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MaxUploadSizeExceededException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
     /**
      * @PreAuthorize 와 같은 메소드 시큐리티에서 발생하는 인가 예외를 처리합니다.
      * <p>

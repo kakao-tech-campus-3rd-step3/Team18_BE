@@ -1,5 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
@@ -9,24 +12,30 @@ import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.service.ClubService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Tag(name = "동아리 API", description = "동아리 정보 조회 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -70,7 +79,29 @@ public class ClubController {
         SuccessResponseDto response = clubService.updateClubDetail(clubId, dto);
         return ResponseEntity.ok(response);
     }
+    @Operation(summary = "특정 동아리 상세 이미지 수정", description = "특정 동아리의 이미지 정보를 수정합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공"),
+            @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
+    })
+    @PutMapping("/{clubId}/images")
+    public ResponseEntity<SuccessResponseDto> updateClubImages(
+            @PathVariable Long clubId,
+            @RequestPart("keepImageIds") String keepImageIdsJson,
+            @RequestPart(value = "newImages", required = false) List<MultipartFile> newImages
+    ) {
+        List<Long> keepImageIds = null;
+        try {
+            keepImageIds = new ObjectMapper()
+                    .readValue(keepImageIdsJson, new TypeReference<List<Long>>() {});
+        } catch (JsonProcessingException e) {
+            log.error("json 형식이 유효하지 않습니다.", e);
+            throw new InvalidFileException("json 형식이 유효하지 않습니다.");
+        }
 
+        SuccessResponseDto response = clubService.uploadClubImages(clubId, keepImageIds, newImages);
+        return ResponseEntity.ok(response);
+    }
     @Operation(summary = "카테고리별 동아리 목록 조회", description = "특정 카테고리에 속한 동아리 목록을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "조회 성공")
     @GetMapping(params = "category")

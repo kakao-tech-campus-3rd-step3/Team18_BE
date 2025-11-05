@@ -1,20 +1,37 @@
 package com.kakaotech.team18.backend_server.domain.auth.service;
 
-import com.kakaotech.team18.backend_server.domain.auth.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.kakaotech.team18.backend_server.domain.auth.dto.AuthStatus;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoTokenResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoUserInfoResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,15 +44,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
@@ -53,6 +61,8 @@ class AuthServiceImplTest {
     private RefreshTokenRepository refreshTokenRepository;
     @Mock
     private JwtProperties jwtProperties;
+    @Mock
+    private ClubMemberRepository clubMemberRepository;
 
     // RestClient의 플루언트 API를 Mocking하기 위한 추가 Mock 객체들
     @Mock
@@ -85,7 +95,6 @@ class AuthServiceImplTest {
     @Test
     void reissue_success() {
         // given
-        String bearerToken = "Bearer valid-refresh-token";
         String oldRefreshToken = "valid-refresh-token";
         Long userId = 1L;
         String newAccessToken = "new-access-token";
@@ -99,7 +108,6 @@ class AuthServiceImplTest {
 
         RefreshToken storedRefreshToken = new RefreshToken(userId, oldRefreshToken, 3600L);
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(oldRefreshToken);
         given(jwtProvider.verify(oldRefreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
@@ -108,7 +116,7 @@ class AuthServiceImplTest {
         given(jwtProperties.refreshTokenValidityInSeconds()).willReturn(604800L);
 
         // when
-        ReissueResponseDto result = authService.reissue(bearerToken);
+        ReissueResponseDto result = authService.reissue(oldRefreshToken);
 
         // then
         assertThat(result).isNotNull();
@@ -127,18 +135,16 @@ class AuthServiceImplTest {
     @Test
     void reissue_withWrongTokenType_throwsException() {
         // given
-        String bearerToken = "Bearer access-token";
         String accessToken = "access-token";
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
         claims.put("tokenType", TokenType.ACCESS.name());
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(accessToken);
         given(jwtProvider.verify(accessToken)).willReturn(claims);
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(accessToken))
                 .isInstanceOf(NotRefreshTokenException.class);
     }
 
@@ -146,19 +152,17 @@ class AuthServiceImplTest {
     @Test
     void reissue_withLoggedOutToken_throwsException() {
         // given
-        String bearerToken = "Bearer logged-out-token";
         String refreshToken = "logged-out-token";
         Long userId = 1L;
 
         Claims claims = Jwts.claims().setSubject(userId.toString());
         claims.put("tokenType", TokenType.REFRESH.name());
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
         given(jwtProvider.verify(refreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.empty()); // Redis에 토큰이 없음
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
                 .isInstanceOf(LoggedOutUserException.class);
     }
 
@@ -166,7 +170,6 @@ class AuthServiceImplTest {
     @Test
     void reissue_withMismatchedToken_throwsException() {
         // given
-        String bearerToken = "Bearer valid-but-mismatched-token";
         String refreshToken = "valid-but-mismatched-token";
         Long userId = 1L;
 
@@ -176,12 +179,11 @@ class AuthServiceImplTest {
         // Redis에는 다른 토큰이 저장되어 있는 상황
         RefreshToken storedRefreshToken = new RefreshToken(userId, "stored-but-different-token", 3600L);
 
-        given(jwtProvider.extractToken(bearerToken)).willReturn(refreshToken);
         given(jwtProvider.verify(refreshToken)).willReturn(claims);
         given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
 
         // when & then
-        assertThatThrownBy(() -> authService.reissue(bearerToken))
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
                 .isInstanceOf(InvalidRefreshTokenException.class);
     }
 
@@ -416,5 +418,56 @@ class AuthServiceImplTest {
         assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
                 .isInstanceOf(DuplicateKakaoIdException.class)
                 .hasMessage("이미 다른 계정과 연동된 학번입니다.");
+    }
+
+    @DisplayName("회원가입 실패 - 잘못된 타입의 토큰 사용 시 예외 발생")
+    @Test
+    void register_withWrongTokenType_throwsException() {
+        // given
+        String bearerToken = "Bearer wrongTypeToken";
+        String wrongTypeToken = "wrongTypeToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // 'ACCESS' 타입 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.ACCESS.name()); // 잘못된 타입 설정
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(wrongTypeToken);
+        given(jwtProvider.verify(wrongTypeToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("회원가입에는 임시 토큰이 필요합니다.");
+            });
+    }
+
+    @DisplayName("회원가입 실패 - 토큰에 kakaoId 누락 시 예외 발생")
+    @Test
+    void register_withMissingKakaoId_throwsException() {
+        // given
+        String bearerToken = "Bearer missingInfoToken";
+        String missingInfoToken = "missingInfoToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // kakaoId가 없는 임시 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.TEMPORARY.name());
+        // claims.put("kakaoId", 12345L); // kakaoId를 일부러 넣지 않음
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(missingInfoToken);
+        given(jwtProvider.verify(missingInfoToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("토큰에 필수 정보(kakaoId)가 없습니다.");
+            });
     }
 }

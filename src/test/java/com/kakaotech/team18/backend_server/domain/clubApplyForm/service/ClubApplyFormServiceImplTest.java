@@ -7,15 +7,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
-import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -37,6 +37,9 @@ class ClubApplyFormServiceImplTest {
     @Mock
     private FormQuestionRepository formQuestionRepository;
 
+    @Mock
+    private ClubRepository clubRepository;
+
     @InjectMocks
     private ClubApplyFormServiceImpl applicationFormServiceImpl;
 
@@ -51,7 +54,7 @@ class ClubApplyFormServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.", true, "interviewTimeMessage", "finalMessage");
+        clubApplyForm = new ClubApplyForm(100L, mockClub, "카카오 동아리 지원서", "함께 성장할 팀원을 찾습니다.","interviewTimeMessage", "finalMessage");
         FormQuestion textQuestion = FormQuestion.builder()
                 .clubApplyForm(mockClubApplyForm)
                 .question("이름")
@@ -99,8 +102,13 @@ class ClubApplyFormServiceImplTest {
 
                 //given
                 Long clubId = 100L;
+                Club club = Club.builder()
+                        .recruitStart(LocalDateTime.of(2024, 9, 1, 0, 0))
+                        .recruitEnd(LocalDateTime.of(2024, 9, 30, 23, 59, 59))
+                        .build();
 
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)).thenReturn(Optional.of(
+                when(clubRepository.findById(clubId)).thenReturn(Optional.of(club));
+                when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(
                         clubApplyForm));
                 when(formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId())).thenReturn(formFields);
@@ -111,23 +119,25 @@ class ClubApplyFormServiceImplTest {
                 //then
                 assertThat(result.title()).isEqualTo("카카오 동아리 지원서");
                 assertThat(result.description()).isEqualTo("함께 성장할 팀원을 찾습니다.");
-                assertThat(result.questions()).hasSize(3);
+                assertThat(result.recruitDate()).isEqualTo("2024-09-01 ~ 2024-09-30");
+                assertThat(result.formQuestions()).hasSize(3);
 
-                var firstQuestion = result.questions().get(0);
+                var firstQuestion = result.formQuestions().get(0);
                 assertThat(firstQuestion.questionNum()).isEqualTo(1L);
                 assertThat(firstQuestion.question()).isEqualTo("이름");
 
-                var secondQuestion = result.questions().get(1);
+                var secondQuestion = result.formQuestions().get(1);
                 assertThat(secondQuestion.questionNum()).isEqualTo(2L);
                 assertThat(secondQuestion.question()).isEqualTo("성별");
                 assertThat(secondQuestion.optionList()).containsExactly("남", "여");
 
-                var thirdQuestion = result.questions().get(2);
+                var thirdQuestion = result.formQuestions().get(2);
                 assertThat(thirdQuestion.questionNum()).isEqualTo(3L);
                 assertThat(thirdQuestion.question()).isEqualTo("면접가능 요일");
                 assertThat(thirdQuestion.optionList()).containsExactly("월", "화", "수", "목", "금", "토");
 
-                verify(clubApplyFormRepository, times(1)).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubRepository, times(1)).findById(clubId);
+                verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
                 verify(formQuestionRepository, times(1)).findByClubApplyFormIdOrderByDisplayOrderAsc(
                         clubApplyForm.getId());
             }
@@ -138,7 +148,13 @@ class ClubApplyFormServiceImplTest {
                 // given
                 Long clubId = 100L;
 
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                Club club = Club.builder()
+                        .recruitStart(LocalDateTime.of(2024, 9, 1, 0, 0))
+                        .recruitEnd(LocalDateTime.of(2024, 9, 30, 23, 59, 59))
+                        .build();
+
+                when(clubRepository.findById(clubId)).thenReturn(Optional.of(club));
+                when(clubApplyFormRepository.findByClubId(clubId))
                         .thenReturn(Optional.of(clubApplyForm));
                 when(formQuestionRepository
                         .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId()))
@@ -150,9 +166,11 @@ class ClubApplyFormServiceImplTest {
                 // then
                 assertThat(result.title()).isEqualTo("카카오 동아리 지원서");
                 assertThat(result.description()).isEqualTo("함께 성장할 팀원을 찾습니다.");
-                assertThat(result.questions()).isEmpty();
+                assertThat(result.recruitDate()).isEqualTo("2024-09-01 ~ 2024-09-30");
+                assertThat(result.formQuestions()).isEmpty();
 
-                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubRepository).findById(clubId);
+                verify(clubApplyFormRepository).findByClubId(clubId);
                 verify(formQuestionRepository)
                         .findByClubApplyFormIdOrderByDisplayOrderAsc(clubApplyForm.getId());
             }
@@ -167,14 +185,14 @@ class ClubApplyFormServiceImplTest {
             void throwsException() {
                 // given
                 Long clubId = 999L;
-                when(clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId))
+                when(clubApplyFormRepository.findByClubId(clubId))
                         .thenReturn(Optional.empty());
 
                 // when & then
                 assertThatThrownBy(() -> applicationFormServiceImpl.getQuestionForm(clubId))
                         .isInstanceOf(ClubApplyFormNotFoundException.class);
 
-                verify(clubApplyFormRepository).findByClubIdAndIsActiveTrue(clubId);
+                verify(clubApplyFormRepository).findByClubId(clubId);
                 verifyNoInteractions(formQuestionRepository);
             }
         }
