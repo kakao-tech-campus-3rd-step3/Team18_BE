@@ -104,6 +104,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationDetailResponseDto(
                 application.getId(),
                 application.getStatus().name(),
+                application.getAverageRating(),
                 applicantInfo,
                 questionsAndAnswers
         );

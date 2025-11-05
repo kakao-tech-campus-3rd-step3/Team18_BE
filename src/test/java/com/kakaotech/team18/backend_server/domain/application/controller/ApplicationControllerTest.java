@@ -73,7 +73,7 @@ class ApplicationControllerTest {
                 applicantId, "김지원", "컴퓨터공학과", "20230001", "test@test.com", "010-1234-5678"
         );
         ApplicationDetailResponseDto responseDto = new ApplicationDetailResponseDto(
-                100L, "PENDING", applicantInfo, Collections.emptyList()
+                100L, "PENDING", 3.5, applicantInfo, Collections.emptyList()
         );
 
         given(applicationService.getApplicationDetail(clubId, applicantId)).willReturn(responseDto);
@@ -88,6 +88,7 @@ class ApplicationControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.applicationId").value(100L))
                 .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.rating").value(3.5))
                 .andExpect(jsonPath("$.applicantInfo.name").value("김지원"))
                 .andExpect(jsonPath("$.applicantInfo.department").value("컴퓨터공학과"));
     }
