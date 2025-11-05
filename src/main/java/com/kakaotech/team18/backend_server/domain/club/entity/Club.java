@@ -84,20 +84,12 @@ public class Club extends BaseEntity {
         this.shortIntroduction = dto.shortIntroduction();
         this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
-        this.introduction = buildNewIntroduction(dto);
+        this.introduction.update(dto);
     }
 
     public void updateRecruitDate(LocalDateTime recruitStart, LocalDateTime recruitEnd) {
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         log.info("Updated recruit date for clubId: {} to start: {} end: {}", this.id, recruitStart, recruitEnd);
-    }
-
-    private ClubIntroduction buildNewIntroduction(ClubDetailRequestDto dto) {
-        return ClubIntroduction.builder()
-                .overview(dto.introductionOverview())
-                .activities(dto.introductionActivity())
-                .ideal(dto.introductionIdeal())
-                .build();
     }
 }

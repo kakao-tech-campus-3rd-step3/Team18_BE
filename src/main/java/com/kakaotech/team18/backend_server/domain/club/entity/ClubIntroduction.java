@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,6 +39,11 @@ public class ClubIntroduction extends BaseEntity {
         this.overview = overview;
         this.activities = activities;
         this.ideal = ideal;
+        if (images != null) {
+            for (ClubImage image : images) {
+                addImage(image);
+            }
+        }
     }
 
     public void addImage(ClubImage image) {
@@ -59,5 +65,11 @@ public class ClubIntroduction extends BaseEntity {
                     .build();
             this.addImage(image);
         }
+    }
+
+    public void update(ClubDetailRequestDto dto) {
+        this.overview = dto.introductionOverview();
+        this.activities = dto.introductionActivity();
+        this.ideal = dto.introductionIdeal();
     }
 }
