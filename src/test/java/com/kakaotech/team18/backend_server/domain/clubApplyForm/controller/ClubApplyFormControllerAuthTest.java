@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -43,6 +42,7 @@ class ClubApplyFormControllerAuthTest {
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto(
                 "Dummy Title",
                 "Dummy Description",
+                "2025-01-01 ~ 2025-01-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -67,6 +67,7 @@ class ClubApplyFormControllerAuthTest {
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto(
                 "Dummy Title",
                 "Dummy Description",
+                "2025-01-01 ~ 2025-01-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -90,6 +91,7 @@ class ClubApplyFormControllerAuthTest {
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto(
                 "Dummy Title",
                 "Dummy Description",
+                "2025-01-01 ~ 2025-01-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -112,6 +114,7 @@ class ClubApplyFormControllerAuthTest {
         ClubApplyFormRequestDto requestDto = new ClubApplyFormRequestDto(
                 "Dummy Title",
                 "Dummy Description",
+                "2025-01-01 ~ 2025-01-31",
                 List.of(new FormQuestionRequestDto("질문 1", FieldType.TEXT, true, 1L, null, null))
         );
 
