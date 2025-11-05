@@ -47,7 +47,7 @@ class ClubTest {
 
         club.updateDetail(dto);
 
-        assertThat(club.getName().equals(dto.clubName()));
+        assertThat(club.getName()).isEqualTo(dto.clubName());
         assertThat(club.getCategory()).isEqualTo(dto.category());
         assertThat(club.getLocation()).isEqualTo(dto.location());
         assertThat(club.getShortIntroduction()).isEqualTo(dto.shortIntroduction());
