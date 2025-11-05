@@ -10,6 +10,13 @@
     </root>
   </springProfile>
 
+  <springProfile name="test">
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+    <root level="INFO">
+      <appender-ref ref="CONSOLE"/>
+    </root>
+  </springProfile>
+
   <!-- prod에서만 Discord 전송 -->
   <springProfile name="prod">
     <springProperty name="DISCORD_WEBHOOK_URL" source="logging.discord.webhook-url"/>
