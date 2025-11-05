@@ -224,7 +224,10 @@ public class AuthServiceImpl implements AuthService {
 
         // 4. Redis에 저장된 토큰과 일치하는지 검증
         RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
-                .orElseThrow(LoggedOutUserException::new);
+                .orElseThrow(() -> {
+                    log.warn("Refresh Token 재발급 시도 실패: Redis에 토큰이 존재하지 않음 (로그아웃된 사용자). userId={}", userId);
+                    return new LoggedOutUserException();
+                });
 
         if (!storedRefreshToken.getRefreshToken().equals(refreshToken)) {
             log.warn("Refresh Token 재발급 시도 실패: Redis에 저장된 토큰과 불일치. userId={}", userId);
@@ -242,7 +245,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 7. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
         refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshToken, jwtProperties.refreshTokenValidityInSeconds()));
-        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", user.getId());
+        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", userId);
 
         // 8. DTO로 감싸서 반환
         return ReissueResponseDto.of(newAccessToken, newRefreshToken);
