@@ -50,4 +50,8 @@
       <appender-ref ref="ASYNC_DISCORD"/>
     </root>
   </springProfile>
+
+  <logger name="org.jboss.logging" level="WARN" additivity="false">
+    <appender-ref ref="Console"/>
+  </logger>
 </configuration>
