@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MissingRequestCookieException.class)
     protected ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(final MissingRequestCookieException e) {
-        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE; // 클라이언트 요청 오류이므로 INVALID_INPUT_VALUE 사용
+        final ErrorCode errorCode = ErrorCode.REQUIRED_COOKIE_NOT_FOUND;
         final String detail = "필수 쿠키 '" + e.getCookieName() + "'가 요청에 포함되지 않았습니다.";
         final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
 
