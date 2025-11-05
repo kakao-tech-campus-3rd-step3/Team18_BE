@@ -27,7 +27,6 @@
         <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level] %logger{36} - %msg%n```%ex{full}```</pattern>
       </layout>
       <username>Error 알림</username>
-      <avatarUrl>https://jjal.today/data/file/gallery/1889155643_NZHvkRLz_e0292b65bb682075bfdb752a4d8f4062f0b7738a.png</avatarUrl>
       <tts>false</tts>
     </appender>
 
