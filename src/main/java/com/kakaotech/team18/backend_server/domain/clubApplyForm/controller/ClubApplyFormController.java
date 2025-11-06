@@ -74,7 +74,7 @@ public class ClubApplyFormController {
     @Operation(summary = "지원서 양식 수정", description = "특정 동아리의 지원서 양식(질문 및 선택지 목록)을 수정합니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "202", description = "수정 성공"),
-            @ApiResponse(responseCode = "400", description = "입력 값 옳바르지 않은 경우")
+            @ApiResponse(responseCode = "400", description = "입력 값 올바르지 않은 경우")
     })
     @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
     @PatchMapping("/dashboard/apply-form")
