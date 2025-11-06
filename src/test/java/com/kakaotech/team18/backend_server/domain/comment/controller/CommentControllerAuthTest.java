@@ -62,6 +62,23 @@ class CommentControllerAuthTest {
         resultActions.andExpect(status().isOk());
     }
 
+    @DisplayName("댓글 조회 - 성공 (동아리 운영진)")
+    @Test
+    @WithMockCustomUser(memberships = {"1:CLUB_EXECUTIVE"})
+    void getComments_withExecutiveAuth_success() throws Exception {
+        // given
+        Long applicationId = 100L; // 1번 동아리에 속한 지원서
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                get("/api/applications/{applicationId}/comments", applicationId)
+        );
+
+        // then
+        // 사용자는 1번 동아리 운영진이고, 지원서도 1번 동아리 소속이므로 200 OK를 기대합니다.
+        resultActions.andExpect(status().isOk());
+    }
+
     @DisplayName("댓글 조회 - 실패 (권한 부족)")
     @Test
     @WithMockCustomUser(memberships = {"1:CLUB_MEMBER"})
