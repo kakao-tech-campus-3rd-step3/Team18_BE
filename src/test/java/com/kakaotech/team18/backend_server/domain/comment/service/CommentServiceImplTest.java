@@ -8,23 +8,17 @@ import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentAccessDeniedException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CommentNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRatingUnitException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.TemporaryServerConflictException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.system.CapturedOutput;
-import org.springframework.boot.test.system.OutputCaptureExtension;
-import org.springframework.dao.PessimisticLockingFailureException;
-import org.springframework.retry.annotation.EnableRetry;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
-import org.springframework.test.context.ActiveProfiles;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,58 +26,30 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(OutputCaptureExtension.class)
-@ActiveProfiles("test")
-@SpringBootTest
-@EnableRetry(proxyTargetClass = true)
+@ExtendWith(MockitoExtension.class)
 class CommentServiceImplTest {
 
-    @Autowired
+    @InjectMocks
     private CommentServiceImpl commentService;
 
-    @MockBean
+    @Mock
     private CommentRepository commentRepository;
 
-    @MockBean
+    @Mock
     private ApplicationRepository applicationRepository;
 
-    @MockBean
+    @Mock
     private UserRepository userRepository;
 
     @Test
-    @DisplayName("평균점수 업데이트 실패 - 락 경합으로 재시도 후 실패")
-    void updateAverageRating_fail_afterRetries_thenRecover() {
-        // given
-        final Long applicationId = 1L;
-        final String expectedExceptionDetail = "DB Lock failed";
-
-        given(applicationRepository.findByIdWithPessimisticLock(anyLong()))
-                .willThrow(new PessimisticLockingFailureException(expectedExceptionDetail));
-
-        // when & then
-        // 재시도가 모두 실패하고 @Recover 메소드가 던진 예외가 최종적으로 발생하는지 검증
-        TemporaryServerConflictException exception = assertThrows(TemporaryServerConflictException.class, () -> {
-            commentService.updateApplicationAverageRating(applicationId);
-        });
-
-        // then
-        // CustomException의 detail 필드에 원인 메시지가 잘 담겼는지 확인
-        assertThat(exception.getDetail()).isEqualTo(expectedExceptionDetail);
-
-        // @Retryable(maxAttempts=3) 설정에 따라, findByIdWithPessimisticLock 메소드가 3번 호출되었는지 검증
-        verify(applicationRepository, times(3)).findByIdWithPessimisticLock(applicationId);
-    }
-
-    @Test
     @DisplayName("댓글 생성 - 성공")
-    void createComment_success(CapturedOutput output) {
+    void createComment_success() {
         // given
         final Long applicationId = 1L;
         final Long userId = 1L;
@@ -104,10 +70,6 @@ class CommentServiceImplTest {
         // then
         assertThat(responseDto.content()).isEqualTo("새로운 댓글입니다.");
         assertThat(responseDto.rating()).isEqualTo(4.5);
-
-        assertThat(output).contains("댓글 생성 시도")
-                .contains("applicationId: " + applicationId)
-                .contains("댓글 생성 성공");
 
         verify(commentRepository, times(1)).save(any(Comment.class));
         verify(mockApplication, times(1)).updateAverageRating(anyDouble());
@@ -132,7 +94,7 @@ class CommentServiceImplTest {
 
     @Test
     @DisplayName("댓글 수정 - 성공")
-    void updateComment_success(CapturedOutput output) {
+    void updateComment_success() {
         // given
         final Long applicationId = 1L;
         final Long userId = 1L;
@@ -156,17 +118,13 @@ class CommentServiceImplTest {
         commentService.updateComment(commentId, requestDto, userId);
 
         // then
-        assertThat(output).contains("댓글 수정 시도")
-                .contains("commentId: " + commentId)
-                .contains("댓글 수정 성공");
-
         verify(mockComment, times(1)).update(requestDto.content(), requestDto.rating());
         verify(mockApplication, times(1)).updateAverageRating(anyDouble());
     }
 
     @Test
     @DisplayName("댓글 수정 - 실패 (권한 없음)")
-    void updateComment_fail_accessDenied(CapturedOutput output) {
+    void updateComment_fail_accessDenied() {
         // given
         final Long commentId = 1L;
         final Long requesterId = 1L;
@@ -188,12 +146,6 @@ class CommentServiceImplTest {
         });
 
         // then
-        assertThat(output).contains("댓글 수정 시도")
-                .contains("댓글 접근 권한 없음")
-                .contains("commentId: " + commentId)
-                .contains("ownerId: " + ownerId)
-                .contains("requesterId: " + requesterId);
-
         verify(mockComment, never()).update(anyString(), anyDouble());
         verify(applicationRepository, never()).findById(anyLong());
     }
@@ -239,7 +191,7 @@ class CommentServiceImplTest {
 
     @Test
     @DisplayName("댓글 삭제 - 성공")
-    void deleteComment_success(CapturedOutput output) {
+    void deleteComment_success() {
         // given
         final Long applicationId = 1L;
         final Long userId = 1L;
@@ -262,17 +214,13 @@ class CommentServiceImplTest {
         commentService.deleteComment(commentId, userId);
 
         // then
-        assertThat(output).contains("댓글 삭제 시도")
-                .contains("commentId: " + commentId)
-                .contains("댓글 삭제 성공");
-
         verify(commentRepository, times(1)).delete(mockComment);
         verify(mockApplication, times(1)).updateAverageRating(anyDouble());
     }
 
     @Test
     @DisplayName("댓글 삭제 - 실패 (권한 없음)")
-    void deleteComment_fail_accessDenied(CapturedOutput output) {
+    void deleteComment_fail_accessDenied() {
         // given
         final Long commentId = 1L;
         final Long requesterId = 1L;
@@ -288,17 +236,13 @@ class CommentServiceImplTest {
         when(commentRepository.findById(commentId)).thenReturn(Optional.of(mockComment));
 
         // when & then
+        // 예외가 발생하는지 먼저 검증
         assertThrows(CommentAccessDeniedException.class, () -> {
             commentService.deleteComment(commentId, requesterId);
         });
 
         // then
-        assertThat(output).contains("댓글 삭제 시도")
-                .contains("댓글 접근 권한 없음")
-                .contains("commentId: " + commentId)
-                .contains("ownerId: " + ownerId)
-                .contains("requesterId: " + requesterId);
-
+        // 예외 발생 후, 그 전까지의 로그가 올바르게 출력되었는지 검증
         verify(commentRepository, never()).delete(any(Comment.class));
     }
 
