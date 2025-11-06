@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.global.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -7,6 +8,12 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class AppConfig {
+
+    @Value("${api.rest-client.connect-timeout}")
+    private int connectTimeout;
+
+    @Value("${api.rest-client.read-timeout}")
+    private int readTimeout;
 
     /**
      * 외부 서버(카카오 등)와의 HTTP 통신을 위해 RestClient를 Spring 컨테이너에 Bean으로 등록합니다.
@@ -18,8 +25,8 @@ public class AppConfig {
     @Bean
     public RestClient restClient() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(3000); // 연결 타임아웃 3초 (밀리초 단위)
-        factory.setReadTimeout(3000);    // 읽기 타임아웃 3초 (밀리초 단위)
+        factory.setConnectTimeout(connectTimeout);
+        factory.setReadTimeout(readTimeout);
 
         return RestClient.builder()
                 .requestFactory(factory)

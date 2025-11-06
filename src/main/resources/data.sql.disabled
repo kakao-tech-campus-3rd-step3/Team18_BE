@@ -70,7 +70,6 @@ VALUES
     (10065,'user65@example.com','홍길동65','20250065','010-0000-0065','Civil Engineering'),
     (10066,'user66@example.com','홍길동66','20250066','010-0000-0066','Architecture'),
     (10067,'user67@example.com','홍길동67','20250067','010-0000-0067','Korean Literature');
-
 -- =========================
 -- 2) CLUB_INTRODUCTION (20)
 -- =========================

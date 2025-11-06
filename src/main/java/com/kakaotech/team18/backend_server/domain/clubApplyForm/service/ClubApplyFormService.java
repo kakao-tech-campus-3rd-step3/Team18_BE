@@ -3,8 +3,10 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 
 public interface ClubApplyFormService {
+    UserClubApplyFormResponseDto getUserQuestionForm(Long clubId);
     ClubApplyFormResponseDto getQuestionForm(Long clubId);
 
     void createClubApplyForm(Long clubId, ClubApplyFormRequestDto request);

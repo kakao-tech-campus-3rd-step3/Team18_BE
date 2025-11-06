@@ -343,7 +343,7 @@ class ClubControllerTest {
                         multipart("/api/clubs/{clubId}/images", clubId)
                                 .file(keepImageIdsPart)
                                 .file(newImage)
-                                .with(request -> { request.setMethod("PATCH"); return request; })
+                                .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isOk());
@@ -377,7 +377,7 @@ class ClubControllerTest {
                         multipart("/api/clubs/{clubId}/images", clubId)
                                 .file(keepImageIdsPart)
                                 .file(newImage)
-                                .with(request -> { request.setMethod("PATCH"); return request; })
+                                .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -410,7 +410,7 @@ class ClubControllerTest {
                         multipart("/api/clubs/{clubId}/images", clubId)
                                 .file(keepImageIdsPart)
                                 .file(newImage)
-                                .with(request -> { request.setMethod("PATCH"); return request; })
+                                .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());
@@ -428,7 +428,7 @@ class ClubControllerTest {
         //when
         mockMvc.perform(
                         multipart("/api/clubs/{clubId}/images", clubId)
-                                .with(request -> { request.setMethod("PATCH"); return request; })
+                                .with(request -> { request.setMethod("PUT"); return request; })
                 )
                 .andDo(print())
                 .andExpect(status().isBadRequest());

@@ -11,6 +11,9 @@ public record ApplicationDetailResponseDto(
     @Schema(description = "지원서 상태 (예: PENDING, APPROVED, REJECTED)", example = "PENDING")
     String status,
 
+    @Schema(description = "평균 평점", example = "3.5")
+    Double rating,
+
     @Schema(description = "지원자 정보")
     ApplicantInfo applicantInfo,
 

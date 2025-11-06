@@ -17,10 +17,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
@@ -64,17 +66,15 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_success() throws Exception {
         // given
         Long clubId = 1L;
-        FormQuestionResponseDto question1 = new FormQuestionResponseDto(1L,1L, FieldType.TEXT, "이름", true, null, null);
-        FormQuestionResponseDto question2 = new FormQuestionResponseDto(2L, 2L, FieldType.RADIO, "성별", true, List.of("남", "여"), null);
-        ClubApplyFormResponseDto mockResponse = ClubApplyFormResponseDto.of(
+        UserFormQuestionResponseDto question1 = new UserFormQuestionResponseDto(1L, FieldType.TEXT,  "이름",true, null, null);
+        UserFormQuestionResponseDto question2 = new UserFormQuestionResponseDto(2L, FieldType.RADIO,  "성별", true, List.of("남", "여"), null);
+        UserClubApplyFormResponseDto mockResponse = UserClubApplyFormResponseDto.of(
                 "테스트 동아리 지원서",
                 "테스트 동아리 지원서 설명입니다.",
-                LocalDateTime.of(2024, 9, 1, 0, 0),
-                LocalDateTime.of(2024, 9, 30, 23, 59, 59),
                 List.of(question1, question2)
         );
 
-        when(clubApplyFormService.getQuestionForm(clubId)).thenReturn(mockResponse);
+        when(clubApplyFormService.getUserQuestionForm(clubId)).thenReturn(mockResponse);
 
         // when & then
         mockMvc.perform(get("/api/clubs/{clubId}/apply", clubId))
@@ -84,10 +84,9 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.description").value("테스트 동아리 지원서 설명입니다."))
                 .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
                 .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
-                .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
                 .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
-        verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
+        verify(clubApplyFormService, times(1)).getUserQuestionForm(clubId);
     }
     @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 성공")
     @Test
@@ -125,7 +124,7 @@ class ClubApplyFormControllerTest {
     void getClubApplyFormByClubId_notFound() throws Exception {
         // given
         Long clubId = 999L;
-        when(clubApplyFormService.getQuestionForm(clubId))
+        when(clubApplyFormService.getUserQuestionForm(clubId))
                 .thenThrow(new ClubApplyFormNotFoundException("clubId = " + clubId));
 
         // when & then
@@ -133,7 +132,7 @@ class ClubApplyFormControllerTest {
                 .andDo(print())
                 .andExpect(status().isNotFound());
 
-        verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
+        verify(clubApplyFormService, times(1)).getUserQuestionForm(clubId);
     }
     @DisplayName("대시보드 api 동아리 지원서 양식 조회 테스트 - 지원서 양식 없음")
     @Test

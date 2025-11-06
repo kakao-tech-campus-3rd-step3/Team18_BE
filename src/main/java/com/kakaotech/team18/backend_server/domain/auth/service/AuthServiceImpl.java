@@ -19,6 +19,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.Duplicate
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
@@ -31,6 +32,7 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +49,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import java.util.Optional;
+import org.springframework.web.client.RestClientResponseException;
 
 @Slf4j
 @Service
@@ -221,7 +224,10 @@ public class AuthServiceImpl implements AuthService {
 
         // 4. Redis에 저장된 토큰과 일치하는지 검증
         RefreshToken storedRefreshToken = refreshTokenRepository.findById(userId)
-                .orElseThrow(LoggedOutUserException::new);
+                .orElseThrow(() -> {
+                    log.warn("Refresh Token 재발급 시도 실패: Redis에 토큰이 존재하지 않음 (로그아웃된 사용자). userId={}", userId);
+                    return new LoggedOutUserException();
+                });
 
         if (!storedRefreshToken.getRefreshToken().equals(refreshToken)) {
             log.warn("Refresh Token 재발급 시도 실패: Redis에 저장된 토큰과 불일치. userId={}", userId);
@@ -239,7 +245,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 7. Redis에 새로운 Refresh Token 덮어쓰기 (Rotation)
         refreshTokenRepository.save(new RefreshToken(user.getId(), newRefreshToken, jwtProperties.refreshTokenValidityInSeconds()));
-        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", user.getId());
+        log.info("Redis에 새로운 Refresh Token 저장(덮어쓰기) 완료: userId={}", userId);
 
         // 8. DTO로 감싸서 반환
         return ReissueResponseDto.of(newAccessToken, newRefreshToken);
@@ -302,6 +308,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (ResourceAccessException e) {
             log.warn("카카오 Access Token 요청 중 타임아웃 발생", e);
             throw new KakaoApiTimeoutException();
+        } catch (RestClientResponseException e) {
+            log.warn("카카오 Access Token 요청 실패: " + e.getResponseBodyAsString(), e);
+            throw new KakaoApiException();
         }
     }
 
@@ -316,6 +325,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (ResourceAccessException e) {
             log.warn("카카오 사용자 정보 요청 중 타임아웃 발생", e);
             throw new KakaoApiTimeoutException();
+        } catch (RestClientResponseException e) {
+            log.warn("카카오 사용자 정보 요청 실패: " + e.getResponseBodyAsString(), e);
+            throw new KakaoApiException();
         }
     }
 

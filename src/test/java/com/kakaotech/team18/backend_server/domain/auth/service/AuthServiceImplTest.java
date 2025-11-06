@@ -25,6 +25,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRe
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.TokenType;
@@ -417,5 +418,56 @@ class AuthServiceImplTest {
         assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
                 .isInstanceOf(DuplicateKakaoIdException.class)
                 .hasMessage("이미 다른 계정과 연동된 학번입니다.");
+    }
+
+    @DisplayName("회원가입 실패 - 잘못된 타입의 토큰 사용 시 예외 발생")
+    @Test
+    void register_withWrongTokenType_throwsException() {
+        // given
+        String bearerToken = "Bearer wrongTypeToken";
+        String wrongTypeToken = "wrongTypeToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // 'ACCESS' 타입 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.ACCESS.name()); // 잘못된 타입 설정
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(wrongTypeToken);
+        given(jwtProvider.verify(wrongTypeToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("회원가입에는 임시 토큰이 필요합니다.");
+            });
+    }
+
+    @DisplayName("회원가입 실패 - 토큰에 kakaoId 누락 시 예외 발생")
+    @Test
+    void register_withMissingKakaoId_throwsException() {
+        // given
+        String bearerToken = "Bearer missingInfoToken";
+        String missingInfoToken = "missingInfoToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // kakaoId가 없는 임시 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.TEMPORARY.name());
+        // claims.put("kakaoId", 12345L); // kakaoId를 일부러 넣지 않음
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(missingInfoToken);
+        given(jwtProvider.verify(missingInfoToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("토큰에 필수 정보(kakaoId)가 없습니다.");
+            });
     }
 }

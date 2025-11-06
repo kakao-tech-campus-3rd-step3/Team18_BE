@@ -1,9 +1,11 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
@@ -37,6 +39,28 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final FormQuestionRepository formQuestionRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final ClubRepository clubRepository;
+
+    @Transactional(readOnly = true)
+    public UserClubApplyFormResponseDto getUserQuestionForm(Long clubId){
+        ClubApplyForm clubApplyForm = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                    log.warn("ClubApplyForm not found for clubId: {}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
+        Club club = findClub(clubId);
+
+        Long formId = clubApplyForm.getId();
+        String title = clubApplyForm.getTitle();
+        String description = clubApplyForm.getDescription();
+
+        List<UserFormQuestionResponseDto> questions =
+                formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId)
+                        .stream()
+                        .map(UserFormQuestionResponseDto::from)
+                        .toList();
+
+        return UserClubApplyFormResponseDto.of(title, description, questions);
+    }
 
     @Transactional(readOnly = true)
     public ClubApplyFormResponseDto getQuestionForm(Long clubId){

@@ -26,6 +26,7 @@ public enum ErrorCode {
 
     // 400 BAD_REQUEST: 잘못된 요청
     INVALID_INPUT_VALUE("입력 값이 올바르지 않습니다.", HttpStatus.BAD_REQUEST),
+    REQUIRED_COOKIE_NOT_FOUND("필수 쿠키가 요청에 포함되지 않았습니다.", HttpStatus.BAD_REQUEST),
     INVALID_RATING_UNIT("별점은 0.5 단위로만 입력 가능합니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_KAKAO_ID("이미 다른 계정과 연동된 학번입니다.", HttpStatus.BAD_REQUEST),
     INVALID_INPUT_ANSWER("잘못된 답안 입력입니다", HttpStatus.BAD_REQUEST),
@@ -78,6 +79,7 @@ public enum ErrorCode {
     EMAIL_SEND_FAILED("이메일 전송 실패", HttpStatus.INTERNAL_SERVER_ERROR),
     IO_EXCEPTION("파일 입출력 실패.", HttpStatus.INTERNAL_SERVER_ERROR),
     AWS_EXCEPTION("AWS 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR),
+    KAKAO_API_ERROR("카카오 API 연동 중 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // 503 SERVICE_UNAVAILABLE: 일시적 오류-나중에 다시 시도
     EMAIL_TEMPORARY_FAILURE ("Gmail 임시 오류/리밋/용량", HttpStatus.SERVICE_UNAVAILABLE),
