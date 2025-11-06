@@ -67,7 +67,6 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(user.getId().toString())
-                .claim("tokenType", "ACCESS") // 토큰 타입: ACCESS
                 .claim("memberships", structuredMemberships) // 멤버십 정보 추가
                 .claim("tokenType", TokenType.ACCESS.name()) // 토큰 타입: ACCESS
                 .setIssuedAt(new Date())
