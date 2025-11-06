@@ -242,7 +242,7 @@ class CommentServiceImplTest {
         });
 
         // then
-        // 예외 발생 후, 그 전까지의 로그가 올바르게 출력되었는지 검증
+        // 예외가 발생했으므로, delete 메서드가 호출되지 않았는지 검증
         verify(commentRepository, never()).delete(any(Comment.class));
     }
 
