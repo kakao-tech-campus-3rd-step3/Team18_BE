@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormService;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.global.security.WithMockCustomUser;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -14,7 +14,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
@@ -36,7 +35,7 @@ class ClubApplyFormControllerAuthTest {
 
     @DisplayName("지원서 양식 생성 - 성공 (동아리 관리자)")
     @Test
-    @WithMockUser(authorities = "CLUB_1_CLUB_ADMIN")
+    @WithMockCustomUser(memberships = {"1:CLUB_ADMIN"})
     void createClubApplyForm_withAdminAuth_success() throws Exception {
         // given
         Long clubId = 1L;
@@ -61,7 +60,7 @@ class ClubApplyFormControllerAuthTest {
 
     @DisplayName("지원서 양식 생성 - 실패 (권한 부족)")
     @Test
-    @WithMockUser(authorities = "CLUB_1_CLUB_MEMBER")
+    @WithMockCustomUser(memberships = {"1:CLUB_MEMBER"})
     void createClubApplyForm_withMemberAuth_fail() throws Exception {
         // given
         Long clubId = 1L;
@@ -85,7 +84,7 @@ class ClubApplyFormControllerAuthTest {
 
     @DisplayName("지원서 양식 생성 - 실패 (다른 동아리 관리자)")
     @Test
-    @WithMockUser(authorities = "CLUB_2_CLUB_ADMIN")
+    @WithMockCustomUser(memberships = {"2:CLUB_ADMIN"})
     void createClubApplyForm_withOtherClubAdminAuth_fail() throws Exception {
         // given
         Long targetClubId = 1L;
