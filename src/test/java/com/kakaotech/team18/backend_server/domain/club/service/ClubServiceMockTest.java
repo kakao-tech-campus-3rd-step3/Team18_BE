@@ -692,6 +692,10 @@ public class ClubServiceMockTest {
         User user1 = createUser( "loginId1", "111111");
         User user2 = createUser( "loginId2", "222222");
         User user3 = createUser( "loginId3", "333333");
+        ReflectionTestUtils.setField(user1, "id", 101L);
+        ReflectionTestUtils.setField(user2, "id", 102L);
+        ReflectionTestUtils.setField(user3, "id", 103L);
+
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
 
         Application application1 = createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW);
@@ -713,11 +717,11 @@ public class ClubServiceMockTest {
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
+                        Status.PENDING, 101L),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED, 2L),
+                        Status.APPROVED, 102L),
                 new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
-                        Status.REJECTED, 3L)
+                        Status.REJECTED, 103L)
         );
 
         //when
