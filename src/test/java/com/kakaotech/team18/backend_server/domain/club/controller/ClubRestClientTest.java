@@ -8,6 +8,13 @@ import static org.mockito.BDDMockito.given;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.service.S3Service;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,41 +34,57 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.multipart.MultipartFile;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(
+        webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
+)
 @ActiveProfiles("test")
 public class ClubRestClientTest {
 
     @Autowired
     private ClubRepository clubRepository;
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private ClubMemberRepository clubMemberRepository;
+    @Autowired
+    private JwtProvider jwtProvider;
 
     @MockBean
     private S3Service s3Service;
 
-
     @LocalServerPort
     int port;
 
+    private String accessToken;
+    private Club testClub;
+
     @BeforeEach
     void setUp() {
-        Club club = Club.builder()
+        User testUser = User.builder().name("Test User").email("test@test.com").phoneNumber("010-1234-5678").studentId("20201234").department("Computer Science").build();
+        userRepository.save(testUser);
+
+        testClub = Club.builder()
                 .name("Test Club")
                 .category(com.kakaotech.team18.backend_server.domain.club.entity.Category.STUDY)
                 .shortIntroduction("Test Short Introduction")
                 .location("Test Location")
-                .introduction(ClubIntroduction.builder()
-                        .overview("Test Overview")
-                        .activities("Test Activities")
-                        .ideal("Test Ideal")
-                        .build())
+                .introduction(ClubIntroduction.builder().overview("Test Overview").activities("Test Activities").ideal("Test Ideal").build())
                 .build();
-        clubRepository.save(club);
+        clubRepository.save(testClub);
+
+        ClubMember clubMember = ClubMember.builder().user(testUser).club(testClub).role(Role.CLUB_ADMIN).activeStatus(ActiveStatus.ACTIVE).build();
+        clubMemberRepository.save(clubMember);
+
+        accessToken = jwtProvider.createAccessToken(testUser);
 
         given(s3Service.upload(any(MultipartFile.class))).willReturn("https://mock-s3/test-image.jpg");
     }
 
     @AfterEach
     void tearDown() {
+        clubMemberRepository.deleteAll();
         clubRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @DisplayName("동아리 이미지 업로드 시, 5MB 이하의 파일은 성공한다.")
@@ -97,7 +120,8 @@ public class ClubRestClientTest {
 
         // when
         var response = restClient.put()
-                .uri("/api/clubs/1/images")
+                .uri("/api/clubs/{clubId}/images", testClub.getId())
+                .header("Authorization", "Bearer " + accessToken)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
@@ -142,7 +166,8 @@ public class ClubRestClientTest {
         // when & then: Tomcat에서 연결을 끊기 때문에 ResourceAccessException 발생
         assertThatThrownBy(() ->
                 restClient.put()
-                        .uri("/api/clubs/1/images")
+                        .uri("/api/clubs/{clubId}/images", testClub.getId())
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .body(body)
                         .retrieve()
@@ -189,7 +214,8 @@ public class ClubRestClientTest {
 
         assertThatThrownBy(() ->
                 restClient.put()
-                        .uri("/api/clubs/1/images")
+                        .uri("/api/clubs/{clubId}/images", testClub.getId())
+                        .header("Authorization", "Bearer " + accessToken)
                         .contentType(MediaType.MULTIPART_FORM_DATA)
                         .body(body)
                         .retrieve()

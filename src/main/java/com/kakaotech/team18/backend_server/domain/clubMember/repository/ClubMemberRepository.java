@@ -2,7 +2,9 @@ package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
@@ -12,6 +14,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
 
@@ -66,6 +69,13 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
           and cm.activeStatus = :status
         """)
     Optional<User> findUserByClubIdAndRoleAndStatus(Long clubId, Role role, ActiveStatus status);
+
+    @Query("""            
+            select new com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo(cm.club.id, cm.role)
+            from ClubMember cm
+            where cm.user = :user and cm.activeStatus = com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus.ACTIVE
+            """)
+    List<ClubMembershipInfo> findClubMembershipsByUser(User user);
 
     Optional<ClubMember> findFirstByRole(Role role);
 
