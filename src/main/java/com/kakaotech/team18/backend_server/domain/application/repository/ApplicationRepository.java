@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 
@@ -67,4 +68,23 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
             FROM Application a
             WHERE a.clubApplyForm.club.id = :clubId""")
     List<Application> findAllByClubId(Long clubId);
+
+    @Query("""
+    SELECT a
+    FROM Application a
+    JOIN ClubMember cm ON cm.application = a
+    WHERE cm.club.id = :clubId
+      AND cm.role = :role
+      AND a.stage = :stage
+    """)
+    List<Application> findAllByClubIdAndRoleAndStage(Long clubId, Role role, Stage stage);
+
+    @Query("""
+    SELECT a
+    FROM Application a
+    JOIN ClubMember cm ON cm.application = a
+    WHERE cm.club.id = :clubId
+      AND cm.role = :role
+    """)
+    List<Application> findAllByClubIdAndRole(Long clubId, Role role);
 }

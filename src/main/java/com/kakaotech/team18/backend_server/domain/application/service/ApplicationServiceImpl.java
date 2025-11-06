@@ -343,7 +343,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
 
         if(stage == Stage.INTERVIEW) {
-            List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
+            List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -379,7 +379,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
         if(stage == Stage.FINAL) {
-            List<Application> apps = applicationRepository.findAllByClubIdAndStage(clubId, stage);
+            List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -412,7 +412,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
         }
         if(stage == null) {
-            List<Application> apps = applicationRepository.findAllByClubId(clubId);
+            List<Application> apps = applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT);
             boolean hasPending = apps.stream()
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {
