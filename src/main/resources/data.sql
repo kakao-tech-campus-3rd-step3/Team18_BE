@@ -3,73 +3,73 @@
 -- =========================
 INSERT INTO users (kakao_id, email, name, student_id, phone_number, department)
 VALUES
-    (10001, 'yuna.park@jnu.ac.kr', '박유나', '20250001', '010-2934-5123', 'Computer Science'),
-    (10002, 'taehyun.kim@jnu.ac.kr', '김태현', '20250002', '010-9451-2134', 'Electrical Engineering'),
-    (10003, 'sohee.lee@jnu.ac.kr', '이소희', '20250003', '010-3184-6621', 'Mathematics'),
-    (10004, 'junwoo.choi@jnu.ac.kr', '최준우', '20250004', '010-5763-2448', 'Physics'),
-    (10005, 'hyerin.jung@jnu.ac.kr', '정혜린', '20250005', '010-8362-1098', 'Chemistry'),
-    (10006, 'minjae.kang@jnu.ac.kr', '강민재', '20250006', '010-7142-5567', 'Biology'),
-    (10007, 'jiwon.song@jnu.ac.kr', '송지원', '20250007', '010-9856-3477', 'Statistics'),
-    (10008, 'haneul.yoo@jnu.ac.kr', '유하늘', '20250008', '010-2634-0985', 'Business Administration'),
-    (10009, 'seungmin.han@jnu.ac.kr', '한승민', '20250009', '010-6432-7744', 'Economics'),
-    (10010, 'ara.kim@jnu.ac.kr', '김아라', '20250010', '010-1112-9983', 'Design'),
-    (10011, 'gyuri.park@jnu.ac.kr', '박규리', '20250011', '010-8654-3339', 'Media & Communication'),
-    (10012, 'donghyun.lee@jnu.ac.kr', '이동현', '20250012', '010-2854-7722', 'Education'),
-    (10013, 'eunji.jo@jnu.ac.kr', '조은지', '20250013', '010-9934-1155', 'Philosophy'),
-    (10014, 'suhyun.kwon@jnu.ac.kr', '권수현', '20250014', '010-4257-2299', 'Sociology'),
-    (10015, 'haeun.cho@jnu.ac.kr', '조하은', '20250015', '010-6712-5543', 'History'),
-    (10016, 'junseo.yang@jnu.ac.kr', '양준서', '20250016', '010-9832-4711', 'Artificial Intelligence'),
-    (10017, 'jihye.yoon@jnu.ac.kr', '윤지혜', '20250017', '010-5623-7812', 'Data Science'),
-    (10018, 'byungwoo.kim@jnu.ac.kr', '김병우', '20250018', '010-7356-1985', 'Civil Engineering'),
-    (10019, 'sumin.hwang@jnu.ac.kr', '황수민', '20250019', '010-2178-3345', 'Architecture'),
-    (10020, 'nayeon.lee@jnu.ac.kr', '이나연', '20250020', '010-6943-5023', 'Korean Literature'),
-    (10021, 'jaemin.park@jnu.ac.kr', '박재민', '20250021', '010-2183-6602', 'Computer Science'),
-    (10022, 'jiyoon.kim@jnu.ac.kr', '김지윤', '20250022', '010-8755-4431', 'Economics'),
-    (10023, 'minwoo.choi@jnu.ac.kr', '최민우', '20250023', '010-6734-8710', 'Industrial Design'),
-    (10024, 'haerin.yoo@jnu.ac.kr', '유해린', '20250024', '010-9834-1123', 'Philosophy'),
-    (10025, 'chsick9@gmail.com', '김춘식', '20250025', '010-5182-7384', 'Electrical Engineering'),
-    (10026, 'dohyun.lee@jnu.ac.kr', '이도현', '20250026', '010-8321-9499', 'Mechanical Engineering'),
-    (10027, 'welkin@naver.com', '이상현', '20250027', '010-1557-8848', 'Industrial Engineering'),
-    (10028, 'yejin.kim@jnu.ac.kr', '김예진', '20250028', '010-6571-2390', 'Computer Science'),
-    (10029, 'artjin@example.com', '박예진', '20250029', '010-8765-4321', 'Business Administration'),
-    (10030, 'hyunwoo.jung@jnu.ac.kr', '정현우', '20250030', '010-3421-5512', 'Economics'),
-    (10031, 'suhyeon.lee@jnu.ac.kr', '이수현', '20250031', '010-6853-9432', 'Artificial Intelligence'),
-    (10032, 'minji.park@jnu.ac.kr', '박민지', '20250032', '010-9324-8123', 'Data Science'),
-    (10033, 'jiho.kang@jnu.ac.kr', '강지호', '20250033', '010-4421-7321', 'Psychology'),
-    (10034, 'yujin.son@jnu.ac.kr', '손유진', '20250034', '010-7712-6254', 'Education'),
-    (10035, 'soobin.ahn@jnu.ac.kr', '안수빈', '20250035', '010-9863-2541', 'Visual Design'),
-    (10036, 'dongyeon.kim@jnu.ac.kr', '김동연', '20250036', '010-3511-7843', 'Statistics'),
-    (10037, 'yeona.han@jnu.ac.kr', '한연아', '20250037', '010-2938-1599', 'Chemistry'),
-    (10038, 'gunwoo.park@jnu.ac.kr', '박건우', '20250038', '010-7654-8893', 'Civil Engineering'),
-    (10039, 'suhyun.kim@jnu.ac.kr', '김수현', '20250039', '010-4738-3322', 'Biology'),
-    (10040, 'yuri.lee@jnu.ac.kr', '이유리', '20250040', '010-5123-9984', 'Physics'),
-    (10041, 'jaeho.cho@jnu.ac.kr', '조재호', '20250041', '010-8641-2148', 'Architecture'),
-    (10042, 'haeun.kwon@jnu.ac.kr', '권해은', '20250042', '010-7412-8975', 'Philosophy'),
-    (10043, 'gyubin.kim@jnu.ac.kr', '김규빈', '20250043', '010-2321-5638', 'Computer Science'),
-    (10044, 'siyoon.han@jnu.ac.kr', '한시윤', '20250044', '010-4123-9921', 'Economics'),
-    (10045, 'jinho.park@jnu.ac.kr', '박진호', '20250045', '010-7766-4422', 'Computer Science'),
-    (10046, 'minjeong.kim@jnu.ac.kr', '김민정', '20250046', '010-9123-6233', 'Electrical Engineering'),
-    (10047, 'woojin.choi@jnu.ac.kr', '최우진', '20250047', '010-2132-8854', 'Mathematics'),
-    (10048, 'seoyoung.yoon@jnu.ac.kr', '윤서영', '20250048', '010-5511-4343', 'Physics'),
-    (10049, 'taehwan.jang@jnu.ac.kr', '장태환', '20250049', '010-8344-8823', 'Chemistry'),
-    (10050, 'yebin.kim@jnu.ac.kr', '김예빈', '20250050', '010-1267-9901', 'Biology'),
-    (10051, 'hyejin.park@jnu.ac.kr', '박혜진', '20250051', '010-7612-1185', 'Statistics'),
-    (10052, 'junho.yoon@jnu.ac.kr', '윤준호', '20250052', '010-6254-3712', 'Business Administration'),
-    (10053, 'sua.lee@jnu.ac.kr', '이수아', '20250053', '010-9931-4741', 'Economics'),
-    (10054, 'minkyu.kim@jnu.ac.kr', '김민규', '20250054', '010-7483-6214', 'Design'),
-    (10055, 'eunsol.choi@jnu.ac.kr', '최은솔', '20250055', '010-3412-7725', 'Media Studies'),
-    (10056, 'jinhyuk.kang@jnu.ac.kr', '강진혁', '20250056', '010-6234-8824', 'Education'),
-    (10057, 'yeseo.park@jnu.ac.kr', '박예서', '20250057', '010-9732-4122', 'Philosophy'),
-    (10058, 'jiwoo.kim@jnu.ac.kr', '김지우', '20250058', '010-2745-8811', 'Sociology'),
-    (10059, 'doyoung.han@jnu.ac.kr', '한도영', '20250059', '010-6321-6612', 'History'),
-    (10060, 'hajin.yoo@jnu.ac.kr', '유하진', '20250060', '010-8899-5543', 'Artificial Intelligence'),
-    (10061, 'yujin.kang@jnu.ac.kr', '강유진', '20250061', '010-1442-3338', 'Data Science'),
-    (10062, 'haneul.kim@jnu.ac.kr', '김하늘', '20250062', '010-3232-8222', 'Civil Engineering'),
-    (10063, 'sihyeon.lee@jnu.ac.kr', '이시현', '20250063', '010-9123-7765', 'Architecture'),
-    (10064, 'yujin.lim@jnu.ac.kr', '임유진', '20250064', '010-5534-9332', 'Korean Literature'),
-    (10065, 'gunwoo.jang@jnu.ac.kr', '장건우', '20250065', '010-7311-4883', 'Civil Engineering'),
-    (10066, 'minji.yoon@jnu.ac.kr', '윤민지', '20250066', '010-8253-6662', 'Architecture'),
-    (10067, 'suhyun.kim2@jnu.ac.kr', '김수현', '20250067', '010-9511-7789', 'Korean Literature');
+    (10001, 'yuna.park@jnu.ac.kr', '박유나', '202501', '010-2934-5123', 'Computer Science'),
+    (10002, 'taehyun.kim@jnu.ac.kr', '김태현', '202502', '010-9451-2134', 'Electrical Engineering'),
+    (10003, 'sohee.lee@jnu.ac.kr', '이소희', '202503', '010-3184-6621', 'Mathematics'),
+    (10004, 'junwoo.choi@jnu.ac.kr', '최준우', '202504', '010-5763-2448', 'Physics'),
+    (10005, 'hyerin.jung@jnu.ac.kr', '정혜린', '202505', '010-8362-1098', 'Chemistry'),
+    (10006, 'minjae.kang@jnu.ac.kr', '강민재', '202506', '010-7142-5567', 'Biology'),
+    (10007, 'jiwon.song@jnu.ac.kr', '송지원', '202507', '010-9856-3477', 'Statistics'),
+    (10008, 'haneul.yoo@jnu.ac.kr', '유하늘', '202508', '010-2634-0985', 'Business Administration'),
+    (10009, 'seungmin.han@jnu.ac.kr', '한승민', '202509', '010-6432-7744', 'Economics'),
+    (10010, 'ara.kim@jnu.ac.kr', '김아라', '202510', '010-1112-9983', 'Design'),
+    (10011, 'gyuri.park@jnu.ac.kr', '박규리', '202511', '010-8654-3339', 'Media & Communication'),
+    (10012, 'donghyun.lee@jnu.ac.kr', '이동현', '202512', '010-2854-7722', 'Education'),
+    (10013, 'eunji.jo@jnu.ac.kr', '조은지', '202513', '010-9934-1155', 'Philosophy'),
+    (10014, 'suhyun.kwon@jnu.ac.kr', '권수현', '202514', '010-4257-2299', 'Sociology'),
+    (10015, 'haeun.cho@jnu.ac.kr', '조하은', '202515', '010-6712-5543', 'History'),
+    (10016, 'junseo.yang@jnu.ac.kr', '양준서', '202516', '010-9832-4711', 'Artificial Intelligence'),
+    (10017, 'jihye.yoon@jnu.ac.kr', '윤지혜', '202517', '010-5623-7812', 'Data Science'),
+    (10018, 'byungwoo.kim@jnu.ac.kr', '김병우', '202518', '010-7356-1985', 'Civil Engineering'),
+    (10019, 'sumin.hwang@jnu.ac.kr', '황수민', '202519', '010-2178-3345', 'Architecture'),
+    (10020, 'nayeon.lee@jnu.ac.kr', '이나연', '202520', '010-6943-5023', 'Korean Literature'),
+    (10021, 'jaemin.park@jnu.ac.kr', '박재민', '202521', '010-2183-6602', 'Computer Science'),
+    (10022, 'jiyoon.kim@jnu.ac.kr', '김지윤', '202522', '010-8755-4431', 'Economics'),
+    (10023, 'minwoo.choi@jnu.ac.kr', '최민우', '202523', '010-6734-8710', 'Industrial Design'),
+    (10024, 'haerin.yoo@jnu.ac.kr', '유해린', '202524', '010-9834-1123', 'Philosophy'),
+    (10025, 'chsick9@gmail.com', '김춘식', '202525', '010-5182-7384', 'Electrical Engineering'),
+    (10026, 'dohyun.lee@jnu.ac.kr', '이도현', '202526', '010-8321-9499', 'Mechanical Engineering'),
+    (10027, 'welkin@naver.com', '이상현', '202527', '010-1557-8848', 'Industrial Engineering'),
+    (10028, 'yejin.kim@jnu.ac.kr', '김예진', '202528', '010-6571-2390', 'Computer Science'),
+    (10029, 'artjin@example.com', '박예진', '202529', '010-8765-4321', 'Business Administration'),
+    (10030, 'hyunwoo.jung@jnu.ac.kr', '정현우', '202530', '010-3421-5512', 'Economics'),
+    (10031, 'suhyeon.lee@jnu.ac.kr', '이수현', '202531', '010-6853-9432', 'Artificial Intelligence'),
+    (10032, 'minji.park@jnu.ac.kr', '박민지', '202532', '010-9324-8123', 'Data Science'),
+    (10033, 'jiho.kang@jnu.ac.kr', '강지호', '202533', '010-4421-7321', 'Psychology'),
+    (10034, 'yujin.son@jnu.ac.kr', '손유진', '202534', '010-7712-6254', 'Education'),
+    (10035, 'soobin.ahn@jnu.ac.kr', '안수빈', '202535', '010-9863-2541', 'Visual Design'),
+    (10036, 'dongyeon.kim@jnu.ac.kr', '김동연', '202536', '010-3511-7843', 'Statistics'),
+    (10037, 'yeona.han@jnu.ac.kr', '한연아', '202537', '010-2938-1599', 'Chemistry'),
+    (10038, 'gunwoo.park@jnu.ac.kr', '박건우', '202538', '010-7654-8893', 'Civil Engineering'),
+    (10039, 'suhyun.kim@jnu.ac.kr', '김수현', '202539', '010-4738-3322', 'Biology'),
+    (10040, 'yuri.lee@jnu.ac.kr', '이유리', '202540', '010-5123-9984', 'Physics'),
+    (10041, 'jaeho.cho@jnu.ac.kr', '조재호', '202541', '010-8641-2148', 'Architecture'),
+    (10042, 'haeun.kwon@jnu.ac.kr', '권해은', '202542', '010-7412-8975', 'Philosophy'),
+    (10043, 'gyubin.kim@jnu.ac.kr', '김규빈', '202543', '010-2321-5638', 'Computer Science'),
+    (10044, 'siyoon.han@jnu.ac.kr', '한시윤', '202544', '010-4123-9921', 'Economics'),
+    (10045, 'jinho.park@jnu.ac.kr', '박진호', '202545', '010-7766-4422', 'Computer Science'),
+    (10046, 'minjeong.kim@jnu.ac.kr', '김민정', '202546', '010-9123-6233', 'Electrical Engineering'),
+    (10047, 'woojin.choi@jnu.ac.kr', '최우진', '202547', '010-2132-8854', 'Mathematics'),
+    (10048, 'seoyoung.yoon@jnu.ac.kr', '윤서영', '202548', '010-5511-4343', 'Physics'),
+    (10049, 'taehwan.jang@jnu.ac.kr', '장태환', '202549', '010-8344-8823', 'Chemistry'),
+    (10050, 'yebin.kim@jnu.ac.kr', '김예빈', '202550', '010-1267-9901', 'Biology'),
+    (10051, 'hyejin.park@jnu.ac.kr', '박혜진', '202551', '010-7612-1185', 'Statistics'),
+    (10052, 'junho.yoon@jnu.ac.kr', '윤준호', '202552', '010-6254-3712', 'Business Administration'),
+    (10053, 'sua.lee@jnu.ac.kr', '이수아', '202553', '010-9931-4741', 'Economics'),
+    (10054, 'minkyu.kim@jnu.ac.kr', '김민규', '202554', '010-7483-6214', 'Design'),
+    (10055, 'eunsol.choi@jnu.ac.kr', '최은솔', '202555', '010-3412-7725', 'Media Studies'),
+    (10056, 'jinhyuk.kang@jnu.ac.kr', '강진혁', '202556', '010-6234-8824', 'Education'),
+    (10057, 'yeseo.park@jnu.ac.kr', '박예서', '202557', '010-9732-4122', 'Philosophy'),
+    (10058, 'jiwoo.kim@jnu.ac.kr', '김지우', '202558', '010-2745-8811', 'Sociology'),
+    (10059, 'doyoung.han@jnu.ac.kr', '한도영', '202559', '010-6321-6612', 'History'),
+    (10060, 'hajin.yoo@jnu.ac.kr', '유하진', '202560', '010-8899-5543', 'Artificial Intelligence'),
+    (10061, 'yujin.kang@jnu.ac.kr', '강유진', '202561', '010-1442-3338', 'Data Science'),
+    (10062, 'haneul.kim@jnu.ac.kr', '김하늘', '202562', '010-3232-8222', 'Civil Engineering'),
+    (10063, 'sihyeon.lee@jnu.ac.kr', '이시현', '202563', '010-9123-7765', 'Architecture'),
+    (10064, 'yujin.lim@jnu.ac.kr', '임유진', '202564', '010-5534-9332', 'Korean Literature'),
+    (10065, 'gunwoo.jang@jnu.ac.kr', '장건우', '202565', '010-7311-4883', 'Civil Engineering'),
+    (10066, 'minji.yoon@jnu.ac.kr', '윤민지', '202566', '010-8253-6662', 'Architecture'),
+    (10067, 'suhyun.kim2@jnu.ac.kr', '김수현', '202567', '010-9511-7789', 'Korean Literature');
 
 -- =========================
 -- 2) CLUB_INTRODUCTION
@@ -164,18 +164,33 @@ INSERT INTO club_image (image_url, club_introduction_id)
 VALUES
 -- 1. 사회문제탐구 (토론/세미나)
 ('https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60', 1),
+( 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60',1),
+('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60',1),
+ ('https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60',1),
 
 -- 2. AI·데이터 연구
-('https://images.unsplash.com/photo-1669023414210-8b4a416f3b64?w=1600&auto=format&fit=crop&q=60', 2),
+('https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60',2),
+('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60',2),
+('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60',2),
+('https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60',2),
 
 -- 3. 프로그래밍·개발
-('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60', 3),
+('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60',3),
+('https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=1600&auto=format&fit=crop&q=60',3),
+('https://images.unsplash.com/photo-1587620931283-d91fbc3a188b?w=1600&auto=format&fit=crop&q=60',3),
+('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&auto=format&fit=crop&q=60',3),
 
 -- 4. 로봇공학
-('https://images.unsplash.com/photo-1601944177264-2215db4d6b86?w=1600&auto=format&fit=crop&q=60', 4),
+('https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&auto=format&fit=crop&q=60',4),
+ ('https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?w=1600&auto=format&fit=crop&q=60',4),
+ ('https://images.unsplash.com/photo-1601049676869-702ea24cfd92?w=1600&auto=format&fit=crop&q=60',4),
+ ('https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=1600&auto=format&fit=crop&q=60',4),
 
 -- 5. 예술·디자인
-('https://images.unsplash.com/photo-1526498460520-4c246339dccb?w=1600&auto=format&fit=crop&q=60', 5),
+('https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60',5),
+('https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60',5),
+('https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60',5),
+('https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60',5),
 
 -- 6. 음악·공연
 ('https://images.unsplash.com/photo-1511376777868-611b54f68947?w=1600&auto=format&fit=crop&q=60', 6),
@@ -233,58 +248,58 @@ VALUES
 
 -- 2. LITERATURE
 ('에이아이디브', 'LITERATURE', '공5 202호', 'AI·데이터 분석 연구를 통해 기술을 배우는 학술 동아리', 2,
- '2025-03-02 09:00:00', '2025-03-16 18:00:00', '매주 수요일 오후 7시', '프로그래밍 기초자 우대'),
+ '2025-03-02 09:00:00', '2025-12-16 18:00:00', '매주 수요일 오후 7시', '프로그래밍 기초자 우대'),
 
 -- 3. VOLUNTEER
-('코드마스터', 'VOLUNTEER', '공5 102호', '프로그래밍과 최신 기술을 함께 공부하고 프로젝트로 실습하는 동아리', 3,
+('코드마스터', 'VOLUNTEER', '공5 102호', '프로그래밍과 최신 기술을 함께 공부하고 교육 봉사하는 동아리', 3,
  '2025-09-05 00:00:00', '2025-11-30 23:59:00', '매주 수요일 오후 7시', '모든 학년 지원 가능'),
 
 -- 4. RELIGION
-('로보테크', 'RELIGION', '공4 104호', '로봇 설계와 제어를 함께 배우는 공학 창작 동아리', 4,
+('로보테크', 'STUDY', '공4 104호', '로봇 설계와 제어를 함께 배우는 공학 창작 동아리', 4,
  '2025-03-04 09:00:00', '2025-03-18 18:00:00', '매주 목요일 오후 6시', '기계·전기전자 전공자 우대'),
 
 -- 5. SPORTS
-('아트픽', 'SPORTS', '예술관 301호', '창작 활동과 전시를 중심으로 활동하는 예술 동아리', 5,
+('아트픽', 'VOLUNTEER', '예술관 301호', '창작 활동과 전시를 중심으로 활동하는 예술봉사 동아리', 5,
  '2025-09-07 00:00:00', '2025-11-30 23:59:00', '매주 금요일 오후 5시', '학년·전공 무관, 예술 열정만 있으면 OK'),
 
 -- 6. STUDY
-('리버스', 'STUDY', '음악관 B101', '밴드·보컬·작곡 등 음악 공연을 함께하는 동아리', 6,
- '2025-03-06 09:00:00', '2025-03-20 18:00:00', '매주 화요일 오후 6시', '오디션 후 합격자 활동 가능'),
+('리버스', 'STUDY', '음악관 B101', '밴드·보컬·작곡 등 음악 공연을 공부하는 동아리', 6,
+ '2025-03-06 09:00:00', '2025-12-20 18:00:00', '매주 화요일 오후 6시', '오디션 후 합격자 활동 가능'),
 
 -- 7. LITERATURE
-('포커스', 'LITERATURE', '미디어관 107호', '사진과 영상으로 세상을 기록하는 시각예술 동아리', 7,
+('포커스', 'LITERATURE', '미디어관 107호', '사진과 영상으로 세상을 기록하는 학술 동아리', 7,
  '2025-03-07 09:00:00', '2025-03-21 18:00:00', '매주 수요일 오후 6시', '개인 카메라 보유자 우대'),
 
 -- 8. VOLUNTEER
-('온기나눔', 'VOLUNTEER', '사회관 108호', '지역사회 봉사와 나눔 실천을 중심으로 하는 봉사 동아리', 8,
- '2025-03-08 09:00:00', '2025-03-22 18:00:00', '매주 토요일 오전 10시', '정기 봉사 참여 필수'),
+('온기나눔', 'RELIGION', '사회관 108호', '지역사회 봉사와 나눔 실천을 중심으로 하는 종교봉사 동아리', 8,
+ '2025-03-08 09:00:00', '2025-12-22 18:00:00', '매주 토요일 오전 10시', '정기 봉사 참여 필수'),
 
 -- 9. RELIGION
-('비즈온', 'RELIGION', '경영관 201호', '창업 아이디어를 현실로 만드는 비즈니스 창업 동아리', 9,
+('비즈온', 'STUDY', '경영관 201호', '창업 아이디어를 현실로 만드는 비즈니스 공부 동아리', 9,
  '2025-03-09 09:00:00', '2025-03-23 18:00:00', '매주 월요일 오후 6시', '창업 경진대회 참가 의지 필수'),
 
 -- 10. SPORTS
-('핀라이트', 'SPORTS', '경상관 110호', '경제·금융 지식을 함께 배우는 투자 학술 동아리', 10,
- '2025-03-10 09:00:00', '2025-03-24 18:00:00', '매주 금요일 오후 7시', '경제신문 정기 구독자 우대'),
+('핀라이트', 'STUDY', '경상관 110호', '경제·금융 지식을 함께 배우는 투자 학술 동아리', 10,
+ '2025-03-10 09:00:00', '2025-12-24 18:00:00', '매주 금요일 오후 7시', '경제신문 정기 구독자 우대'),
 
 -- 11. STUDY
-('글로비아', 'STUDY', '국제관 111호', '영어 토론과 국제 교류를 통해 글로벌 역량을 키우는 동아리', 11,
- '2025-03-11 09:00:00', '2025-03-25 18:00:00', '매주 화요일 오후 7시', '외국인 교류 프로그램 참여 필수'),
+('글로비아', 'VOLUNTEER', '국제관 111호', '영어 토론과 국제 봉사를 통해 글로벌 역량을 키우는 동아리', 11,
+ '2025-03-11 09:00:00', '2025-12-25 18:00:00', '매주 화요일 오후 7시', '외국인 교류 프로그램 참여 필수'),
 
 -- 12. LITERATURE
 ('사이언스큐브', 'LITERATURE', '과학관 112호', '자유 실험과 토론을 통해 과학을 탐구하는 연구 동아리', 12,
- '2025-03-12 09:00:00', '2025-03-26 18:00:00', '매주 목요일 오후 5시', '팀별 연구 결과 발표 필수'),
+ '2025-03-12 09:00:00', '2025-12-26 18:00:00', '매주 목요일 오후 5시', '팀별 연구 결과 발표 필수'),
 
 -- 13. VOLUNTEER
-('글빛', 'VOLUNTEER', '인문관 113호', '문학과 창작을 통해 감성과 표현을 나누는 문예 동아리', 13,
- '2025-03-13 09:00:00', '2025-03-27 18:00:00', '매주 금요일 오후 6시', '창작 경험자 우대'),
+('글빛', 'LITERATURE', '인문관 113호', '문학과 창작을 통해 감성과 표현을 나누는 문예 동아리', 13,
+ '2025-03-13 09:00:00', '2025-12-27 18:00:00', '매주 금요일 오후 6시', '창작 경험자 우대'),
 
 -- 14. RELIGION
-('무대열전', 'RELIGION', '예술관 114호', '연극과 공연으로 이야기를 전하는 공연예술 동아리', 14,
- '2025-03-14 09:00:00', '2025-03-28 18:00:00', '매주 토요일 오후 1시', '공연 전 참여율 80% 이상 필요'),
+('무대열전', 'RELIGION', '예술관 114호', '연극과 공연으로 종교이야기를 전하는 공연예술 동아리', 14,
+ '2025-03-14 09:00:00', '2025-12-28 18:00:00', '매주 토요일 오후 1시', '공연 전 참여율 80% 이상 필요'),
 
 -- 15. SPORTS
-('겜팩토리', 'SPORTS', '공6 115호', '게임 개발과 디자인을 팀으로 배우는 창작 동아리', 15,
+('겜팩토리', 'SPORTS', '공6 115호', 'e스포츠식 게임 개발과 디자인을 팀으로 배우는 창작 동아리', 15,
  '2025-03-15 09:00:00', '2025-03-29 18:00:00', '매주 수요일 오후 6시', 'Unity 또는 Unreal 경험자 우대'),
 
 -- 16. STUDY
@@ -292,19 +307,19 @@ VALUES
  '2025-03-16 09:00:00', '2025-03-30 18:00:00', '매주 목요일 오후 7시', '촬영·편집 워크숍 필수 참여'),
 
 -- 17. LITERATURE
-('로드메이커', 'LITERATURE', '인문관 117호', '여행과 문화탐방을 통해 세계를 배우는 교양 동아리', 17,
- '2025-03-17 09:00:00', '2025-03-31 18:00:00', '매주 금요일 오후 6시', '정기 탐방 참여 의무'),
+('로드메이커', 'STUDY', '인문관 117호', '여행과 문화탐방을 통해 세계를 배우는 교양 동아리', 17,
+ '2025-03-17 09:00:00', '2025-12-31 18:00:00', '매주 금요일 오후 6시', '정기 탐방 참여 의무'),
 
 -- 18. VOLUNTEER
-('FC JNU', 'VOLUNTEER', '운동장', '축구를 통해 교류하고 건강을 챙기는 체육 동아리', 18,
+('FC JNU', 'SPORTS', '운동장', '축구를 통해 교류하고 건강을 챙기는 체육 동아리', 18,
  '2025-03-18 09:00:00', '2025-04-01 18:00:00', '매주 수요일 오후 7시', '연습 경기 참여 필수'),
 
 -- 19. RELIGION
-('그린리프', 'RELIGION', '자연대 119호', '환경 보호와 지속가능한 삶을 실천하는 친환경 동아리', 19,
- '2025-03-19 09:00:00', '2025-04-02 18:00:00', '매주 목요일 오후 6시', '플로깅 등 야외활동 참여 필수'),
+('그린리프', 'VOLUNTEER', '자연대 119호', '환경 보호와 지속가능한 삶을 실천하는 친환경 동아리', 19,
+ '2025-03-19 09:00:00', '2025-12-02 18:00:00', '매주 목요일 오후 6시', '플로깅 등 야외활동 참여 필수'),
 
 -- 20. SPORTS
-('에어로랩', 'SPORTS', '공학관 옥상 실험실', '드론과 항공기술을 연구·제작하는 공학 동아리', 20,
+('에어로랩', 'STUDY', '공학관 옥상 실험실', '드론과 항공기술을 연구·제작하는 공학 동아리', 20,
  '2025-03-20 09:00:00', '2025-04-03 18:00:00', '매주 금요일 오후 7시', '비행 실험 안전수칙 준수 필수');
 
 -- =========================
