@@ -44,6 +44,11 @@ public class PrincipalDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("유효하지 않은 사용자 식별자(subject): " + username, e);
         }
 
+        // 사용자 존재 여부 검증
+        if (!userRepository.existsById(userId)) {
+            throw new UsernameNotFoundException("해당 ID의 사용자를 찾을 수 없습니다: " + username);
+        }
+
         // DB 조회 없이, userId와 memberships만으로 PrincipalDetails를 생성합니다.
         return new PrincipalDetails(userId, memberships);
     }
