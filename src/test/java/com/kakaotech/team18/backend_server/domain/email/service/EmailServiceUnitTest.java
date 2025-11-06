@@ -213,7 +213,7 @@ class EmailServiceUnitTest {
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
-        when(applicationRepository.findAllByClubIdAndStage(77L, Stage.INTERVIEW))
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(77L, Role.APPLICANT, Stage.INTERVIEW))
                 .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("면접 합격 안내 메시지");
@@ -296,7 +296,7 @@ class EmailServiceUnitTest {
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
-        when(applicationRepository.findAllByClubIdAndStage(88L, Stage.FINAL))
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(88L, Role.APPLICANT, Stage.FINAL))
                 .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("최종 합격 안내 메시지");
@@ -377,7 +377,7 @@ class EmailServiceUnitTest {
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
-        when(applicationRepository.findAllByClubId(clubId))
+        when(applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT))
                 .thenReturn(List.of(appApproved, appRejected));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("공지 메시지");
@@ -441,7 +441,7 @@ class EmailServiceUnitTest {
         when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
 
-        when(applicationRepository.findAllByClubIdAndStage(clubId, Stage.INTERVIEW))
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
                 .thenReturn(List.of(appPending));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
@@ -475,7 +475,7 @@ class EmailServiceUnitTest {
         when(appPending.getStage()).thenReturn(Stage.FINAL);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
 
-        when(applicationRepository.findAllByClubIdAndStage(clubId, Stage.FINAL))
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.FINAL))
                 .thenReturn(List.of(appPending));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
@@ -507,7 +507,7 @@ class EmailServiceUnitTest {
         Application appPending = mock(Application.class);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
 
-        when(applicationRepository.findAllByClubId(clubId))
+        when(applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT))
                 .thenReturn(List.of(appPending));
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
