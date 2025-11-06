@@ -73,9 +73,9 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     @Query("""            
             select new com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo(cm.club.id, cm.role)
             from ClubMember cm
-            where cm.user = :user
+            where cm.user = :user and cm.activeStatus = com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus.ACTIVE
             """)
-    List<ClubMembershipInfo> findClubMembershipsByUser(@Param("user") User user);
+    List<ClubMembershipInfo> findClubMembershipsByUser(User user);
 
     Optional<ClubMember> findFirstByRole(Role role);
 
