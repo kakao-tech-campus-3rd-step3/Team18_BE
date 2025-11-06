@@ -73,6 +73,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
                 // 지원서 제출 API (공개)
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
+                // 동아리 후기 조회 API (공개)
+                .requestMatchers(HttpMethod.GET, "/api/clubs/*/reviews").permitAll()
                 .anyRequest().authenticated()
         );
 
