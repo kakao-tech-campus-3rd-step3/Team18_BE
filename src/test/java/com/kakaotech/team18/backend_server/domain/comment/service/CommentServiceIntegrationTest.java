@@ -29,7 +29,7 @@ class CommentServiceIntegrationTest {
 
     @DisplayName("평균점수 업데이트 실패 - 락 경합으로 재시도 후 실패")
     @Test
-    void updateAverageRating_fail_afterRetries_thenRecover() {
+    void updateAverageRating_fail_afterRetries_throwsTemporaryServerConflictException() {
         // given
         final Long applicationId = 1L;
         final String expectedExceptionDetail = "DB Lock failed";
