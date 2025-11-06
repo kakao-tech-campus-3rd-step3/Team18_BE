@@ -55,15 +55,13 @@ public class ApplicationController {
             @ApiResponse(responseCode = "200", description = "상태 변경 성공"),
             @ApiResponse(responseCode = "404", description = "상태를 변경할 지원서를 찾을 수 없음")
     })
-    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutiveForApplication(#applicationId)")
     @PatchMapping("/{clubId}/applications/{applicationId}/status")
     public ResponseEntity<SuccessResponseDto> updateApplicationStatus(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId,
             @Parameter(description = "상태를 변경할 지원서의 고유 ID", required = true, example = "100") @PathVariable("applicationId") Long applicationId,
             @Valid @RequestBody ApplicationStatusUpdateRequestDto requestDto
     ) {
-        // URL 경로의 clubId는 인가(Authorization)에 사용됩니다.
-        // 서비스 계층에서도 필요 시 clubId를 사용하여 추가적인 검증을 수행할 수 있습니다.
         SuccessResponseDto responseDto = applicationService.updateApplicationStatus(applicationId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
