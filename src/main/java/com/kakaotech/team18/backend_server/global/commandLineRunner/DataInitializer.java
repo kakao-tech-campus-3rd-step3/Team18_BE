@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@Component
+@Component
 @Order(1)
 @RequiredArgsConstructor
 @Profile({"prod", "default"})
@@ -705,7 +705,10 @@ public class DataInitializer implements CommandLineRunner {
                         "팀과 협력하며 꾸준히 학습/성장하려는 자세.")
                 .build();
         intro1.addImages(List.of(
-                "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60"
         ));
 
         Club club1 = Club.builder()
@@ -729,12 +732,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("논리적 사고력과 꾸준한 학습 태도를 지닌 인재. 새로운 기술을 탐구하고 실무 응용에 관심이 많은 학생.")
                 .build();
         intro2.addImages(List.of(
-                "https://images.unsplash.com/photo-1669023414210-8b4a416f3b64?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%87%8C%EA%B0%80%EC%9E%88%EB%8A%94-%EC%BB%B4%ED%93%A8%ED%84%B0-%ED%9A%8C%EB%A1%9C-%EA%B8%B0%ED%8C%90-_0iV9LmPDn0",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%B9%A8%EA%B0%84-%EB%82%98%EB%AC%B4-%ED%85%8C%EC%9D%B4%EB%B8%94%EC%97%90-%ED%9D%91%EC%9D%B8%EA%B3%BC-%EB%B0%B1%EC%9D%B8-%EB%A1%9C%EB%B4%87-%EC%9E%A5%EB%82%9C%EA%B0%90-zwd435-ewb4",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%85%B8%ED%8A%B8%EB%B6%81-%EC%BB%B4%ED%93%A8%ED%84%B0-%EC%9C%84%EC%97%90-%EB%86%93%EC%9D%B8-%ED%9C%B4%EB%8C%80%ED%8F%B0-bV_P23FXxhI",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/ai-%EC%9D%B8%EA%B3%B5-%EC%A7%80%EB%8A%A5-%EA%B0%9C%EB%85%90-3d-%EB%A0%8C%EB%8D%94%EB%A7%81-%EA%B0%9C%EB%85%90%EC%A0%81-%EC%9D%B4%EB%AF%B8%EC%A7%80-sv9G6e2OrZM"
         ));
 
         Club club2 = Club.builder()
                 .name("에이아이디브")
-                .category(Category.LITERATURE)
+                .category(Category.STUDY)
                 .location("공5 202호")
                 .shortIntroduction("AI·데이터 분석 연구를 통해 기술을 배우는 학술 동아리")
                 .introduction(intro2)
@@ -752,12 +758,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("배움에 열정적이며 문제 해결에 적극적인 개발자 지향 인재. 협업과 피드백을 즐기는 태도.")
                 .build();
         intro3.addImages(List.of(
-                "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1587620931283-d91fbc3a188b?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&auto=format&fit=crop&q=60"
         ));
 
         Club club3 = Club.builder()
                 .name("코드마스터")
-                .category(Category.VOLUNTEER)
+                .category(Category.STUDY)
                 .location("공5 102호")
                 .shortIntroduction("프로그래밍과 최신 기술을 함께 공부하고 프로젝트로 실습하는 동아리")
                 .introduction(intro3)
@@ -776,12 +785,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("기계적 구조와 제어에 흥미를 가지고, 꼼꼼하게 문제를 해결하는 인재.")
                 .build();
         intro4.addImages(List.of(
-                "https://images.unsplash.com/photo-1601944177264-2215db4d6b86?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1601049676869-702ea24cfd92?w=1600&auto=format&fit=crop&q=60",
+                "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=1600&auto=format&fit=crop&q=60"
         ));
 
         Club club4 = Club.builder()
                 .name("로보테크")
-                .category(Category.RELIGION)
+                .category(Category.VOLUNTEER)
                 .location("공4 104호")
                 .shortIntroduction("로봇 설계와 제어를 함께 배우는 공학 창작 동아리")
                 .introduction(intro4)
@@ -800,12 +812,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("창의적이며 꾸준히 표현 활동을 이어갈 수 있는 인재. 감각과 협동심을 겸비한 학생.")
                 .build();
         intro5.addImages(List.of(
-                "https://images.unsplash.com/photo-1526498460520-4c246339dccb?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1526498460520-4c246339dccb?w=1600&auto=format&fit=crop&q=60",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EA%BD%83-%EC%82%AC%EB%9E%8C%EC%9D%98-%EC%B4%88%EC%83%81%ED%99%94-%EB%82%99%EC%84%9C-fT49QnFucQ8",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%85%B9%EC%83%89-%EC%8B%9D%EB%AC%BC%EC%97%90-%EA%B0%88%EC%83%89%EA%B3%BC-%EA%B2%80%EC%9D%80-%EC%83%89-%EC%83%88-YoK5pBcSY8s",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%B0%A2%EC%96%B4%EC%A7%84-%EC%A2%85%EC%9D%B4%EC%9D%98-%EA%B7%BC%EC%A0%91-%EC%B4%AC%EC%98%81-%EC%82%AC%EC%A7%84-yu68fUQDvOI"
         ));
 
         Club club5 = Club.builder()
                 .name("아트픽")
-                .category(Category.SPORTS)
+                .category(Category.VOLUNTEER)
                 .location("예술관 301호")
                 .shortIntroduction("창작 활동과 전시를 중심으로 활동하는 예술 동아리")
                 .introduction(intro5)
@@ -824,12 +839,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("열정적이고 팀워크를 중요시하며 무대에서 에너지를 표현할 수 있는 인재.")
                 .build();
         intro6.addImages(List.of(
-                "https://images.unsplash.com/photo-1511376777868-611b54f68947?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%AC%B4%EB%8C%80%EC%97%90%EC%84%9C-%EA%B8%B0%ED%83%80%EB%A5%BC-%EC%97%B0%EC%A3%BC%ED%95%98%EB%8A%94-%EB%82%A8%EC%9E%90-v7Tujfxt9Zs",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%AC%B4%EB%8C%80%EC%97%90%EC%84%9C-%EB%8B%A4%EC%96%91%ED%95%9C-%EC%95%85%EA%B8%B0%EB%A5%BC-%EC%97%B0%EC%A3%BC%ED%95%98%EB%8A%94-%EC%84%B8-%EC%82%AC%EB%9E%8C-_uDj_lyPVpA",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EA%B8%B0%ED%83%80%EB%A5%BC-%EC%97%B0%EC%A3%BC%ED%95%98%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%98-%EA%B7%B8%EB%A3%B9-DIXT8Z9p-Sg",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%AC%B4%EB%8C%80%EC%97%90-%EC%9E%88%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%98-%EA%B7%B8%EB%A3%B9-1zNJUusB55E"
         ));
 
         Club club6 = Club.builder()
                 .name("리버스")
-                .category(Category.STUDY)
+                .category(Category.RELIGION)
                 .location("음악관 B101")
                 .shortIntroduction("밴드·보컬·작곡 등 음악 공연을 함께하는 동아리")
                 .introduction(intro6)
@@ -847,12 +865,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("관찰력이 뛰어나며 감각적 표현을 즐기는 인재.")
                 .build();
         intro7.addImages(List.of(
-                "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%98%A4%EB%9E%98%EB%90%9C-%EC%82%AC%EC%A7%84%EA%B3%BC-%EC%97%BD%EC%84%9C-%EB%8D%94%EB%AF%B8%EA%B0%80-%EA%B2%B9%EC%B3%90%EC%A0%B8-%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4-P2aOvMMUJnY",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%82%B0-%EA%BC%AD%EB%8C%80%EA%B8%B0%EC%97%90%EC%84%9C-%EC%82%AC%EC%A7%84%EC%9D%84-%EC%B0%8D%EB%8A%94-%EB%82%A8%EC%9E%90-jg-6ARMiaPM",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%95%BC%EC%99%B8-%EB%9D%BC%EC%9A%B4%EC%A7%80-%EC%9D%98%EC%9E%90%EB%A5%BC-%EB%93%A4%EA%B3%A0-%EC%9E%88%EB%8A%94-%EC%82%AC%EB%9E%8C-%EC%82%AC%EC%A7%84-TqnpKA_elIU",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EB%B0%A9%EC%97%90-%EC%9E%88%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%98-%EA%B7%B8%EB%A3%B9-E4B_hlQ9JSY"
         ));
 
         Club club7 = Club.builder()
                 .name("포커스")
-                .category(Category.LITERATURE)
+                .category(Category.VOLUNTEER)
                 .location("미디어관 107호")
                 .shortIntroduction("사진과 영상으로 세상을 기록하는 시각예술 동아리")
                 .introduction(intro7)
@@ -870,7 +891,10 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("공감 능력이 높고 성실하며, 타인에게 긍정적 영향을 주려는 학생.")
                 .build();
         intro8.addImages(List.of(
-                "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%ED%8C%8C%EB%9E%80-%EA%B0%80%EB%B0%A9-%EC%A3%BC%EC%9C%84%EC%97%90-%EC%84%9C-%EC%9E%88%EB%8A%94-%ED%95%9C-%EB%AC%B4%EB%A6%AC%EC%9D%98-%EC%82%AC%EB%9E%8C%EB%93%A4-zRacIoGwX8E",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%B2%B4%EC%9C%A1%EA%B4%80%EC%97%90%EC%9E%88%EB%8A%94-%EC%82%AC%EB%9E%8C%EB%93%A4%EC%9D%98-%EA%B7%B8%EB%A3%B9-3r6P2FLnk9w",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%ED%9D%B0%EC%83%89-%EC%8A%A4%EB%A7%88%ED%8A%B8-%ED%8F%B0%EC%9D%84-%EB%93%A4%EA%B3%A0-%ED%9D%B0%EC%83%89-%EB%B2%84%ED%8A%BC-%EC%97%85-%EC%85%94%EC%B8%A0%EB%A5%BC-%EC%9E%85%EC%9D%80-%EB%82%A8%EC%9E%90-NfQVe57WoyU",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%9D%8C%EC%8B%9D-%EC%A0%91%EC%8B%9C%EA%B0%80-%EC%9E%88%EB%8A%94-%EC%8B%9D%ED%83%81%EC%97%90-%EC%95%89%EC%95%84-%EC%9E%88%EB%8A%94-%EC%97%AC%EC%9E%90-o21HcuwQ03w"
         ));
 
         Club club8 = Club.builder()
@@ -893,12 +917,15 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("도전 정신과 책임감을 갖춘 학생. 현실적 문제를 비즈니스로 해결하려는 태도.")
                 .build();
         intro9.addImages(List.of(
-                "https://images.unsplash.com/photo-1542744173-05336fcc7ad4?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%B9%B4%EC%9A%B4%ED%84%B0%EC%97%90%EC%84%9C-%EC%BB%A4%ED%94%BC%EB%A5%BC-%EC%82%AC%EB%8A%94-%EB%82%A8%EC%9E%90-f7zm5TDOi4g",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%83%9D%EC%9D%BC-%EC%B6%95%ED%95%98%ED%95%A9%EB%8B%88%EB%8B%A4-%EC%9D%B8%EC%82%AC%EB%A7%90-%EC%B9%B4%EB%93%9C-3asJCQUw9VA",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%86%90%EC%97%90-%EC%88%98%EC%A0%9C-%EC%A0%90%ED%86%A0-%EB%A8%B8%EA%B7%B8%EC%9E%94%EC%9D%84-%EB%93%A4%EA%B3%A0-%EC%9E%88%EB%8A%94-%EC%A0%8A%EC%9D%80-%EC%BE%8C%ED%99%9C%ED%95%9C-%EC%97%AC%EC%84%B1%EC%9D%B4-%ED%8C%90%EB%A7%A4%EB%A5%BC-%EC%9C%84%ED%95%B4-%EB%A7%8C%EB%93%A4%EC%96%B4%EC%A7%84-%EB%8B%A4%EC%96%91%ED%95%9C-%ED%86%A0%EA%B8%B0%EC%99%80-%ED%95%A8%EA%BB%98-%EC%A0%84%EC%8B%9C%EB%90%98%EC%96%B4-%EC%84%9C-%EC%9E%88%EC%8A%B5%EB%8B%88%EB%8B%A4-vrscz4KmVw0",
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EC%95%BC%EC%9E%90%EC%88%98-%EC%98%86-%EA%B1%B0%EB%A6%AC%EB%A5%BC-%EB%8B%AC%EB%A6%AC%EB%8A%94-%EC%9E%91%EC%9D%80-%EC%B0%A8-pbRGjVqnXSs"
         ));
 
         Club club9 = Club.builder()
                 .name("비즈온")
-                .category(Category.RELIGION)
+                .category(Category.STUDY)
                 .location("경영관 201호")
                 .shortIntroduction("창업 아이디어를 현실로 만드는 비즈니스 창업 동아리")
                 .introduction(intro9)
@@ -916,7 +943,7 @@ public class DataInitializer implements CommandLineRunner {
                 .ideal("분석적 사고를 지니고 장기적 시각에서 학습하려는 인재.")
                 .build();
         intro10.addImages(List.of(
-                "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&auto=format&fit=crop&q=60"
+                "https://unsplash.com/ko/%EC%82%AC%EC%A7%84/%EA%B2%80%EC%9D%80%EC%83%89-%ED%8F%89%EB%A9%B4-%EC%BB%B4%ED%93%A8%ED%84%B0-%EB%AA%A8%EB%8B%88%ED%84%B0-N__BnvQ_w18"
         ));
 
         Club club10 = Club.builder()
@@ -969,7 +996,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("사이언스큐브")
                 .category(Category.LITERATURE)
                 .location("과학관 112호")
-                .shortIntroduction("자유 실험과 토론을 통해 과학을 탐구하는 연구 동아리")
+                .shortIntroduction("토론과 책을 통해 과학을 탐구하는 연구 동아리")
                 .introduction(intro12)
                 .recruitStart(LocalDateTime.of(2025, 3, 12, 9, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 3, 26, 18, 0, 0))
@@ -990,7 +1017,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club13 = Club.builder()
                 .name("글빛")
-                .category(Category.VOLUNTEER)
+                .category(Category.LITERATURE)
                 .location("인문관 113호")
                 .shortIntroduction("문학과 창작을 통해 감성과 표현을 나누는 문예 동아리")
                 .introduction(intro13)
@@ -1012,7 +1039,7 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         Club club14 = Club.builder()
-                .name("무대열전")
+                .name("성모아리아")
                 .category(Category.RELIGION)
                 .location("예술관 114호")
                 .shortIntroduction("연극과 공연으로 이야기를 전하는 공연예술 동아리")
@@ -1026,9 +1053,9 @@ public class DataInitializer implements CommandLineRunner {
 
         // 15. 겜팩토리 (게임개발)
         ClubIntroduction intro15 = ClubIntroduction.builder()
-                .overview("겜팩토리는 게임 개발 전 과정을 팀 단위로 경험하는 동아리입니다. 기획, 디자인, 프로그래밍, 사운드를 함께 다룹니다.")
-                .activities("Unity 실습, 게임잼 참여, 완성작 전시회 개최.")
-                .ideal("창의적 문제 해결력과 협업 능력을 지닌 학생. 즐겁게 몰입할 줄 아는 개발자.")
+                .overview("겜팩토리는 게임 전 과정을 팀 단위로 경험하는 동아리입니다. 기획, 설계, 테스트, 협업을 함께 다룹니다.")
+                .activities("마스터 실습, 게임잼 참여, 완성작 전시회 개최.")
+                .ideal("창의적 문제 해결력과 협업 능력을 지닌 학생. 즐겁게 몰입할 줄 아는 대학생.")
                 .build();
         intro15.addImages(List.of(
                 "https://images.unsplash.com/photo-1605902711622-cfb43c4437d9?w=1600&auto=format&fit=crop&q=60"
@@ -1038,12 +1065,12 @@ public class DataInitializer implements CommandLineRunner {
                 .name("겜팩토리")
                 .category(Category.SPORTS)
                 .location("공6 115호")
-                .shortIntroduction("게임 개발과 디자인을 팀으로 배우는 창작 동아리")
+                .shortIntroduction("게임 실력 향상을 위한 동아리")
                 .introduction(intro15)
                 .recruitStart(LocalDateTime.of(2025, 3, 15, 9, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 3, 29, 18, 0, 0))
                 .regularMeetingInfo("매주 수요일 오후 6시")
-                .caution("Unity 또는 Unreal 경험자 우대")
+                .caution("롤 또는 발로란트 실력자 우대")
                 .build();
         clubs.add(club15);
 
@@ -1059,7 +1086,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club16 = Club.builder()
                 .name("프레임")
-                .category(Category.STUDY)
+                .category(Category.RELIGION)
                 .location("미디어관 116호")
                 .shortIntroduction("사진저널리즘으로 사회를 기록하는 미디어 동아리")
                 .introduction(intro16)
@@ -1105,7 +1132,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club18 = Club.builder()
                 .name("FC JNU")
-                .category(Category.VOLUNTEER)
+                .category(Category.SPORTS)
                 .location("운동장")
                 .shortIntroduction("축구를 통해 교류하고 건강을 챙기는 체육 동아리")
                 .introduction(intro18)

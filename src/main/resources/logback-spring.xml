@@ -3,7 +3,7 @@
   <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
   <!-- local에서는 콘솔 로그만 -->
-  <springProfile name="local">
+  <springProfile name="default">
     <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
     <root level="INFO">
       <appender-ref ref="CONSOLE"/>
@@ -30,7 +30,7 @@
       <tts>false</tts>
     </appender>
 
-    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
       <encoder>
         <Pattern>${CONSOLE_LOG_PATTERN}</Pattern>
         <charset>utf8</charset>
@@ -46,12 +46,12 @@
     </appender>
 
     <root level="INFO">
-      <appender-ref ref="Console"/>
+      <appender-ref ref="CONSOLE"/>
       <appender-ref ref="ASYNC_DISCORD"/>
     </root>
   </springProfile>
 
   <logger name="org.jboss.logging" level="WARN" additivity="false">
-    <appender-ref ref="Console"/>
+    <appender-ref ref="CONSOLE"/>
   </logger>
 </configuration>
