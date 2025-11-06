@@ -62,7 +62,7 @@ public class ClubApplyFormController {
             @ApiResponse(responseCode = "201", description = "저장 성공"),
             @ApiResponse(responseCode = "400", description = "입력 값 올바르지 않은 경우")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PostMapping("/dashboard/apply-form")
     public ResponseEntity<Void> createClubApplyForm(
             @PathVariable("clubId") Long clubId,
@@ -76,7 +76,7 @@ public class ClubApplyFormController {
             @ApiResponse(responseCode = "202", description = "수정 성공"),
             @ApiResponse(responseCode = "400", description = "입력 값 올바르지 않은 경우")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PatchMapping("/dashboard/apply-form")
     public ResponseEntity<Void> updateClubApplyForm(
             @PathVariable("clubId") Long clubId,

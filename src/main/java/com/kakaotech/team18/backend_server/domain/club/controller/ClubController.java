@@ -70,7 +70,7 @@ public class ClubController {
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PostMapping("/{clubId}")
     public ResponseEntity<SuccessResponseDto> updateClub(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable Long clubId,
@@ -84,6 +84,7 @@ public class ClubController {
             @ApiResponse(responseCode = "200", description = "수정 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PutMapping("/{clubId}/images")
     public ResponseEntity<SuccessResponseDto> updateClubImages(
             @PathVariable Long clubId,
@@ -117,7 +118,7 @@ public class ClubController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 동아리를 찾을 수 없음")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @GetMapping("/{clubId}/dashboard")
     public ResponseEntity<ClubDashBoardResponseDto> getClubDashboard(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable Long clubId
@@ -130,7 +131,7 @@ public class ClubController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "조회 성공"),
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @GetMapping("/{clubId}/dashboard/applicants")
     public ResponseEntity<ClubDashboardApplicantResponseDto> getClubApplicants(
             @PathVariable Long clubId,

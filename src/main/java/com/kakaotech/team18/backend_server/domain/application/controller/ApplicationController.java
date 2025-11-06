@@ -40,7 +40,7 @@ public class ApplicationController {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "해당 지원서를 찾을 수 없음")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @GetMapping("/{clubId}/applicants/{applicantId}/application")
     public ResponseEntity<ApplicationDetailResponseDto> getApplicationDetail(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId,
@@ -97,7 +97,7 @@ public class ApplicationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PatchMapping("/{clubId}/club-apply-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
             @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
