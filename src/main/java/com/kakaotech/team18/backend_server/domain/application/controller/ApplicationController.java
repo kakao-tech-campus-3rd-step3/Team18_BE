@@ -55,7 +55,7 @@ public class ApplicationController {
             @ApiResponse(responseCode = "200", description = "상태 변경 성공"),
             @ApiResponse(responseCode = "404", description = "상태를 변경할 지원서를 찾을 수 없음")
     })
-    @PreAuthorize("hasAuthority('CLUB_' + #clubId + '_CLUB_ADMIN') or hasAuthority('CLUB_' + #clubId + '_CLUB_EXECUTIVE')")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PatchMapping("/{clubId}/applications/{applicationId}/status")
     public ResponseEntity<SuccessResponseDto> updateApplicationStatus(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId,

@@ -55,4 +55,34 @@ public class CustomSecurityService {
         return Objects.equals(userRoleForClub, Role.CLUB_ADMIN.name()) ||
                Objects.equals(userRoleForClub, Role.CLUB_EXECUTIVE.name());
     }
+
+    /**
+     * 특정 동아리(clubId)에 대한 접근 권한을 검사합니다.
+     * <p>
+     * 현재 로그인한 사용자가 해당 동아리의 CLUB_ADMIN 또는 CLUB_EXECUTIVE인지 확인합니다.
+     * 이 메서드는 DB 조회를 수행하지 않고, JWT 클레임에 포함된 멤버십 정보를 사용합니다.
+     *
+     * @param clubId 검사할 동아리의 ID
+     * @return 권한이 있으면 true, 없으면 false
+     */
+    public boolean isClubAdminOrExecutive(Long clubId) {
+        // 1. 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            return false; // 인증되지 않았거나, Principal 타입이 다르면 거부
+        }
+
+        // 2. 사용자의 역할 정보(memberships) 가져오기
+        Map<String, String> memberships = principalDetails.getMemberships();
+        if (memberships == null) {
+            return false; // 멤버십 정보가 없으면 권한 없음
+        }
+
+        // 3. 해당 clubId에 대한 사용자의 역할(Role) 가져오기
+        String userRoleForClub = memberships.get(clubId.toString());
+
+        // 4. 역할이 CLUB_ADMIN 또는 CLUB_EXECUTIVE인지 확인
+        return Objects.equals(userRoleForClub, Role.CLUB_ADMIN.name()) ||
+               Objects.equals(userRoleForClub, Role.CLUB_EXECUTIVE.name());
+    }
 }
