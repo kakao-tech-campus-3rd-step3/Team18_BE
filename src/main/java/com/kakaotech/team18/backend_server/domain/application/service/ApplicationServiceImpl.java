@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
@@ -33,6 +34,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -196,7 +198,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         return new ApplicationApplyResponseDto(
                 application.getUser().getStudentId(),
-                application.getLastModifiedAt(),
+                LocalDateTime.now(),
                 false
         );
     }
@@ -213,6 +215,17 @@ public class ApplicationServiceImpl implements ApplicationService {
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(newApplication.getClubApplyForm().getClub().getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + newApplication.getClubApplyForm().getClub().getId()));
+
+        ClubMember clubMember = ClubMember.builder()
+                .user(user)
+                .application(newApplication)
+                .club(form.getClub())
+                .activeStatus(ActiveStatus.ACTIVE)
+                .role(Role.APPLICANT)
+                .build();
+
+        clubMemberRepository.save(clubMember);
+        log.info("새로운 클럽 멤버 저장됨 clubMemberId={}", clubMember.getId());
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answers());
         ApplicationInfoDto applicationInfoDto = buildApplicationInfo(newApplication, president);

@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import jakarta.persistence.EntityManager;
@@ -43,12 +44,14 @@ class ClubControllerIntegrationTest {
     private EntityManager entityManager;
 
     @Autowired
+    private ClubApplyFormRepository clubApplyFormRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
+        clubApplyFormRepository.deleteAll();
 
         entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER TABLE club ALTER COLUMN club_id RESTART WITH 1").executeUpdate();
