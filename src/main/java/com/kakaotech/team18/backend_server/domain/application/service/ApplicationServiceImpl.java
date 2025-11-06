@@ -79,7 +79,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             return new ClubApplyFormNotFoundException("clubId = " + clubId);
                         }
                 );
-        Application application = applicationRepository.findByClubApplyFormIdAndUserId(clubApplyForm.getId(), applicantId)
+        Application application = applicationRepository.findById(applicantId)
                 .orElseThrow(() -> new ApplicationNotFoundException("clubId=" + clubId + ", applicantId=" + applicantId));
 
         // 2. 지원자 정보(ApplicantInfo) DTO 생성
