@@ -15,9 +15,11 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.Duplicate
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidClubNameException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidStudentIdException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -32,19 +34,23 @@ public class AdminServiceImpl implements AdminService {
 
         User user = userRepository.findByStudentId(requestDto.studentId())
                 .orElseThrow(() -> new InvalidStudentIdException("등록되지 않은 학번입니다. 학번 : "+ requestDto.studentId()));
+        log.info("User checked successfully");
 
         Club club = clubRepository.findByName(requestDto.clubName())
                 .orElseThrow(() -> new InvalidClubNameException("해당 이름의 동아리가 존재하지 않습니다. 동아리 :"+ requestDto.clubName()));
+        log.info("Club checked successfully");
 
         if (clubMemberRepository.existsByUserAndClubAndClubRoleAndActiveStatus(user, club, requestDto.role(), ActiveStatus.ACTIVE)) {
              throw new DuplicateClubMemberException("이미 해당 동아리원이 존재합니다. 이름 : "+user.getName()+"동아리 : "+club.getName());
         }
+        log.info("duplicate ClubMember checked successfully");
 
         if (requestDto.role() == Role.CLUB_ADMIN){
             if (clubMemberRepository.existsByClubAndRole(club, requestDto.role())) {
                 throw new DuplicateClubAdminException("이미 해당 동아리의 회장이 존재합니다. 동아리 : "+club.getName());
             }
         }
+        log.info("duplicate president checked successfully");
 
         ClubMember clubMember = ClubMember.builder()
                 .user(user)
@@ -55,6 +61,7 @@ public class AdminServiceImpl implements AdminService {
                 .build();
 
         clubMemberRepository.save(clubMember);
+        log.info("ClubMember added successfully");
 
         return new SuccessResponseDto(true);
     }
