@@ -61,7 +61,7 @@ public class AdminServiceImpl implements AdminService {
                 .build();
 
         clubMemberRepository.save(clubMember);
-        log.info("ClubMember added successfully");
+        log.info("ClubMember added successfully 이름 : "+user.getName()+"동아리 : "+club.getName());
 
         return new SuccessResponseDto(true);
     }
