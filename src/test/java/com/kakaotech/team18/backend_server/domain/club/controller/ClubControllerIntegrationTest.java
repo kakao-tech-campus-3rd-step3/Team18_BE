@@ -1,34 +1,29 @@
 package com.kakaotech.team18.backend_server.domain.club.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import com.kakaotech.team18.backend_server.domain.email.eventListener.ApplicationNotificationListener;
-import com.kakaotech.team18.backend_server.domain.email.sender.SmtpEmailSender;
-import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
-import com.kakaotech.team18.backend_server.domain.user.entity.User;
-import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.transaction.annotation.Transactional;
-
-import jakarta.persistence.EntityManager;
-
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.SPORTS;
 import static com.kakaotech.team18.backend_server.domain.club.entity.Category.STUDY;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @AutoConfigureMockMvc
@@ -49,12 +44,14 @@ class ClubControllerIntegrationTest {
     private EntityManager entityManager;
 
     @Autowired
+    private ClubApplyFormRepository clubApplyFormRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        clubRepository.deleteAll();
-        userRepository.deleteAll();
+        clubApplyFormRepository.deleteAll();
 
         entityManager.createNativeQuery("ALTER TABLE users ALTER COLUMN user_id RESTART WITH 1").executeUpdate();
         entityManager.createNativeQuery("ALTER TABLE club ALTER COLUMN club_id RESTART WITH 1").executeUpdate();
@@ -117,4 +114,24 @@ class ClubControllerIntegrationTest {
                 .andExpect(jsonPath("$.clubs[1].category").value("SPORTS"))
                 .andDo(print());
     }
+
+    @DisplayName("전체 동아리 목록 필터링 조회 통합 테스트")
+    @Test
+    void getAllClubsByCategory_integration_test() throws Exception {
+        // given
+        String category = "STUDY";
+
+        // when
+        ResultActions resultActions = mockMvc.perform(get("/api/clubs").param("category", category));
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.clubs.size()").value(1))
+                .andExpect(jsonPath("$.clubs[0].id").value(1))
+                .andExpect(jsonPath("$.clubs[0].name").value("동아리1"))
+                .andExpect(jsonPath("$.clubs[0].category").value("STUDY"))
+                .andDo(print());
+    }
+
+
 }

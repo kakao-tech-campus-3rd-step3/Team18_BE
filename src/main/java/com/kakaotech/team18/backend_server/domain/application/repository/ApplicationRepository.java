@@ -1,14 +1,13 @@
 package com.kakaotech.team18.backend_server.domain.application.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -41,4 +40,51 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
              FROM Application a
              WHERE a.id = :id""")
     Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
+
+    /**
+     * applicationId를 사용하여, 해당 지원서가 속한 동아리의 ID(clubId)를 조회합니다.
+     * <p>
+     * 엔티티 전체를 로딩하지 않고 필요한 clubId 값만 직접 조회(Projection)하여 성능을 최적화합니다.
+     * CustomSecurityService에서 특정 지원서에 대한 권한을 검사할 때 사용됩니다.
+     *
+     * @param applicationId 조회할 지원서의 ID
+     * @return 해당 지원서가 속한 Club의 ID
+     */
+    @Query("""
+            SELECT a.clubApplyForm.club.id
+            FROM Application a
+            WHERE a.id = :applicationId
+            """)
+    Optional<Long> findClubIdByApplicationId(@Param("applicationId") Long applicationId);
+
+    @Query("""
+            SELECT a
+            FROM Application a
+            WHERE a.clubApplyForm.club.id = :clubId AND a.stage = :stage""")
+    List<Application> findAllByClubIdAndStage(Long clubId, Stage stage);
+
+    @Query("""
+            SELECT a
+            FROM Application a
+            WHERE a.clubApplyForm.club.id = :clubId""")
+    List<Application> findAllByClubId(Long clubId);
+
+    @Query("""
+    SELECT a
+    FROM Application a
+    JOIN ClubMember cm ON cm.application = a
+    WHERE cm.club.id = :clubId
+      AND cm.role = :role
+      AND a.stage = :stage
+    """)
+    List<Application> findAllByClubIdAndRoleAndStage(Long clubId, Role role, Stage stage);
+
+    @Query("""
+    SELECT a
+    FROM Application a
+    JOIN ClubMember cm ON cm.application = a
+    WHERE cm.club.id = :clubId
+      AND cm.role = :role
+    """)
+    List<Application> findAllByClubIdAndRole(Long clubId, Role role);
 }

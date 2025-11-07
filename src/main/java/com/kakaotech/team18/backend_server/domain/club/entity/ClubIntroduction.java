@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,11 +31,19 @@ public class ClubIntroduction extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String ideal;
 
+    @OneToOne(mappedBy = "introduction")
+    private Club club;
+
     @Builder
     private ClubIntroduction(String overview, String activities, String ideal, List<ClubImage> images) {
         this.overview = overview;
         this.activities = activities;
         this.ideal = ideal;
+        if (images != null) {
+            for (ClubImage image : images) {
+                addImage(image);
+            }
+        }
     }
 
     public void addImage(ClubImage image) {
@@ -46,5 +55,21 @@ public class ClubIntroduction extends BaseEntity {
         if (images.remove(image)) {
             image.setClubIntroductionInternal(null);
         }
+    }
+
+    public void addImages(List<String> imageUrl) {
+        for (String url : imageUrl) {
+            ClubImage image = ClubImage.builder()
+                    .imageUrl(url)
+                    .clubIntroduction(this)
+                    .build();
+            this.addImage(image);
+        }
+    }
+
+    public void update(ClubDetailRequestDto dto) {
+        this.overview = dto.introductionOverview();
+        this.activities = dto.introductionActivity();
+        this.ideal = dto.introductionIdeal();
     }
 }

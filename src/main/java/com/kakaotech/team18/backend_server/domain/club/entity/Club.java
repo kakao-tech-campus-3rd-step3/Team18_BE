@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.club.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,10 +18,12 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class Club extends BaseEntity {
 
     @Id
@@ -67,10 +70,26 @@ public class Club extends BaseEntity {
         this.category = category;
         this.location = location;
         this.shortIntroduction = shortIntroduction;
-        this.introduction = introduction;
+        this.introduction = (introduction != null) ? introduction : new ClubIntroduction();
         this.caution = caution;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
         this.regularMeetingInfo = regularMeetingInfo;
+    }
+
+    public void updateDetail(ClubDetailRequestDto dto) {
+        this.name = dto.clubName();
+        this.category = dto.category();
+        this.location = dto.location();
+        this.shortIntroduction = dto.shortIntroduction();
+        this.caution = dto.applicationNotice();
+        this.regularMeetingInfo = dto.regularMeetingInfo();
+        this.introduction.update(dto);
+    }
+
+    public void updateRecruitDate(LocalDateTime recruitStart, LocalDateTime recruitEnd) {
+        this.recruitStart = recruitStart;
+        this.recruitEnd = recruitEnd;
+        log.info("Updated recruit date for clubId: {} to start: {} end: {}", this.id, recruitStart, recruitEnd);
     }
 }

@@ -22,10 +22,13 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }  // ← 추가!
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // Redis 관련 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // Spring Security 활성화
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -56,6 +59,7 @@ dependencies {
     // 재시도 처리를 위함(@EnableRetry, @Retryable, @Recover)
     implementation "org.springframework.retry:spring-retry"
 
+
     // Spring Security OAuth2 Client 추가
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
@@ -70,6 +74,18 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-aop' // AOP 기능
     implementation 'org.springframework.retry:spring-retry'     // Spring Retry
+
+    //aws
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation platform('software.amazon.awssdk:bom:2.25.66')
+    implementation 'software.amazon.awssdk:s3'
+
+    //Test Container
+    testImplementation 'org.testcontainers:junit-jupiter:1.20.3'
+    testImplementation 'org.testcontainers:localstack:1.20.3'
+
+    //Logback 로그를 Discord Webhook으로 전송해주는 전용 Appender 라이브러리
+    implementation 'com.github.napstr:logback-discord-appender:1.0.0'
 
 }
 

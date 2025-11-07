@@ -73,7 +73,7 @@ class ApplicationControllerTest {
                 applicantId, "김지원", "컴퓨터공학과", "20230001", "test@test.com", "010-1234-5678"
         );
         ApplicationDetailResponseDto responseDto = new ApplicationDetailResponseDto(
-                100L, "PENDING", applicantInfo, Collections.emptyList()
+                100L, "PENDING", 3.5, applicantInfo, Collections.emptyList()
         );
 
         given(applicationService.getApplicationDetail(clubId, applicantId)).willReturn(responseDto);
@@ -88,6 +88,7 @@ class ApplicationControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.applicationId").value(100L))
                 .andExpect(jsonPath("$.status").value("PENDING"))
+                .andExpect(jsonPath("$.rating").value(3.5))
                 .andExpect(jsonPath("$.applicantInfo.name").value("김지원"))
                 .andExpect(jsonPath("$.applicantInfo.department").value("컴퓨터공학과"));
     }
@@ -117,6 +118,7 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 성공")
     void updateApplicationStatus_success() throws Exception {
         // given
+        Long clubId = 1L;
         Long applicationId = 1L;
         ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
         given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
@@ -124,7 +126,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", applicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -138,6 +140,7 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (지원서 없음)")
     void updateApplicationStatus_fail_applicationNotFound() throws Exception {
         // given
+        Long clubId = 1L;
         Long nonExistentApplicationId = 999L;
         ApplicationStatusUpdateRequestDto requestDto = new ApplicationStatusUpdateRequestDto(Status.APPROVED);
         given(applicationService.updateApplicationStatus(any(Long.class), any(ApplicationStatusUpdateRequestDto.class)))
@@ -145,7 +148,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", nonExistentApplicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, nonExistentApplicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -159,13 +162,14 @@ class ApplicationControllerTest {
     @DisplayName("지원서 상태 변경 컨트롤러 - 실패 (잘못된 요청 값)")
     void updateApplicationStatus_fail_invalidInputValue() throws Exception {
         // given
+        Long clubId = 1L;
         Long applicationId = 1L;
         // status 필드가 없는 잘못된 요청
         String invalidRequestBody = "{}";
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/applications/{applicationId}", applicationId)
+                patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestBody)
         );
@@ -182,15 +186,16 @@ class ApplicationControllerTest {
         private String validPayloadJson() {
             return """
         {
-          "studentId":"20231234",
           "email":"stud@example.com",
           "name":"홍길동",
+          "studentId":"202312",
           "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
           "answers": [
-          {"questionNum":1,"question":"q","answer":"자기소개입니다"},
-          {"questionNum":2,"question":"q","answer":"여"},
-          {"questionNum":3,"question":"q","answer":"A,B"}
+          {"questionNum":0,"question":"q","answer":"자기소개입니다"},
+          {"questionNum":1,"question":"q","answer":"여"},
+          {"questionNum":2,"question":"q","answer":"A,B"},
+          {"questionNum":3,"question":"interview","answer": { "interviewDateAnswer": ["2025-10-15 14:00","2025-10-16 10:00"] }}
           ]
         }
         """;
@@ -200,12 +205,31 @@ class ApplicationControllerTest {
             // @Valid 위반: studentId 공백, email 형식 아님
             return """
         {
-          "studentId":" ",
           "email":"bad-email",
           "name":"",
+          "studentId":" ",
           "phoneNumber":"",
           "department":"",
           "answers":[]
+        }
+        """;
+        }
+
+        private String includeSpecialCharPayloadJson() {
+            // @Valid 위반: 이름과 학번에 특수문자 작성
+            return """
+        {
+          "email":"tester@email.com",
+          "name":"김@@",
+          "studentId":"@@@1@",
+          "phoneNumber":"010-1234-5678",
+          "department":"소프트웨어공학과",
+          "answers": [
+          {"questionNum":0,"question":"q","answer":"자기소개입니다"},
+          {"questionNum":1,"question":"q","answer":"여"},
+          {"questionNum":2,"question":"q","answer":"A,B"},
+          {"questionNum":3,"question":"interview","answer": { "interviewDateAnswer": ["2025-10-15 14:00","2025-10-16 10:00"] }}
+          ]
         }
         """;
         }
@@ -268,6 +292,21 @@ class ApplicationControllerTest {
             mockMvc.perform(post("/api/clubs/{clubId}/apply-submit", 1L)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(invalidPayloadJson()))
+                    .andExpect(status().isBadRequest());
+
+            verify(applicationService, never()).submitApplication(
+                    anyLong(),
+                    any(ApplicationApplyRequestDto.class),
+                    anyBoolean()
+            );
+        }
+
+        @Test
+        @DisplayName("특수문자 포함 → 400 BAD_REQUEST & 서비스 미호출")
+        void returnsBadRequest_whenIncludeSpecialChar() throws Exception {
+            mockMvc.perform(post("/api/clubs/{clubId}/apply-submit", 1L)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(includeSpecialCharPayloadJson()))
                     .andExpect(status().isBadRequest());
 
             verify(applicationService, never()).submitApplication(

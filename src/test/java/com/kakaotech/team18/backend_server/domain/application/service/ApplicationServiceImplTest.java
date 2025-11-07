@@ -16,7 +16,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
@@ -59,6 +59,7 @@ class ApplicationServiceImplTest {
         // given
         Long clubId = 1L;
         Long userId = 1L;
+        Long applicantId = 1L;
 
         User mockUser = User.builder()
                 .name("김지원")
@@ -82,8 +83,7 @@ class ApplicationServiceImplTest {
 
         Long mockFormId = 10L;
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(mockClubApplyForm));
-        when(mockClubApplyForm.getId()).thenReturn(mockFormId);
-        when(applicationRepository.findByClubApplyFormIdAndUserId(mockFormId, userId)).thenReturn(Optional.of(mockApplication));
+        when(applicationRepository.findById(applicantId)).thenReturn(Optional.of(mockApplication));
 
         when(answerRepository.findByApplicationWithFormQuestion(mockApplication)).thenReturn(List.of(mockAnswer));
         when(mockApplication.getId()).thenReturn(100L);
@@ -94,7 +94,7 @@ class ApplicationServiceImplTest {
         when(mockAnswer.getAnswer()).thenReturn("리팩토링된 답변");
 
         // when
-        ApplicationDetailResponseDto result = applicationService.getApplicationDetail(clubId, userId);
+        ApplicationDetailResponseDto result = applicationService.getApplicationDetail(clubId, applicantId);
 
         // then
         assertNotNull(result);
@@ -110,7 +110,7 @@ class ApplicationServiceImplTest {
         assertEquals("리팩토링된 답변", result.questionsAndAnswers().get(0).answer());
 
         verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
-        verify(applicationRepository, times(1)).findByClubApplyFormIdAndUserId(mockFormId, userId);
+        verify(applicationRepository, times(1)).findById(applicantId);
         verify(answerRepository, times(1)).findByApplicationWithFormQuestion(mockApplication);
     }
 
@@ -120,13 +120,13 @@ class ApplicationServiceImplTest {
         // given
         Long clubId = 1L;
         Long userId = 999L;
+        Long applicantId = 999L;
         Long formId = 10L;
 
         ClubApplyForm mockClubApplyForm = mock(ClubApplyForm.class);
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(mockClubApplyForm));
-        when(mockClubApplyForm.getId()).thenReturn(formId);
 
-        when(applicationRepository.findByClubApplyFormIdAndUserId(formId, userId)).thenReturn(Optional.empty());
+        when(applicationRepository.findById(applicantId)).thenReturn(Optional.empty());
 
         // when & then
         ApplicationNotFoundException exception = assertThrows(ApplicationNotFoundException.class, () -> {
@@ -137,7 +137,7 @@ class ApplicationServiceImplTest {
 
         // verify
         verify(clubApplyFormRepository, times(1)).findByClubId(clubId);
-        verify(applicationRepository, times(1)).findByClubApplyFormIdAndUserId(formId, userId);
+        verify(applicationRepository, times(1)).findById(applicantId);
         verify(answerRepository, never()).findByApplicationWithFormQuestion(any(Application.class));
     }
 

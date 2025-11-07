@@ -4,16 +4,21 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.dto.ErrorResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 /**
  * 애플리케이션 전역에서 발생하는 예외를 중앙에서 처리하는 클래스입니다.
@@ -97,6 +102,64 @@ public class GlobalExceptionHandler {
         final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
         log.warn("TypeMisMatch: {}", errorCode.getMessage(), e);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    /**
+     * MissingRequestCookieException 예외를 처리
+     * <p>
+     * @CookieValue 어노테이션으로 필수 쿠키가 지정되었으나, 요청에 해당 쿠키가 포함되지 않았을 때 발생합니다.
+     * HTTP 400 Bad Request와 함께 적절한 에러 메시지를 반환합니다.
+     *
+     * @param e MissingRequestCookieException
+     * @return 400 Bad Request 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(MissingRequestCookieException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(final MissingRequestCookieException e) {
+        final ErrorCode errorCode = ErrorCode.REQUIRED_COOKIE_NOT_FOUND;
+        final String detail = "필수 쿠키 '" + e.getCookieName() + "'가 요청에 포함되지 않았습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("MissingRequestCookieException: {} (detail: {})",
+                errorCode.getMessage(),
+                detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(
+            MissingServletRequestPartException e)
+    {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ErrorResponseDto> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        final ErrorCode errorCode = ErrorCode.TOO_LARGE_FILE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("MaxUploadSizeExceededException: {}", errorCode.getMessage(), e);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+    /**
+     * @PreAuthorize 와 같은 메소드 시큐리티에서 발생하는 인가 예외를 처리합니다.
+     * <p>
+     * Spring Security의 AuthorizationDeniedException을 우리가 정의한 ForbiddenAccessException으로 변환하고,
+     * 기존의 handleCustomException 로직을 재사용하여 일관된 에러 응답을 반환합니다.
+     *
+     * @param e AuthorizationDeniedException
+     * @return 403 Forbidden 상태 코드와 표준 에러 응답
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    protected ResponseEntity<ErrorResponseDto> handleAuthorizationDeniedException(final AuthorizationDeniedException e) {
+        // AuthorizationDeniedException을 우리의 커스텀 예외인 ForbiddenAccessException으로 변환합니다.
+        final ForbiddenAccessException customException = new ForbiddenAccessException();
+
+        // 기존의 CustomException 처리 로직을 재사용합니다.
+        return this.handleCustomException(customException);
     }
 
 

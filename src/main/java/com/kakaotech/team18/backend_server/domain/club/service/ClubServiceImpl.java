@@ -1,14 +1,20 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
+import com.kakaotech.team18.backend_server.domain.club.eventListener.ClubImageDeletedEvent;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubImageRepository;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
@@ -17,16 +23,19 @@ import com.kakaotech.team18.backend_server.domain.clubMember.dto.ApplicantRespon
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoudException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
-
-import java.util.Collections;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -38,6 +47,9 @@ public class ClubServiceImpl implements ClubService {
     private final ApplicationRepository applicationRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
+    private final S3Service s3Service;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final ClubImageRepository clubImageRepository;
 
 
     @Override
@@ -73,9 +85,23 @@ public class ClubServiceImpl implements ClubService {
         ClubMember clubAdmin = clubMemberRepository.findClubAdminByClubIdAndRole(findClub.getId(), Role.CLUB_ADMIN)
                 .orElseThrow(() -> {
                     log.warn("ClubAdmin not found for id={}", findClub.getId());
-                    return new ClubMemberNotFoudException("해당 동아리의 동아리 회장을 찾을 수 없습니다 clubId = " + findClub.getId());
+                    return new ClubMemberNotFoundException("해당 동아리의 동아리 회장을 찾을 수 없습니다 clubId = " + findClub.getId());
                 });
         return ClubDetailResponseDto.from(findClub, clubAdmin.getUser());
+    }
+
+    @Override
+    @Transactional
+    public SuccessResponseDto updateClubDetail(Long clubId, ClubDetailRequestDto dto){
+        log.info("updateClubDetail called with clubId={}", clubId);
+        Club findClub = clubRepository.findClubDetailById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+        log.info("Successfully found clubDetail: {}", findClub.getName());
+        findClub.updateDetail(dto);
+        return new SuccessResponseDto(true);
     }
 
     @Override
@@ -90,36 +116,88 @@ public class ClubServiceImpl implements ClubService {
                     log.warn("ClubApplyForm not found for id={}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + clubId);
                 });
-        List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
-        List<Application> pendingApplication = applicationRepository.findByClubApplyFormIdAndStatus(clubApplyForm.getId(), Status.PENDING);
+        List<ClubMember> applicantList = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);//role이 applicant 이면서 status가 pending인 지원서 수를 세어야함
+        List<ClubMember> pendingApplications = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, Status.PENDING);
         log.info("동아리 대쉬보드를 조회합니다 clubId={}, applicantList={}", clubId, applicantList);
         return new ClubDashBoardResponseDto(
+                clubId,
                 applicantList.size(),
-                pendingApplication.size(),
-                club.getRecruitStart().toLocalDate().toString(),
-                club.getRecruitEnd().toLocalDate().toString(),
-                applicantList.stream()
-                        .map(ApplicantResponseDto::from)
-                        .toList());
+                pendingApplications.size(),
+                club.getRecruitStart().toLocalDate(),
+                club.getRecruitEnd().toLocalDate());
     }
 
     @Override
-    public List<ApplicantResponseDto> getApplicantsByStatus(Long clubId, Status status) {
+    public ClubDashboardApplicantResponseDto getApplicantsByStatusAndStage(Long clubId, Status status, Stage stage) {
+        List<ClubMember> applicants;
+        String message;
         if (status != null) {
-            List<ClubMember> filteredApplicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(clubId, Role.APPLICANT, status);
-            return filteredApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(clubId, Role.APPLICANT, status, stage);
         } else {
-            List<ClubMember> allApplicants = clubMemberRepository.findByClubIdAndRole(clubId, Role.APPLICANT);
-            return allApplicants
-                    .stream()
-                    .map(ApplicantResponseDto::from)
-                    .toList();
+            applicants = clubMemberRepository.findByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
         }
+        ClubApplyForm clubApplyForm = clubApplyFormRepository
+                .findByClubId(clubId).orElseThrow(() -> {
+                    log.warn("ClubApplyForm not found for id={}", clubId);
+                    return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                });
+        if (stage == Stage.INTERVIEW){
+            message = clubApplyForm.getInterviewMessage();
+        } else {
+            message = clubApplyForm.getFinalMessage();
+        }
+        return new ClubDashboardApplicantResponseDto(
+                applicants
+                        .stream()
+                        .map(ApplicantResponseDto::from)
+                        .toList(),
+                message);
     }
 
+    @Override
+    @Transactional
+    public SuccessResponseDto uploadClubImages(Long clubId, List<Long> keepImageId, List<MultipartFile> newImages) {
+        Club findClub = clubRepository.findClubDetailById(clubId)
+                .orElseThrow(() -> {
+                    log.warn("Club not found for id={}", clubId);
+                    return new ClubNotFoundException("clubId = " + clubId);
+                });
+
+        List<ClubImage> existingImages = clubImageRepository.findAllByClubId(clubId);
+
+        // 삭제 대상 URL 추출
+        List<String> deleteTargetUrls = existingImages.stream()
+                .filter(img -> keepImageId == null || !keepImageId.contains(img.getId()))
+                .map(ClubImage::getImageUrl)
+                .toList();
+
+        if (keepImageId == null || keepImageId.isEmpty()) {
+            findClub.getIntroduction().getImages().clear();
+        } else {
+            findClub.getIntroduction().getImages().removeIf(img -> !keepImageId.contains(img.getId()));
+        }
+        log.info("Successfully deleted old images for clubId: {}", clubId);
+
+        // 새 이미지 업로드
+        List<String> newImageUrls = new ArrayList<>();
+        try {
+            if (newImages != null) {
+                for (MultipartFile image : newImages) {
+                    newImageUrls.add(s3Service.upload(image));
+                }
+            }
+        } catch (Exception e) {
+            log.warn("S3 업로드 중 오류 → 보상 트랜잭션 실행. clubId={}, error={}", clubId, e.getMessage());
+            newImageUrls.forEach(url -> {
+                try { s3Service.deleteFile(url); } catch (Exception ignore) {}
+            });
+            throw e;
+        }
+        findClub.getIntroduction().addImages(newImageUrls);
+        log.info("Successfully uploaded and updated images for clubId: {}", clubId);
+        applicationEventPublisher.publishEvent(new ClubImageDeletedEvent(clubId, deleteTargetUrls));
+        return new SuccessResponseDto(true);
+    }
     // ---- private helpers ----
     private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {
         List<ClubListResponseDto.ClubsInfo> clubs = summaries.stream()

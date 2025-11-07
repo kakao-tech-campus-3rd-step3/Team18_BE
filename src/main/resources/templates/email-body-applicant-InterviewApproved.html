@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width"/>
+  <title th:text="${title}">동아리 면접 합격 안내</title>
+  <style>
+    body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; margin:0; padding:0; background:#f6f7f9; }
+    .container { max-width:640px; margin:24px auto; background:#fff; border-radius:12px; padding:24px; border:1px solid #e9eef3; }
+    h1 { font-size:20px; margin:0 0 12px; }
+    .meta { color:#6b7280; font-size:13px; margin-bottom:16px; }
+    .card { background:#f9fafb; border:1px solid #eef2f7; border-radius:10px; padding:16px; margin:12px 0; }
+    pre { white-space:pre-wrap; word-break:break-word; font-family:inherit; font-size:14px; }
+    .footer { color:#9aa4af; font-size:12px; margin-top:20px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1 th:text="${title}">동아리 면접 합격을 축하드립니다</h1>
+  <div class="meta">
+    <span th:text="'동아리: ' + ${clubName}">동아리명</span> ·
+  </div>
+
+  <div class="card">
+    <strong th:text="${applicantName}">홍길동</strong> 님, 면접 합격을 진심으로 축하드립니다!<br/>
+    아래 안내 메시지를 확인해 주세요.
+  </div>
+
+  <div class="card">
+    <div style="font-weight:600; margin-bottom:8px;">안내 메시지</div>
+    <!-- 사용자가 입력한 메시지: 개행 유지 -->
+    <pre th:text="${message}">OT는 10/7(화) 19:00입니다…</pre>
+  </div>
+
+  <div class="footer">
+    본 메일은 회신 시 동아리 회장(Reply-To)에게 전달됩니다.<br/>
+    © <span th:text="${clubName}">동아리명</span>
+  </div>
+</div>
+</body>
+</html>

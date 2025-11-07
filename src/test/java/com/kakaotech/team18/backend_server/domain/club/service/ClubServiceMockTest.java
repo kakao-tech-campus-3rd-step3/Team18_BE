@@ -2,21 +2,29 @@ package com.kakaotech.team18.backend_server.domain.club.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto.ClubImageResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubImage;
 import com.kakaotech.team18.backend_server.domain.club.entity.ClubIntroduction;
+import com.kakaotech.team18.backend_server.domain.club.eventListener.ClubImageDeletedEvent;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubImageRepository;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
 import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
@@ -28,7 +36,12 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +57,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 public class ClubServiceMockTest {
@@ -57,6 +73,12 @@ public class ClubServiceMockTest {
     ApplicationRepository applicationRepository;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
+    @Mock
+    S3Service s3Service;
+    @Mock
+    ClubImageRepository clubImageRepository;
+    @Mock
+    ApplicationEventPublisher applicationEventPublisher;
 
     @InjectMocks
     ClubServiceImpl clubService;
@@ -72,7 +94,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.PENDING);
+        Application application = createApplication(user, clubApplyForm, Status.PENDING, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -80,12 +102,10 @@ public class ClubServiceMockTest {
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
-        given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of(application));
-
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1, 1,
-                "2025-09-03", "2025-09-20",
-                List.of(new ApplicantResponseDto("김춘식", "123456", "철학과", "010-1234-5678",
-                        "123@email.com", Status.PENDING)));
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(clubId), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of(clubMember));
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L,1, 1,
+                LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 20));
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -95,7 +115,8 @@ public class ClubServiceMockTest {
         verify(clubRepository).findById(eq(clubId));
         verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
-        verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
+        verify(clubMemberRepository).findByClubIdAndRoleAndApplicationStatus(1L, Role.APPLICANT, Status.PENDING);
+        verifyNoInteractions(applicationRepository);
     }
 
     @DisplayName("동아리 대쉬보드를 조회시 지원자가 없으면 빈 지원자를 반환한다.")
@@ -109,7 +130,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.APPROVED);
+        Application application = createApplication(user, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -117,9 +138,11 @@ public class ClubServiceMockTest {
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
-        given(applicationRepository.findByClubApplyFormIdAndStatus(eq(1L), eq(Status.PENDING))).willReturn(List.of());
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(1L), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of());
 
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(0, 0, "2025-09-03", "2025-09-20", List.of());
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0, LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 20)
+        );
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -129,7 +152,8 @@ public class ClubServiceMockTest {
         verify(clubRepository).findById(eq(clubId));
         verify(clubApplyFormRepository).findByClubId(club.getId());
         verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
-        verify(applicationRepository).findByClubApplyFormIdAndStatus(1L, Status.PENDING);
+        verify(clubMemberRepository).findByClubIdAndRoleAndApplicationStatus(1L, Role.APPLICANT, Status.PENDING);
+        verifyNoInteractions(applicationRepository);
 
     }
 
@@ -145,7 +169,7 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
         ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
-        Application application = createApplication(user, clubApplyForm, Status.APPROVED);
+        Application application = createApplication(user, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
         ReflectionTestUtils.setField(application, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, application, Role.APPLICANT, ActiveStatus.ACTIVE);
         ReflectionTestUtils.setField(clubMember, "id", 1L);
@@ -188,11 +212,12 @@ public class ClubServiceMockTest {
             given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
 
             ClubDetailResponseDto expect = new ClubDetailResponseDto(
+                    1L,
                     "카태켐",
                     "공7 1호관",
                     Category.LITERATURE,
                     "함께 배우는 카태켐",
-                    List.of("image1.url"),
+                    List.of(new ClubImageResponseDto(1L,"image1.url")),
                     "overview",
                     "activities",
                     "ideal",
@@ -239,23 +264,394 @@ public class ClubServiceMockTest {
         verifyNoInteractions(clubMemberRepository);
     }
 
+    @DisplayName("Club Detail 조회시 동아리 회장을 찾을 수 없을 때 ClubMemberNotFoundException이 실행된다.")
+    @Test
+    void getClubDetailWithNoClubAdmin() {
+        //given
+        Long clubId = 1L;
+
+        ClubIntroduction clubIntroduction = createClubIntroduction();
+        ClubImage image = createClubImage(clubIntroduction);
+        clubIntroduction.addImage(image);
+        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
+        given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.empty());
+
+        //when
+        assertThatThrownBy(() -> clubService.getClubDetail(clubId))
+                .isInstanceOf(ClubMemberNotFoundException.class)
+                .hasMessage("해당 클럽멤버가 존재하지 않습니다.");
+
+        //then
+        verify(clubRepository).findClubDetailById(eq(clubId));
+        verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
+    }
+
+
+    @Test
+    @DisplayName("동아리 상세 업데이트: 기존 Introduction을 새 값으로 교체 (이미지 포함)")
+    void updateClubDetail_replaceIntroduction_allNew() {
+        // given
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg", "old2.jpg")
+        );
+
+        given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+
+        ClubDetailRequestDto dto = ClubDetailRequestDto.builder()
+                .clubName("새로운동아리")
+                .category(Category.SPORTS)
+                .location("인문대 2호관")
+                .shortIntroduction("new short")
+                .introductionOverview("new overview")
+                .introductionActivity("new activity")
+                .introductionIdeal("new ideal")
+                .applicationNotice("주의사항")
+                .regularMeetingInfo("매주 수 18:00")
+                .build();
+
+        // when
+        SuccessResponseDto res = clubService.updateClubDetail(1L, dto);
+
+        // then
+        assertThat(res.success()).isTrue();
+
+        assertThat(club.getName()).isEqualTo("새로운동아리");
+        assertThat(club.getCategory()).isEqualTo(Category.SPORTS);
+        assertThat(club.getLocation()).isEqualTo("인문대 2호관");
+        assertThat(club.getShortIntroduction()).isEqualTo("new short");
+        assertThat(club.getCaution()).isEqualTo("주의사항");
+        assertThat(club.getRegularMeetingInfo()).isEqualTo("매주 수 18:00");
+
+        // introduction 교체 확인
+        assertThat(club.getIntroduction()).isNotNull();
+        assertThat(club.getIntroduction().getOverview()).isEqualTo("new overview");
+        assertThat(club.getIntroduction().getActivities()).isEqualTo("new activity");
+        assertThat(club.getIntroduction().getIdeal()).isEqualTo("new ideal");
+
+    }
+    private Club sampleClubWithIntroduction(
+            String name,
+            Category category,
+            String location,
+            String shortIntro,
+            String overview,
+            String activity,
+            String ideal,
+            List<String> imageUrls
+    ) {
+        Club club = Club.builder()
+                .name(name)
+                .category(category)
+                .location(location)
+                .shortIntroduction(shortIntro)
+                .regularMeetingInfo("수 18:00")
+                .build();
+
+        ClubIntroduction intro = ClubIntroduction.builder()
+                .overview(overview)
+                .activities(activity)
+                .ideal(ideal)
+                .build();
+
+        for (String url : imageUrls) {
+            intro.addImage(ClubImage.builder().imageUrl(url).build());
+        }
+
+        club.updateDetail(
+                ClubDetailRequestDto.builder()
+                        .clubName(name)
+                        .category(category)
+                        .location(location)
+                        .shortIntroduction(shortIntro)
+                        .introductionOverview(overview)
+                        .introductionActivity(activity)
+                        .introductionIdeal(ideal)
+                        .regularMeetingInfo("수 18:00")
+                        .build()
+        );
+        return club;
+    }
+
+    @DisplayName("동아리 운영진이 동아리 상세페이지의 이미지를 선택적으로 유지/추가할 수 있다.")
+    @Test
+    void updateClubImages_shouldKeepSomeAndAddNewOnes() {
+        // given
+        // 기존 클럽 이미지 설정
+        ClubImage existingImage1 = ClubImage.builder().imageUrl("old1.jpg").build();
+        ClubImage existingImage2 = ClubImage.builder().imageUrl("old2.jpg").build();
+        ClubImage existingImage3 = ClubImage.builder().imageUrl("old3.jpg").build();
+
+        // clubIntroduction에 이미지 추가 (실제 ClubImage 객체에 ID를 설정해야 함)
+        ReflectionTestUtils.setField(existingImage1, "id", 1L);
+        ReflectionTestUtils.setField(existingImage2, "id", 2L);
+        ReflectionTestUtils.setField(existingImage3, "id", 3L);
+
+        ClubIntroduction clubIntroduction = ClubIntroduction.builder()
+                .overview("overview")
+                .activities("activities")
+                .ideal("ideal")
+                .build();
+        clubIntroduction.addImage(existingImage1);
+        clubIntroduction.addImage(existingImage2);
+        clubIntroduction.addImage(existingImage3);
+
+        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        // 유지할 이미지 ID: 1L (old1.jpg)
+        List<Long> keepImageIds = List.of(1L);
+
+        // 새로 추가할 이미지
+        MockMultipartFile newImageFile1 = new MockMultipartFile("newImage1", "new1.jpg", "image/jpeg", "new image data 1".getBytes());
+        MockMultipartFile newImageFile2 = new MockMultipartFile("newImage2", "new2.png", "image/png", "new image data 2".getBytes());
+        List<MultipartFile> newImages = List.of(newImageFile1, newImageFile2);
+
+        // Mocking
+        given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+        given(clubImageRepository.findAllByClubId(1L)).willReturn(List.of(existingImage1, existingImage2, existingImage3));
+        given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
+        given(s3Service.upload(newImageFile2)).willReturn("uploaded_new2.png");
+
+        // when
+        SuccessResponseDto response = clubService.uploadClubImages(1L, keepImageIds, newImages);
+
+        // then
+        assertThat(response.success()).isTrue();
+
+        // clubIntroduction의 이미지가 올바르게 업데이트되었는지 확인
+        List<ClubImage> updatedImages = club.getIntroduction().getImages();
+        assertThat(updatedImages).hasSize(3); // old1 + new1 + new2
+
+        assertThat(updatedImages).extracting(ClubImage::getImageUrl)
+                .containsExactlyInAnyOrder("old1.jpg", "uploaded_new1.jpg", "uploaded_new2.png");
+
+        // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
+        verify(s3Service, times(1)).upload(newImageFile1);
+        verify(s3Service, times(1)).upload(newImageFile2);
+
+        // 이벤트 발행 확인 (old2.jpg, old3.jpg가 삭제 대상이므로)
+        verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));
+    }
+
+    @DisplayName("이미지 수정 시, 모든 이미지를 삭제하고 새 이미지를 추가할 수 있다.")
+    @Test
+    void updateClubImages_shouldDeleteAllAndAddNewOnes() {
+        // given
+        // 기존 클럽 이미지 설정
+        ClubImage existingImage1 = ClubImage.builder().imageUrl("old1.jpg").build();
+        ClubImage existingImage2 = ClubImage.builder().imageUrl("old2.jpg").build();
+
+        ReflectionTestUtils.setField(existingImage1, "id", 1L);
+        ReflectionTestUtils.setField(existingImage2, "id", 2L);
+
+        ClubIntroduction clubIntroduction = ClubIntroduction.builder()
+                .overview("overview")
+                .activities("activities")
+                .ideal("ideal")
+                .build();
+        clubIntroduction.addImage(existingImage1);
+        clubIntroduction.addImage(existingImage2);
+
+        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        // 유지할 이미지 없음 (모두 삭제)
+        List<Long> keepImageIds = List.of();
+
+        // 새로 추가할 이미지
+        MockMultipartFile newImageFile1 = new MockMultipartFile("newImage1", "new1.jpg", "image/jpeg", "new image data 1".getBytes());
+        List<MultipartFile> newImages = List.of(newImageFile1);
+
+        // Mocking
+        given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+        given(clubImageRepository.findAllByClubId(1L)).willReturn(List.of(existingImage1, existingImage2));
+        given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
+
+        // when
+        SuccessResponseDto response = clubService.uploadClubImages(1L, keepImageIds, newImages);
+
+        // then
+        assertThat(response.success()).isTrue();
+
+        // clubIntroduction의 이미지가 올바르게 업데이트되었는지 확인
+        List<ClubImage> updatedImages = club.getIntroduction().getImages();
+        assertThat(updatedImages).hasSize(1); // new1
+
+        assertThat(updatedImages).extracting(ClubImage::getImageUrl)
+                .containsExactlyInAnyOrder("uploaded_new1.jpg");
+
+        // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
+        verify(s3Service, times(1)).upload(newImageFile1);
+
+        // 이벤트 발행 확인 (old1.jpg, old2.jpg가 삭제 대상이므로)
+        verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));
+    }
+
+    @DisplayName("이미지 수정 시, S3 업로드 실패하면 보상 트랜잭션으로 업로드된 이미지 삭제")
+    @Test
+    void updateClubImages_shouldRollbackS3Upload_whenUploadFails() {
+        // given
+        Long clubId = 1L;
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg")
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        List<Long> keepImageIds = List.of(); // 유지하지 않음
+
+        MockMultipartFile newImageFile1 = new MockMultipartFile("newImage1", "new1.jpg", "image/jpeg", "new image data 1".getBytes());
+        MockMultipartFile newImageFile2 = new MockMultipartFile("newImage2", "new2.png", "image/png", "new image data 2".getBytes());
+        List<MultipartFile> newImages = List.of(newImageFile1, newImageFile2);
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.of(club));
+        given(clubImageRepository.findAllByClubId(clubId)).willReturn(List.of()); // 기존 이미지 없음
+        given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
+        given(s3Service.upload(newImageFile2)).willThrow(new RuntimeException("S3 upload failed")); // 두 번째 이미지 업로드 실패
+
+        // when & then
+        assertThatThrownBy(() -> clubService.uploadClubImages(clubId, keepImageIds, newImages))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("S3 upload failed");
+
+        // 첫 번째 이미지 업로드는 성공했으므로, 보상 트랜잭션으로 삭제 호출 확인
+        verify(s3Service, times(1)).upload(newImageFile1);
+        verify(s3Service, times(1)).upload(newImageFile2);
+        verify(s3Service, times(1)).deleteFile("uploaded_new1.jpg");
+    }
+
+    @DisplayName("이미지 수정 시, 유지할 이미지가 null이면 모든 이미지를 삭제하고 새 이미지를 추가한다.")
+    @Test
+    void updateClubImages_shouldDeleteAllAndAddNewOnes_whenKeepImageIdIsNull() {
+        // given
+        // 기존 클럽 이미지 설정
+        ClubImage existingImage1 = ClubImage.builder().imageUrl("old1.jpg").build();
+        ClubImage existingImage2 = ClubImage.builder().imageUrl("old2.jpg").build();
+
+        ReflectionTestUtils.setField(existingImage1, "id", 1L);
+        ReflectionTestUtils.setField(existingImage2, "id", 2L);
+
+        ClubIntroduction clubIntroduction = ClubIntroduction.builder()
+                .overview("overview")
+                .activities("activities")
+                .ideal("ideal")
+                .build();
+        clubIntroduction.addImage(existingImage1);
+        clubIntroduction.addImage(existingImage2);
+
+        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", 1L);
+
+        // 유지할 이미지 없음 (모두 삭제)
+        List<Long> keepImageIds = null;
+
+        // 새로 추가할 이미지
+        MockMultipartFile newImageFile1 = new MockMultipartFile("newImage1", "new1.jpg", "image/jpeg", "new image data 1".getBytes());
+        List<MultipartFile> newImages = List.of(newImageFile1);
+
+        // Mocking
+        given(clubRepository.findClubDetailById(1L)).willReturn(Optional.of(club));
+        given(clubImageRepository.findAllByClubId(1L)).willReturn(List.of(existingImage1, existingImage2));
+        given(s3Service.upload(newImageFile1)).willReturn("uploaded_new1.jpg");
+
+        // when
+        SuccessResponseDto response = clubService.uploadClubImages(1L, keepImageIds, newImages);
+
+        // then
+        assertThat(response.success()).isTrue();
+
+        // clubIntroduction의 이미지가 올바르게
+        // 업데이트되었는지 확인
+        List<ClubImage> updatedImages = club.getIntroduction().getImages();
+        assertThat(updatedImages).hasSize(1); // new1
+
+        assertThat(updatedImages).extracting(ClubImage::getImageUrl)
+                .containsExactlyInAnyOrder("uploaded_new1.jpg");
+
+        // S3Service의 upload 메서드가 새 이미지 파일에 대해 호출되었는지 확인
+        verify(s3Service, times(1)).upload(newImageFile1);
+
+        // 이벤트 발행 확인 (old1.jpg, old2.jpg가 삭제 대상이므로)
+        verify(applicationEventPublisher, times(1)).publishEvent(any(ClubImageDeletedEvent.class));
+    }
+
+    @DisplayName("이미지 수정 시, 동아리가 존재하지 않으면 예외 발생")
+    @Test
+    void updateClubImages_shouldThrowException_whenClubNotFound() {
+        //given
+        Long clubId = 999L;
+        List<Long> keepImageIds = List.of(1L);
+        List<MultipartFile> newImages = List.of(
+                new MockMultipartFile("image1", "new1.jpg", "image/jpeg", "data".getBytes())
+        );
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> clubService.uploadClubImages(clubId, keepImageIds, newImages))
+                .isInstanceOf(ClubNotFoundException.class)
+                .hasMessageContaining("해당 동아리가 존재하지 않습니다.");
+
+        verify(s3Service, times(0)).upload(any());
+    }
+
+    @DisplayName("이미지 수정 시, 잘못된 확장자의 이미지가 포함되면 예외가 발생한다.")
+    @Test
+    void updateClubImages_shouldThrowException_whenInvalidImageExtension() {
+
+        Long clubId = 1L;
+        Club club = sampleClubWithIntroduction(
+                "기존동아리", Category.STUDY, "공대 1호관", "old short",
+                "old overview", "old activity", "old ideal",
+                List.of("old1.jpg")
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+
+        List<Long> keepImageIds = List.of(); // 유지하지 않음
+
+        MultipartFile invalidImage = new MockMultipartFile("image", "invalid.gif", "image/gif", "data".getBytes());
+        List<MultipartFile> newImages = List.of(invalidImage);
+
+        given(clubRepository.findClubDetailById(clubId)).willReturn(Optional.of(club));
+        given(s3Service.upload(invalidImage)).willThrow(new InvalidFileException("JPG 또는 PNG 파일만 업로드 가능합니다."));
+
+        assertThatThrownBy(() -> clubService.uploadClubImages(clubId, keepImageIds, newImages))
+                .isInstanceOf(InvalidFileException.class)
+                .hasMessageContaining("잘못된 파일 형식입니다.");
+
+        verify(s3Service, times(1)).upload(invalidImage);
+    }
+
 
     @DisplayName("지원자의 지원 상태에 따라 지원자를 필터링해 조회할 수 있다.")
     @ParameterizedTest
     @MethodSource("provideStatusAndClubMembers")
-    void viewApplicantsByFilter(Status status, List<ClubMember> mockResult, int expectedSize) {
+    void viewApplicantsByFilter(Status status, List<ClubMember> mockResult, int expectedSize, Stage stage) {
         // given
         Long clubId = 1L;
-        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(
-                eq(clubId), eq(Role.APPLICANT), eq(status)))
+
+        Club club = mock(Club.class);
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(mock(ClubApplyForm.class)));
+
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(
+                eq(clubId), eq(Role.APPLICANT), eq(status), eq(stage)))
                 .willReturn(mockResult);
 
         // when
-        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, status);
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(clubId, status, stage);
 
         // then
-        assertThat(actual).hasSize(expectedSize);
-        assertThat(actual).allMatch(dto -> dto.status().equals(status));
+        assertThat(actual.applicants()).hasSize(expectedSize);
+        assertThat(actual.applicants()).allMatch(dto -> dto.status().equals(status));
     }
 
     private static Stream<Arguments> provideStatusAndClubMembers() {
@@ -269,19 +665,19 @@ public class ClubServiceMockTest {
         User user3 = createUser("loginId3", "333333");
 
         ClubMember clubMember1 = createClubMember(user1, club,
-                createApplication(user1, clubApplyForm, Status.PENDING),
+                createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember2 = createClubMember(user2, club,
-                createApplication(user2, clubApplyForm, Status.PENDING),
+                createApplication(user2, clubApplyForm, Status.PENDING, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember3 = createClubMember(user3, club,
-                createApplication(user3, clubApplyForm, Status.REJECTED),
+                createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW),
                 Role.APPLICANT, ActiveStatus.ACTIVE);
 
         return Stream.of(
-                Arguments.of(Status.PENDING, List.of(clubMember1, clubMember2), 2),
-                Arguments.of(Status.REJECTED, List.of(clubMember3), 1),
-                Arguments.of(Status.APPROVED, List.of(), 0)
+                Arguments.of(Status.PENDING, List.of(clubMember1, clubMember2), 2, Stage.INTERVIEW),
+                Arguments.of(Status.REJECTED, List.of(clubMember3), 1, Stage.INTERVIEW),
+                Arguments.of(Status.APPROVED, List.of(), 0, Stage.INTERVIEW)
         );
     }
 
@@ -291,32 +687,45 @@ public class ClubServiceMockTest {
         //given
         Long clubId = 1L;
         Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        ReflectionTestUtils.setField(club, "id", clubId);
+
         User user1 = createUser( "loginId1", "111111");
         User user2 = createUser( "loginId2", "222222");
         User user3 = createUser( "loginId3", "333333");
+
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
 
-        ClubMember clubMember1 = createClubMember(user1, club, createApplication(user1, clubApplyForm, Status.PENDING), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember2 = createClubMember(user2, club, createApplication(user2, clubApplyForm, Status.APPROVED), Role.APPLICANT, ActiveStatus.ACTIVE);
-        ClubMember clubMember3 = createClubMember(user3, club, createApplication(user3, clubApplyForm, Status.REJECTED), Role.APPLICANT, ActiveStatus.ACTIVE);
+        Application application1 = createApplication(user1, clubApplyForm, Status.PENDING, Stage.INTERVIEW);
+        Application application2 = createApplication(user2, clubApplyForm, Status.APPROVED, Stage.INTERVIEW);
+        Application application3 = createApplication(user3, clubApplyForm, Status.REJECTED, Stage.INTERVIEW);
+
+        ReflectionTestUtils.setField(application1, "id", 1L);
+        ReflectionTestUtils.setField(application2, "id", 2L);
+        ReflectionTestUtils.setField(application3, "id", 3L);
+
+        ClubMember clubMember1 = createClubMember(user1, club, application1, Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember2 = createClubMember(user2, club, application2, Role.APPLICANT, ActiveStatus.ACTIVE);
+        ClubMember clubMember3 = createClubMember(user3, club, application3, Role.APPLICANT, ActiveStatus.ACTIVE);
+
+        given(clubApplyFormRepository.findByClubId(eq(clubId))).willReturn(Optional.of(clubApplyForm));
 
         // club -> clubMember -> user -> application
-        given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember1, clubMember2, clubMember3));
+        given(clubMemberRepository.findByClubIdAndRoleAndStage(eq(clubId), eq(Role.APPLICANT), eq(Stage.INTERVIEW))).willReturn(List.of(clubMember1, clubMember2, clubMember3));
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING),
+                        Status.PENDING, 1L),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED),
+                        Status.APPROVED, 2L),
                 new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
-                        Status.REJECTED)
+                        Status.REJECTED, 3L)
         );
 
         //when
-        List<ApplicantResponseDto> actual = clubService.getApplicantsByStatus(clubId, null);
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(1L, null, Stage.INTERVIEW);
 
         //then
-        assertThat(actual).isEqualTo(expect);
+        assertThat(actual.applicants()).isEqualTo(expect);
     }
 
 
@@ -383,11 +792,12 @@ public class ClubServiceMockTest {
                 .build();
     }
 
-    private static Application createApplication(User user, ClubApplyForm clubApplyForm, Status status) {
+    private static Application createApplication(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
         return Application.builder()
                 .user(user)
                 .clubApplyForm(clubApplyForm)
                 .status(status)
+                .stage(stage)
                 .build();
     }
 

@@ -1,30 +1,49 @@
 package com.kakaotech.team18.backend_server.domain.auth.service;
 
-import com.kakaotech.team18.backend_server.domain.auth.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.kakaotech.team18.backend_server.domain.auth.dto.AuthStatus;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoTokenResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.KakaoUserInfoResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginResponse;
+import com.kakaotech.team18.backend_server.domain.auth.dto.LoginSuccessResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegisterRequestDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
+import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
+import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NotRefreshTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
+import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
+import com.kakaotech.team18.backend_server.global.security.TokenType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
-
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceImplTest {
@@ -38,6 +57,12 @@ class AuthServiceImplTest {
     private JwtProvider jwtProvider;
     @Mock
     private RestClient restClient;
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
+    @Mock
+    private JwtProperties jwtProperties;
+    @Mock
+    private ClubMemberRepository clubMemberRepository;
 
     // RestClient의 플루언트 API를 Mocking하기 위한 추가 Mock 객체들
     @Mock
@@ -64,6 +89,120 @@ class AuthServiceImplTest {
         ReflectionTestUtils.setField(authService, "kakaoRedirectUri", KAKAO_REDIRECT_URI);
         ReflectionTestUtils.setField(authService, "kakaoTokenUri", KAKAO_TOKEN_URI);
         ReflectionTestUtils.setField(authService, "kakaoUserInfoUri", KAKAO_USER_INFO_URI);
+    }
+
+    @DisplayName("Access Token 재발급 성공 (Refresh Token Rotation 적용)")
+    @Test
+    void reissue_success() {
+        // given
+        String oldRefreshToken = "valid-refresh-token";
+        Long userId = 1L;
+        String newAccessToken = "new-access-token";
+        String newRefreshToken = "new-refresh-token";
+
+        Claims claims = Jwts.claims().setSubject(userId.toString());
+        claims.put("tokenType", TokenType.REFRESH.name());
+
+        User user = User.builder().build();
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        RefreshToken storedRefreshToken = new RefreshToken(userId, oldRefreshToken, 3600L);
+
+        given(jwtProvider.verify(oldRefreshToken)).willReturn(claims);
+        given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(jwtProvider.createAccessToken(user)).willReturn(newAccessToken);
+        given(jwtProvider.createRefreshToken(user)).willReturn(newRefreshToken);
+        given(jwtProperties.refreshTokenValidityInSeconds()).willReturn(604800L);
+
+        // when
+        ReissueResponseDto result = authService.reissue(oldRefreshToken);
+
+        // then
+        assertThat(result).isNotNull();
+        assertThat(result.accessToken()).isEqualTo(newAccessToken);
+        assertThat(result.refreshToken()).isEqualTo(newRefreshToken);
+
+        ArgumentCaptor<RefreshToken> refreshTokenCaptor = ArgumentCaptor.forClass(RefreshToken.class);
+        verify(refreshTokenRepository).save(refreshTokenCaptor.capture());
+        RefreshToken savedToken = refreshTokenCaptor.getValue();
+
+        assertThat(savedToken.getId()).isEqualTo(userId);
+        assertThat(savedToken.getRefreshToken()).isEqualTo(newRefreshToken);
+    }
+
+    @DisplayName("Access Token으로 재발급 요청 시 예외 발생")
+    @Test
+    void reissue_withWrongTokenType_throwsException() {
+        // given
+        String accessToken = "access-token";
+        Long userId = 1L;
+
+        Claims claims = Jwts.claims().setSubject(userId.toString());
+        claims.put("tokenType", TokenType.ACCESS.name());
+
+        given(jwtProvider.verify(accessToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.reissue(accessToken))
+                .isInstanceOf(NotRefreshTokenException.class);
+    }
+
+    @DisplayName("Redis에 저장되지 않은 토큰으로 재발급 요청 시 예외 발생")
+    @Test
+    void reissue_withLoggedOutToken_throwsException() {
+        // given
+        String refreshToken = "logged-out-token";
+        Long userId = 1L;
+
+        Claims claims = Jwts.claims().setSubject(userId.toString());
+        claims.put("tokenType", TokenType.REFRESH.name());
+
+        given(jwtProvider.verify(refreshToken)).willReturn(claims);
+        given(refreshTokenRepository.findById(userId)).willReturn(Optional.empty()); // Redis에 토큰이 없음
+
+        // when & then
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
+                .isInstanceOf(LoggedOutUserException.class);
+    }
+
+    @DisplayName("Redis의 토큰과 불일치하는 토큰으로 재발급 요청 시 예외 발생")
+    @Test
+    void reissue_withMismatchedToken_throwsException() {
+        // given
+        String refreshToken = "valid-but-mismatched-token";
+        Long userId = 1L;
+
+        Claims claims = Jwts.claims().setSubject(userId.toString());
+        claims.put("tokenType", TokenType.REFRESH.name());
+
+        // Redis에는 다른 토큰이 저장되어 있는 상황
+        RefreshToken storedRefreshToken = new RefreshToken(userId, "stored-but-different-token", 3600L);
+
+        given(jwtProvider.verify(refreshToken)).willReturn(claims);
+        given(refreshTokenRepository.findById(userId)).willReturn(Optional.of(storedRefreshToken));
+
+        // when & then
+        assertThatThrownBy(() -> authService.reissue(refreshToken))
+                .isInstanceOf(InvalidRefreshTokenException.class);
+    }
+
+    @DisplayName("카카오 로그인 - 토큰 요청 타임아웃 시 예외 발생")
+    @Test
+    void kakaoLogin_timeout_throwsException() {
+        // given
+        String authorizationCode = "testAuthCode";
+
+        // Mocking: 카카오 토큰 요청 시 타임아웃(ResourceAccessException) 발생
+        given(restClient.post()).willReturn(requestBodyUriSpec);
+        given(requestBodyUriSpec.uri(KAKAO_TOKEN_URI)).willReturn(requestBodySpec);
+        given(requestBodySpec.contentType(any())).willReturn(requestBodySpec);
+        given(requestBodySpec.body(any(MultiValueMap.class))).willReturn(requestBodySpec);
+        given(requestBodySpec.retrieve()).willThrow(new ResourceAccessException("I/O error: Read timed out"));
+
+        // when & then
+        assertThatThrownBy(() -> authService.kakaoLogin(authorizationCode))
+                .isInstanceOf(KakaoApiTimeoutException.class);
     }
 
     @DisplayName("기존 회원 카카오 로그인 성공")
@@ -185,7 +324,7 @@ class AuthServiceImplTest {
         );
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary");
+        claims.setSubject(TokenType.TEMPORARY.name());
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -226,7 +365,7 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary");
+        claims.setSubject(TokenType.TEMPORARY.name());
         claims.put("kakaoId", kakaoId);
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -268,7 +407,7 @@ class AuthServiceImplTest {
                 .build();
 
         Claims claims = Jwts.claims();
-        claims.setSubject("temporary"); // subject를 "temporary"로 설정
+        claims.setSubject(TokenType.TEMPORARY.name()); // subject를 "TEMPORARY"로 설정
         claims.put("kakaoId", attackerKakaoId); // kakaoId 클레임 추가
 
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
@@ -279,5 +418,56 @@ class AuthServiceImplTest {
         assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
                 .isInstanceOf(DuplicateKakaoIdException.class)
                 .hasMessage("이미 다른 계정과 연동된 학번입니다.");
+    }
+
+    @DisplayName("회원가입 실패 - 잘못된 타입의 토큰 사용 시 예외 발생")
+    @Test
+    void register_withWrongTokenType_throwsException() {
+        // given
+        String bearerToken = "Bearer wrongTypeToken";
+        String wrongTypeToken = "wrongTypeToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // 'ACCESS' 타입 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.ACCESS.name()); // 잘못된 타입 설정
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(wrongTypeToken);
+        given(jwtProvider.verify(wrongTypeToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("회원가입에는 임시 토큰이 필요합니다.");
+            });
+    }
+
+    @DisplayName("회원가입 실패 - 토큰에 kakaoId 누락 시 예외 발생")
+    @Test
+    void register_withMissingKakaoId_throwsException() {
+        // given
+        String bearerToken = "Bearer missingInfoToken";
+        String missingInfoToken = "missingInfoToken";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
+        );
+
+        // kakaoId가 없는 임시 토큰을 모킹
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.TEMPORARY.name());
+        // claims.put("kakaoId", 12345L); // kakaoId를 일부러 넣지 않음
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(missingInfoToken);
+        given(jwtProvider.verify(missingInfoToken)).willReturn(claims);
+
+        // when & then
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+            .isInstanceOf(UnauthenticatedUserException.class)
+            .satisfies(e -> {
+                assertThat(((UnauthenticatedUserException) e).getDetail()).isEqualTo("토큰에 필수 정보(kakaoId)가 없습니다.");
+            });
     }
 }

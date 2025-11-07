@@ -1,30 +1,57 @@
 package com.kakaotech.team18.backend_server.global.security;
 
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredAccessTokenException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidJwtException;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.IOException;
-
-@Component
-@RequiredArgsConstructor
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
+    private final HandlerExceptionResolver resolver;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    // Qualifier 를 이용하기 위해서 RequiredArgsConstructor 사용 X
+    public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, RedisTemplate<String, String> redisTemplate) {
+        this.jwtProvider = jwtProvider;
+        this.principalDetailsService = principalDetailsService;
+        this.resolver = resolver;
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
+
+        // 요청 URI를 확인하여 특정 경로의 요청은 필터를 그냥 통과시킨다.
+        String requestURI = request.getRequestURI();
+        if (requestURI.equals("/api/auth/reissue") || requestURI.equals("/api/auth/kakao/login")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // 1. 헤더에서 "Authorization" 값을 가져온다.
         String bearerToken = request.getHeader("Authorization");
@@ -36,25 +63,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String token = null; // try-catch 블록 밖에서 token 변수 선언
         try {
             // 3. "Bearer " 접두사를 제거하고 순수한 토큰을 추출한다.
-            String token = jwtProvider.extractToken(bearerToken);
+            token = jwtProvider.extractToken(bearerToken);
+
+            // 블랙리스트 확인
+            ValueOperations<String, String> values = redisTemplate.opsForValue();
+            if (values.get("blacklist:" + token) != null) {
+                // 블랙리스트에 존재하면, 로그아웃된 토큰으로 간주하고 예외를 발생시켜 요청을 차단합니다.
+                resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.BLACKLISTED_TOKEN));
+                return; // 필터 체인 진행을 중단합니다.
+            }
 
             // 4. 토큰 유효성 검증 및 클레임 추출
             Claims claims = jwtProvider.verify(token);
 
             // 4-1. 토큰 타입 검증: "ACCESS" 타입의 토큰만 인증 처리
             String tokenType = claims.get("tokenType", String.class);
-            if (!"ACCESS".equals(tokenType)) {
+            if (!TokenType.ACCESS.name().equals(tokenType)) {
                 // ACCESS 토큰이 아니면 (예: REFRESH 토큰이면), 인증 처리하지 않고 다음 필터로 넘어간다.
                 filterChain.doFilter(request, response);
                 return;
             }
 
-            // 5. 토큰의 subject(userId)로 UserDetails 객체를 조회한다.
-            UserDetails userDetails = principalDetailsService.loadUserByUsername(claims.getSubject());
+            // 5. 토큰에서 "memberships" 클레임을 추출한다.
+            // get(key, Class)를 사용하여 타입 안전하게 추출하고, 없을 경우를 대비해 기본값(빈 맵)을 설정한다.
+            Map<String, String> memberships = claims.get("memberships", Map.class);
+            if (memberships == null) {
+                memberships = Collections.emptyMap();
+            }
 
-            // 6. Authentication 객체 생성 (Principal, Credentials, Authorities)
+            // 6. 토큰의 subject(userId)와 memberships 정보로 UserDetails 객체를 조회한다.
+            UserDetails userDetails = principalDetailsService.loadUserByUsername(claims.getSubject(), memberships);
+
+            // 7. Authentication 객체 생성 (Principal, Credentials, Authorities)
             // 우리는 JWT를 사용하므로, 비밀번호(Credentials)는 null로 설정한다.
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     userDetails,
@@ -62,17 +105,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     userDetails.getAuthorities()
             );
 
-            // 7. SecurityContextHolder에 Authentication 객체를 저장한다.
+            // 8. SecurityContextHolder에 Authentication 객체를 저장한다.
             // 이 작업이 완료되면, 해당 요청은 '인증된' 것으로 간주된다.
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("인증 성공: userId='{}', uri='{}'", userDetails.getUsername(), request.getRequestURI()); // 인증 성공 로그
 
-        } catch (Exception e) {
-            // 토큰 검증 과정에서 예외 발생 시 (만료, 위변조 등), SecurityContext를 비운다.
-            // 이렇게 하면, 해당 요청은 '인증되지 않은' 것으로 처리된다.
-            SecurityContextHolder.clearContext();
+        } catch (SignatureException e) {
+            log.warn("유효하지 않은 JWT 서명입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.INVALID_JWT_SIGNATURE));
+            return;
+        } catch (MalformedJwtException e) {
+            log.warn("손상된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.MALFORMED_JWT));
+            return;
+        } catch (ExpiredJwtException e) {
+            log.warn("만료된 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
+            // Access Token이 만료된 경우, ExpiredAccessTokenException 커스텀 예외를 발생시켜 401 에러를 응답합니다.
+            resolver.resolveException(request, response, null, new ExpiredAccessTokenException());
+            return;
+        } catch (UnsupportedJwtException e) {
+            log.warn("지원하지 않는 JWT 토큰입니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.UNSUPPORTED_JWT));
+            return;
+        } catch (IllegalArgumentException e) {
+            log.warn("JWT 클레임이 비어있습니다. token={}, uri={}", token, request.getRequestURI()); // 예외 로그
+            resolver.resolveException(request, response, null, new InvalidJwtException(ErrorCode.ILLEGAL_ARGUMENT_JWT));
+            return;
         }
 
-        // 8. 다음 필터 체인을 실행한다.
+        // 9. 다음 필터 체인을 실행한다.
         filterChain.doFilter(request, response);
     }
 }

@@ -3,8 +3,20 @@ package com.kakaotech.team18.backend_server.domain.application.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.FormQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
+import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
@@ -22,6 +34,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -29,7 +42,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -50,6 +67,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
+    private final ClubMemberRepository clubMemberRepository;
+    private static final int MAX_READ_LIMIT = 100;
 
     @Override
     public ApplicationDetailResponseDto getApplicationDetail(Long clubId, Long applicantId) {
@@ -60,7 +79,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                             return new ClubApplyFormNotFoundException("clubId = " + clubId);
                         }
                 );
-        Application application = applicationRepository.findByClubApplyFormIdAndUserId(clubApplyForm.getId(), applicantId)
+        Application application = applicationRepository.findById(applicantId)
                 .orElseThrow(() -> new ApplicationNotFoundException("clubId=" + clubId + ", applicantId=" + applicantId));
 
         // 2. 지원자 정보(ApplicantInfo) DTO 생성
@@ -87,6 +106,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         return new ApplicationDetailResponseDto(
                 application.getId(),
                 application.getStatus().name(),
+                application.getAverageRating(),
                 applicantInfo,
                 questionsAndAnswers
         );
@@ -121,7 +141,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     ) {
 
         //1. applicationForm 찾기
-        ClubApplyForm form = clubApplyFormRepository.findByClubIdAndIsActiveTrue(clubId)
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
 
         //2. 유저 정보생성(없으면 생성)
@@ -165,17 +185,20 @@ public class ApplicationServiceImpl implements ApplicationService {
             Application application,
             ApplicationApplyRequestDto request
     ) {
-
         long deleted = answerRepository.deleteByApplication(application);
         log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), deleted);
 
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(application.getClubApplyForm().getClub().getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + application.getClubApplyForm().getClub().getId()));
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answers());
-        publisher.publishEvent(new ApplicationSubmittedEvent(application.getId(), emailLines));
+        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(application,  president);
+        publisher.publishEvent(new ApplicationSubmittedEvent(applicationInfoDto, application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
                 application.getUser().getStudentId(),
-                application.getLastModifiedAt(),
+                LocalDateTime.now(),
                 false
         );
     }
@@ -185,14 +208,28 @@ public class ApplicationServiceImpl implements ApplicationService {
             ClubApplyForm form,
             ApplicationApplyRequestDto request
     ) {
-
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();
         applicationRepository.save(newApplication);
         log.info("새로운 답변 기록됨 applicationId={}", newApplication.getId());
 
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(newApplication.getClubApplyForm().getClub().getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + newApplication.getClubApplyForm().getClub().getId()));
+
+        ClubMember clubMember = ClubMember.builder()
+                .user(user)
+                .application(newApplication)
+                .club(form.getClub())
+                .activeStatus(ActiveStatus.ACTIVE)
+                .role(Role.APPLICANT)
+                .build();
+
+        clubMemberRepository.save(clubMember);
+        log.info("새로운 클럽 멤버 저장됨 clubMemberId={}", clubMember.getId());
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(newApplication, request.answers());
-        publisher.publishEvent(new ApplicationSubmittedEvent(newApplication.getId(), emailLines));
+        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(newApplication, president);
+        publisher.publishEvent(new ApplicationSubmittedEvent(applicationInfoDto, newApplication.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
                 newApplication.getUser().getStudentId(),
@@ -210,40 +247,27 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .filter(Objects::nonNull)
                 .filter(a -> a.questionNum() != null)
                 .collect(Collectors.toMap(
-                        ApplicationApplyRequestDto.AnswerDto::questionNum,
-                        ApplicationApplyRequestDto.AnswerDto::answer,
-                        (prev, next) -> next
+                        AnswerDto::questionNum,
+                        AnswerDto::answer
                 ));
 
         // 1) 폼의 질문을 표시순서대로 조회
-        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);
+        List<FormQuestion> questions = formQuestionRepository.findByClubApplyFormIdOrderByDisplayOrderAsc(formId);//해당 formId에 있는 질문만 조회
 
         // 2) 문항-답변 매칭(displayOrder 기반)
         List<Answer> toSave = new ArrayList<>(questions.size());
         List<AnswerEmailLine> emailLines = new ArrayList<>(questions.size());
 
+        log.info("payload keys={}", byQuestionNum.keySet());
+
         for (FormQuestion q : questions) {
             Long disp = q.getDisplayOrder();
-
-            JsonNode raw = byQuestionNum.get(disp);
-
-            if (raw == null && disp != null && disp > 0) {
-                raw = byQuestionNum.get(disp - 1);
-            }
-
-            if (log.isDebugEnabled()) {
-                log.debug("문항 매칭: displayOrder={}, payloadKeys={}, hitZeroBasedFallback={}",
-                        disp, byQuestionNum.keySet(), (raw != null && !byQuestionNum.containsKey(disp)));
-            }
+            JsonNode raw = byQuestionNum.get(disp-1);
 
             List<String> rawValues = extractTextValues(raw);
             String normalized = coerceForFieldType(q, rawValues);
-            //JsonNode raw = byQuestionNum.get(q.getDisplayOrder());
-            //List<String> rawValues = extractTextValues(raw);
-            //String normalized = coerceForFieldType(q, rawValues);
 
-            //String normalized = byQuestionNum.getOrDefault(q.getId(), "");
-            //normalized = normalize(normalized);
+            log.info("Q(disp={}, id={}, type={}, req={}): raw={}, rawValues={}, normalized='{}'",disp, q.getId(), q.getFieldType(), q.getIsRequired(), raw, rawValues, normalized);
 
             // 필수 문항 검사
             if (q.getIsRequired() && isBlank(normalized)) {
@@ -304,7 +328,136 @@ public class ApplicationServiceImpl implements ApplicationService {
         return emailLines;
     }
 
+    @Transactional
+    @Override
+    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
+
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> {
+                            log.warn("ClubApplyForm not found, clubId={}", clubId);
+                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                        }
+                );
+        User president = clubMemberRepository
+                .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
+                .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
+
+        if(stage == Stage.INTERVIEW) {
+            List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            form.updateInterviewMessage(requestDto.message());
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                Stage originalStage = a.getStage();
+                a.updateStage(Stage.FINAL);
+                a.updateStatus(Status.PENDING);
+                publisher.publishEvent(new InterviewApprovedEvent(
+                        applicationInfoDto,
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        originalStage));
+            }
+            for(Application a : rejected) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
+            }
+        }
+        if(stage == Stage.FINAL) {
+            List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
+            boolean hasPending = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            form.updateFinalMessage(requestDto.message());
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStage() == stage)
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalApprovedEvent(
+                        applicationInfoDto,
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
+            }
+        }
+        if(stage == null) {
+            List<Application> apps = applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT);
+            boolean hasPending = apps.stream()
+                    .anyMatch(a -> a.getStatus() == Status.PENDING);
+            if (hasPending) {
+                throw new PendingApplicationsExistException();
+            }
+            List<Application> approved = apps.stream()
+                    .filter(a -> a.getStatus() == Status.APPROVED)
+                    .toList();
+            List<Application> rejected = apps.stream()
+                    .filter(a -> a.getStatus() == Status.REJECTED)
+                    .toList();
+            for(Application a : approved) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalApprovedEvent(
+                        applicationInfoDto,
+                        a.getId(),
+                        a.getUser().getEmail(),
+                        requestDto.message(),
+                        a.getStage()));
+            }
+            for(Application a : rejected) {
+                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                clubMemberRepository.clearApplicationByApplicationId(a.getId());
+                applicationRepository.delete(a);
+            }
+        }
+        return new SuccessResponseDto(true);
+    }
+
     //helper methods
+
+    private ApplicationInfoDto buildApplicationInfo(Application a, User president) {
+        return new ApplicationInfoDto(
+                a.getClubApplyForm().getClub().getName(),
+                a.getUser().getName(),
+                a.getClubApplyForm().getClub().getId(),
+                president.getEmail(),
+                a.getUser().getStudentId(),
+                a.getUser().getDepartment(),
+                a.getUser().getPhoneNumber(),
+                a.getUser().getEmail(),
+                a.getLastModifiedAt()
+        );
+    }
 
     private List<String> extractTextValues(JsonNode node) {
         if (node == null || node.isNull()) return List.of();
@@ -320,10 +473,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                     out.add(item.asText());
                 } else if (item.isObject()) {
                     JsonNode v = firstByCommonKeys(item);
-                    if (nonNull(v)) {
+                    if (v != null) {
                         if (v.isArray()) out.addAll(extractTextValues(v));
                         else if (v.isTextual() || v.isNumber() || v.isBoolean()) out.add(v.asText());
+                        else {
+                            collectStringLeaves(v, out, MAX_READ_LIMIT);
+                        }
+                    } else {
+                        collectStringLeaves(item, out, MAX_READ_LIMIT);
                     }
+                } else {
+                    out.addAll(extractTextValues(item));
                 }
             }
             return out;
@@ -336,7 +496,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 if (v.isTextual() || v.isNumber() || v.isBoolean()) return List.of(v.asText());
             }
             List<String> leaves = new ArrayList<>();
-            collectStringLeaves(node, leaves, 100);
+            collectStringLeaves(node, leaves, MAX_READ_LIMIT);
             return leaves;
         }
 
@@ -377,6 +537,39 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
+
+    private String reassembleTimeSlots(List<String> vals) {
+        if (vals == null || vals.isEmpty()) return "";
+
+        boolean alreadyCombined = vals.stream().anyMatch(s -> s.contains(" ") && TR.matcher(s).find());
+        if (alreadyCombined) return String.join(", " + System.lineSeparator(), vals);
+
+        List<String> out = new ArrayList<>();
+        String currentDate = null;
+
+        for (String raw : vals) {
+            String s = normalize(raw);
+            if (s.isEmpty()) continue;
+
+            boolean looksDate = DATE.matcher(s).matches();
+            boolean looksTimeRange = TR.matcher(s).matches();
+
+            if (looksDate) {
+                currentDate = s;
+                continue;
+            }
+            if (looksTimeRange) {
+                out.add(currentDate != null ? (currentDate + " " + s) : s);
+                continue;
+            }
+            out.add(s);
+        }
+        return String.join(", " + System.lineSeparator(), out);
+    }
+
+
     private String coerceForFieldType(FormQuestion q, List<String> rawValues) {
         List<String> vals = rawValues.stream()
                 .map(this::normalize)
@@ -390,8 +583,11 @@ public class ApplicationServiceImpl implements ApplicationService {
             case RADIO -> {
                 return vals.isEmpty() ? "" : vals.get(0);
             }
-            case CHECKBOX, TIME_SLOT -> {
+            case CHECKBOX -> {
                 return String.join(",", vals);
+            }
+            case TIME_SLOT -> {
+                return reassembleTimeSlots(vals);
             }
             default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
         }
