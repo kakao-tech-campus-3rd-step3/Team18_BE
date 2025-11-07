@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateClubAdminException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateClubMemberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidClubNameException;
@@ -27,7 +28,7 @@ public class AdminServiceImpl implements AdminService {
     private final ClubMemberRepository clubMemberRepository;
 
     @Override
-    public void linkClubPresident(LinkClubRequestDto requestDto) {
+    public SuccessResponseDto linkClubPresident(LinkClubRequestDto requestDto) {
 
         User user = userRepository.findByStudentId(requestDto.studentId())
                 .orElseThrow(() -> new InvalidStudentIdException("등록되지 않은 학번입니다. 학번 : "+ requestDto.studentId()));
@@ -54,5 +55,7 @@ public class AdminServiceImpl implements AdminService {
                 .build();
 
         clubMemberRepository.save(clubMember);
+
+        return new SuccessResponseDto(true);
     }
 }
