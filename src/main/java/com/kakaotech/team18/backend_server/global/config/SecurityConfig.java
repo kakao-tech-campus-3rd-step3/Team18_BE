@@ -67,14 +67,16 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                // 공지사항 조회 관련 API (공개)
+                .requestMatchers(HttpMethod.GET, "/api/notices", "/api/notices/*").permitAll()
                 // 동아리 정보 조회 관련 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/*").permitAll()
                 // 지원서 양식 조회 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
                 // 지원서 제출 API (공개)
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
-                // 동아리 후기 조회 API (공개)
-                .requestMatchers(HttpMethod.GET, "/api/clubs/*/reviews").permitAll()
+                // 동아리 후기 조회 및 등록 API (공개)
+                .requestMatchers("/api/clubs/*/reviews").permitAll()
                 .anyRequest().authenticated()
         );
 
