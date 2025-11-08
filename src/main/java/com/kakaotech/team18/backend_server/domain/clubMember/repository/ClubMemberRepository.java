@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMembershipInfo;
@@ -11,6 +12,8 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import java.util.List;
 import java.util.Optional;
+
+import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -103,5 +106,9 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("update ClubMember cm set cm.application = null where cm.application.id = :applicationId")
     int clearApplicationByApplicationId(Long applicationId);
+
+    boolean existsByUserAndClubAndClubRoleAndActiveStatus(User user, Club club, @NotNull(message = "직책은 필수 값입니다.") Role role, ActiveStatus activeStatus);
+
+    boolean existsByClubAndRole(Club club, @NotNull(message = "직책은 필수 값입니다.") Role role);
 
 }

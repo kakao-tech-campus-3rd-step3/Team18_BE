@@ -85,4 +85,15 @@ public class CustomSecurityService {
         return Objects.equals(userRoleForClub, Role.CLUB_ADMIN.name()) ||
                Objects.equals(userRoleForClub, Role.CLUB_EXECUTIVE.name());
     }
+
+    public boolean isSystemAdmin() {
+        // 1. 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            return false; // 인증되지 않았거나, Principal 타입이 다르면 거부
+        }
+
+        // 2. SYSTEM_ADMIN 인지 검사
+        return principalDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(Role.SYSTEM_ADMIN.name()));
+    }
 }
