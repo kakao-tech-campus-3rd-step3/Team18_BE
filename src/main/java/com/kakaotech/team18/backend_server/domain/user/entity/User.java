@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,9 +16,12 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "users")
-public class User extends BaseEntity {
-
+@Table(name = "users",
+        uniqueConstraints = {
+                @UniqueConstraint(name = "unique_phone_number", columnNames = "phone_number"),
+                @UniqueConstraint(name = "unique_email", columnNames = "email"),
+                @UniqueConstraint(name = "unique_student_id", columnNames = "student_id")
+        })public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -26,16 +30,16 @@ public class User extends BaseEntity {
     @Column(unique = true, nullable = true)
     private Long kakaoId;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false)
     private String email;
 
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "student_id", nullable = false, unique = true)
+    @Column(name = "student_id", nullable = false)
     private String studentId;
 
-    @Column(name = "phone_number", nullable = false, unique = true)
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
     @Column(name = "department",  nullable = false)
