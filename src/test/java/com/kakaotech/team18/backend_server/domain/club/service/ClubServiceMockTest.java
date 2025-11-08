@@ -101,7 +101,7 @@ public class ClubServiceMockTest {
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
-        given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationIsNotNull(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(clubId), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of(clubMember));
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L,1, 1,
                 LocalDate.of(2025, 9, 3),
@@ -114,7 +114,7 @@ public class ClubServiceMockTest {
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
         verify(clubApplyFormRepository).findByClubId(club.getId());
-        verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
+        verify(clubMemberRepository).findByClubIdAndRoleAndApplicationIsNotNull(1L, Role.APPLICANT);
         verify(clubMemberRepository).findByClubIdAndRoleAndApplicationStatus(1L, Role.APPLICANT, Status.PENDING);
         verifyNoInteractions(applicationRepository);
     }
@@ -137,7 +137,7 @@ public class ClubServiceMockTest {
 
         given(clubRepository.findById(eq(clubId))).willReturn(Optional.of(club));
         given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
-        given(clubMemberRepository.findByClubIdAndRole(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
+        given(clubMemberRepository.findByClubIdAndRoleAndApplicationIsNotNull(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(1L), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of());
 
         ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0, LocalDate.of(2025, 9, 3),
@@ -151,7 +151,7 @@ public class ClubServiceMockTest {
         assertThat(actual).isEqualTo(expect);
         verify(clubRepository).findById(eq(clubId));
         verify(clubApplyFormRepository).findByClubId(club.getId());
-        verify(clubMemberRepository).findByClubIdAndRole(1L, Role.APPLICANT);
+        verify(clubMemberRepository).findByClubIdAndRoleAndApplicationIsNotNull(1L, Role.APPLICANT);
         verify(clubMemberRepository).findByClubIdAndRoleAndApplicationStatus(1L, Role.APPLICANT, Status.PENDING);
         verifyNoInteractions(applicationRepository);
 

@@ -32,6 +32,14 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     @Query("""
             select cm
             from ClubMember cm
+            join fetch cm.club
+            where cm.club.id = :clubId and cm.role = :role and cm.application IS NOT NULL
+            """)
+    List<ClubMember> findByClubIdAndRoleAndApplicationIsNotNull(Long clubId, Role role);
+
+    @Query("""
+            select cm
+            from ClubMember cm
             join fetch cm.application a
             join fetch cm.user
             where cm.club.id = :clubId and cm.role = :role and a.stage = :stage
@@ -102,4 +110,5 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     boolean existsByUserAndClubAndClubRoleAndActiveStatus(User user, Club club, @NotNull(message = "직책은 필수 값입니다.") Role role, ActiveStatus activeStatus);
 
     boolean existsByClubAndRole(Club club, @NotNull(message = "직책은 필수 값입니다.") Role role);
+
 }
