@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.Forbidden
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
@@ -160,6 +161,42 @@ public class GlobalExceptionHandler {
 
         // 기존의 CustomException 처리 로직을 재사용합니다.
         return this.handleCustomException(customException);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<?> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        String message = ex.getMostSpecificCause().getMessage();
+
+        // DB Unique 키 이름으로 어떤 필드가 겹쳤는지 체크
+        if (message.contains("unique_phone_number")) {
+            final ErrorCode errorCode = ErrorCode.DUPLICATE_PHONE_NUMBER;
+            final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+            log.warn("DataIntegrityViolationException: {}",
+                    errorCode.getMessage());
+            return new ResponseEntity<>(response, errorCode.getHttpStatus());
+        }
+
+        if (message.contains("unique_email")) {
+            final ErrorCode errorCode = ErrorCode.DUPLICATE_EMAIL;
+            final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+            log.warn("DataIntegrityViolationException: {}",
+                    errorCode.getMessage());
+            return new ResponseEntity<>(response, errorCode.getHttpStatus());
+        }
+
+        if (message.contains("unique_student_id")) {
+            final ErrorCode errorCode = ErrorCode.DUPLICATE_STUDENT_ID;
+            final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+            log.warn("DataIntegrityViolationException: {}",
+                    errorCode.getMessage());
+            return new ResponseEntity<>(response, errorCode.getHttpStatus());
+        }
+
+        final ErrorCode errorCode = ErrorCode.DUPLICATE_VALUE;
+        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
+        log.warn("DataIntegrityViolationException: {}",
+                errorCode.getMessage());
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
 
