@@ -1,6 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.user.repository;
 
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -24,4 +27,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * @return Optional<User> 사용자 정보 또는 빈 Optional
      */
     Optional<User> findByStudentId(String studentId);
+
+    boolean existsByName(@NotBlank(message = "이름은 필수입니다.") String name);
+
+    boolean existsByEmail(@NotBlank(message = "이메일은 필수입니다.") @Email(message = "유효한 이메일 형식이 아닙니다.") String email);
+
+    boolean existsByPhoneNumber(@Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호는 010-xxxx-xxxx 형식이어야 합니다.") String s);
 }
