@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.admin.dto.LinkClubRequestDto;
 import com.kakaotech.team18.backend_server.domain.admin.service.AdminService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -12,9 +13,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "System Admin", description = "system_admin 전용 API")
@@ -53,9 +56,10 @@ public class AdminController {
                     content = @Content
             )
     })
-    @PreAuthorize("hasRole('SYSTEM_ADMIN')")
+    @PreAuthorize("@customSecurityService.isSystemAdmin()")
     @PostMapping("/linkClub")
     public ResponseEntity<SuccessResponseDto> linkClubPresident(
+            @Parameter(description = "요청을 보내는 사용자의 ID", example = "15") @RequestParam("userId")Long userId,
             @Valid @RequestBody LinkClubRequestDto requestDto
     ) {
         SuccessResponseDto response = adminService.linkClubPresident(requestDto);
