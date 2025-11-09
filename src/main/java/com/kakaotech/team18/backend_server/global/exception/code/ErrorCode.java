@@ -70,6 +70,10 @@ public enum ErrorCode {
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),
     TEMPORARY_SERVER_CONFLICT("일시적인 요청 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.CONFLICT),
+    EXISTING_USER_NAME("학번이 다른데, 이미존재하는 이름으로 접수.", HttpStatus.CONFLICT),
+    EXISTING_USER_EMAIL("학번이 다른데, 이미존재하는 이메일로 접수.", HttpStatus.CONFLICT),
+    EXISTING_USER_PHONE_NUMBER("학번이 다른데, 이미존재하는 전화번호로 접수.", HttpStatus.CONFLICT),
+    EXISTING_USER_STUDENT_ID("나머지 정보가 다른데, 이미존재하는 학번으로 접수.",  HttpStatus.CONFLICT),
 
     // 422 UNPROCESSABLE_ENTITY
     EMAIL_RECIPIENT_INVALID ("수신자 주소가 존재하지 않음", HttpStatus.UNPROCESSABLE_ENTITY),

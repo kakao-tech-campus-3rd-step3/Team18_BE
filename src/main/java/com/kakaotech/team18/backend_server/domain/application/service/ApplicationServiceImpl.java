@@ -33,6 +33,10 @@ import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserNameException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserStudentIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -143,18 +147,36 @@ public class ApplicationServiceImpl implements ApplicationService {
         //1. applicationForm 찾기
         ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
+        //근데 이 exception이 현실적으로 발생 가능한가?
+        //만약 제출폼을 작성하는 사이에 폼이 수정되었다면?
 
         //2. 유저 정보생성(없으면 생성)
         User user = userRepository.findByStudentId(request.studentId())
                 .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .studentId(request.studentId())
-                            .email(request.email())
-                            .name(request.name())
-                            .phoneNumber(request.phoneNumber())
-                            .department(request.department())
-                            .build();
-                    return userRepository.save(newUser);
+                    if (userRepository.existsByName(request.name())) {
+                        log.warn("학번이 다른데, 이미존재하는 이름으로 접수. 학번 : "+request.studentId()+"이름 : "+request.name());
+                        throw new ExistingUserNameException("학번이 다른데, 이미존재하는 이름으로 접수. 이름 : "+request.name());
+                    }
+                    if (userRepository.existsByEmail(request.email())) {
+                        log.warn("학번이 다른데, 이미 존재하는 이메일로 접수. 학번 : "+request.studentId()+"이메일 : "+request.email());
+                        throw new ExistingUserEmailException("학번이 다른데, 이미존재하는 이메일로 접수. 이메일 : "+request.email());
+                    }
+                    if (userRepository.existsByPhoneNumber(request.phoneNumber())) {
+                        log.warn("학번이 다른데, 이미 존재하는 번호로 접수. 학번 : "+request.studentId()+"번호 : "+request.phoneNumber());
+                        throw new ExistingUserPhoneNumberException("학번이 다른데, 이미존재하는 전화번호로 접수. 전화번호 : "+request.phoneNumber());
+                    }
+                    try {
+                        User newUser = User.builder()
+                                .studentId(request.studentId())
+                                .email(request.email())
+                                .name(request.name())
+                                .phoneNumber(request.phoneNumber())
+                                .department(request.department())
+                                .build();
+                        return userRepository.save(newUser);
+                    } catch (Exception e) {
+                        log.warn("나머지 정보가 다른데, 이미 존재하는 학번으로 접수. 학번 : "+request.studentId());
+                        throw new ExistingUserStudentIdException("나머지 정보가 다른데, 이미존재하는 학번으로 접수, 학번 : "+request.studentId());}
                 });
 
         //3. (폼+학번)으로 지원내역이 있는지 찾기

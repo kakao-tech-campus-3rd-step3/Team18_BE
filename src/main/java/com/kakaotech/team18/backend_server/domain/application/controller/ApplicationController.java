@@ -72,7 +72,8 @@ public class ApplicationController {
     )
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "신규 제출 완료"),
-            @ApiResponse(responseCode = "202", description = "기존 제출이 있어 덮어쓰기 확인 필요")
+            @ApiResponse(responseCode = "202", description = "기존 제출이 있어 덮어쓰기 확인 필요"),
+            @ApiResponse(responseCode = "409", description = "user 생성오류")
     })
     @PostMapping("/{clubId}/apply-submit")
     public ResponseEntity<ApplicationApplyResponseDto> submitApplication(
