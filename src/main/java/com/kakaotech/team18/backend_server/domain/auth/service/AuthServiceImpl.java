@@ -48,7 +48,6 @@ import org.springframework.web.client.RestClient;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Optional;
 import org.springframework.web.client.RestClientResponseException;
 
 @Slf4j
