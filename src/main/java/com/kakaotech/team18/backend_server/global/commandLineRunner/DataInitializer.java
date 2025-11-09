@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@Component
+@Component
 @Order(1)
 @RequiredArgsConstructor
 @Profile({"prod", "default"})
