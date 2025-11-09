@@ -9,4 +9,6 @@ import org.springframework.stereotype.Repository;
 public interface ClubApplyFormRepository extends JpaRepository<ClubApplyForm,Long> {
 
     Optional<ClubApplyForm> findByClubId(Long clubId);
+
+    Optional<ClubApplyForm> findByTitle(String s);
 }
