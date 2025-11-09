@@ -836,7 +836,6 @@ public class DataInitializer implements CommandLineRunner {
         intro3.addImages(List.of(
                 "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60",
                 "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1587620931283-d91fbc3a188b?w=1600&auto=format&fit=crop&q=60",
                 "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&auto=format&fit=crop&q=60"
         ));
 
@@ -895,7 +894,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club4 = Club.builder()
                 .name("로보테크")
-                .category(Category.SPORTS)
+                .category(Category.STUDY)
                 .location("공4 104호")
                 .shortIntroduction("로봇 설계와 제어를 함께 배우는 공학 창작 동아리")
                 .introduction(intro4)
@@ -945,7 +944,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club5 = Club.builder()
                 .name("아트픽")
-                .category(Category.VOLUNTEER)
+                .category(Category.LITERATURE)
                 .location("예술관 301호")
                 .shortIntroduction("창작 활동과 전시를 중심으로 활동하는 예술 동아리")
                 .introduction(intro5)
@@ -1041,7 +1040,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club7 = Club.builder()
                 .name("포커스")
-                .category(Category.VOLUNTEER) // 봉사 동아리
+                .category(Category.LITERATURE) // 봉사 동아리
                 .location("미디어관 204호")
                 .shortIntroduction("사진과 영상으로 세상의 따뜻한 이야기를 기록하는 봉사 동아리")
                 .introduction(intro7)
@@ -1309,7 +1308,7 @@ public class DataInitializer implements CommandLineRunner {
 
         Club club12 = Club.builder()
                 .name("무대열전")
-                .category(Category.RELIGION)
+                .category(Category.LITERATURE)
                 .location("예술관 114호")
                 .shortIntroduction("신앙과 삶의 이야기를 연극과 공연으로 전하는 공연예술 동아리")
                 .introduction(intro12)
