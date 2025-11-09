@@ -21,7 +21,9 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -213,5 +215,27 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         LocalDateTime recruitEnd = endDate.atTime(23, 59, 59);
 
         return new LocalDateTime[]{recruitStart, recruitEnd};
+    }
+
+    public static List<Map<String, Object>> expandDateRange(String dateRange, LocalTime startTime, LocalTime endTime) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        String[] parts = dateRange.split(" ~ ");
+        LocalDate start = LocalDate.parse(parts[0].trim(), formatter);
+        LocalDate end = LocalDate.parse(parts[1].trim(), formatter);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (LocalDate date = start; !date.isAfter(end); date = date.plusDays(1)) {
+            result.add(Map.of(
+                    "date", date.format(formatter),
+                    "availableTime", Map.of(
+                            "start", startTime,
+                            "end", endTime
+                    )
+            ));
+        }
+
+        return result;
     }
 }
