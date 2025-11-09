@@ -18,7 +18,6 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.clubReview.entity.ClubReview;
 import com.kakaotech.team18.backend_server.domain.clubReview.repository.ClubReviewRepository;
-import com.kakaotech.team18.backend_server.domain.comment.repository.CommentRepository;
 import com.kakaotech.team18.backend_server.domain.files.entity.File;
 import com.kakaotech.team18.backend_server.domain.files.repository.FileDataRepository;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
@@ -43,10 +42,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//@Component
+@Component
 @Order(1)
 @RequiredArgsConstructor
-@Profile({"prod", "default"})
+@Profile({"prod","default"})
 public class DataInitializer implements CommandLineRunner {
 
     private final ClubRepository clubRepository;
@@ -1047,7 +1046,7 @@ public class DataInitializer implements CommandLineRunner {
                 "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60"        ));
 
         Club club14 = Club.builder()
-                .name("성모아리아")
+                .name("무대열전")
                 .category(Category.RELIGION)
                 .location("예술관 114호")
                 .shortIntroduction("연극과 공연으로 이야기를 전하는 공연예술 동아리")
