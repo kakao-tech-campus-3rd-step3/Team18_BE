@@ -57,7 +57,7 @@ public class AuthController {
                     .maxAge(jwtProperties.refreshTokenValidityInSeconds())
                     .build();
 
-            LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(dto.status(), dto.accessToken(), dto.clubAndRoleList());
+            LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(dto.status(), dto.accessToken(), dto.userId(), dto.clubAndRoleList());
 
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, responseCookie.toString())
@@ -88,7 +88,7 @@ public class AuthController {
                 .maxAge(jwtProperties.refreshTokenValidityInSeconds())
                 .build();
 
-        LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(responseDto.status(), responseDto.accessToken(), responseDto.clubAndRoleList());
+        LoginSuccessResponseDto.Body body = new LoginSuccessResponseDto.Body(responseDto.status(), responseDto.accessToken(), responseDto.userId(), responseDto.clubAndRoleList());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .header(HttpHeaders.SET_COOKIE, responseCookie.toString())

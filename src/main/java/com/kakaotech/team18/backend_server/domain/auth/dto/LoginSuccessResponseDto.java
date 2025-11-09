@@ -29,6 +29,9 @@ public record LoginSuccessResponseDto(
                 @Schema(description = "우리 서비스의 Access Token")
                 String accessToken,
 
+                @Schema(description = "사용자 ID", example = "1")
+                Long userId,
+
                 @Schema(description = "clubId, ClubName, Role 정보를 담은 리스트")
                 List<ClubListInfoDto> clubAndRoleList
         ) implements LoginResponse {
