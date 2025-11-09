@@ -1212,7 +1212,6 @@ public class DataInitializer implements CommandLineRunner {
                 .caution("경제신문 정기 구독자 우대")
                 .build();
         clubs.add(club10);
-        //------------------------------------------------------ 일단 10개만
 
 // 11. 글빛 (문학·창작)
         ClubIntroduction intro11 = ClubIntroduction.builder()
@@ -1248,10 +1247,10 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         intro11.addImages(List.of(
-                "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60"
+                "https://plus.unsplash.com/premium_photo-1661661591757-89ebfe7b357a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1183",
+                "https://plus.unsplash.com/premium_photo-1661694072616-955dc258120e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1159",
+                "https://images.unsplash.com/photo-1655472355485-d949925e67bb?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1052",
+                "https://plus.unsplash.com/premium_photo-1725408127758-fb45b0f11ad9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1224"
         ));
 
         Club club11 = Club.builder()
@@ -1302,10 +1301,10 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         intro12.addImages(List.of(
-                "https://images.unsplash.com/photo-1556761175-4b46a572b786?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1563175594-561873ec6588?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
+                "https://images.unsplash.com/photo-1590758369991-5aec00cf3387?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1334",
+                "https://images.unsplash.com/photo-1741681001067-848c04ff9849?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
+                "https://images.unsplash.com/photo-1752300779727-13d587a42881?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=627"
         ));
 
         Club club12 = Club.builder()
@@ -1357,10 +1356,10 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         intro13.addImages(List.of(
-                "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1605184861643-1b9b45d91b6e?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=1600&auto=format&fit=crop&q=60"
+                "https://images.unsplash.com/photo-1762053275412-03726506562a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
+                "https://images.unsplash.com/photo-1591953551286-91b742a52199?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1025",
+                "https://images.unsplash.com/photo-1720904926069-553422e33314?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1208",
+                "https://images.unsplash.com/photo-1739550635585-484633b21450?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"
         ));
 
         Club club13 = Club.builder()
@@ -1411,10 +1410,10 @@ public class DataInitializer implements CommandLineRunner {
                 .build();
 
         intro14.addImages(List.of(
-                "https://images.unsplash.com/photo-1515168833906-d2a3b82b302a?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1500634243050-6fa7def6ca2f?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1495653797063-114787b77b23?w=1600&auto=format&fit=crop&q=60",
-                "https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?w=1600&auto=format&fit=crop&q=60"
+                "https://plus.unsplash.com/premium_photo-1734014584899-f98e51c73960?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
+                "https://plus.unsplash.com/premium_photo-1734014582198-408d2aae4931?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
+                "https://plus.unsplash.com/premium_photo-1723914175304-04f9b50b13e6?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
+                "https://images.unsplash.com/photo-1723745707852-fa60211d73a8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"
         ));
 
         Club club14 = Club.builder()
