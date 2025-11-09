@@ -537,7 +537,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2} ~ \\d{4}-\\d{2}-\\d{2}"); //임시처리. TODO 추후에 개별 날자로 받게될 때 수정 맆수
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
     private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
 
     public String reassembleTimeSlots(List<String> vals) {
