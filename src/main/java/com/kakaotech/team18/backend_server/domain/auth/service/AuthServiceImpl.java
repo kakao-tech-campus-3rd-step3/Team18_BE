@@ -48,7 +48,6 @@ import org.springframework.web.client.RestClient;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import java.util.Optional;
 import org.springframework.web.client.RestClientResponseException;
 
 @Slf4j
@@ -116,7 +115,7 @@ public class AuthServiceImpl implements AuthService {
                 clubIdAndRoleList = List.of(new ClubListInfoDto(null, null, Role.SYSTEM_ADMIN));
             }
 
-            return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
+            return new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, user.getId(), clubIdAndRoleList);
         } else {
             // 4-2. 신규 회원일 경우: 추가 정보 입력 필요
             log.info("신규 회원, 추가 정보 입력 필요");
@@ -196,7 +195,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(new RefreshToken(user.getId(), refreshToken, jwtProperties.refreshTokenValidityInSeconds()));
         log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
-        return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, clubIdAndRoleList);
+        return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, user.getId(), clubIdAndRoleList);
     }
 
     @Override

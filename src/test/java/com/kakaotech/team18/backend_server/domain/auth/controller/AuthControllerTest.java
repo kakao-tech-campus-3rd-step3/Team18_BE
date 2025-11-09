@@ -12,7 +12,6 @@ import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
-import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
@@ -73,7 +72,7 @@ class AuthControllerTest {
         String refreshToken = "mockRefreshToken";
         KakaoLoginRequestDto requestDto = new KakaoLoginRequestDto(authorizationCode);
 
-        LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, List.of());
+        LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.LOGIN_SUCCESS, accessToken, refreshToken, 1L, List.of());
 
         given(authService.kakaoLogin(authorizationCode)).willReturn(serviceResponse);
 
@@ -123,7 +122,7 @@ class AuthControllerTest {
                 "testUser", "test@example.com", "123456", "컴퓨터공학과", "010-1234-5678"
         );
 
-        LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, List.of());
+        LoginSuccessResponseDto serviceResponse = new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, 1L, List.of());
 
         given(authService.register(anyString(), any(RegisterRequestDto.class))).willReturn(serviceResponse);
 
