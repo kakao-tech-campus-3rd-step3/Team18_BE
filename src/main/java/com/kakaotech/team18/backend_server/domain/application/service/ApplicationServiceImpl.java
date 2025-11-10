@@ -153,10 +153,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         //2. 유저 정보생성(없으면 생성)
         User user = userRepository.findByStudentId(request.studentId())
                 .orElseGet(() -> {
-                    if (userRepository.existsByName(request.name())) {
-                        log.warn("학번이 다른데, 이미존재하는 이름으로 접수. 학번 : "+request.studentId()+"이름 : "+request.name());
-                        throw new ExistingUserNameException("학번이 다른데, 이미존재하는 이름으로 접수. 이름 : "+request.name());
-                    }
                     if (userRepository.existsByEmail(request.email())) {
                         log.warn("학번이 다른데, 이미 존재하는 이메일로 접수. 학번 : "+request.studentId()+"이메일 : "+request.email());
                         throw new ExistingUserEmailException("학번이 다른데, 이미존재하는 이메일로 접수. 이메일 : "+request.email());
