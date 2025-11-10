@@ -415,7 +415,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
+                List.of(new FormQuestionUpdateDto(1L,1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
         doNothing().when(clubApplyFormService).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
@@ -440,7 +440,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
+                List.of(new FormQuestionUpdateDto(1L, 1L,"질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
         doThrow(new ClubNotFoundException("clubId")).when(clubApplyFormService).updateClubApplyForm(clubId, clubApplyFormUpdateDto);
@@ -466,7 +466,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)));
+                List.of(new FormQuestionUpdateDto(1L, 1L,"", FieldType.TEXT, true, 1L, null, null)));
 
         //when & then
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -488,7 +488,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,"면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -508,7 +508,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,"성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -528,7 +528,7 @@ class ClubApplyFormControllerTest {
                 "", // Blank title
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -548,7 +548,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "", // Blank description
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -569,7 +569,7 @@ class ClubApplyFormControllerTest {
                 longTitle,
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -590,7 +590,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 longDescription,
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "질문", FieldType.TEXT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -610,7 +610,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, "", FieldType.TEXT, true, 1L, null, null)) // Blank question
+                List.of(new FormQuestionUpdateDto(1L, 1L,"", FieldType.TEXT, true, 1L, null, null)) // Blank question
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
@@ -631,7 +631,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
-                List.of(new FormQuestionUpdateDto(1L, longQuestion, FieldType.TEXT, true, 1L, null, null))
+                List.of(new FormQuestionUpdateDto(1L, 1L,longQuestion, FieldType.TEXT, true, 1L, null, null))
         );
 
         mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
