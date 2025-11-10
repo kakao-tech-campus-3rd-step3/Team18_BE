@@ -442,8 +442,10 @@ class ApplicationServiceSubmitApplicationTest {
                     {"questionNum":0,"question":"자기소개","answer":"hello"},
                     {"questionNum":1,"question":"성별","answer":"남"},
                     {"questionNum":2,"question":"관심사","answer":"A"},
-                    {"questionNum":3,"question":"면접 가능 일정","answer":{"interviewDateAnswer":[{"date":"2025-10-15","selectedTimes":["10:00-10:30","11:30-12:00"]}]}}]}
+                    {"questionNum":3,"question":"면접 가능 일정","answer":{"interviewDateAnswer":[{"date":"2025-10-15","selectedTimes":["10:00-10:30","11:30-12:00"]}]}}
+                    ]}
                     """;
+//{"questionNum":3,"question":"면접 가능 일정","answer":{"interviewDateAnswer":[{"date":"2025-10-15","selectedTimes":["10:00-10:30","11:30-12:00"]}]}}
 
             ObjectMapper om = new ObjectMapper();
             JsonNode root = om.readTree(jsonPayload.getBytes(StandardCharsets.UTF_8));

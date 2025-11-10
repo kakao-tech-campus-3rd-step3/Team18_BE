@@ -555,7 +555,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2} ~ \\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}"); // 날짜
+    private static final Pattern DATE_RANGE = Pattern.compile("\\d{4}-\\d{2}-\\d{2} ~ \\d{4}-\\d{2}-\\d{2}"); //임시로 수정된 날짜 TODO 수정되면 지우기
     private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
 
     private String reassembleTimeSlots(List<String> vals) {
@@ -571,7 +572,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             String s = normalize(raw);
             if (s.isEmpty()) continue;
 
-            boolean looksDate = DATE.matcher(s).matches();
+            boolean looksDate = DATE.matcher(s).matches() || DATE_RANGE.matcher(s).matches(); //TODO 수정되면 DATE_RANGE지우기
             boolean looksTimeRange = TR.matcher(s).matches();
 
             if (looksDate) {
