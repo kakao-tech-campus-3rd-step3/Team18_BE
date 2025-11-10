@@ -2205,7 +2205,7 @@ public class DataInitializer implements CommandLineRunner {
 
         List<Application> apps = new ArrayList<>();
 
-        int sid = 202501; // 01 ~ 39까지 사용할 예정
+        int sid = 202515; // 15 ~ 53까지 사용할 예정
 
         // 공통 함수 느낌으로 쓰지만, 그냥 로컬 변수로 처리
         // 1~5번 동아리: 각각 6개 (3 status x 2 stage)
