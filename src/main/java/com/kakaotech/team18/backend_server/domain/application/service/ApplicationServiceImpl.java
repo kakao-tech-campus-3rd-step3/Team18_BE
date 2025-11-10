@@ -559,7 +559,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private static final Pattern DATE_RANGE = Pattern.compile("\\d{4}-\\d{2}-\\d{2} ~ \\d{4}-\\d{2}-\\d{2}"); //임시로 수정된 날짜 TODO 수정되면 지우기
     private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
 
-    private String reassembleTimeSlots(List<String> vals) {
+    public String reassembleTimeSlots(List<String> vals) {
         if (vals == null || vals.isEmpty()) return "";
 
         boolean alreadyCombined = vals.stream().anyMatch(s -> s.contains(" ") && TR.matcher(s).find());
