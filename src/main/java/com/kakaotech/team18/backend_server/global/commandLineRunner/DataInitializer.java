@@ -88,7 +88,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박유나")
                 .studentId("202501")
                 .phoneNumber("010-2934-5123")
-                .department("Computer Science")
+                .department("컴퓨터공학과")
                 .build());
 
         users.add(User.builder()
@@ -97,7 +97,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김태현")
                 .studentId("202502")
                 .phoneNumber("010-9451-2134")
-                .department("Electrical Engineering")
+                .department("전기공학과")
                 .build());
 
         users.add(User.builder()
@@ -106,7 +106,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이소희")
                 .studentId("202503")
                 .phoneNumber("010-3184-6621")
-                .department("Mathematics")
+                .department("수학과")
                 .build());
 
         users.add(User.builder()
@@ -115,7 +115,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("최준우")
                 .studentId("202504")
                 .phoneNumber("010-5763-2448")
-                .department("Physics")
+                .department("물리학과")
                 .build());
 
         users.add(User.builder()
@@ -124,7 +124,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("정혜린")
                 .studentId("202505")
                 .phoneNumber("010-8362-1098")
-                .department("Chemistry")
+                .department("화학과")
                 .build());
 
         users.add(User.builder()
@@ -133,7 +133,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("강민재")
                 .studentId("202506")
                 .phoneNumber("010-7142-5567")
-                .department("Biology")
+                .department("생물학과")
                 .build());
 
         users.add(User.builder()
@@ -142,7 +142,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("송지원")
                 .studentId("202507")
                 .phoneNumber("010-9856-3477")
-                .department("Statistics")
+                .department("통계학과")
                 .build());
 
         users.add(User.builder()
@@ -151,7 +151,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("유하늘")
                 .studentId("202508")
                 .phoneNumber("010-2634-0985")
-                .department("Business Administration")
+                .department("경영학과")
                 .build());
 
         users.add(User.builder()
@@ -160,7 +160,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("한승민")
                 .studentId("202509")
                 .phoneNumber("010-6432-7744")
-                .department("Economics")
+                .department("경제학과")
                 .build());
 
         users.add(User.builder()
@@ -169,7 +169,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김아라")
                 .studentId("202510")
                 .phoneNumber("010-1112-9983")
-                .department("Design")
+                .department("디자인학과")
                 .build());
 
         users.add(User.builder()
@@ -178,7 +178,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박규리")
                 .studentId("202511")
                 .phoneNumber("010-8654-3339")
-                .department("Media & Communication")
+                .department("미디어커뮤니케이션학과")
                 .build());
 
         users.add(User.builder()
@@ -187,7 +187,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이동현")
                 .studentId("202512")
                 .phoneNumber("010-2854-7722")
-                .department("Education")
+                .department("교육학과")
                 .build());
 
         users.add(User.builder()
@@ -196,7 +196,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("조은지")
                 .studentId("202513")
                 .phoneNumber("010-9934-1155")
-                .department("Philosophy")
+                .department("철학과")
                 .build());
 
         users.add(User.builder()
@@ -205,7 +205,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("권수현")
                 .studentId("202514")
                 .phoneNumber("010-4257-2299")
-                .department("Sociology")
+                .department("사회학과")
                 .build());
 
         users.add(User.builder()
@@ -214,7 +214,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("조하은")
                 .studentId("202515")
                 .phoneNumber("010-6712-5543")
-                .department("History")
+                .department("사학과")
                 .build());
 
         users.add(User.builder()
@@ -223,7 +223,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("양준서")
                 .studentId("202516")
                 .phoneNumber("010-9832-4711")
-                .department("Artificial Intelligence")
+                .department("인공지능학과")
                 .build());
 
         users.add(User.builder()
@@ -232,7 +232,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("윤지혜")
                 .studentId("202517")
                 .phoneNumber("010-5623-7812")
-                .department("Data Science")
+                .department("데이터사이언스학과")
                 .build());
 
         users.add(User.builder()
@@ -241,7 +241,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김병우")
                 .studentId("202518")
                 .phoneNumber("010-7356-1985")
-                .department("Civil Engineering")
+                .department("토목공학과")
                 .build());
 
         users.add(User.builder()
@@ -250,7 +250,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("황수민")
                 .studentId("202519")
                 .phoneNumber("010-2178-3345")
-                .department("Architecture")
+                .department("건축학과")
                 .build());
 
         users.add(User.builder()
@@ -259,7 +259,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이나연")
                 .studentId("202520")
                 .phoneNumber("010-6943-5023")
-                .department("Korean Literature")
+                .department("국어국문학과")
                 .build());
 
         users.add(User.builder()
@@ -268,7 +268,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박재민")
                 .studentId("202521")
                 .phoneNumber("010-2183-6602")
-                .department("Computer Science")
+                .department("컴퓨터공학과")
                 .build());
 
         users.add(User.builder()
@@ -277,7 +277,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김지윤")
                 .studentId("202522")
                 .phoneNumber("010-8755-4431")
-                .department("Economics")
+                .department("경제학과")
                 .build());
 
         users.add(User.builder()
@@ -286,7 +286,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("최민우")
                 .studentId("202523")
                 .phoneNumber("010-6734-8710")
-                .department("Industrial Design")
+                .department("산업디자인학과")
                 .build());
 
         users.add(User.builder()
@@ -295,7 +295,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("유해린")
                 .studentId("202524")
                 .phoneNumber("010-9834-1123")
-                .department("Philosophy")
+                .department("철학과")
                 .build());
 
         users.add(User.builder()
@@ -304,7 +304,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김춘식")
                 .studentId("202525")
                 .phoneNumber("010-5182-7384")
-                .department("Electrical Engineering")
+                .department("전기공학과")
                 .build());
 
         users.add(User.builder()
@@ -313,7 +313,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이도현")
                 .studentId("202526")
                 .phoneNumber("010-8321-9499")
-                .department("Mechanical Engineering")
+                .department("기계공학과")
                 .build());
 
         users.add(User.builder()
@@ -322,7 +322,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이상현")
                 .studentId("202527")
                 .phoneNumber("010-1557-8848")
-                .department("Industrial Engineering")
+                .department("산업공학과")
                 .build());
 
         users.add(User.builder()
@@ -331,7 +331,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김예진")
                 .studentId("202528")
                 .phoneNumber("010-6571-2390")
-                .department("Computer Science")
+                .department("컴퓨터공학과")
                 .build());
 
         users.add(User.builder()
@@ -340,7 +340,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박예진")
                 .studentId("202529")
                 .phoneNumber("010-8765-4321")
-                .department("Business Administration")
+                .department("경영학과")
                 .build());
 
         users.add(User.builder()
@@ -349,7 +349,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("정현우")
                 .studentId("202530")
                 .phoneNumber("010-3421-5512")
-                .department("Economics")
+                .department("경제학과")
                 .build());
 
         users.add(User.builder()
@@ -358,7 +358,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이수현")
                 .studentId("202531")
                 .phoneNumber("010-6853-9432")
-                .department("Artificial Intelligence")
+                .department("인공지능학과")
                 .build());
 
         users.add(User.builder()
@@ -367,7 +367,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박민지")
                 .studentId("202532")
                 .phoneNumber("010-9324-8123")
-                .department("Data Science")
+                .department("데이터사이언스학과")
                 .build());
 
         users.add(User.builder()
@@ -376,7 +376,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("강지호")
                 .studentId("202533")
                 .phoneNumber("010-4421-7321")
-                .department("Psychology")
+                .department("심리학과")
                 .build());
 
         users.add(User.builder()
@@ -385,7 +385,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("손유진")
                 .studentId("202534")
                 .phoneNumber("010-7712-6254")
-                .department("Education")
+                .department("교육학과")
                 .build());
 
         users.add(User.builder()
@@ -394,7 +394,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("안수빈")
                 .studentId("202535")
                 .phoneNumber("010-9863-2541")
-                .department("Visual Design")
+                .department("시각디자인학과")
                 .build());
 
         users.add(User.builder()
@@ -403,7 +403,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김동연")
                 .studentId("202536")
                 .phoneNumber("010-3511-7843")
-                .department("Statistics")
+                .department("통계학과")
                 .build());
 
         users.add(User.builder()
@@ -412,7 +412,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("한연아")
                 .studentId("202537")
                 .phoneNumber("010-2938-1599")
-                .department("Chemistry")
+                .department("화학과")
                 .build());
 
         users.add(User.builder()
@@ -421,7 +421,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박건우")
                 .studentId("202538")
                 .phoneNumber("010-7654-8893")
-                .department("Civil Engineering")
+                .department("토목공학과")
                 .build());
 
         users.add(User.builder()
@@ -430,7 +430,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김수현")
                 .studentId("202539")
                 .phoneNumber("010-4738-3322")
-                .department("Biology")
+                .department("생물학과")
                 .build());
 
         users.add(User.builder()
@@ -439,7 +439,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이유리")
                 .studentId("202540")
                 .phoneNumber("010-5123-9984")
-                .department("Physics")
+                .department("물리학과")
                 .build());
 
         users.add(User.builder()
@@ -448,7 +448,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("조재호")
                 .studentId("202541")
                 .phoneNumber("010-8641-2148")
-                .department("Architecture")
+                .department("건축학과")
                 .build());
 
         users.add(User.builder()
@@ -457,7 +457,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("권해은")
                 .studentId("202542")
                 .phoneNumber("010-7412-8975")
-                .department("Philosophy")
+                .department("철학과")
                 .build());
 
         users.add(User.builder()
@@ -466,7 +466,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김규빈")
                 .studentId("202543")
                 .phoneNumber("010-2321-5638")
-                .department("Computer Science")
+                .department("컴퓨터공학과")
                 .build());
 
         users.add(User.builder()
@@ -475,7 +475,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("한시윤")
                 .studentId("202544")
                 .phoneNumber("010-4123-9921")
-                .department("Economics")
+                .department("경제학과")
                 .build());
 
         users.add(User.builder()
@@ -484,7 +484,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박진호")
                 .studentId("202545")
                 .phoneNumber("010-7766-4422")
-                .department("Computer Science")
+                .department("컴퓨터공학과")
                 .build());
 
         users.add(User.builder()
@@ -493,7 +493,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김민정")
                 .studentId("202546")
                 .phoneNumber("010-9123-6233")
-                .department("Electrical Engineering")
+                .department("전기공학과")
                 .build());
 
         users.add(User.builder()
@@ -502,7 +502,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("최우진")
                 .studentId("202547")
                 .phoneNumber("010-2132-8854")
-                .department("Mathematics")
+                .department("수학과")
                 .build());
 
         users.add(User.builder()
@@ -511,7 +511,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("윤서영")
                 .studentId("202548")
                 .phoneNumber("010-5511-4343")
-                .department("Physics")
+                .department("물리학과")
                 .build());
 
         users.add(User.builder()
@@ -520,7 +520,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("장태환")
                 .studentId("202549")
                 .phoneNumber("010-8344-8823")
-                .department("Chemistry")
+                .department("화학과")
                 .build());
 
         users.add(User.builder()
@@ -529,7 +529,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김예빈")
                 .studentId("202550")
                 .phoneNumber("010-1267-9901")
-                .department("Biology")
+                .department("생물학과")
                 .build());
 
         users.add(User.builder()
@@ -538,7 +538,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박혜진")
                 .studentId("202551")
                 .phoneNumber("010-7612-1185")
-                .department("Statistics")
+                .department("통계학과")
                 .build());
 
         users.add(User.builder()
@@ -547,7 +547,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("윤준호")
                 .studentId("202552")
                 .phoneNumber("010-6254-3712")
-                .department("Business Administration")
+                .department("경영학과")
                 .build());
 
         users.add(User.builder()
@@ -556,7 +556,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이수아")
                 .studentId("202553")
                 .phoneNumber("010-9931-4741")
-                .department("Economics")
+                .department("경제학과")
                 .build());
 
         users.add(User.builder()
@@ -565,7 +565,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김민규")
                 .studentId("202554")
                 .phoneNumber("010-7483-6214")
-                .department("Design")
+                .department("디자인학과")
                 .build());
 
         users.add(User.builder()
@@ -574,7 +574,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("최은솔")
                 .studentId("202555")
                 .phoneNumber("010-3412-7725")
-                .department("Media Studies")
+                .department("미디어학과")
                 .build());
 
         users.add(User.builder()
@@ -583,7 +583,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("강진혁")
                 .studentId("202556")
                 .phoneNumber("010-6234-8824")
-                .department("Education")
+                .department("교육학과")
                 .build());
 
         users.add(User.builder()
@@ -592,7 +592,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("박예서")
                 .studentId("202557")
                 .phoneNumber("010-9732-4122")
-                .department("Philosophy")
+                .department("철학과")
                 .build());
 
         users.add(User.builder()
@@ -601,7 +601,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김지우")
                 .studentId("202558")
                 .phoneNumber("010-2745-8811")
-                .department("Sociology")
+                .department("사회학과")
                 .build());
 
         users.add(User.builder()
@@ -610,7 +610,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("한도영")
                 .studentId("202559")
                 .phoneNumber("010-6321-6612")
-                .department("History")
+                .department("사학과")
                 .build());
 
         users.add(User.builder()
@@ -619,7 +619,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("유하진")
                 .studentId("202560")
                 .phoneNumber("010-8899-5543")
-                .department("Artificial Intelligence")
+                .department("인공지능학과")
                 .build());
 
         users.add(User.builder()
@@ -628,7 +628,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("강유진")
                 .studentId("202561")
                 .phoneNumber("010-1442-3338")
-                .department("Data Science")
+                .department("데이터사이언스학과")
                 .build());
 
         users.add(User.builder()
@@ -637,7 +637,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김하늘")
                 .studentId("202562")
                 .phoneNumber("010-3232-8222")
-                .department("Civil Engineering")
+                .department("토목공학과")
                 .build());
 
         users.add(User.builder()
@@ -646,7 +646,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("이시현")
                 .studentId("202563")
                 .phoneNumber("010-9123-7765")
-                .department("Architecture")
+                .department("건축학과")
                 .build());
 
         users.add(User.builder()
@@ -655,7 +655,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("임유진")
                 .studentId("202564")
                 .phoneNumber("010-5534-9332")
-                .department("Korean Literature")
+                .department("국어국문학과")
                 .build());
 
         users.add(User.builder()
@@ -664,7 +664,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("장건우")
                 .studentId("202565")
                 .phoneNumber("010-7311-4883")
-                .department("Civil Engineering")
+                .department("토목공학과")
                 .build());
 
         users.add(User.builder()
@@ -673,7 +673,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("윤민지")
                 .studentId("202566")
                 .phoneNumber("010-8253-6662")
-                .department("Architecture")
+                .department("건축학과")
                 .build());
 
         users.add(User.builder()
@@ -682,7 +682,7 @@ public class DataInitializer implements CommandLineRunner {
                 .name("김수현")
                 .studentId("202567")
                 .phoneNumber("010-9511-7789")
-                .department("Korean Literature")
+                .department("국어국문학과")
                 .build());
 
         return userRepository.saveAll(users);
@@ -705,13 +705,13 @@ public class DataInitializer implements CommandLineRunner {
                         "인터엑스는 지적 담론의 장이자, 변화를 실험하는 플랫폼으로서, ‘생각을 행동으로 옮기는 대학생 공동체’를 지향합니다. " +
                         "서로 다른 시각을 가진 사람들이 모여 대화하고, 함께 사회를 이해하며, 작은 변화를 쌓아가는 과정 자체가 인터엑스의 철학입니다.")
                 .activities("인터엑스의 핵심 활동은 세 가지 축으로 이루어져 있습니다. " +
-                        "첫째, **주제 세미나**입니다. 매주 한 가지 사회 문제를 중심으로 회원들이 직접 발표와 토론을 진행하며, " +
+                        "첫째, 주제 세미나입니다. 매주 한 가지 사회 문제를 중심으로 회원들이 직접 발표와 토론을 진행하며, " +
                         "이슈의 역사적 맥락, 이해관계자, 정책적 대안 등을 심층적으로 분석합니다. 세미나는 단순한 토론을 넘어, " +
                         "비판적 사고력과 논리적 표현 능력을 훈련하는 공간입니다. " +
-                        "둘째, **프로젝트 활동**입니다. 학기 초 구성된 소모임 단위로 각자의 주제를 선정해 조사와 인터뷰, 데이터 분석, 캠페인 기획 등을 진행합니다. " +
+                        "둘째, 프로젝트 활동입니다. 학기 초 구성된 소모임 단위로 각자의 주제를 선정해 조사와 인터뷰, 데이터 분석, 캠페인 기획 등을 진행합니다. " +
                         "예를 들어, 청년 주거 문제를 다룬 팀은 실제 원룸 임대 현황을 조사하고, 지역 청년정책팀과의 간담회를 추진하기도 했습니다. " +
                         "또한 여성 안전, 기후 행동, 장애 인식 개선 등 구체적 사회 의제를 중심으로 외부 기관(NGO, 시민단체, 언론 등)과 협업하는 경우도 많습니다. " +
-                        "셋째, **성과 공유와 외부 교류**입니다. 학기 말에는 ‘인터엑스 포럼’을 개최해 각 팀의 연구·활동 결과를 발표하고, " +
+                        "셋째, 성과 공유와 외부 교류입니다. 학기 말에는 ‘인터엑스 포럼’을 개최해 각 팀의 연구·활동 결과를 발표하고, " +
                         "이를 정리한 ‘인터엑스 리서치북’을 발간합니다. 해당 자료는 매년 아카이브 형태로 보존되어, " +
                         "후속 기수의 참고 자료이자 대학 사회문제 연구 커뮤니티의 자산으로 남습니다. " +
                         "이외에도 정기적인 지역사회 봉사활동, 사회혁신 관련 워크숍, 타 대학 동아리와의 공동 세미나 등 다양한 외부 프로그램을 통해 " +
@@ -1197,7 +1197,7 @@ public class DataInitializer implements CommandLineRunner {
                 "https://plus.unsplash.com/premium_photo-1661782751910-da7995e9baa7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1169",
                 "https://plus.unsplash.com/premium_photo-1661611260273-4312872f53da?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1992",
                 "https://plus.unsplash.com/premium_photo-1661746154460-1ee9008a501b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                "https://plus.unsplash.com/premium_photo-1663040170703-cb0d52d65165?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"        ));
+                "https://plus.unsplash.com/premium_photo-1663040170703-cb0d52d66165?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"        ));
 
         Club club10 = Club.builder()
                 .name("핀라이트")
@@ -2211,56 +2211,56 @@ public class DataInitializer implements CommandLineRunner {
         // 1~5번 동아리: 각각 6개 (3 status x 2 stage)
 
         // ===== 1. 인터엑스 =====
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING,  Stage.INTERVIEW, 3.2));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING,  Stage.FINAL,     3.5));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.INTERVIEW, 4.3));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.FINAL,    4.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.INTERVIEW, 2.7));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.FINAL,    2.5));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING,  Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING,  Stage.FINAL,     0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.FINAL,    0.0));
 
         // ===== 2. 에이아이디브 =====
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING,  Stage.INTERVIEW, 3.1));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING,  Stage.FINAL,     3.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.INTERVIEW, 4.2));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.FINAL,    4.5));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.INTERVIEW, 2.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.FINAL,    2.8));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING,  Stage.INTERVIEW,0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING,  Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.INTERVIEW,0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.INTERVIEW,0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.FINAL,    0.0));
 
         // ===== 3. 코드마스터 =====
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING,  Stage.INTERVIEW, 3.3));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING,  Stage.FINAL,     3.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.INTERVIEW, 4.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.FINAL,    4.7));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.INTERVIEW, 2.7));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.FINAL,    2.9));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING,  Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING,  Stage.FINAL,     0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.FINAL,    0.0));
 
         // ===== 4. 로보테크 (스포츠·스포츠테크) =====
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING,  Stage.INTERVIEW, 3.0));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING,  Stage.FINAL,     3.3));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.INTERVIEW, 4.1));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.FINAL,    4.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.INTERVIEW, 2.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.FINAL,    2.6));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING,  Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING,  Stage.FINAL,     0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.FINAL,    0.0));
 
         // ===== 5. 아트픽 (예술 재능기부 봉사) =====
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING,  Stage.INTERVIEW, 3.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING,  Stage.FINAL,     3.7));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.INTERVIEW, 4.3));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.FINAL,    4.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.INTERVIEW, 2.5));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.FINAL,    2.7));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING,  Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING,  Stage.FINAL,     0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.FINAL,    0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.FINAL,    0.0));
 
         // ===== 나머지 9개 동아리: 각 1개 (PENDING + INTERVIEW) =====
 
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "리버스",   Status.PENDING, Stage.INTERVIEW, 3.5));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "포커스",   Status.PENDING, Stage.INTERVIEW, 3.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "온기나눔", Status.PENDING, Stage.INTERVIEW, 3.8));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "비즈온",   Status.PENDING, Stage.INTERVIEW, 3.7));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "핀라이트", Status.PENDING, Stage.INTERVIEW, 3.9));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "글빛",     Status.PENDING, Stage.INTERVIEW, 3.4));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "무대열전", Status.PENDING, Stage.INTERVIEW, 3.6));
-        apps.add(buildApp(userByStudentId, formByClubName, sid++, "FC JNU",   Status.PENDING, Stage.INTERVIEW, 3.5));
-        apps.add(buildApp(userByStudentId, formByClubName, sid, "엘피스",   Status.PENDING, Stage.INTERVIEW, 3.8));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "리버스",   Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "포커스",   Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "온기나눔", Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "비즈온",   Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "핀라이트", Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "글빛",     Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "무대열전", Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid++, "FC JNU",   Status.PENDING, Stage.INTERVIEW, 0.0));
+        apps.add(buildApp(userByStudentId, formByClubName, sid, "엘피스",   Status.PENDING, Stage.INTERVIEW, 0.0));
 
         return applicationRepository.saveAll(apps);
     }
