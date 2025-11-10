@@ -2800,7 +2800,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 2. 시스템 점검 안내 =====
         notices.add(Notice.builder()
-                .title("Dongarium 정기 점검 안내 (3월 9일 00:00~02:00)")
+                .title("[시스템] Dongarium 정기 점검 안내 (3월 9일 00:00~02:00)")
                 .content("""
                     동아리 관리 시스템 안정적 운영을 위한 정기 점검이 예정되어 있습니다.
 
@@ -2932,7 +2932,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 9. 신입 부원 모집 공고 안내 =====
         notices.add(Notice.builder()
-                .title("2026-1학기 신입 부원 모집 공고 등록 안내")
+                .title("[시스템] 2026-1학기 신입 부원 모집 공고 등록 안내")
                 .content("""
                     각 동아리는 Dongarium 상단의 [모집폼 관리] 메뉴에서
                     모집 폼과 일정을 등록할 수 있습니다.
@@ -2948,7 +2948,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 10. 면접 안내 =====
         notices.add(Notice.builder()
-                .title("신입 부원 면접 진행 안내")
+                .title("[시스템] 신입 부원 면접 진행 안내")
                 .content("""
                     각 동아리의 신입 부원 면접 진행 시 유의사항을 안내드립니다.
 
@@ -2962,7 +2962,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 11. 합격자 발표 안내 =====
         notices.add(Notice.builder()
-                .title("신입 부원 합격자 발표 방법 안내")
+                .title("[시스템] 신입 부원 합격자 발표 방법 안내")
                 .content("""
                     Dongarium을 통해 합격자 발표를 진행할 수 있습니다.
 
@@ -2977,7 +2977,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 12. 동아리방 점검 안내 =====
         notices.add(Notice.builder()
-                .title("동아리방 점검 및 정리 기간 안내")
+                .title("[점검] 동아리방 점검 및 정리 기간 안내")
                 .content("""
                     ■ 점검 기간
                     - 2026년 4월 1일(수) ~ 4월 7일(화)
@@ -3023,7 +3023,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 15. 시스템 개선 공지 =====
         notices.add(Notice.builder()
-                .title("Dongarium 기능 개선 안내")
+                .title("[시스템] Dongarium 기능 개선 안내")
                 .content("""
                     Dongarium 시스템 안정화 및 편의 기능이 개선되었습니다.
 
@@ -3054,7 +3054,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 17. 시스템 문의 안내 =====
         notices.add(Notice.builder()
-                .title("시스템 문의 및 오류 제보 안내")
+                .title("[시스템] 시스템 문의 및 오류 제보 안내")
                 .content("""
                     Dongarium 사용 중 오류나 문의사항이 있을 경우 아래 이메일로 문의해 주세요.
 
@@ -3085,7 +3085,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 19. 사무실 이전 안내 =====
         notices.add(Notice.builder()
-                .title("총동연 사무실 이전 안내")
+                .title("[총동연] 총동연 사무실 이전 안내")
                 .content("""
                     총동아리연합회 사무실이 이전되었습니다.
 
@@ -3102,7 +3102,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 20. 단체사진 촬영 안내 =====
         notices.add(Notice.builder()
-                .title("2026-1학기 동아리 단체사진 촬영 안내")
+                .title("[행사] 2026-1학기 동아리 단체사진 촬영 안내")
                 .content("""
                     중앙동아리 단체사진 촬영 일정을 안내드립니다.
 
