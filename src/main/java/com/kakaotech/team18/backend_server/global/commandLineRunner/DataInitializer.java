@@ -2703,7 +2703,7 @@ public class DataInitializer implements CommandLineRunner {
             answers.add(Answer.builder()
                     .application(app)
                     .formQuestion(questions[55])
-                    .answer("엘피스에서 기대하는 점(예: 신앙 성장, 공동체 교제, 찬양·봉사 참여 등)과 함께 나누고 싶은 기도제목이나 고민이 있다면 적어주세요.")
+                    .answer("엘피스에서 말씀과 찬양을 함께 나누며 신앙을 다시 정비하고 싶습니다. 찬양팀이나 예배 스태프로 섬길 수 있다면 기꺼이 돕고 싶습니다.")
                     .build());
 
             answers.add(Answer.builder()
