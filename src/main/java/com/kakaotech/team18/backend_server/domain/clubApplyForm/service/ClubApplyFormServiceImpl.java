@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
+import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
@@ -39,6 +40,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     private final FormQuestionRepository formQuestionRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final ClubRepository clubRepository;
+    private final AnswerRepository answerRepository;
 
     @Transactional(readOnly = true)
     public UserClubApplyFormResponseDto getUserQuestionForm(Long clubId){
@@ -131,13 +133,16 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
             ClubApplyForm findClubApplyForm
     ) {
         for (FormQuestionUpdateDto dto : request.formQuestions()) {
-            if (dto.questionNum() != null && existingMap.containsKey(dto.questionNum())) {
-                existingMap.get(dto.questionNum()).updateFrom(dto);
-                log.info("Updated FormQuestionNum: {}", dto.questionNum());
-                incomingIds.add(dto.questionNum());
+            if (dto.questionId() != null && existingMap.containsKey(dto.questionId())) {
+                FormQuestion existing = existingMap.get(dto.questionId());
+                log.info("Updating FormQuestion: id={}, oldQuestion={}, newQuestion={}", existing.getId(), existing.getQuestion(), dto.question());
+                existing.updateFrom(dto);
+                incomingIds.add(dto.questionId());
+                log.info("Updated FormQuestionId: {}", dto.questionId());
             } else {
                 FormQuestion newQuestion = createFormQuestion(dto, findClubApplyForm);
                 FormQuestion savedFormQuestion = formQuestionRepository.save(newQuestion);
+                log.info("New FormQuestion created: id={}, question={}", savedFormQuestion.getId(), savedFormQuestion.getQuestion());
                 log.info("Created new FormQuestionId: {}", savedFormQuestion.getId());
             }
         }
@@ -148,6 +153,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 .filter(existingId -> !incomingIds.contains(existingId))
                 .toList();
         if (!idsToDelete.isEmpty()) {
+            answerRepository.deleteAllByFormQuestionIds(idsToDelete);
             formQuestionRepository.deleteAllByIdInBatch(idsToDelete);
             log.info("Deleted FormQuestionIds: {}", idsToDelete);
         }
