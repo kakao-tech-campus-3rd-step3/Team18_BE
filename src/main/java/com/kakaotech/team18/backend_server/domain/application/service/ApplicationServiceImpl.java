@@ -555,7 +555,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
     }
 
-    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    private static final Pattern DATE = Pattern.compile("\\d{4}-\\d{2}-\\d{2} ~ \\d{4}-\\d{2}-\\d{2}");
     private static final Pattern TR = Pattern.compile("\\d{2}:\\d{2}-\\d{2}:\\d{2}");
 
     private String reassembleTimeSlots(List<String> vals) {
@@ -580,6 +580,9 @@ public class ApplicationServiceImpl implements ApplicationService {
             }
             if (looksTimeRange) {
                 out.add(currentDate != null ? (currentDate + " " + s) : s);
+                continue;
+            }
+            if ("TIME_SLOT".equalsIgnoreCase(s)){
                 continue;
             }
             out.add(s);
