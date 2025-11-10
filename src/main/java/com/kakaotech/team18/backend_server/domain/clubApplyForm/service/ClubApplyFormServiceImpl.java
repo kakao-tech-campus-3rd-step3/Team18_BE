@@ -154,6 +154,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 .toList();
         if (!idsToDelete.isEmpty()) {
             answerRepository.deleteAllByFormQuestionIds(idsToDelete);
+            log.info("Deleted Answers for FormQuestionIds: {}", idsToDelete);
             formQuestionRepository.deleteAllByIdInBatch(idsToDelete);
             log.info("Deleted FormQuestionIds: {}", idsToDelete);
         }
