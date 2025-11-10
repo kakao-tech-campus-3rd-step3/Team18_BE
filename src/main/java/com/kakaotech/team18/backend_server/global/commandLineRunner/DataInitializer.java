@@ -2781,7 +2781,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("""
                     안녕하세요, 총동아리연합회입니다.
 
-                    2025학년도 1학기부터 중앙동아리의 모든 행정 절차(등록, 모집, 보고 등)는
+                    2026학년도 1학기부터 중앙동아리의 모든 행정 절차(등록, 모집, 보고 등)는
                     'Dongarium'을 통해 진행됩니다.
 
                     ■ 주요 기능
@@ -2800,12 +2800,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 2. 시스템 점검 안내 =====
         notices.add(Notice.builder()
-                .title("Dongarium 정기 점검 안내 (3월 10일 00:00~02:00)")
+                .title("[시스템] Dongarium 정기 점검 안내 (3월 9일 00:00~02:00)")
                 .content("""
                     동아리 관리 시스템 안정적 운영을 위한 정기 점검이 예정되어 있습니다.
 
                     ■ 점검 일시
-                    - 2025년 3월 10일(월) 00:00 ~ 02:00
+                    - 2026년 3월 9일(월) 00:00 ~ 02:00
 
                     ■ 영향
                     - 점검 시간 동안 서비스 접속이 일시적으로 제한됩니다.
@@ -2818,15 +2818,15 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 3. 중앙동아리 등록 안내 =====
         notices.add(Notice.builder()
-                .title("[총동연] 2025-1학기 중앙동아리 등록 서류 안내")
+                .title("[총동연] 2026-1학기 중앙동아리 등록 서류 안내")
                 .content("""
-                    2025학년도 1학기 중앙동아리 등록을 위한 서류 제출을 안내드립니다.
+                    2026학년도 1학기 중앙동아리 등록을 위한 서류 제출을 안내드립니다.
 
                     ■ 제출 대상
                     - 중앙동아리로 활동을 희망하는 모든 단체
 
                     ■ 제출 기간
-                    - 2025년 3월 1일(토) ~ 3월 15일(토) 23:59
+                    - 2026년 2월 28일(토) ~ 3월 14일(토) 23:59
 
                     ■ 제출 서류
                       1) 전 학기 활동 보고서
@@ -2846,8 +2846,8 @@ public class DataInitializer implements CommandLineRunner {
                     모든 중앙동아리 회장 및 운영진은 학기 초 안전교육을 반드시 이수해야 합니다.
 
                     ■ 일정
-                    - 1차: 3월 7일(금) 18:00, 본관 대강당
-                    - 2차: 3월 11일(화) 18:00, 학생회관 1층 세미나실
+                    - 1차: 3월 6일(금) 18:00, 제 2 학생회관 대강당
+                    - 2차: 3월 10일(화) 18:00, 제 1 학생회관 1층 세미나실
 
                     이수방법은 첨부파일 참고 바랍니다. 
                     미이수 시 일부 지원이 제한될 수 있습니다.
@@ -2857,12 +2857,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 5. 회계 보고 양식 업로드 =====
         notices.add(Notice.builder()
-                .title("[총동연] 2025-1학기 회계 보고 양식 업로드 안내")
+                .title("[총동연] 2026-1학기 회계 보고 양식 업로드 안내")
                 .content("""
                     학기 말 회계 보고를 위한 최신 양식이 업로드되었습니다.
 
                     ■ 제출 기한
-                    - 2025년 6월 30일(월) 23:59까지
+                    - 2026년 6월 29일(월) 23:59까지
 
                     제출 경로와 작성 방법은 파일 내에 상세히 안내되어 있습니다.
                     """)
@@ -2871,16 +2871,16 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 6. 알림아리 부스 신청 =====
         notices.add(Notice.builder()
-                .title("[알림아리] 2025학년도 중앙동아리 홍보 부스 신청 안내")
+                .title("[알림아리] 2026학년도 중앙동아리 홍보 부스 신청 안내")
                 .content("""
                     신입생 대상 중앙동아리 통합 홍보 행사 '알림아리' 부스 신청을 받습니다.
 
                     ■ 행사 일시
-                    - 2025년 3월 19일(수) 10:00~17:00
+                    - 2026년 3월 18일(수) 10:00~17:00
                     - 장소: 중앙 잔디광장 일대
 
                     ■ 신청 기간
-                    - 3월 5일(수) ~ 3월 10일(월)
+                    - 3월 4일(수) ~ 3월 9일(월)
 
                     제출 경로와 작성 방법은 첨부파일 내에 상세히 안내되어 있습니다.
                     """)
@@ -2897,7 +2897,7 @@ public class DataInitializer implements CommandLineRunner {
                     - 밴드, 댄스, 연극, 퍼포먼스 등 공연 가능 동아리
 
                     ■ 신청 기한
-                    - 2025년 3월 9일(일) 23:59까지
+                    - 2026년 3월 8일(일) 23:59까지
 
                     신청 방법은 공지 파일 내 안내를 참고해 주세요.
                     """)
@@ -2906,12 +2906,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 8. 알림아리 행사 일정 및 운영 안내 =====
         notices.add(Notice.builder()
-                .title("[알림아리] 2025학년도 알림아리 행사 일정 및 운영 안내")
+                .title("[알림아리] 2026학년도 알림아리 행사 일정 및 운영 안내")
                 .content("""
-            2025학년도 1학기 중앙동아리 통합 홍보 행사 ‘알림아리’의 전체 일정을 안내드립니다.
+            2026학년도 1학기 중앙동아리 통합 홍보 행사 ‘알림아리’의 전체 일정을 안내드립니다.
 
             ■ 행사 일시
-            - 2025년 3월 19일(수) 10:00 ~ 17:00
+            - 2026년 3월 19일(목) 10:00 ~ 17:00
             - 장소: 전남대학교 중앙 잔디광장 일대
 
             ■ 주요 일정
@@ -2932,7 +2932,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 9. 신입 부원 모집 공고 안내 =====
         notices.add(Notice.builder()
-                .title("2025-1학기 신입 부원 모집 공고 등록 안내")
+                .title("[시스템] 2026-1학기 신입 부원 모집 공고 등록 안내")
                 .content("""
                     각 동아리는 Dongarium 상단의 [모집폼 관리] 메뉴에서
                     모집 폼과 일정을 등록할 수 있습니다.
@@ -2948,7 +2948,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 10. 면접 안내 =====
         notices.add(Notice.builder()
-                .title("신입 부원 면접 진행 안내")
+                .title("[시스템] 신입 부원 면접 진행 안내")
                 .content("""
                     각 동아리의 신입 부원 면접 진행 시 유의사항을 안내드립니다.
 
@@ -2962,7 +2962,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 11. 합격자 발표 안내 =====
         notices.add(Notice.builder()
-                .title("신입 부원 합격자 발표 방법 안내")
+                .title("[시스템] 신입 부원 합격자 발표 방법 안내")
                 .content("""
                     Dongarium을 통해 합격자 발표를 진행할 수 있습니다.
 
@@ -2977,10 +2977,10 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 12. 동아리방 점검 안내 =====
         notices.add(Notice.builder()
-                .title("동아리방 점검 및 정리 기간 안내")
+                .title("[점검] 동아리방 점검 및 정리 기간 안내")
                 .content("""
                     ■ 점검 기간
-                    - 2025년 4월 1일(화) ~ 4월 7일(월)
+                    - 2026년 4월 1일(수) ~ 4월 7일(화)
 
                     ■ 주요 내용
                     - 전기, 소방, 비상 대피로 점검
@@ -2998,7 +2998,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("""
                     중앙동아리의 활발한 활동을 기록하기 위한 사진 공모전을 개최합니다.
 
-                    ■ 접수 기간: 2025년 4월 10일 ~ 4월 30일
+                    ■ 접수 기간: 2026년 4월 10일 ~ 4월 30일
                     ■ 주제: 우리 동아리의 열정과 순간
 
                     제출 방법과 양식은 공지 파일 내에 안내되어 있습니다.
@@ -3008,11 +3008,11 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 14. 동아리 교류전 =====
         notices.add(Notice.builder()
-                .title("[총동연] 2025년 상반기 동아리 교류전 안내")
+                .title("[총동연] 2026년 상반기 동아리 교류전 안내")
                 .content("""
                     동아리 간 친목과 교류를 위한 ‘동아리 교류전’을 개최합니다.
 
-                    ■ 일정: 2025년 5월 17일(토)
+                    ■ 일정: 2026년 5월 16일(토)
                     ■ 장소: 전남대학교 체육관
                     ■ 참가 대상: 모든 중앙동아리
 
@@ -3023,7 +3023,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 15. 시스템 개선 공지 =====
         notices.add(Notice.builder()
-                .title("Dongarium 기능 개선 안내")
+                .title("[시스템] Dongarium 기능 개선 안내")
                 .content("""
                     Dongarium 시스템 안정화 및 편의 기능이 개선되었습니다.
 
@@ -3043,7 +3043,7 @@ public class DataInitializer implements CommandLineRunner {
                 .content("""
                     각 동아리 대표 및 임원을 대상으로 하는 하계 연합 워크숍이 예정되어 있습니다.
 
-                    ■ 일시: 2025년 7월 5일(토) ~ 7월 6일(일)
+                    ■ 일시: 2026년 7월 4일(토) ~ 7월 5일(일)
                     ■ 장소: 전남대학교 여수캠퍼스 연수원
                     ■ 내용: 리더십 강연, 운영 사례 공유, 네트워킹 세션
 
@@ -3054,7 +3054,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 17. 시스템 문의 안내 =====
         notices.add(Notice.builder()
-                .title("시스템 문의 및 오류 제보 안내")
+                .title("[시스템] 시스템 문의 및 오류 제보 안내")
                 .content("""
                     Dongarium 사용 중 오류나 문의사항이 있을 경우 아래 이메일로 문의해 주세요.
 
@@ -3071,11 +3071,11 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 18. 중간 점검 보고 안내 =====
         notices.add(Notice.builder()
-                .title("[총동연] 2025-1학기 활동 중간 점검 보고 안내")
+                .title("[총동연] 2026-1학기 활동 중간 점검 보고 안내")
                 .content("""
                     중앙동아리의 활동 현황 점검을 위한 중간 보고 일정을 안내드립니다.
 
-                    ■ 제출 기간: 2025년 5월 1일 ~ 5월 10일
+                    ■ 제출 기간: 2026년 5월 1일 ~ 5월 10일
                     ■ 제출 항목: 활동 진행 현황, 사진, 회의록 등
 
                     제출 경로는 보고서 내에 안내되어 있습니다.
@@ -3085,12 +3085,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 19. 사무실 이전 안내 =====
         notices.add(Notice.builder()
-                .title("총동연 사무실 이전 안내")
+                .title("[총동연] 총동연 사무실 이전 안내")
                 .content("""
                     총동아리연합회 사무실이 이전되었습니다.
 
                     ■ 위치
-                    - (구)1학생회관 2층 201호 → (신)2학생회관 3층 307호
+                    - (구)제 1 학생회관 2층 201호 → (신)제 2 학생회관 3층 307호
 
                     ■ 운영 시간
                     - 평일 10:00 ~ 17:00 (점심 12:00~13:00)
@@ -3102,12 +3102,12 @@ public class DataInitializer implements CommandLineRunner {
 
         // ===== 20. 단체사진 촬영 안내 =====
         notices.add(Notice.builder()
-                .title("2025-1학기 동아리 단체사진 촬영 안내")
+                .title("[행사] 2026-1학기 동아리 단체사진 촬영 안내")
                 .content("""
                     중앙동아리 단체사진 촬영 일정을 안내드립니다.
 
-                    ■ 일시: 2025년 4월 18일(금) 10:00~17:00
-                    ■ 장소: 중앙도서관 앞 잔디광장
+                    ■ 일시: 2026년 4월 17일(금) 10:00~17:00
+                    ■ 장소: 제 1학생회관 앞 봉지
                     ■ 대상: 등록 완료 중앙동아리 전원
 
                     세부 일정은 행사 당일 현장에서 조정될 예정입니다.
