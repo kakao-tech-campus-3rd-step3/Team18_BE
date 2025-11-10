@@ -9,6 +9,7 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.Mockito.mock;
 
+import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
@@ -48,6 +49,8 @@ class ClubApplyFormServiceImplMockTest {
     private ClubApplyFormRepository clubApplyFormRepository;
     @Mock
     private ClubRepository clubRepository;
+    @Mock
+    private AnswerRepository answerRepository;
     @InjectMocks
     private ClubApplyFormServiceImpl clubApplyFormService;
 
@@ -209,6 +212,7 @@ class ClubApplyFormServiceImplMockTest {
                 List.of(
                         new FormQuestionUpdateDto(
                                 1L,
+                                1L,
                                 "수정된 질문 1",
                                 FieldType.TEXT,
                                 false,
@@ -218,6 +222,7 @@ class ClubApplyFormServiceImplMockTest {
                         ),
                         new FormQuestionUpdateDto(
                                 null,
+                                1L,
                                 "새로운 질문 3",
                                 FieldType.CHECKBOX,
                                 true,
@@ -246,7 +251,7 @@ class ClubApplyFormServiceImplMockTest {
         Long clubId = 1L;
         Club club = mock(Club.class);
         ReflectionTestUtils.setField(club, "id", 1L);
-        FormQuestionUpdateDto question1 = new FormQuestionUpdateDto(1L, "질문 1", FieldType.TEXT, true, 1L, null, null);
+        FormQuestionUpdateDto question1 = new FormQuestionUpdateDto(1L, 1L,"질문 1", FieldType.TEXT, true, 1L, null, null);
         ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
                 "테스트 지원서",
                 "테스트 설명",

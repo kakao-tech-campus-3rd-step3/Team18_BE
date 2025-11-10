@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto.TimeRange;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +20,7 @@ class FormQuestionTest {
         ReflectionTestUtils.setField(formQuestion, "id", 1L);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
-                1L, "오늘 먹기 싫은 메뉴는?", FieldType.TEXT, true, 1L, null, null
+                1L, 1L,"오늘 먹기 싫은 메뉴는?", FieldType.TEXT, true, 1L, null, null
         );
 
         formQuestion.updateFrom(dto);
@@ -37,7 +36,7 @@ class FormQuestionTest {
         ReflectionTestUtils.setField(formQuestion, "id", 2L);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
-                2L, "먹기 싫은 메뉴는?", FieldType.CHECKBOX, false, 2L, List.of("피자", "치킨"), null
+                2L, 2L,"먹기 싫은 메뉴는?", FieldType.CHECKBOX, false, 2L, List.of("피자", "치킨"), null
         );
 
         formQuestion.updateFrom(dto);
@@ -53,7 +52,7 @@ class FormQuestionTest {
         ReflectionTestUtils.setField(formQuestion, "id", 4L);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
-                2L, "성별?", FieldType.RADIO, false, 4L, List.of("남", "여", "응답안함"), null
+                2L, 2L,"성별?", FieldType.RADIO, false, 4L, List.of("남", "여", "응답안함"), null
         );
 
         formQuestion.updateFrom(dto);
@@ -74,7 +73,7 @@ class FormQuestionTest {
         TimeSlotOptionRequestDto newOption = new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", newTimeRange);
 
         FormQuestionUpdateDto dto = new FormQuestionUpdateDto(
-                3L, "면접 불가능한 시간대는?", FieldType.TIME_SLOT, true, 3L, null, List.of(newOption)
+                3L, 3L,"면접 불가능한 시간대는?", FieldType.TIME_SLOT, true, 3L, null, List.of(newOption)
         );
 
         formQuestion.updateFrom(dto);
