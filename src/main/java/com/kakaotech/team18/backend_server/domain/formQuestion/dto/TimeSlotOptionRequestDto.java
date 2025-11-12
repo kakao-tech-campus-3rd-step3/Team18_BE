@@ -31,19 +31,18 @@ public record TimeSlotOptionRequestDto(
             @NotNull(message = "면접 마감 시간은 필수 입니다.")
             LocalTime end
     ) {
-        @AssertTrue(message = "면접 마감 시간은 시작 시간보다 늦어야 합니다.")
-        @JsonIgnore
-        @Schema(hidden = true)
-        public boolean isValidInterviewTime() {
-            try {
-                if (start == null || end == null) {
-                    return true;
-                }
-                return end.isAfter(start);
-            } catch (Exception e) {
-                log.warn("Invalid interview time format: start={}, end={}", start, end, e);
-                return false;
+        public void validate() {
+            if (start == null || end == null) return;
+
+            if (!start.isBefore(end)) {
+                throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
             }
+        }
+    }
+
+    public void validate() {
+        if (availableTime != null) {
+            availableTime.validate();
         }
     }
 }
