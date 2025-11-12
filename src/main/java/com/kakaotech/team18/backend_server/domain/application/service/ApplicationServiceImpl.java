@@ -49,6 +49,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
@@ -362,6 +363,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if(stage == Stage.INTERVIEW) {
             List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
+            if(apps.isEmpty()) { throw new NoApplicationException("clubId = "+clubId+ " stage = "+stage);}
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -398,6 +400,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if(stage == Stage.FINAL) {
             List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
+            if(apps.isEmpty()) { throw new NoApplicationException("clubId = "+clubId+ " stage = "+stage);}
             boolean hasPending = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
@@ -431,6 +434,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
         if(stage == null) {
             List<Application> apps = applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT);
+            if(apps.isEmpty()) { throw new NoApplicationException("clubId = "+clubId);}
             boolean hasPending = apps.stream()
                     .anyMatch(a -> a.getStatus() == Status.PENDING);
             if (hasPending) {
