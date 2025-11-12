@@ -1,10 +1,15 @@
 package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalTime;
 
+@Slf4j
 @Schema(description = "동아리의 면접 가능 날짜")
 public record TimeSlotOptionRequestDto(
         @Schema(description = "면접 날짜", example = "2025-09-24 ~ 2025-09-25")
@@ -25,7 +30,22 @@ public record TimeSlotOptionRequestDto(
             @Schema(description = "면접 마감 시간", example = "21:00")
             @NotNull(message = "면접 마감 시간은 필수 입니다.")
             LocalTime end
-    ) {}
+    ) {
+        @AssertTrue(message = "면접 마감 시간은 시작 시간보다 늦어야 합니다.")
+        @JsonIgnore
+        @Schema(hidden = true)
+        public boolean isValidInterviewTime() {
+            try {
+                if (start == null || end == null) {
+                    return true;
+                }
+                return end.isAfter(start);
+            } catch (Exception e) {
+                log.warn("Invalid interview time format: start={}, end={}", start, end, e);
+                return false;
+            }
+        }
+    }
 }
 
 
