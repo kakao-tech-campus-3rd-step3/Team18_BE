@@ -138,6 +138,14 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
     ) {
         for (FormQuestionUpdateDto dto : request.formQuestions()) {
             if (dto.questionId() != null && existingMap.containsKey(dto.questionId())) {
+                if (isTimeSlot(dto)) {
+                    List<TimeSlotOptionRequestDto> timeSlots = dto.timeSlotOptions();
+                    for (TimeSlotOptionRequestDto timeSlot : timeSlots) {
+                        if (!timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
+                            throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
+                        }
+                    }
+                }
                 FormQuestion existing = existingMap.get(dto.questionId());
                 log.info("Updating FormQuestion: id={}, oldQuestion={}, newQuestion={}", existing.getId(), existing.getQuestion(), dto.question());
                 existing.updateFrom(dto);
