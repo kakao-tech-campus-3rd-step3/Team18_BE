@@ -72,6 +72,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     @Query("""
     SELECT a
     FROM Application a
+    JOIN FETCH a.user
     JOIN ClubMember cm ON cm.application = a
     WHERE cm.club.id = :clubId
       AND cm.role = :role
@@ -82,6 +83,7 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
     @Query("""
     SELECT a
     FROM Application a
+    JOIN FETCH a.user
     JOIN ClubMember cm ON cm.application = a
     WHERE cm.club.id = :clubId
       AND cm.role = :role
