@@ -35,6 +35,7 @@ public enum ErrorCode {
     ILLEGAL_ARGUMENT_JWT("토큰의 인자가 잘못되었습니다.", HttpStatus.BAD_REQUEST),
     INVALID_FILE("잘못된 파일 형식입니다.", HttpStatus.BAD_REQUEST),
     TOO_LARGE_FILE("업로드 하려는 파일 크기가 너무 큽니다", HttpStatus.BAD_REQUEST),
+    NO_APPLICATION_PROCESSED("처리할 지원서가 없습니다", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
