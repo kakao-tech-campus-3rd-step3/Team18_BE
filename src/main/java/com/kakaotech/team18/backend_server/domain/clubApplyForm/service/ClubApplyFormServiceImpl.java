@@ -190,7 +190,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         if (isTimeSlot(dto)) {
             List<TimeSlotOptionRequestDto> timeSlots = dto.timeSlotOptions();
             for(TimeSlotOptionRequestDto timeSlot : timeSlots) {
-                if(timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
+                if(!timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
                     throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
                 }
             }
