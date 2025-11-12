@@ -35,7 +35,6 @@ public record FormQuestionRequestDto(
         List<String> optionList,
 
         @Schema(description = "(Time Slot)선택지")
-        @Valid
         List<TimeSlotOptionRequestDto> timeSlotOptions
 ) implements FormQuestionBaseDto {
 

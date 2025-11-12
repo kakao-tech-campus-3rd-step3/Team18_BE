@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidTimeSlotException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -187,6 +189,11 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
 
         if (isTimeSlot(dto)) {
             List<TimeSlotOptionRequestDto> timeSlots = dto.timeSlotOptions();
+            for(TimeSlotOptionRequestDto timeSlot : timeSlots) {
+                if(timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
+                    throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
+                }
+            }
             builder.timeSlotOptions(timeSlots != null
                     ? timeSlots.stream()
                     .map(tsoDto -> new TimeSlotOption(
