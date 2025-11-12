@@ -62,7 +62,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        //if (clubRepository.count() > 0) return; // 이미 데이터 있으면 전체 seed 스킵
+        if (clubRepository.count() > 0) return; // 이미 데이터 있으면 전체 seed 스킵
 
         List<User> users = seedUsers();
         List<Club> clubs = seedClubsWithIntroAndImages();
