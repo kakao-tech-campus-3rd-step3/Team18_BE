@@ -6,6 +6,9 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOp
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
+import java.util.Map;
+
+import static com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubApplyFormServiceImpl.expandDateRange;
 
 @Schema(description = "지원서 양식 내 개별 질문 정보")
 public record UserFormQuestionResponseDto(
@@ -26,18 +29,29 @@ public record UserFormQuestionResponseDto(
         List<String> optionList,
 
         @Schema(description = "(Time Slot)선택지")
-        List<TimeSlotOption> timeSlotOptions
+        List<Map<String,Object>> timeSlotOptions
 ) {
 
     public static UserFormQuestionResponseDto from(FormQuestion field) {
+        List<Map<String, Object>> expanded = List.of();
+
+        if (field.getTimeSlotOptions() != null && !field.getTimeSlotOptions().isEmpty()) {
+            // 현재 구조상 1개만 있어서 이렇게 사용 TODO 이 부분 수정되면 되돌리기
+            TimeSlotOption option = field.getTimeSlotOptions().getFirst();
+            expanded = expandDateRange(
+                    option.date(),
+                    option.availableTime().start(),
+                    option.availableTime().end()
+            );
+        }
+
         return new UserFormQuestionResponseDto(
                 field.getId(),
                 field.getFieldType(),
                 field.getQuestion(),
                 field.getIsRequired(),
                 field.getOptions(),
-                field.getTimeSlotOptions()
-
+                expanded
         );
     }
 }
