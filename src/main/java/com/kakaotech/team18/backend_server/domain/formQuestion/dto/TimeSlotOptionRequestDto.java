@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidTimeSlotException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
