@@ -1,10 +1,16 @@
 package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidTimeSlotException;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
+import lombok.extern.slf4j.Slf4j;
+
 import java.time.LocalTime;
 
+@Slf4j
 @Schema(description = "동아리의 면접 가능 날짜")
 public record TimeSlotOptionRequestDto(
         @Schema(description = "면접 날짜", example = "2025-09-24 ~ 2025-09-25")
@@ -25,7 +31,21 @@ public record TimeSlotOptionRequestDto(
             @Schema(description = "면접 마감 시간", example = "21:00")
             @NotNull(message = "면접 마감 시간은 필수 입니다.")
             LocalTime end
-    ) {}
+    ) {
+        public void validate() {
+            if (start == null || end == null) return;
+
+            if (!start.isBefore(end)) {
+                throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
+            }
+        }
+    }
+
+    public void validate() {
+        if (availableTime != null) {
+            availableTime.validate();
+        }
+    }
 }
 
 
