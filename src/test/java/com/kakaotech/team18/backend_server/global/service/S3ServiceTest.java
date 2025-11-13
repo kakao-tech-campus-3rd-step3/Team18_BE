@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AwsS3Exception;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
@@ -83,4 +84,17 @@ class S3ServiceTest {
                 .isInstanceOf(InputStreamException.class)
                 .hasMessageContaining("파일 입출력 실패.");
     }
+
+    @Test
+    @DisplayName("S3 파일 삭제 시 URL 파싱에 실패하면 IllegalArgumentException을 던진다.")
+    void deleteFile_shouldThrowIllegalArgumentException_whenUrlParsingFails() {
+        // given
+        String invalidUrl = "invalid-url-format";
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> s3Service.deleteFile(invalidUrl))
+                .isInstanceOf(AwsS3Exception.class)
+                .hasMessageContaining("AWS 에러 발생");
+    }
+
 }
