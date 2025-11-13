@@ -86,8 +86,8 @@ class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("S3 파일 삭제 시 URL 파싱에 실패하면 IllegalArgumentException을 던진다.")
-    void deleteFile_shouldThrowIllegalArgumentException_whenUrlParsingFails() {
+    @DisplayName("S3 파일 삭제 시 URL 파싱에 실패하면 AwsS3Exception 던진다.")
+    void deleteFile_shouldThrowAwsS3Exception_whenUrlParsingFails() {
         // given
         String invalidUrl = "invalid-url-format";
 
