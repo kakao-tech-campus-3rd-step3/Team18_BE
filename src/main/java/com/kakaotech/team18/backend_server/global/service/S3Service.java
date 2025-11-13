@@ -129,7 +129,8 @@ public class S3Service {
         if (fileUrl.startsWith(baseUrl)) {
             key = fileUrl.substring(baseUrl.length());
         } else {
-            throw new IllegalArgumentException("URL is not a valid S3 URL for this bucket: " + fileUrl);
+            log.warn("Invalid S3 URL format for deletion: " + fileUrl);
+            throw new AwsS3Exception("URL is not a valid S3 URL for this bucket: " + fileUrl);
         }
 
         try {
