@@ -56,8 +56,10 @@ class S3ServiceTest {
     void deleteFile_shouldDeleteObjectFromS3() {
         // given
         String bucket = "test-bucket";
-        String url = "https://test-bucket.s3.amazonaws.com/club_detail_image/test.png";
+        String region = "test-region";
+        ReflectionTestUtils.setField(s3Service, "region", region);
         ReflectionTestUtils.setField(s3Service, "bucket", bucket);
+        String url = String.format("https://%s.s3.%s.amazonaws.com/club_detail_image/test.png", bucket, region);
 
         // when
         s3Service.deleteFile(url);
