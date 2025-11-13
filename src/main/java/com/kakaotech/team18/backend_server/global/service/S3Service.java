@@ -5,7 +5,6 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStre
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFileException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.AwsS3Exception;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -124,8 +123,15 @@ public class S3Service {
     }
 
     public void deleteFile(String fileUrl) {
-        String path = URI.create(fileUrl).getPath();
-        String key = path.startsWith("/") ? path.substring(1) : path;
+        String baseUrl = String.format("https://%s.s3.%s.amazonaws.com/", bucket, region);
+        String key;
+
+        if (fileUrl.startsWith(baseUrl)) {
+            key = fileUrl.substring(baseUrl.length());
+        } else {
+            throw new IllegalArgumentException("URL is not a valid S3 URL for this bucket: " + fileUrl);
+        }
+
         try {
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                 .bucket(bucket)
