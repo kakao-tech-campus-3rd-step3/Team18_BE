@@ -97,4 +97,21 @@ class S3ServiceTest {
                 .hasMessageContaining("AWS 에러 발생");
     }
 
+    @Test
+    @DisplayName("S3 파일 삭제 시 URL에 공백이 포함되어 있어도 정상 처리된다")
+    void deleteFile_shouldHandleUrlWithSpaces() {
+        // given
+        String bucket = "test-bucket";
+        String region = "test-region";
+        ReflectionTestUtils.setField(s3Service, "region", region);
+        ReflectionTestUtils.setField(s3Service, "bucket", bucket);
+        // URL에 공백이 포함된 경우 (원본 버그 시나리오)
+        String url = String.format("https://%s.s3.%s.amazonaws.com/club_detail_image/test file.png", bucket, region);
+
+        // when
+        s3Service.deleteFile(url);
+
+        // then
+        verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
+    }
 }
