@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AwsS3Exception;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InputStreamException;
 import java.io.IOException;
 import org.assertj.core.api.Assertions;
@@ -56,8 +57,10 @@ class S3ServiceTest {
     void deleteFile_shouldDeleteObjectFromS3() {
         // given
         String bucket = "test-bucket";
-        String url = "https://test-bucket.s3.amazonaws.com/club_detail_image/test.png";
+        String region = "test-region";
+        ReflectionTestUtils.setField(s3Service, "region", region);
         ReflectionTestUtils.setField(s3Service, "bucket", bucket);
+        String url = String.format("https://%s.s3.%s.amazonaws.com/club_detail_image/test.png", bucket, region);
 
         // when
         s3Service.deleteFile(url);
@@ -80,5 +83,35 @@ class S3ServiceTest {
         Assertions.assertThatThrownBy(() -> s3Service.upload(file))
                 .isInstanceOf(InputStreamException.class)
                 .hasMessageContaining("파일 입출력 실패.");
+    }
+
+    @Test
+    @DisplayName("S3 파일 삭제 시 URL 파싱에 실패하면 AwsS3Exception 던진다.")
+    void deleteFile_shouldThrowAwsS3Exception_whenUrlParsingFails() {
+        // given
+        String invalidUrl = "invalid-url-format";
+
+        // when & then
+        Assertions.assertThatThrownBy(() -> s3Service.deleteFile(invalidUrl))
+                .isInstanceOf(AwsS3Exception.class)
+                .hasMessageContaining("AWS 에러 발생");
+    }
+
+    @Test
+    @DisplayName("S3 파일 삭제 시 URL에 공백이 포함되어 있어도 정상 처리된다")
+    void deleteFile_shouldHandleUrlWithSpaces() {
+        // given
+        String bucket = "test-bucket";
+        String region = "test-region";
+        ReflectionTestUtils.setField(s3Service, "region", region);
+        ReflectionTestUtils.setField(s3Service, "bucket", bucket);
+        // URL에 공백이 포함된 경우 (원본 버그 시나리오)
+        String url = String.format("https://%s.s3.%s.amazonaws.com/club_detail_image/test file.png", bucket, region);
+
+        // when
+        s3Service.deleteFile(url);
+
+        // then
+        verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
     }
 }
