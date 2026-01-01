@@ -418,18 +418,21 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .toList();
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                Stage originalStage = a.getStage();
+                a.updateStage(Stage.RESULT);
+                a.updateStatus(Status.APPROVED);
                 publisher.publishEvent(new FinalApprovedEvent(
                         applicationInfoDto,
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
-                        a.getStage()));
+                        originalStage));
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
-                applicationRepository.delete(a);
+                a.updateStage(Stage.RESULT);
             }
         }
         if(stage == null) {
