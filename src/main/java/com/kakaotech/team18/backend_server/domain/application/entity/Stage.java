@@ -1,7 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.entity;
 
 public enum Stage {
-    INTERVIEW, FINAL;
+    INTERVIEW, FINAL, RESULT;
 
     public static Stage fromRaw(String raw) {
         if (raw == null) throw new IllegalArgumentException("stage is required");
