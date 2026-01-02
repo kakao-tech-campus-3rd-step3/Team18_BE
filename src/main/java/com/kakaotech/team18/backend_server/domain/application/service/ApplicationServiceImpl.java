@@ -420,7 +420,6 @@ public class ApplicationServiceImpl implements ApplicationService {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 Stage originalStage = a.getStage();
                 a.updateStage(Stage.RESULT);
-                a.updateStatus(Status.APPROVED);
                 publisher.publishEvent(new FinalApprovedEvent(
                         applicationInfoDto,
                         a.getId(),

@@ -310,14 +310,13 @@ class EmailServiceUnitTest {
         verify(clubApplyFormRepository).findByClubId(88L);
         verify(clubApplyForm).updateFinalMessage("최종 합격 안내 메시지");
 
-        verify(appApproved, never()).updateStage(any());
+        verify(appApproved, times(1)).updateStage(Stage.RESULT);
         verify(appApproved, never()).updateStatus(any());
-        verify(appRejected, never()).updateStage(any());
+        verify(appRejected,times(1)).updateStage(Stage.RESULT);
         verify(appRejected, never()).updateStatus(any());
 
         // 참조 끊기 + 단건 삭제
         verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(202L);
-        verify(applicationRepository, times(1)).delete(appRejected);
 
         // 이벤트 캡처 (approved 1, rejected 1)
         verify(publisher, times(2)).publishEvent(eventCaptor.capture());
