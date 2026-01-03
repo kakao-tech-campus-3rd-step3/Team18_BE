@@ -56,3 +56,4 @@ class DataInitializerTest {
                 .contains("사회문제 해결과 토론"); // 네가 initializer에 넣은 설명 일부
     }
 }
+
