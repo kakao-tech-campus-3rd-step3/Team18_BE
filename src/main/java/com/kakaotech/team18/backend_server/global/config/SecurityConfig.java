@@ -77,6 +77,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
                 // 동아리 후기 조회 및 등록 API (공개)
                 .requestMatchers("/api/clubs/*/reviews").permitAll()
+                // 헬스체크 (공개)
+                .requestMatchers("/actuator/health","/actuator/health/**").permitAll()
                 .anyRequest().authenticated()
         );
 
