@@ -434,6 +434,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                 a.updateStage(Stage.RESULT);
             }
         }
+        if(stage == Stage.RESULT) {
+            List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);
+            if(apps.isEmpty()) { throw new NoApplicationException("clubId = "+clubId+ " stage = "+stage);}
+        }
         if(stage == null) {
             List<Application> apps = applicationRepository.findAllByClubIdAndRole(clubId, Role.APPLICANT);
             if(apps.isEmpty()) { throw new NoApplicationException("clubId = "+clubId);}
