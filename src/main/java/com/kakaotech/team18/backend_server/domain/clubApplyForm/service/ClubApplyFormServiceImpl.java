@@ -137,15 +137,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
             ClubApplyForm findClubApplyForm
     ) {
         for (FormQuestionUpdateDto dto : request.formQuestions()) {
-            if (dto.questionId() != null && existingMap.containsKey(dto.questionId())) {
-                if (isTimeSlot(dto)) {
-                    List<TimeSlotOptionRequestDto> timeSlots = dto.timeSlotOptions();
-                    for (TimeSlotOptionRequestDto timeSlot : timeSlots) {
-                        if (!timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
-                            throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
-                        }
-                    }
-                }
+            if (questionForUpdate(existingMap, dto)) {
                 FormQuestion existing = existingMap.get(dto.questionId());
                 log.info("Updating FormQuestion: id={}, oldQuestion={}, newQuestion={}", existing.getId(), existing.getQuestion(), dto.question());
                 existing.updateFrom(dto);
@@ -158,6 +150,11 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 log.info("Created new FormQuestionId: {}", savedFormQuestion.getId());
             }
         }
+    }
+
+    private boolean questionForUpdate(Map<Long, FormQuestion> existingMap,
+            FormQuestionUpdateDto dto) {
+        return dto.questionId() != null && existingMap.containsKey(dto.questionId());
     }
 
     private void removeLegacyQuestions(Map<Long, FormQuestion> existingMap, Set<Long> incomingIds) {
