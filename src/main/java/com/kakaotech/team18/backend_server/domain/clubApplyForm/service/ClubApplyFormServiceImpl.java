@@ -1,5 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 
+import static com.kakaotech.team18.backend_server.global.util.DateUtil.changeToDate;
+
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
@@ -218,22 +220,6 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
 
     private boolean isTimeSlot(FormQuestionBaseDto dto) {
         return dto.fieldType() == FieldType.TIME_SLOT;
-    }
-
-    private LocalDateTime[] changeToDate(String recruitDate) {
-        String[] recruitDates = recruitDate.replaceAll("\\s+", "").split("~");
-
-        // 날짜 형식 지정 (yyyy-MM-dd)
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        // 문자열 → LocalDate 변환
-        LocalDate startDate = LocalDate.parse(recruitDates[0], formatter);
-        LocalDate endDate = LocalDate.parse(recruitDates[1], formatter);
-
-        LocalDateTime recruitStart = startDate.atStartOfDay();
-        LocalDateTime recruitEnd = endDate.atTime(23, 59, 59);
-
-        return new LocalDateTime[]{recruitStart, recruitEnd};
     }
 
     public static List<Map<String, Object>> expandDateRange(String dateRange, LocalTime startTime, LocalTime endTime) {
