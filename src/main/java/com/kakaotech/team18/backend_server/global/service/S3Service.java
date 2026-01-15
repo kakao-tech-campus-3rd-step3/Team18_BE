@@ -31,6 +31,8 @@ public class S3Service {
     private final S3Client s3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    @Value("${cloud.aws.s3.bucket-attachments}")
+    private String bucketAttachments;
     @Value("${cloud.aws.region.static}")
     private String region;
     private static final List<String> ALLOWED_CONTENT_TYPES = List.of(
@@ -141,5 +143,59 @@ public class S3Service {
             log.warn("AWS S3 SdkClientException error: [{}], key: [{}]", e.getMessage(), key);
             throw new AwsS3Exception("S3 객체 삭제 실패 (네트워크 오류) key=" + key);
         }
+    }
+
+    /**
+     * 공지사항 첨부파일을 S3에 업로드합니다.
+     * 동아리 이미지 업로드와 달리 모든 파일 타입을 허용합니다.
+     *
+     * @param file 업로드할 파일
+     * @return S3 객체의 전체 URL
+     * @throws InvalidFileException 파일 검증 실패 시
+     * @throws InputStreamException 파일 읽기 실패 시
+     * @throws AwsS3Exception S3 업로드 실패 시
+     */
+    public String uploadAttachment(MultipartFile file) {
+        if (file.isEmpty()) {
+            throw new InvalidFileException("빈 파일은 업로드할 수 없습니다.");
+        }
+
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || originalName.isBlank()) {
+            throw new InvalidFileException("파일명이 없습니다.");
+        }
+
+        // 경로 구분자 제거 (path traversal 방지)
+        originalName = originalName.replaceAll("[\\\\/]", "");
+        if (originalName.isBlank()) {
+            throw new InvalidFileException("유효하지 않은 파일명입니다.");
+        }
+
+        // UUID로 고유 파일명 생성
+        String fileName = UUID.randomUUID() + "-" + originalName;
+        String objectKey = "attachments/" + fileName;
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+            .bucket(bucketAttachments)
+            .key(objectKey)
+            .contentType(file.getContentType())
+            .contentLength(file.getSize())
+            .build();
+
+        try {
+            s3Client.putObject(putObjectRequest,
+                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+        } catch (IOException e) {
+            throw new InputStreamException("S3 파일 업로드 과정에서 에러가 발생했습니다.");
+        } catch (S3Exception e) {
+            log.warn("AWS S3 upload error: {}", e.getMessage());
+            throw new AwsS3Exception("S3 파일 업로드 실패 (AWS 오류)");
+        } catch (SdkClientException e) {
+            log.warn("SDK client error during upload: {}", e.getMessage());
+            throw new AwsS3Exception("S3 파일 업로드 실패 (네트워크 오류)");
+        }
+
+        return String.format("https://%s.s3.%s.amazonaws.com/%s",
+            bucketAttachments, region, objectKey);
     }
 }

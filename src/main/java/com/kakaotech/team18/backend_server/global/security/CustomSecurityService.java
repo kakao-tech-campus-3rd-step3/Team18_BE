@@ -85,4 +85,30 @@ public class CustomSecurityService {
         return Objects.equals(userRoleForClub, Role.CLUB_ADMIN.name()) ||
                Objects.equals(userRoleForClub, Role.CLUB_EXECUTIVE.name());
     }
+
+    /**
+     * 현재 로그인한 사용자가 SYSTEM_ADMIN 역할을 가지고 있는지 확인합니다.
+     * <p>
+     * 공지사항 작성 등 시스템 관리자 권한이 필요한 작업에 사용됩니다.
+     * JWT 클레임에 포함된 멤버십 정보를 사용하며 DB 조회를 수행하지 않습니다.
+     *
+     * @return SYSTEM_ADMIN이면 true, 아니면 false
+     */
+    public boolean isSystemAdmin() {
+        // 1. 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            return false;
+        }
+
+        // 2. 사용자의 역할 정보(memberships) 가져오기
+        Map<String, String> memberships = principalDetails.getMemberships();
+        if (memberships == null) {
+            return false;
+        }
+
+        // 3. memberships에서 SYSTEM_ADMIN 역할 확인
+        return memberships.values().stream()
+            .anyMatch(role -> Role.SYSTEM_ADMIN.name().equals(role));
+    }
 }
