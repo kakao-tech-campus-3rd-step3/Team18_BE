@@ -22,6 +22,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.service.ClubAppl
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
@@ -30,6 +31,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -415,6 +417,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L,1L, "질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
@@ -440,6 +443,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"질문 1", FieldType.TEXT, true, 1L, null, null)
                 ));
 
@@ -466,6 +470,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"", FieldType.TEXT, true, 1L, null, null)));
 
         //when & then
@@ -488,6 +493,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"면접 가능한 시간대를 선택해 주세요.", FieldType.TIME_SLOT, true, 1L, null, null))
         );
 
@@ -508,6 +514,7 @@ class ClubApplyFormControllerTest {
                 "테스트 지원서",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"성별을 선택해 주세요.", FieldType.RADIO, true, 1L, null, null))
         );
 
@@ -528,6 +535,7 @@ class ClubApplyFormControllerTest {
                 "", // Blank title
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L, "질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -548,6 +556,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "", // Blank description
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -569,6 +578,7 @@ class ClubApplyFormControllerTest {
                 longTitle,
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -590,6 +600,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 longDescription,
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -610,6 +621,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,"", FieldType.TEXT, true, 1L, null, null)) // Blank question
         );
 
@@ -631,6 +643,7 @@ class ClubApplyFormControllerTest {
                 "제목",
                 "설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(new FormQuestionUpdateDto(1L, 1L,longQuestion, FieldType.TEXT, true, 1L, null, null))
         );
 
@@ -643,4 +656,97 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(면접 필수인데 면접 시간 질문이 없는 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_interviewRequiredButNoTimeSlot_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                "2025-10-01 ~ 2025-10-31",
+                true, // 면접 필수
+                List.of(new FormQuestionUpdateDto(1L, 1L,"질문", FieldType.TEXT, true, 1L, null, null)) // TIME_SLOT 질문 없음
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 성공(면접 필수이고 면접 시간 질문이 있는 경우)")
+    @Test
+    void updateClubApplyForm_interviewRequiredWithTimeSlot_shouldSucceed() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto validRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                "2025-10-01 ~ 2025-10-31",
+                true, // 면접 필수
+                List.of(new FormQuestionUpdateDto(1L, 1L,"면접 시간", FieldType.TIME_SLOT, true, 1L, null,
+                        List.of(new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", new TimeSlotOptionRequestDto.TimeRange(
+                                LocalTime.of(10, 0), LocalTime.of(21, 0))))
+                ))
+        );
+
+        doNothing().when(clubApplyFormService).updateClubApplyForm(clubId, validRequestDto);
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(validRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isAccepted());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(면접 필수 아님, 면접 시간 질문 있음)")
+    @Test
+    void updateClubApplyForm_interviewNotRequiredWithTimeSlot_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                "2025-10-01 ~ 2025-10-31",
+                false, // 면접 필수 아님
+                List.of(new FormQuestionUpdateDto(1L, 1L,"면접 시간", FieldType.TIME_SLOT, true, 1L, null,
+                        List.of(new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", new TimeSlotOptionRequestDto.TimeRange(
+                                LocalTime.of(10, 0), LocalTime.of(21, 0))))
+                ))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @DisplayName("동아리 지원서 수정 API 호출 - 실패(면접 시간 질문의 availableTime.start가 availableTime.end보다 늦은 경우 400 응답)")
+    @Test
+    void updateClubApplyForm_timeSlotInvalidTimeRange_shouldFailValidation() throws Exception {
+        Long clubId = 1L;
+        ClubApplyFormUpdateDto invalidRequestDto = new ClubApplyFormUpdateDto(
+                "제목",
+                "설명",
+                "2025-10-01 ~ 2025-10-31",
+                true, // 면접 필수
+                List.of(new FormQuestionUpdateDto(1L, 1L,"면접 시간", FieldType.TIME_SLOT, true, 1L, null,
+                        List.of(new TimeSlotOptionRequestDto("2025-10-01 ~ 2025-10-31", new TimeSlotOptionRequestDto.TimeRange(
+                                LocalTime.of(21, 0), LocalTime.of(10, 0)))) // Start time after end time
+                ))
+        );
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/dashboard/apply-form", clubId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(invalidRequestDto))
+                )
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").exists());
+    }
 }
