@@ -3,23 +3,22 @@ package com.kakaotech.team18.backend_server.domain.clubApplyForm.service;
 import static com.kakaotech.team18.backend_server.global.util.DateUtil.changeToDate;
 
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
-import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FieldType;
-import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
-import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
-import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.ClubApplyFormUpdateDto;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.dto.UserClubApplyFormResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.TimeSlotOptionRequestDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.UserFormQuestionResponseDto;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.formQuestion.entity.TimeSlotOption;
+import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import java.time.LocalDate;
@@ -32,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidTimeSlotException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -110,6 +107,14 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         });
     }
 
+    private ClubApplyForm createClubApplyForm(ClubApplyFormRequestDto request, Club findClub) {
+        return ClubApplyForm.builder()
+                .club(findClub)
+                .title(request.title())
+                .description(request.description())
+                .build();
+    }
+
     @Override
     @Transactional
     public void updateClubApplyForm(Long clubId, ClubApplyFormUpdateDto request) {
@@ -119,6 +124,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                     log.warn("ClubApplyForm not found for clubId: {}", clubId);
                     return new ClubApplyFormNotFoundException("clubId = " + findClub.getId());
                 });
+
         LocalDateTime[] recruitDates = changeToDate(request.recruitDate());
         findClub.updateRecruitDate(recruitDates[0], recruitDates[1]);
         findClubApplyForm.update(request.title(), request.description());
@@ -130,6 +136,9 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         Set<Long> incomingIds = new HashSet<>(); // 삭제할 FormQuestion을 찾기 위함
         syncFormQuestions(request, existingMap, incomingIds, findClubApplyForm);
         removeLegacyQuestions(existingMap, incomingIds);
+
+        // 면접 시간 정보 업데이트
+        updateClubInterviewInfo(findClub, request.formQuestions());
     }
 
     private void syncFormQuestions(
@@ -171,19 +180,31 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
         }
     }
 
+    private void updateClubInterviewInfo(Club club, List<FormQuestionUpdateDto> questions) {
+        FormQuestionUpdateDto interviewQuestion = questions.stream()
+                .filter(FormQuestionBaseDto::isTimeSlot)
+                .findFirst()
+                .orElse(null);
+
+        if (interviewQuestion != null) {
+            if (interviewQuestion.timeSlotOptions() != null && !interviewQuestion.timeSlotOptions().isEmpty()) {
+                TimeSlotOptionRequestDto interviewInformation = interviewQuestion.timeSlotOptions().get(0);
+                LocalDateTime[] interviewPeriod = changeToDate(interviewInformation.date());
+                club.updateInterviewDate(true, interviewPeriod[0], interviewPeriod[1],
+                        interviewInformation.availableTime().start(),
+                        interviewInformation.availableTime().end());
+            }
+        } else {
+            // 면접 질문이 없으면 정보 초기화
+            club.updateInterviewDate(false,null, null, null, null);
+        }
+    }
+
     private Club findClub(Long clubId) {
         return clubRepository.findById(clubId).orElseThrow(() -> {
             log.warn("Club not found for clubId: {}", clubId);
             return new ClubNotFoundException("clubId = " + clubId);
         });
-    }
-
-    private ClubApplyForm createClubApplyForm(ClubApplyFormRequestDto request, Club findClub) {
-        return ClubApplyForm.builder()
-                .club(findClub)
-                .title(request.title())
-                .description(request.description())
-                .build();
     }
 
     private FormQuestion createFormQuestion(FormQuestionBaseDto dto, ClubApplyForm savedForm) {
@@ -194,32 +215,35 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                 .isRequired(dto.isRequired())
                 .displayOrder(dto.displayOrder());
 
-        if (isTimeSlot(dto)) {
-            List<TimeSlotOptionRequestDto> timeSlots = dto.timeSlotOptions();
-            for(TimeSlotOptionRequestDto timeSlot : timeSlots) {
-                if(!timeSlot.availableTime().start().isBefore(timeSlot.availableTime().end())) {
-                    throw new InvalidTimeSlotException("면접 시작 시간은 마감 시간보다 이전이어야 합니다.");
-                }
-            }
-            builder.timeSlotOptions(timeSlots != null
-                    ? timeSlots.stream()
-                    .map(tsoDto -> new TimeSlotOption(
-                            tsoDto.date(),
-                            new TimeSlotOption.TimeRange(
-                                    tsoDto.availableTime().start(),
-                                    tsoDto.availableTime().end()
-                            )
-                    ))
-                    .toList()
-                    : List.of());
-        } else {
-            builder.options(dto.optionList());  // RADIO, CHECKBOX 등에서 사용
-        }
+        setQuestionOptions(builder, dto);
         return builder.build();
     }
 
-    private boolean isTimeSlot(FormQuestionBaseDto dto) {
-        return dto.fieldType() == FieldType.TIME_SLOT;
+    private void setQuestionOptions(FormQuestion.FormQuestionBuilder builder, FormQuestionBaseDto dto) {
+        if (dto.isTimeSlot()) {
+            builder.timeSlotOptions(createTimeSlotOptions(dto.timeSlotOptions()));
+        } else {
+            builder.options(dto.optionList());
+        }
+    }
+
+    private List<TimeSlotOption> createTimeSlotOptions(List<TimeSlotOptionRequestDto> timeSlots) {
+        if (timeSlots == null) {
+            return List.of();
+        }
+        return timeSlots.stream()
+                .map(this::mapToTimeSlotOption)
+                .toList();
+    }
+
+    private TimeSlotOption mapToTimeSlotOption(TimeSlotOptionRequestDto dto) {
+        return new TimeSlotOption(
+                dto.date(),
+                new TimeSlotOption.TimeRange(
+                        dto.availableTime().start(),
+                        dto.availableTime().end()
+                )
+        );
     }
 
     public static List<Map<String, Object>> expandDateRange(String dateRange, LocalTime startTime, LocalTime endTime) {
