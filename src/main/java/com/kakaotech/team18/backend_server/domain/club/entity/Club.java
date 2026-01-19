@@ -54,6 +54,9 @@ public class Club extends BaseEntity {
 
     private LocalDateTime recruitEnd;
 
+    @Column(nullable = false)
+    private Boolean isInterviewRequired;
+
     private LocalDateTime interviewStartDate;
 
     private LocalDateTime interviewEndDate;
@@ -74,6 +77,7 @@ public class Club extends BaseEntity {
             String caution,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
+            Boolean isInterviewRequired,
             LocalDateTime interviewStartDate,
             LocalDateTime interviewEndDate,
             LocalTime interviewStartTime,
@@ -87,6 +91,7 @@ public class Club extends BaseEntity {
         this.caution = caution;
         this.recruitStart = recruitStart;
         this.recruitEnd = recruitEnd;
+        this.isInterviewRequired = (isInterviewRequired != null) ? isInterviewRequired : false;
         this.interviewStartDate = interviewStartDate;
         this.interviewEndDate = interviewEndDate;
         this.interviewStartTime = interviewStartTime;
@@ -110,13 +115,16 @@ public class Club extends BaseEntity {
         log.info("Updated recruit date for clubId: {} to start: {} end: {}", this.id, recruitStart, recruitEnd);
     }
 
-    public void updateInterviewDate(LocalDateTime interviewStartDate, LocalDateTime interviewEndDate, LocalTime interviewStartTime, LocalTime interviewEndTime) {
+    public void updateInterviewDate(Boolean isInterviewRequired, LocalDateTime interviewStartDate, LocalDateTime interviewEndDate, LocalTime interviewStartTime, LocalTime interviewEndTime) {
+        this.isInterviewRequired = isInterviewRequired;
         this.interviewStartDate = interviewStartDate;
         this.interviewEndDate = interviewEndDate;
         this.interviewStartTime = interviewStartTime;
         this.interviewEndTime = interviewEndTime;
-        log.info("Updated interview date for clubId: {} to interviewStartDate: {}, interviewEndDate: {}, interviewStartTime: {}, interviewEndTime: {}", this.id,
-            interviewStartDate, interviewEndDate, interviewStartTime,
-            interviewEndTime);
+        log.info(
+                "Updated interview date for clubId: {} to interviewStartDate: {}, interviewEndDate: {}, interviewStartTime: {}, interviewEndTime: {}",
+                this.id,
+                interviewStartDate, interviewEndDate, interviewStartTime,
+                interviewEndTime);
     }
 }

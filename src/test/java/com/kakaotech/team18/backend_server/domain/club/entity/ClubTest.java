@@ -92,8 +92,9 @@ class ClubTest {
         LocalTime newStartTime = LocalTime.of(10, 0);
         LocalTime newEndTime = LocalTime.of(17, 0);
 
-        club.updateInterviewDate(newStartDate, newEndDate, newStartTime, newEndTime);
+        club.updateInterviewDate(true, newStartDate, newEndDate, newStartTime, newEndTime);
 
+        assertThat(club.getIsInterviewRequired()).isTrue();
         assertThat(club.getInterviewStartDate()).isEqualTo(newStartDate);
         assertThat(club.getInterviewEndDate()).isEqualTo(newEndDate);
         assertThat(club.getInterviewStartTime()).isEqualTo(newStartTime);
