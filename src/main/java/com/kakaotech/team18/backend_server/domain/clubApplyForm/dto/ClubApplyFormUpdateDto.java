@@ -1,12 +1,14 @@
 package com.kakaotech.team18.backend_server.domain.clubApplyForm.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionBaseDto;
 import com.kakaotech.team18.backend_server.domain.formQuestion.dto.FormQuestionUpdateDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -30,6 +32,10 @@ public record ClubApplyFormUpdateDto(
         @Schema(description = "모집 일정", example = "2025-03-01 ~ 2025-03-31")
         @NotBlank(message = "모집 일정은 필수입니다.")
         String recruitDate,
+
+        @Schema(description = "면접 필수 여부", example = "true")
+        @NotNull(message = "면접 필수 여부는 필수 값입니다.")
+        Boolean interviewRequired,
 
         @Schema(description = "질문 목록")
         @NotEmpty(message = "질문 목록은 최소 1개 이상이어야 합니다.")
@@ -62,5 +68,25 @@ public record ClubApplyFormUpdateDto(
                         log.warn("Invalid recruitDate format: '{}'", recruitDate, e);
                         return false;
                 }
+        }
+
+        @AssertTrue(message = "면접이 필수인 경우 면접 시간 선택 질문이 포함되어야 합니다.")
+        @JsonIgnore
+        @Schema(hidden = true)
+        public boolean isInterviewRequirementValid() {
+                if (Boolean.TRUE.equals(interviewRequired)) {
+                        return formQuestions.stream().anyMatch(FormQuestionBaseDto::isTimeSlot);
+                }
+                return true;
+        }
+
+        @AssertTrue(message = "면접이 필수가 아닌 경우 면접 시간 선택 질문을 포함할 수 없습니다.")
+        @JsonIgnore
+        @Schema(hidden = true)
+        public boolean isTimeSlotIncludedWhenNotRequired() {
+                if (Boolean.FALSE.equals(interviewRequired)) {
+                        return formQuestions.stream().noneMatch(FormQuestionBaseDto::isTimeSlot);
+                }
+                return true;
         }
 }
