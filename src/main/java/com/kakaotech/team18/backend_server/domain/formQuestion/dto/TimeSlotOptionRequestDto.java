@@ -1,12 +1,12 @@
 package com.kakaotech.team18.backend_server.domain.formQuestion.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-
 import java.time.LocalTime;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Schema(description = "동아리의 면접 가능 날짜")
@@ -21,8 +21,13 @@ public record TimeSlotOptionRequestDto(
         TimeRange availableTime
 ) {
     @AssertTrue(message = "면접 시작 시간은 마감 시간보다 이전이어야 합니다.")
+    @JsonIgnore
+    @Schema(hidden = true)
     public boolean isValid() {
-        return !this.availableTime.start().isAfter(this.availableTime.end());
+        if (this.availableTime == null || this.availableTime.start() == null || this.availableTime.end() == null) {
+            return true; // @NotNull보다 이 검증이 먼저 실행돼서 null 체크를 해줌
+        }
+        return this.availableTime.start().isBefore(this.availableTime.end());
     }
 
     @Schema(description = "동아리의 면접 가능 시간")

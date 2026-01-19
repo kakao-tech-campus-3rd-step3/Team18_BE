@@ -10,4 +10,8 @@ public interface FormQuestionBaseDto {
     Long displayOrder();
     List<String> optionList();
     List<TimeSlotOptionRequestDto> timeSlotOptions();
+
+    default boolean isTimeSlot() {
+        return fieldType() == FieldType.TIME_SLOT;
+    }
 }
