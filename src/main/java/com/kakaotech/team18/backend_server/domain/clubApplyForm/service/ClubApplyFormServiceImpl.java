@@ -86,7 +86,7 @@ public class ClubApplyFormServiceImpl implements ClubApplyFormService {
                         .map(FormQuestionResponseDto::from)
                         .toList();
 
-        return ClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), questions);
+        return ClubApplyFormResponseDto.of(title, description, club.getRecruitStart(), club.getRecruitEnd(), club.getIsInterviewRequired(), questions);
     }
 
     @Override

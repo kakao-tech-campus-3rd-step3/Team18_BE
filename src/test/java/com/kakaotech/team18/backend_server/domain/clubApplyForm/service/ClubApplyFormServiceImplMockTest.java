@@ -77,6 +77,7 @@ class ClubApplyFormServiceImplMockTest {
                 clubApplyForm.getDescription(),
                 LocalDateTime.of(2024, 9, 1, 0, 0),
                 LocalDateTime.of(2024, 9, 30, 23, 59, 59),
+                false,
                 List.of(formQuestion).stream().map(
                                 fq -> new FormQuestionResponseDto(
                                         fq.getId(),

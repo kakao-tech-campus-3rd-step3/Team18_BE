@@ -102,6 +102,7 @@ class ClubApplyFormControllerTest {
                 "테스트 동아리 지원서 설명입니다.",
                 LocalDateTime.of(2024, 9, 1, 0, 0),
                 LocalDateTime.of(2024, 9, 30, 23, 59, 59),
+                false,
                 List.of(question1, question2)
         );
 
@@ -116,6 +117,7 @@ class ClubApplyFormControllerTest {
                 .andExpect(jsonPath("$.formQuestions[0].question").value("이름"))
                 .andExpect(jsonPath("$.formQuestions[1].question").value("성별"))
                 .andExpect(jsonPath("$.recruitDate").value("2024-09-01 ~ 2024-09-30"))
+                .andExpect(jsonPath("$.interviewRequired").value(false))
                 .andExpect(jsonPath("$.formQuestions[1].optionList[0]").value("남"));
 
         verify(clubApplyFormService, times(1)).getQuestionForm(clubId);
