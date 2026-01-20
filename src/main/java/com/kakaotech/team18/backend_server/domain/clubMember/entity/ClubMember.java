@@ -40,6 +40,9 @@ public class ClubMember extends BaseEntity {
     @Column(name = "club_role", nullable = false, length = 20) // 길이는 적당히
     private Role role;
 
+    @OneToOne(mappedBy = "clubMember", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private ClubMemberProfile profile;
+
     @Builder
     private ClubMember(User user, Club club, ActiveStatus activeStatus, Application application,
             Role role) {
@@ -48,5 +51,9 @@ public class ClubMember extends BaseEntity {
         this.activeStatus = activeStatus;
         this.application = application;
         this.role = role;
+    }
+
+    public void setProfile(ClubMemberProfile profile) {
+        this.profile = profile;
     }
 }
