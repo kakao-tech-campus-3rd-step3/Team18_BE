@@ -20,4 +20,6 @@ public interface ClubMemberProfileRepository extends JpaRepository<ClubMemberPro
     Optional<ClubMemberProfile> findByIdAndClubId(@Param("profileId") Long profileId, @Param("clubId") Long clubId);
     
     boolean existsByClubMember_Club_IdAndStudentId(Long clubId, String studentId);
+
+    Optional<ClubMemberProfile> findByClubMember_Club_IdAndStudentId(Long clubId, String studentId);
 }
