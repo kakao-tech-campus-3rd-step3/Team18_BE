@@ -6,7 +6,9 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,6 +19,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +29,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,6 +67,13 @@ public class Application extends BaseEntity {
     @OneToMany(mappedBy = "application", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(
+            name = "application_interview_preference",
+            joinColumns = @JoinColumn(name = "application_id")
+    )
+    private List<InterviewPreference> interviewPreferences = new ArrayList<>();
+
     @Builder
     private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
         this.user = user;
@@ -84,5 +98,16 @@ public class Application extends BaseEntity {
 
     public void updateAverageRating(Double averageRating) {
         this.averageRating = averageRating;
+    }
+
+    public void updateInterviewInfo(Map<LocalDate, List<LocalTime>> preferInterviewInfo) {
+        log.info("{}지원자 인터뷰 선호 시간 정보 업데이트", this.id);
+        interviewPreferences.clear();
+        for (Map.Entry<LocalDate, List<LocalTime>> entry : preferInterviewInfo.entrySet()){
+            LocalDate date = entry.getKey();
+            List<LocalTime> timeSlots = entry.getValue();
+            interviewPreferences.add(new InterviewPreference(date, timeSlots));
+        }
+        log.info("{}지원자 인터뷰 선호 시간 정보 업데이트 완료", this.id);
     }
 }

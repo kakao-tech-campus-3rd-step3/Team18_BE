@@ -1,43 +1,48 @@
 package com.kakaotech.team18.backend_server.domain.application.service;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
+import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
-import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
-import com.kakaotech.team18.backend_server.domain.application.entity.Status;
+import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
-import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
-import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
-import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
-import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserNameException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserStudentIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
+import com.kakaotech.team18.backend_server.global.util.DateUtil;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,17 +53,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static java.util.Objects.nonNull;
 
 @Slf4j
 @Service
@@ -148,8 +147,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         //1. applicationForm 찾기
         ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId:"+clubId));
-        //근데 이 exception이 현실적으로 발생 가능한가?
-        //만약 제출폼을 작성하는 사이에 폼이 수정되었다면?
 
         //2. 유저 정보생성(없으면 생성)
         User user = userRepository.findByStudentId(request.studentId())
@@ -204,15 +201,15 @@ public class ApplicationServiceImpl implements ApplicationService {
             Application application,
             ApplicationApplyRequestDto request
     ) {
-        long deleted = answerRepository.deleteByApplication(application);
-        log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), deleted);
+        long countDeletedAnswers = answerRepository.deleteByApplication(application);
+        log.info("기존 답변 삭제됨 applicationId={}, 삭제된문항수={}", application.getId(), countDeletedAnswers);
 
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(application.getClubApplyForm().getClub().getId(), Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + application.getClubApplyForm().getClub().getId()));
 
         List<AnswerEmailLine> emailLines = saveApplicationAnswers(application, request.answers());
-        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(application,  president);
+        ApplicationInfoDto applicationInfoDto = buildApplicationInfo(application, president);
         publisher.publishEvent(new ApplicationSubmittedEvent(applicationInfoDto, application.getId(), emailLines));
 
         return new ApplicationApplyResponseDto(
@@ -322,6 +319,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
                     }
                     normalized = String.join(",", options);
+                    application.updateInterviewInfo(DateUtil.parseDateAndTimeSlots(normalized));
                 }
                 default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
             }
