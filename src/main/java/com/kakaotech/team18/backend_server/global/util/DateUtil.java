@@ -34,34 +34,39 @@ public class DateUtil {
      * @return -> Map<선택한 날자, List<선택한 시간>>
      */
     public static Map<LocalDate, List<LocalTime>> parseDateAndTimeSlots(String dateInfo) {
-        if (dateInfo == null || dateInfo.isBlank()) {
-            return new HashMap<>();
-        }
+        if (dateInfo == null || dateInfo.isBlank()) return new HashMap<>();
 
         Map<LocalDate, List<LocalTime>> result = new HashMap<>();
-        String[] parts = dateInfo.split(",");
-
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
-        for (String part : parts) {
+        for (String part : dateInfo.split(",")) {
             String trimmed = part.trim();
             if (trimmed.isEmpty()) continue;
 
             String[] dateAndTime = trimmed.split("\\s+", 2);
+            if (dateAndTime.length != 2) {
+                log.warn("인터뷰 선호 시간 형식이 올바르지 않음: {}", trimmed);
+                continue;
+            }
 
-            if (dateAndTime.length == 2) {
-                try {
-                    LocalDate date = LocalDate.parse(dateAndTime[0], dateFormatter);
-                    dateAndTime[1] = dateAndTime[1].split("-")[0];
-                    LocalTime timeSlot = LocalTime.parse(dateAndTime[1]);
+            try {
+                LocalDate date = LocalDate.parse(dateAndTime[0].trim(), dateFormatter);
 
-                    result.computeIfAbsent(date, k -> new ArrayList<>()).add(timeSlot);
-                } catch (Exception e) {
-                    log.warn("인터뷰 선호 시간 파싱 실패: {}, error={}", trimmed, e.getMessage());
+                String timeRange = dateAndTime[1].trim();      // "10:30-11:00"
+                String[] times = timeRange.split("-", 2);
+                if (times.length != 2) {
+                    log.warn("시간 범위 형식이 올바르지 않음: {}", trimmed);
+                    continue;
                 }
+
+                LocalTime start = LocalTime.parse(times[0].trim(), timeFormatter);
+                result.computeIfAbsent(date, k -> new ArrayList<>()).add(start);
+
+            } catch (Exception e) {
+                log.warn("인터뷰 선호 시간 파싱 실패: {}, error={}", trimmed, e.getMessage());
             }
         }
         return result;
     }
-
 }
