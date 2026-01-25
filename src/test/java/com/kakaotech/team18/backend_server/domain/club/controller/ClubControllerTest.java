@@ -30,6 +30,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -177,7 +178,10 @@ class ClubControllerTest {
                 1,
                 1,
                 LocalDate.of(2025, 9, 15),
-                LocalDate.of(2025, 9, 20)
+                LocalDate.of(2025, 9, 20),
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2025, 9, 5),
+                "09:00 ~ 21:00"
                 );
 
         //when
@@ -200,9 +204,11 @@ class ClubControllerTest {
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
+                        Status.PENDING, 1L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 2L)),
+                        Status.PENDING, 2L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0)))))),
                 "message");
 
         //when
@@ -225,10 +231,12 @@ class ClubControllerTest {
         String stage = String.valueOf(Stage.INTERVIEW);
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
                 List.of(
-                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
-                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED, 2L)),
+                        new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
+                                Status.PENDING, 1L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
+                        new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
+                                Status.PENDING, 2L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0)))))),
                 "message"
         );
 
