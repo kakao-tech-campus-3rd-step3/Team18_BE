@@ -3,6 +3,9 @@ package com.kakaotech.team18.backend_server.domain.clubMember.dto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Schema(description = "대시보드 내 지원자 목록의 개별 지원자 정보")
 public record ApplicantResponseDto(
@@ -19,8 +22,20 @@ public record ApplicantResponseDto(
         @Schema(description = "지원서 상태", example = "PENDING")
         Status status,
         @Schema(description = "지원서 ID", example = "1")
-        Long applicantId
+        Long applicantId,
+        @Schema(description = "지원자의 인터뷰 선호 일정 리스트" )
+        List<preferInterviewInfo> interviewInfo
 ) {
+
+    @Schema(description = "지원자의 인터뷰 선호 일정")
+    public record preferInterviewInfo(
+            @Schema(description = "면접 날짜", example = "2026-01-02")
+            LocalDate interviewDate,
+
+            @Schema(description = "면접 가능 시간 리스트")
+            List<LocalTime> availableTime
+    ) {}
+
 
     public static ApplicantResponseDto from(ClubMember clubMember) {
         return new ApplicantResponseDto(
@@ -30,7 +45,10 @@ public record ApplicantResponseDto(
                 clubMember.getUser().getPhoneNumber(),
                 clubMember.getUser().getEmail(),
                 clubMember.getApplication().getStatus(),
-                clubMember.getApplication().getId()
+                clubMember.getApplication().getId(),
+                clubMember.getApplication().getInterviewPreferences().stream()
+                        .map(pref -> new preferInterviewInfo(pref.getDate(), pref.getTime()))
+                        .toList()
         );
     }
 }

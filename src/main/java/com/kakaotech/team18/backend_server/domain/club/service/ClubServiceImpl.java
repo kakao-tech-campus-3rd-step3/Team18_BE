@@ -1,6 +1,5 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
@@ -28,6 +27,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.service.S3Service;
+import com.kakaotech.team18.backend_server.global.util.DateUtil;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -125,7 +125,10 @@ public class ClubServiceImpl implements ClubService {
                 applicantList.size(),
                 pendingApplications.size(),
                 club.getRecruitStart().toLocalDate(),
-                club.getRecruitEnd().toLocalDate());
+                club.getRecruitEnd().toLocalDate(),
+                club.getInterviewStartDate().toLocalDate(),
+                club.getInterviewEndDate().toLocalDate(),
+                DateUtil.formatTimeRange(club.getInterviewStartTime(), club.getInterviewEndTime()));
     }
 
     @Override

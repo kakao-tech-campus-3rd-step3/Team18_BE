@@ -69,4 +69,10 @@ public class DateUtil {
         }
         return result;
     }
+
+    public static String formatTimeRange(LocalTime start, LocalTime end) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        return start.format(formatter) + " ~ " + end.format(formatter);
+    }
+
 }

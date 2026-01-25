@@ -6,7 +6,7 @@ import java.time.LocalDate;
 @Schema(description = "동아리 대시보드 조회 응답 데이터")
 public record ClubDashBoardResponseDto(
         @Schema(description = "동아리 고유 ID", example = "1")
-        Long  clubId,
+        Long clubId,
         @Schema(description = "총 지원자 수", example = "50")
         int totalApplicantCount,
         @Schema(description = "현재 대기중인 지원서 수", example = "15")
@@ -14,6 +14,12 @@ public record ClubDashBoardResponseDto(
         @Schema(description = "모집 시작일 (yyyy-MM-dd 형식)", example = "2024-09-01")
         LocalDate startDay,
         @Schema(description = "모집 마감일 (yyyy-MM-dd 형식)", example = "2024-09-15")
-        LocalDate endDay
+        LocalDate endDay,
+        @Schema(description = "면접 시작일 (yyyy-MM-dd 형식)", example = "2024-09-01")
+        LocalDate interviewStartDay,
+        @Schema(description = "면접 마감일 (yyyy-MM-dd 형식)", example = "2024-09-05")
+        LocalDate interviewEndDay,
+        @Schema(description = "면접 시간 (09:00 ~ 21:00 형식)", example = "09:00 ~ 21:00")
+        String interviewTime
 ) {
 }
