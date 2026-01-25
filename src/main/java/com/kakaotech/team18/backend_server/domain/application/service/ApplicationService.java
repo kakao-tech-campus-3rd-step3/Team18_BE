@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -16,4 +17,6 @@ public interface ApplicationService {
     ApplicationApplyResponseDto submitApplication(Long clubId, ApplicationApplyRequestDto request, boolean confirmOverwrite);
 
     SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage);
+
+    SuccessResponseDto updateApplicationInterviewSchedule(Long applicationId, ApplicationFixedInterviewRequestDto requestDto);
 }

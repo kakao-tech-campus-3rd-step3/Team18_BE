@@ -20,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Map;
 import lombok.AccessLevel;
@@ -67,6 +68,8 @@ public class Application extends BaseEntity {
     @OneToMany(mappedBy = "application", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    private LocalDateTime interviewSchedule;
+
     @ElementCollection
     @CollectionTable(
             name = "application_interview_preference",
@@ -75,12 +78,13 @@ public class Application extends BaseEntity {
     private List<InterviewPreference> interviewPreferences = new ArrayList<>();
 
     @Builder
-    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage, LocalDateTime interviewSchedule) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
         this.status = (status != null) ? status : Status.PENDING; // 기본값 보존
         this.stage = (stage != null) ? stage : Stage.INTERVIEW;
         this.averageRating = 0.0;
+        this.interviewSchedule = interviewSchedule;
     }
 
     /**
@@ -109,5 +113,11 @@ public class Application extends BaseEntity {
             interviewPreferences.add(new InterviewPreference(date, timeSlots));
         }
         log.info("{}지원자 인터뷰 선호 시간 정보 업데이트 완료", this.id);
+    }
+
+    public void updateInterviewInfo(LocalDateTime interviewSchedule) {
+        log.info("지원자의 인터뷰 일정 업데이트 시작 applicationId={}, interviewSchedule={}", this.id, interviewSchedule);
+        this.interviewSchedule = interviewSchedule;
+        log.info("지원자의 인터뷰 일정 업데이트 완료 applicationId={}, interviewSchedule={}", this.id, interviewSchedule);
     }
 }

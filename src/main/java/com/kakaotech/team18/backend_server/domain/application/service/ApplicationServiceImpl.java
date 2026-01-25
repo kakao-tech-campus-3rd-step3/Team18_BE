@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
@@ -133,6 +134,17 @@ public class ApplicationServiceImpl implements ApplicationService {
                 applicationId, application.getStatus());
 
         // 3. 성공 응답 DTO 반환
+        return new SuccessResponseDto(true);
+    }
+
+    @Transactional
+    @Override
+    public SuccessResponseDto updateApplicationInterviewSchedule(Long applicationId, ApplicationFixedInterviewRequestDto request) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ApplicationNotFoundException("applicationId: " + applicationId));
+
+        application.updateInterviewInfo(request.interviewAt());
+
         return new SuccessResponseDto(true);
     }
 
