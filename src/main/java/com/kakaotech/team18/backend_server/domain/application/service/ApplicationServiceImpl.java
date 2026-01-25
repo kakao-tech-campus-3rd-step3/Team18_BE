@@ -319,7 +319,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 .formatted(q.getDisplayOrder(), q.getId(), q.getQuestion()));
                     }
                     normalized = String.join(",", options);
-                    application.updateInterviewInfo(DateUtil.parseDateAndTimeSlots(normalized));
+                    application.updatePreferInterviewInfo(DateUtil.parseDateAndTimeSlots(normalized));
                 }
                 default -> throw new InvalidAnswerException("지원하지 않는 타입: " + q.getFieldType());
             }

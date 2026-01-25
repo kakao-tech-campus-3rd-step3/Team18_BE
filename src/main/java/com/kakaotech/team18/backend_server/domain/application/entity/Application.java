@@ -100,7 +100,7 @@ public class Application extends BaseEntity {
         this.averageRating = averageRating;
     }
 
-    public void updateInterviewInfo(Map<LocalDate, List<LocalTime>> preferInterviewInfo) {
+    public void updatePreferInterviewInfo(Map<LocalDate, List<LocalTime>> preferInterviewInfo) {
         log.info("{}지원자 인터뷰 선호 시간 정보 업데이트", this.id);
         interviewPreferences.clear();
         for (Map.Entry<LocalDate, List<LocalTime>> entry : preferInterviewInfo.entrySet()){

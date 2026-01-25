@@ -797,9 +797,9 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(application3, "id", 3L);
 
         // 면접 시간 정보 추가
-        application1.updateInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
-        application2.updateInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
-        application3.updateInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+        application1.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+        application2.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+        application3.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
 
         ClubMember clubMember1 = createClubMember(user1, club, application1, Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember2 = createClubMember(user2, club, application2, Role.APPLICANT, ActiveStatus.ACTIVE);

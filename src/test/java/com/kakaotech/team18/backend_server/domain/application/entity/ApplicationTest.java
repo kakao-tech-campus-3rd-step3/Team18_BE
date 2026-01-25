@@ -13,7 +13,7 @@ class ApplicationTest {
 
     @DisplayName("인터뷰 선호 시간 정보 업데이트 성공")
     @Test
-    void updateInterviewInfo_success() {
+    void updatePreferInterviewInfo_success() {
         //given
         LocalDate date = LocalDate.of(2025, 10, 16);
         List<LocalTime> times = List.of(LocalTime.of(10, 30), LocalTime.of(11, 0));
@@ -22,7 +22,7 @@ class ApplicationTest {
         Application application = Application.builder().build();
 
         //when
-        application.updateInterviewInfo(dateAndTimeSlots);
+        application.updatePreferInterviewInfo(dateAndTimeSlots);
 
         //then
         Assertions.assertThat(application.getInterviewPreferences())
