@@ -4,6 +4,8 @@ package com.kakaotech.team18.backend_server.domain.club.entity;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -63,4 +65,41 @@ class ClubTest {
                         image2
                 ));
     }
+
+    @DisplayName("updateInterview 메서드 테스트")
+    @Test
+    void updateInterviewTest() {
+        Club club = Club.builder()
+                .name("Test Club")
+                .category(Category.STUDY)
+                .location("Test Location")
+                .shortIntroduction("Short intro")
+                .introduction(ClubIntroduction.builder()
+                        .overview("Overview")
+                        .activities("Activities")
+                        .ideal("Ideal")
+                        .build())
+                .caution("Caution")
+                .regularMeetingInfo("Regular meeting info")
+                .interviewStartDate(LocalDateTime.of(2024, 10, 1, 0, 0))
+                .interviewEndDate(LocalDateTime.of(2024, 10, 3, 23, 59, 59))
+                .interviewStartTime(LocalTime.of(9, 0))
+                .interviewEndTime(LocalTime.of(18, 0))
+                .build();
+
+        LocalDateTime newStartDate = LocalDateTime.of(2024, 11, 1, 0, 0);
+        LocalDateTime newEndDate = LocalDateTime.of(2024, 11, 5, 23, 59, 59);
+        LocalTime newStartTime = LocalTime.of(10, 0);
+        LocalTime newEndTime = LocalTime.of(17, 0);
+
+        club.updateInterviewDate(true, newStartDate, newEndDate, newStartTime, newEndTime);
+
+        assertThat(club.getIsInterviewRequired()).isTrue();
+        assertThat(club.getInterviewStartDate()).isEqualTo(newStartDate);
+        assertThat(club.getInterviewEndDate()).isEqualTo(newEndDate);
+        assertThat(club.getInterviewStartTime()).isEqualTo(newStartTime);
+        assertThat(club.getInterviewEndTime()).isEqualTo(newEndTime);
+
+    }
+
 }

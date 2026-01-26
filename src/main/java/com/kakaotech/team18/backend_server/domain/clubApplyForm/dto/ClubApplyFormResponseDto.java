@@ -13,6 +13,8 @@ public record ClubApplyFormResponseDto(
         String description,
         @Schema(description = "모집 기간", example = "2024-09-01 ~ 2024-09-30")
         String recruitDate,
+        @Schema(description = "면접 필수 여부", example = "true")
+        boolean interviewRequired,
         @Schema(description = "질문 목록")
         List<FormQuestionResponseDto> formQuestions
 ) {
@@ -21,11 +23,12 @@ public record ClubApplyFormResponseDto(
             String description,
             LocalDateTime recruitStart,
             LocalDateTime recruitEnd,
+            boolean interviewRequired,
             List<FormQuestionResponseDto> questions
     ) {
         String recruitDate = (recruitStart != null && recruitEnd != null)
                 ? String.format("%s ~ %s", recruitStart.toLocalDate(), recruitEnd.toLocalDate())
                 : null;
-        return new ClubApplyFormResponseDto(title, description, recruitDate, questions);
+        return new ClubApplyFormResponseDto(title, description, recruitDate, interviewRequired, questions);
     }
 }

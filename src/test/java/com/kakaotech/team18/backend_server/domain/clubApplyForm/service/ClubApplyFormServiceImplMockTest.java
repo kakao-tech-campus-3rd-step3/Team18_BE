@@ -77,6 +77,7 @@ class ClubApplyFormServiceImplMockTest {
                 clubApplyForm.getDescription(),
                 LocalDateTime.of(2024, 9, 1, 0, 0),
                 LocalDateTime.of(2024, 9, 30, 23, 59, 59),
+                false,
                 List.of(formQuestion).stream().map(
                                 fq -> new FormQuestionResponseDto(
                                         fq.getId(),
@@ -209,6 +210,7 @@ class ClubApplyFormServiceImplMockTest {
                 "수정된 지원서 제목",
                 "수정된 지원서 설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(
                         new FormQuestionUpdateDto(
                                 1L,
@@ -256,6 +258,7 @@ class ClubApplyFormServiceImplMockTest {
                 "테스트 지원서",
                 "테스트 설명",
                 "2025-10-01 ~ 2025-10-31",
+                false,
                 List.of(question1));
 
         given(club.getId()).willReturn(1L);
@@ -271,6 +274,88 @@ class ClubApplyFormServiceImplMockTest {
         then(clubApplyFormRepository).should(times(1)).findByClubId(clubId);
         then(clubApplyFormRepository).should(never()).save(any(ClubApplyForm.class));
         then(formQuestionRepository).should(never()).save(any(FormQuestion.class));
+    }
+
+    @DisplayName("지원폼 수정 - 면접 필수인데 면접 시간 질문이 있는 경우 성공")
+    @Test
+    void updateClubApplyForm_interviewRequiredWithTimeSlot_success() {
+        //given
+        Long clubId = 1L;
+        Club club = mock(Club.class);
+        ReflectionTestUtils.setField(club, "id", 1L);
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+        ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
+
+        given(club.getId()).willReturn(1L);
+        given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(formQuestionRepository.findByClubApplyForm(clubApplyForm)).willReturn(List.of());
+        given(formQuestionRepository.save(any(FormQuestion.class))).willAnswer(invocation -> {
+            FormQuestion savedQuestion = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedQuestion, "id", 1L); // Simulate ID generation
+            return savedQuestion;
+        });
+
+        LocalTime startTime = LocalTime.of(10, 0);
+        LocalTime endTime = LocalTime.of(21, 0);
+        String dateRange = "2025-10-01 ~ 2025-10-31";
+
+        ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "테스트 설명",
+                "2025-10-01 ~ 2025-10-31",
+                true, // 면접 필수
+                List.of(new FormQuestionUpdateDto(
+                        null, 1L, "면접 시간", FieldType.TIME_SLOT, true, 1L, null,
+                        List.of(new TimeSlotOptionRequestDto(dateRange, new TimeSlotOptionRequestDto.TimeRange(startTime, endTime)))
+                ))
+        );
+
+        //when
+        clubApplyFormService.updateClubApplyForm(clubId, requestDto);
+
+        //then
+        LocalDateTime expectedStart = LocalDateTime.of(2025, 10, 1, 0, 0, 0);
+        LocalDateTime expectedEnd = LocalDateTime.of(2025, 10, 31, 23, 59, 59);
+
+        then(club).should(times(1)).updateInterviewDate(true, expectedStart, expectedEnd, startTime, endTime);
+    }
+
+    @DisplayName("지원폼 수정 - 면접 필수 아님, 면접 시간 질문 없음 - 성공")
+    @Test
+    void updateClubApplyForm_interviewNotRequiredNoTimeSlot_success() {
+        //given
+        Long clubId = 1L;
+        Club club = mock(Club.class);
+        ReflectionTestUtils.setField(club, "id", 1L);
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+        ReflectionTestUtils.setField(clubApplyForm, "id", 1L);
+
+        given(club.getId()).willReturn(1L);
+        given(clubRepository.findById(clubId)).willReturn(Optional.of(club));
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(formQuestionRepository.findByClubApplyForm(clubApplyForm)).willReturn(List.of());
+        given(formQuestionRepository.save(any(FormQuestion.class))).willAnswer(invocation -> {
+            FormQuestion savedQuestion = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedQuestion, "id", 1L); // Simulate ID generation
+            return savedQuestion;
+        });
+
+        ClubApplyFormUpdateDto requestDto = new ClubApplyFormUpdateDto(
+                "테스트 지원서",
+                "테스트 설명",
+                "2025-10-01 ~ 2025-10-31",
+                false, // 면접 필수 아님
+                List.of(new FormQuestionUpdateDto(
+                        null, 1L, "일반 질문", FieldType.TEXT, true, 1L, null, null
+                ))
+        );
+
+        //when
+        clubApplyFormService.updateClubApplyForm(clubId, requestDto);
+
+        //then
+        then(club).should(times(1)).updateInterviewDate(false, null, null, null, null);
     }
 
 
