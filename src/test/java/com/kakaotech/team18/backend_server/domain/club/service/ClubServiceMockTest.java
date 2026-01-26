@@ -812,13 +812,13 @@ public class ClubServiceMockTest {
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        Status.PENDING, null, 1L, List.of(new ApplicantResponseDto.preferInterviewInfo(
                         LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED, 2L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        Status.APPROVED, null,2L, List.of(new ApplicantResponseDto.preferInterviewInfo(
                         LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
                 new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
-                        Status.REJECTED, 3L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        Status.REJECTED, null,3L, List.of(new ApplicantResponseDto.preferInterviewInfo(
                         LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))));
 
         //when
