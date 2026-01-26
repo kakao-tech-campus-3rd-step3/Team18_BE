@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -21,6 +22,8 @@ public record ApplicantResponseDto(
         String email,
         @Schema(description = "지원서 상태", example = "PENDING")
         Status status,
+        @Schema(description = "확정된 지원자의 면접 시간", example = "2026-09-02T15:00:00")
+        LocalDateTime confirmedTime,
         @Schema(description = "지원서 ID", example = "1")
         Long applicantId,
         @Schema(description = "지원자의 인터뷰 선호 일정 리스트" )
@@ -38,6 +41,16 @@ public record ApplicantResponseDto(
 
 
     public static ApplicantResponseDto from(ClubMember clubMember) {
+
+        LocalDateTime confirmedTime = null;
+
+        if (clubMember.getApplication().getInterviewDate() != null &&
+                clubMember.getApplication().getInterviewTime() != null) {
+            confirmedTime = LocalDateTime.of(
+                    clubMember.getApplication().getInterviewDate(),
+                    clubMember.getApplication().getInterviewTime()
+            );
+        }
         return new ApplicantResponseDto(
                 clubMember.getUser().getName(),
                 clubMember.getUser().getStudentId(),
@@ -45,6 +58,7 @@ public record ApplicantResponseDto(
                 clubMember.getUser().getPhoneNumber(),
                 clubMember.getUser().getEmail(),
                 clubMember.getApplication().getStatus(),
+                confirmedTime,
                 clubMember.getApplication().getId(),
                 clubMember.getApplication().getInterviewPreferences().stream()
                         .map(pref -> new preferInterviewInfo(pref.getDate(), pref.getTime()))
