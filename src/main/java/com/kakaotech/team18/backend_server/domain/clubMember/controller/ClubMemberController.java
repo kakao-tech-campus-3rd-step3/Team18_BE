@@ -3,14 +3,18 @@ package com.kakaotech.team18.backend_server.domain.clubMember.controller;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.service.ClubMemberService;
+import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,7 +22,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "동아리원 관리 API", description = "동아리원 조회, 등록, 수정, 삭제 관련 API")
 @RestController
@@ -58,5 +64,23 @@ public class ClubMemberController {
     ) {
         ClubMemberResponseDto response = clubMemberService.registerMember(clubId, requestDto);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "동아리원 일괄 등록 (엑셀 업로드)", description = "엑셀 파일을 업로드하여 동아리원을 일괄 등록합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "일괄 등록 성공"),
+            @ApiResponse(responseCode = "400", description = "엑셀 데이터 검증 실패 또는 파일 형식 오류"),
+            @ApiResponse(responseCode = "413", description = "파일 크기 초과"),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (회장/운영진만 가능)")
+    })
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
+    @PostMapping(value = "/{clubId}/members/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<SuccessResponseDto> uploadMembers(
+            @Parameter(description = "동아리 ID", required = true, example = "1") @PathVariable Long clubId,
+            @Parameter(description = "엑셀 파일 (.xlsx, .xls)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestPart("file") MultipartFile file
+    ) throws IOException {
+        clubMemberService.registerMembersByExcel(clubId, file);
+        return ResponseEntity.ok(new SuccessResponseDto(true));
     }
 }
