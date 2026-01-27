@@ -90,6 +90,12 @@ dependencies {
     //Logback 로그를 Discord Webhook으로 전송해주는 전용 Appender 라이브러리
     implementation 'com.github.napstr:logback-discord-appender:1.0.0'
 
+    // Apache POI (Excel)
+    implementation 'org.apache.poi:poi:5.4.0'
+    implementation 'org.apache.poi:poi-ooxml:5.4.0'
+
+    // OpenCSV (CSV)
+    implementation 'com.opencsv:opencsv:5.10'
 }
 
 tasks.named('test') {
