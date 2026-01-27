@@ -399,7 +399,9 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getId(),
                         a.getUser().getEmail(),
                         requestDto.message(),
-                        originalStage));
+                        originalStage,
+                        LocalDateTime.of(a.getInterviewDate(), a.getInterviewTime())
+                ));
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
