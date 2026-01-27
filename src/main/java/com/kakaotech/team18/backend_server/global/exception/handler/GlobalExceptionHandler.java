@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.dto.ErrorResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,28 @@ public class GlobalExceptionHandler {
         log.warn("handleCustomException: {} (detail: {})",
                 errorCode.getMessage(),
                 detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    /**
+     * ExcelParsingException 예외를 처리
+     * <p>
+     * 엑셀 파싱 중 발생한 여러 에러 메시지를 하나의 문자열로 합쳐서 detail에 담아 반환합니다.
+     */
+    @ExceptionHandler(ExcelParsingException.class)
+    protected ResponseEntity<ErrorResponseDto> handleExcelParsingException(final ExcelParsingException e) {
+        final ErrorCode errorCode = e.getErrorCode();
+        String detail = e.getMessage(); // 기본 메시지
+
+        if (e.getErrorMessages() != null && !e.getErrorMessages().isEmpty()) {
+            // 에러 리스트를 문자열로 변환 (예: "[3행: 오류1, 5행: 오류2]")
+            detail = e.getErrorMessages().toString();
+        }
+
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("handleExcelParsingException: {} (detail: {})", errorCode.getMessage(), detail);
 
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
