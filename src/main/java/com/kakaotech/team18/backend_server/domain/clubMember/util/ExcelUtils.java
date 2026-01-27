@@ -6,7 +6,6 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -32,9 +31,8 @@ public class ExcelUtils {
         // Utility class
     }
 
-    public static List<ClubMemberSaveRequestDto> parseExcel(MultipartFile file) throws IOException {
-        List<ClubMemberSaveRequestDto> dtoList = new ArrayList<>();
-        List<String> errorMessages = new ArrayList<>();
+    public static ExcelParseResult parseExcel(MultipartFile file) throws IOException {
+        ExcelParseResult result = new ExcelParseResult();
 
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = WorkbookFactory.create(inputStream)) {
@@ -46,6 +44,7 @@ public class ExcelUtils {
             // 1. 헤더 검증 (첫 번째 행)
             Row headerRow = sheet.getRow(firstRow);
             if (headerRow == null || !isValidHeader(headerRow)) {
+                // 헤더가 틀리면 더 이상 진행할 수 없으므로 즉시 예외 발생 (파일 레벨 에러 취급)
                 throw new ExcelParsingException("엑셀 헤더 양식이 올바르지 않습니다. 다음 순서로 작성해주세요: " + HEADER_NAMES);
             }
 
@@ -60,18 +59,14 @@ public class ExcelUtils {
 
                 try {
                     ClubMemberSaveRequestDto dto = parseRowToDto(dataRow, formatter, i + 1);
-                    dtoList.add(dto);
+                    result.addSuccess(dto);
                 } catch (IllegalArgumentException e) {
-                    errorMessages.add(String.format("%d행: %s", i + 1, e.getMessage()));
+                    result.addError(String.format("%d행: %s", i + 1, e.getMessage()));
                 }
             }
         }
 
-        if (!errorMessages.isEmpty()) {
-            throw new ExcelParsingException("엑셀 데이터 검증 실패", errorMessages);
-        }
-
-        return dtoList;
+        return result;
     }
 
     private static boolean isValidHeader(Row headerRow) {
