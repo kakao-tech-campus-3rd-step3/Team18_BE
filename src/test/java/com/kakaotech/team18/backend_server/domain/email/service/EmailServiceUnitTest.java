@@ -24,8 +24,9 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -213,6 +214,10 @@ class EmailServiceUnitTest {
         when(appApproved.getUser()).thenReturn(userApproved);
         when(appRejected.getUser()).thenReturn(userRejected);
 
+        // interviewSchedule
+        when(appApproved.getInterviewDate()).thenReturn(LocalDate.of(2026, 1, 10));
+        when(appApproved.getInterviewTime()).thenReturn(LocalTime.of(10,0,0));
+
         when(applicationRepository.findAllByClubIdAndRoleAndStage(77L, Role.APPLICANT, Stage.INTERVIEW))
                 .thenReturn(List.of(appApproved, appRejected));
 
@@ -249,6 +254,7 @@ class EmailServiceUnitTest {
         assertThat(approvedEvt.email()).isEqualTo("approved@ex.com");
         assertThat(approvedEvt.message()).isEqualTo("면접 합격 안내 메시지");
         assertThat(approvedEvt.stage()).isEqualTo(Stage.INTERVIEW);
+        assertThat(approvedEvt.interviewSchedule()).isEqualTo(LocalDateTime.of(2026, 1, 10, 10, 0));
 
         // InterviewRejectedEvent
         InterviewRejectedEvent rejectedEvt = events.stream()
