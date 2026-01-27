@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.sender.EmailSender;
 import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRenderer;
 
+import java.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,32 @@ public class EmailService {
         String subject = subjectPrefix + " " + info.clubName() + " - " + info.userName();
 
         emailSender.sendHtml(from, replyTo,List.of(info.userEmail()),subject, html);
+    }
+
+    public void sendInterviewApprovedResult(ApplicationInfoDto info, ResultType type, String message, LocalDateTime interviewSchedule) {
+        info.clubId();
+        String replyTo = info.presidentEmail();
+
+        boolean approved = isApproved(type);
+        if (approved && (message == null || message.isBlank())) {
+            throw new IllegalArgumentException("합격 통지 이메일에는 message가 필요합니다.");
+        }
+
+        Map<String, Object> model = baseModel(info);
+        model.put("title", titleFor(type));
+        if (approved) {
+            model.put("message", message);
+            model.put("interviewDate", interviewSchedule.toLocalDate().toString());
+            model.put("interviewTime", interviewSchedule.toLocalTime().toString());
+        }
+
+        String templateName = templateFor(type);
+
+        String html = renderer.render(templateName, model);
+        final String subjectPrefix = "[동아리 지원]";
+        String subject = subjectPrefix + " " + info.clubName() + " - " + info.userName();
+
+        emailSender.sendHtml(from, replyTo, List.of(info.userEmail()), subject, html);
     }
 
     public void sendResult(ApplicationInfoDto info, ResultType type, String message) {
@@ -114,8 +141,8 @@ public class EmailService {
         };
     }
 
-    public void sendInterviewApprovedResultToApplicant(ApplicationInfoDto info, String message) {
-        sendResult(info, ResultType.INTERVIEW_APPROVED, message);
+    public void sendInterviewApprovedResultToApplicant(ApplicationInfoDto info, String message, LocalDateTime interviewSchedule) {
+        sendInterviewApprovedResult(info, ResultType.INTERVIEW_APPROVED, message, interviewSchedule);
     }
     public void sendInterviewRejectedResultToApplicant(ApplicationInfoDto info) {
         sendResult(info, ResultType.INTERVIEW_REJECTED, null);
