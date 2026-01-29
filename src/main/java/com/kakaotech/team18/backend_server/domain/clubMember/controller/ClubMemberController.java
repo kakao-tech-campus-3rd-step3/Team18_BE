@@ -1,6 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.service.ClubMemberService;
@@ -103,6 +105,24 @@ public class ClubMemberController {
             @Valid @RequestBody ClubMemberUpdateRequestDto requestDto
     ) {
         ClubMemberResponseDto response = clubMemberService.updateMember(clubId, profileId, requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "동아리원 직책 변경 (권한 부여)", description = "동아리원의 직책을 변경합니다. (회장 전용)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "직책 변경 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 입력값"),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (회장만 가능)"),
+            @ApiResponse(responseCode = "404", description = "해당 프로필을 찾을 수 없음")
+    })
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
+    @PatchMapping("/{clubId}/members/{profileId}/role")
+    public ResponseEntity<ClubMemberRoleUpdateResponseDto> updateMemberRole(
+            @Parameter(description = "동아리 ID", required = true, example = "1") @PathVariable Long clubId,
+            @Parameter(description = "프로필 ID", required = true, example = "501") @PathVariable Long profileId,
+            @Valid @RequestBody ClubMemberRoleUpdateRequestDto requestDto
+    ) {
+        ClubMemberRoleUpdateResponseDto response = clubMemberService.updateMemberRole(clubId, profileId, requestDto);
         return ResponseEntity.ok(response);
     }
 }
