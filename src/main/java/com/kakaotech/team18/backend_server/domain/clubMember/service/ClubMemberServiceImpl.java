@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubMember.service;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberDeleteResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
@@ -219,7 +220,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
     @Override
     @Transactional
-    public void deleteMember(Long clubId, Long profileId) {
+    public ClubMemberDeleteResponseDto deleteMember(Long clubId, Long profileId) {
         // 1. 요청자 권한 확인 (회장만 가능)
         Role currentUserRole = customSecurityService.getUserRoleInClub(clubId);
         if (currentUserRole != Role.CLUB_ADMIN) {
@@ -238,6 +239,11 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
         // 4. 삭제 (Cascade로 Profile도 함께 삭제됨)
         clubMemberRepository.delete(profile.getClubMember());
+
+        return new ClubMemberDeleteResponseDto(
+                "해당 동아리원이 목록에서 삭제되었습니다.",
+                profileId
+        );
     }
 
 

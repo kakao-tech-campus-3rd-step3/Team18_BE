@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.controller;
 
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberDeleteResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -123,6 +125,23 @@ public class ClubMemberController {
             @Valid @RequestBody ClubMemberRoleUpdateRequestDto requestDto
     ) {
         ClubMemberRoleUpdateResponseDto response = clubMemberService.updateMemberRole(clubId, profileId, requestDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "동아리원 삭제", description = "동아리원을 목록에서 삭제합니다. (회장 전용)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "삭제 성공"),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (회장만 가능)"),
+            @ApiResponse(responseCode = "404", description = "해당 프로필을 찾을 수 없음"),
+            @ApiResponse(responseCode = "400", description = "자기 자신 삭제 불가")
+    })
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
+    @DeleteMapping("/{clubId}/members/{profileId}")
+    public ResponseEntity<ClubMemberDeleteResponseDto> deleteMember(
+            @Parameter(description = "동아리 ID", required = true, example = "1") @PathVariable Long clubId,
+            @Parameter(description = "프로필 ID", required = true, example = "501") @PathVariable Long profileId
+    ) {
+        ClubMemberDeleteResponseDto response = clubMemberService.deleteMember(clubId, profileId);
         return ResponseEntity.ok(response);
     }
 }

@@ -1,8 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.service;
 
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberDeleteResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
-import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberUpdateRequestDto;
 import java.io.IOException;
@@ -15,5 +16,5 @@ public interface ClubMemberService {
     void registerMembersByExcel(Long clubId, MultipartFile file) throws IOException;
     ClubMemberResponseDto updateMember(Long clubId, Long profileId, ClubMemberUpdateRequestDto requestDto);
     ClubMemberRoleUpdateResponseDto updateMemberRole(Long clubId, Long profileId, ClubMemberRoleUpdateRequestDto requestDto);
-    void deleteMember(Long clubId, Long profileId);
+    ClubMemberDeleteResponseDto deleteMember(Long clubId, Long profileId);
 }
