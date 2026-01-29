@@ -66,12 +66,17 @@ public class EmailService {
 
         Map<String, Object> model = baseModel(info);
         model.put("title", titleFor(type));
+
         if (approved) {
             model.put("message", message);
-            model.put("interviewDate", interviewSchedule.toLocalDate().toString());
-            model.put("interviewTime", interviewSchedule.toLocalTime().toString());
+            if (interviewSchedule != null) {
+                model.put("interviewDate", interviewSchedule.toLocalDate().toString());
+                model.put("interviewTime", interviewSchedule.toLocalTime().toString());
+            } else {
+                model.put("interviewDate", null);
+                model.put("interviewTime", null);
+            }
         }
-
         String templateName = templateFor(type);
 
         String html = renderer.render(templateName, model);

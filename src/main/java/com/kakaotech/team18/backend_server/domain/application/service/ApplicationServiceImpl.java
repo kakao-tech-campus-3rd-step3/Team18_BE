@@ -400,7 +400,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                         a.getUser().getEmail(),
                         requestDto.message(),
                         originalStage,
-                        LocalDateTime.of(a.getInterviewDate(), a.getInterviewTime())
+                        safeInterviewAt(a)
                 ));
             }
             for(Application a : rejected) {
@@ -484,6 +484,17 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     //helper methods
+
+    private LocalDateTime safeInterviewAt(Application a) {
+        // 인터뷰 합격(=다음 단계 진행)인데 면접 시간이 비어있을 수 있어 null-safe 처리
+        // (메일/알림에서 null이면 '추후 안내' 등으로 처리하도록 이벤트가 전달받게 함)
+        if (a.getInterviewDate() == null || a.getInterviewTime() == null) {
+            log.warn("Interview schedule is missing. applicationId={}, interviewDate={}, interviewTime={}",
+                    a.getId(), a.getInterviewDate(), a.getInterviewTime());
+            return null;
+        }
+        return LocalDateTime.of(a.getInterviewDate(), a.getInterviewTime());
+    }
 
     private ApplicationInfoDto buildApplicationInfo(Application a, User president) {
         return new ApplicationInfoDto(
