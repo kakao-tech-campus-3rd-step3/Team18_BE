@@ -6,9 +6,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.comment.entity.Comment;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -19,18 +17,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderColumn;
+import jakarta.persistence.OrderBy;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -73,12 +70,8 @@ public class Application extends BaseEntity {
 
     private LocalTime interviewTime;
 
-    @ElementCollection
-    @CollectionTable(
-            name = "application_interview_preference",
-            joinColumns = @JoinColumn(name = "application_id")
-    )
-    @OrderColumn(name = "pref_idx")
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("date ASC")
     private List<InterviewPreference> interviewPreferences = new ArrayList<>();
 
     @Builder
@@ -111,12 +104,25 @@ public class Application extends BaseEntity {
 
     public void updatePreferInterviewInfo(Map<LocalDate, List<LocalTime>> preferInterviewInfo) {
         log.info("{}지원자 인터뷰 선호 시간 정보 업데이트", this.id);
-        interviewPreferences.clear();
-        for (Map.Entry<LocalDate, List<LocalTime>> entry : preferInterviewInfo.entrySet()){
+
+        // orphanRemoval=true 이므로 기존 선호 정보는 전부 제거
+        this.interviewPreferences.clear();
+
+        if (preferInterviewInfo == null || preferInterviewInfo.isEmpty()) {
+            log.info("{}지원자 인터뷰 선호 시간 정보가 비어있습니다.", this.id);
+            return;
+        }
+
+        for (Map.Entry<LocalDate, List<LocalTime>> entry : preferInterviewInfo.entrySet()) {
             LocalDate date = entry.getKey();
             List<LocalTime> timeSlots = entry.getValue();
-            interviewPreferences.add(new InterviewPreference(date, timeSlots));
+
+            // date는 필수, timeSlots는 null이면 빈 리스트로 처리
+            if (date == null) continue;
+
+            this.interviewPreferences.add(new InterviewPreference(this, date, timeSlots));
         }
+
         log.info("{}지원자 인터뷰 선호 시간 정보 업데이트 완료", this.id);
     }
 
