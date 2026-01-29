@@ -30,7 +30,7 @@ class ApplicationTest {
                 .singleElement()
                 .satisfies(pref -> {
                     Assertions.assertThat(pref.getDate()).isEqualTo(date);
-                    Assertions.assertThat(pref.getTime()).containsExactlyElementsOf(times);
+                    Assertions.assertThat(pref.getTimes()).containsExactlyElementsOf(times);
                 });
     }
 

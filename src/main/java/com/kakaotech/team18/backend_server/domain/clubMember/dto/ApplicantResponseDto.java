@@ -61,7 +61,7 @@ public record ApplicantResponseDto(
                 confirmedTime,
                 clubMember.getApplication().getId(),
                 clubMember.getApplication().getInterviewPreferences().stream()
-                        .map(pref -> new preferInterviewInfo(pref.getDate(), pref.getTime()))
+                        .map(pref -> new preferInterviewInfo(pref.getDate(), pref.getTimes()))
                         .toList()
         );
     }

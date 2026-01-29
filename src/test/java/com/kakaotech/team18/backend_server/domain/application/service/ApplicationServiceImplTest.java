@@ -327,7 +327,7 @@ class ApplicationServiceImplTest {
         assertEquals(LocalDate.of(2025, 10, 16), pref.getDate());
         
         // 시간대 검증 (10:30, 11:00 시작 시간만 저장되는지 확인)
-        List<LocalTime> times = pref.getTime();
+        List<LocalTime> times = pref.getTimes();
         assertEquals(2, times.size());
         assertTrue(times.contains(LocalTime.of(10, 30)));
         assertTrue(times.contains(LocalTime.of(11, 0)));
