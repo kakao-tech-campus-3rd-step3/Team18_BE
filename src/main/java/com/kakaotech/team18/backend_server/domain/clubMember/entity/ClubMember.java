@@ -56,4 +56,10 @@ public class ClubMember extends BaseEntity {
     public void setProfile(ClubMemberProfile profile) {
         this.profile = profile;
     }
+
+    public void updateRole(Role role) {
+        if (role != null) {
+            this.role = role;
+        }
+    }
 }
