@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -77,6 +78,7 @@ public class Application extends BaseEntity {
             name = "application_interview_preference",
             joinColumns = @JoinColumn(name = "application_id")
     )
+    @OrderColumn(name = "pref_idx")
     private List<InterviewPreference> interviewPreferences = new ArrayList<>();
 
     @Builder
