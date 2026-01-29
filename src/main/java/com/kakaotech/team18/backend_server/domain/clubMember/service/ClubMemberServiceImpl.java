@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.domain.clubMember.service;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
@@ -81,7 +83,9 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     parseJoinDate(requestDto.joinDate())
             );
             profile.updateRole(targetRole); // 결정된 Role로 업데이트
-            
+            // ClubMember의 Role도 동기화
+            profile.getClubMember().updateRole(targetRole);
+
             return ClubMemberResponseDto.from(profile);
         } else {
             // 5. 존재하지 않으면 신규 등록
@@ -95,7 +99,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     .user(user)
                     .club(club)
                     .activeStatus(ActiveStatus.ACTIVE)
-                    .role(targetRole) // ClubMember의 role도 결정된 Role로 설정
+                    .role(targetRole) // Clubmember의 role도 결정된 Role로 설정
                     .build();
 
             ClubMemberProfile profile = ClubMemberProfile.builder()
@@ -157,7 +161,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
 
         // 2. 중복 학번 검사 (나를 제외한 다른 멤버가 해당 학번을 사용 중인지)
-        if (requestDto.studentId() != null && 
+        if (requestDto.studentId() != null &&
             clubMemberProfileRepository.existsByClubMember_Club_IdAndStudentIdAndIdNot(clubId, requestDto.studentId(), profileId)) {
             throw new CustomException(ErrorCode.USER_ALREADY_EXISTS, "해당 학번(" + requestDto.studentId() + ")은 이미 다른 멤버가 사용 중입니다.");
         }
@@ -174,6 +178,42 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         );
 
         return ClubMemberResponseDto.from(profile);
+    }
+
+    @Override
+    @Transactional
+    public ClubMemberRoleUpdateResponseDto updateMemberRole(Long clubId, Long profileId, ClubMemberRoleUpdateRequestDto requestDto) {
+        // 1. 요청자 권한 확인 (회장만 가능)
+        Role currentUserRole = customSecurityService.getUserRoleInClub(clubId);
+        if (currentUserRole != Role.CLUB_ADMIN) {
+            throw new CustomException(ErrorCode.FORBIDDEN, "동아리원 직책 변경은 회장만 가능합니다.");
+        }
+
+        // 2. 프로필 조회
+        ClubMemberProfile profile = clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
+
+        Role previousRole = profile.getRole();
+        Role newRole = requestDto.role();
+
+        // 3. Role 업데이트 (Profile & ClubMember 동기화)
+        profile.updateRole(newRole);
+        profile.getClubMember().updateRole(newRole);
+
+        // 4. 메시지 생성
+        String message = newRole == Role.CLUB_MEMBER ? 
+                "일반 부원으로 역할이 변경되었습니다." : "운영진으로 역할이 변경되었습니다.";
+
+        return ClubMemberRoleUpdateResponseDto.builder()
+                .clubId(clubId)
+                .clubName(profile.getClubMember().getClub().getName())
+                .clubMemberProfileId(profile.getId())
+                .studentId(profile.getStudentId())
+                .name(profile.getName())
+                .previousRole(previousRole)
+                .newRole(newRole)
+                .message(message)
+                .build();
     }
 
 
