@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMemberProfile;
@@ -132,7 +133,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         // 3. 파싱된 DTO 리스트를 순회하며 DB 저장 (비즈니스 오류 수집)
         // 형식 오류가 있어도, 성공한 데이터들에 대해서는 비즈니스 검증을 계속 진행하여 에러를 한 번에 모음
         List<ClubMemberSaveRequestDto> successList = parseResult.getSuccessList();
-
+        
         for (ClubMemberSaveRequestDto dto : successList) {
             try {
                 registerMember(clubId, dto);
@@ -147,6 +148,34 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             throw new ExcelParsingException("엑셀 데이터 검증 실패로 인해 전체 등록이 취소되었습니다.", parseResult.getErrorMessages());
         }
     }
+
+    @Override
+    @Transactional
+    public ClubMemberResponseDto updateMember(Long clubId, Long profileId, ClubMemberUpdateRequestDto requestDto) {
+        // 1. 프로필 조회
+        ClubMemberProfile profile = clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
+
+        // 2. 중복 학번 검사 (나를 제외한 다른 멤버가 해당 학번을 사용 중인지)
+        if (requestDto.studentId() != null && 
+            clubMemberProfileRepository.existsByClubMember_Club_IdAndStudentIdAndIdNot(clubId, requestDto.studentId(), profileId)) {
+            throw new CustomException(ErrorCode.USER_ALREADY_EXISTS, "해당 학번(" + requestDto.studentId() + ")은 이미 다른 멤버가 사용 중입니다.");
+        }
+
+        // 3. 정보 업데이트
+        profile.update(
+                requestDto.name(),
+                requestDto.studentId(),
+                requestDto.phoneNumber(),
+                requestDto.college(),
+                requestDto.department(),
+                requestDto.academicStatus(),
+                requestDto.joinDate() != null ? parseJoinDate(requestDto.joinDate()) : null
+        );
+
+        return ClubMemberResponseDto.from(profile);
+    }
+
 
     private User createShellUser(ClubMemberSaveRequestDto requestDto) {
         User user = User.builder()
