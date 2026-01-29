@@ -76,16 +76,30 @@ public class ClubMemberProfile extends BaseEntity {
 
     public void update(String name, String studentId, String phoneNumber, String college,
                        String department, AcademicStatus academicStatus, LocalDate joinDate) {
-        if (name != null) this.name = name;
-        if (studentId != null) this.studentId = studentId;
-        if (phoneNumber != null) this.phoneNumber = phoneNumber;
-        if (college != null) this.college = college;
-        if (department != null) this.department = department;
-        if (academicStatus != null) this.academicStatus = academicStatus;
-        if (joinDate != null) this.joinDate = joinDate;
+        this.name = getOrDefault(name, this.name);
+        this.studentId = getOrDefault(studentId, this.studentId);
+        this.phoneNumber = getOrDefault(phoneNumber, this.phoneNumber);
+        this.college = getOrDefault(college, this.college);
+        this.department = getOrDefault(department, this.department);
+        this.academicStatus = getOrDefault(academicStatus, this.academicStatus);
+        this.joinDate = getOrDefault(joinDate, this.joinDate);
     }
 
     public void updateRole(Role role) {
         if (role != null) this.role = role;
+    }
+
+    private String getOrDefault(String newValue, String oldValue) {
+        if (newValue != null && !newValue.isBlank()) {
+            return newValue;
+        }
+        return oldValue;
+    }
+
+    private <T> T getOrDefault(T newValue, T oldValue) {
+        if (newValue != null) {
+            return newValue;
+        }
+        return oldValue;
     }
 }
