@@ -113,4 +113,12 @@ public class CustomSecurityService {
             throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "유효하지 않은 Role 정보입니다.");
         }
     }
+
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED_USER);
+        }
+        return principalDetails.getUserId();
+    }
 }

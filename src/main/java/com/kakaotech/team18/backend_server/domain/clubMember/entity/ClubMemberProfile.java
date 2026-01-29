@@ -89,6 +89,10 @@ public class ClubMemberProfile extends BaseEntity {
         if (role != null) this.role = role;
     }
 
+    public boolean isOwner(Long userId) {
+        return this.clubMember.getUser().getId().equals(userId);
+    }
+
     private String getOrDefault(String newValue, String oldValue) {
         if (newValue != null && !newValue.isBlank()) {
             return newValue;

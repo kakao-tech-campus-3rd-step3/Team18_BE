@@ -18,6 +18,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.util.ExcelUtils;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CannotDeleteSelfException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import com.kakaotech.team18.backend_server.global.security.CustomSecurityService;
@@ -201,7 +202,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         profile.getClubMember().updateRole(newRole);
 
         // 4. 메시지 생성
-        String message = newRole == Role.CLUB_MEMBER ? 
+        String message = newRole == Role.CLUB_MEMBER ?
                 "일반 부원으로 역할이 변경되었습니다." : "운영진으로 역할이 변경되었습니다.";
 
         return ClubMemberRoleUpdateResponseDto.builder()
@@ -214,6 +215,29 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 .newRole(newRole)
                 .message(message)
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void deleteMember(Long clubId, Long profileId) {
+        // 1. 요청자 권한 확인 (회장만 가능)
+        Role currentUserRole = customSecurityService.getUserRoleInClub(clubId);
+        if (currentUserRole != Role.CLUB_ADMIN) {
+            throw new CustomException(ErrorCode.FORBIDDEN, "동아리원 삭제는 회장만 가능합니다.");
+        }
+
+        // 2. 프로필 조회
+        ClubMemberProfile profile = clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)
+                .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
+
+        // 3. 자기 자신 삭제 방지
+        Long currentUserId = customSecurityService.getCurrentUserId();
+        if (profile.isOwner(currentUserId)) {
+            throw new CannotDeleteSelfException();
+        }
+
+        // 4. 삭제 (Cascade로 Profile도 함께 삭제됨)
+        clubMemberRepository.delete(profile.getClubMember());
     }
 
 

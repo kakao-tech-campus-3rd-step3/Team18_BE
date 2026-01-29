@@ -15,4 +15,5 @@ public interface ClubMemberService {
     void registerMembersByExcel(Long clubId, MultipartFile file) throws IOException;
     ClubMemberResponseDto updateMember(Long clubId, Long profileId, ClubMemberUpdateRequestDto requestDto);
     ClubMemberRoleUpdateResponseDto updateMemberRole(Long clubId, Long profileId, ClubMemberRoleUpdateRequestDto requestDto);
+    void deleteMember(Long clubId, Long profileId);
 }
