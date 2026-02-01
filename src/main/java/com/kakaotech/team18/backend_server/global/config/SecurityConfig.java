@@ -67,6 +67,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                // Actuator 엔드포인트 (모니터링용)
+                .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                 // 공지사항 조회 관련 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/notices", "/api/notices/*").permitAll()
                 // 동아리 정보 조회 관련 API (공개)
