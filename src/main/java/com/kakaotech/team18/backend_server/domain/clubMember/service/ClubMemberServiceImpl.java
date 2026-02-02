@@ -20,6 +20,7 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CannotDeleteSelfException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import com.kakaotech.team18.backend_server.global.security.CustomSecurityService;
@@ -46,6 +47,9 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
     @Override
     public List<ClubMemberResponseDto> getClubMembers(Long clubId) {
+        if (!clubRepository.existsById(clubId)) {
+            throw new ClubNotFoundException("clubId: " + clubId);
+        }
         return clubMemberProfileRepository.findAllByClubId(clubId).stream()
                 .map(ClubMemberResponseDto::from)
                 .toList();
