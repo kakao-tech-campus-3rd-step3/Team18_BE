@@ -109,6 +109,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     .build();
 
             ClubMemberProfile profile = ClubMemberProfile.builder()
+                    .clubMember(clubMember)
                     .name(requestDto.name())
                     .studentId(requestDto.studentId())
                     .phoneNumber(requestDto.phoneNumber())
