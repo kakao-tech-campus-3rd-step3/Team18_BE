@@ -8,6 +8,9 @@ import java.time.LocalTime;
 import java.util.List;
 
 public record ClubDashboardApplicantResponseDto(
+        @Schema(description = "면접 필수 여부")
+        Boolean interviewRequired,
+
         @Schema(description = "지원자 목록")
         List<ApplicantResponseDto> applicants,
 

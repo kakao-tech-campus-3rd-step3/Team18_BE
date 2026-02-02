@@ -179,6 +179,7 @@ public class ClubServiceImpl implements ClubService {
                         ))
                         .toList();
         return new ClubDashboardApplicantResponseDto(
+                clubApplyForm.getClub().getIsInterviewRequired(),
                 applicants
                         .stream()
                         .map(ApplicantResponseDto::from)
