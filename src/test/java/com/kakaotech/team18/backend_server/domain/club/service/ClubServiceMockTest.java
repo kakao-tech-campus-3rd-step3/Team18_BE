@@ -43,7 +43,9 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidFi
 import com.kakaotech.team18.backend_server.global.service.S3Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
@@ -88,7 +90,15 @@ public class ClubServiceMockTest {
     void getClubDashBoard() {
         //given
         Long clubId = 1L;
-        Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(mock(ClubIntroduction.class),
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
@@ -103,9 +113,13 @@ public class ClubServiceMockTest {
         given(clubApplyFormRepository.findByClubId(eq(club.getId()))).willReturn(Optional.of(clubApplyForm));
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationIsNotNull(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of(clubMember));
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(clubId), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of(clubMember));
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L,1, 1,
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 1, 1,
                 LocalDate.of(2025, 9, 3),
-                LocalDate.of(2025, 9, 20));
+                LocalDate.of(2025, 9, 20),
+                LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 5),
+                "09:00 ~ 21:00"
+                );
 
         //when
         ClubDashBoardResponseDto actual = clubService.getClubDashBoard(clubId);
@@ -124,7 +138,15 @@ public class ClubServiceMockTest {
     void getClubDashBoardWithEmptyData() {
         //given
         Long clubId = 1L;
-        Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(mock(ClubIntroduction.class),
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
@@ -140,8 +162,12 @@ public class ClubServiceMockTest {
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationIsNotNull(eq(clubId), eq(Role.APPLICANT))).willReturn(List.of());
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatus(eq(1L), eq(Role.APPLICANT), eq(Status.PENDING))).willReturn(List.of());
 
-        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0, LocalDate.of(2025, 9, 3),
-                LocalDate.of(2025, 9, 20)
+        ClubDashBoardResponseDto expect = new ClubDashBoardResponseDto(1L, 0, 0,
+                LocalDate.of(2025, 9, 3),
+                LocalDate.of(2025, 9, 20),
+                LocalDate.of(2025, 9, 5),
+                LocalDate.of(2025, 9, 10),
+                "09:00 ~ 21:00"
         );
 
         //when
@@ -163,7 +189,15 @@ public class ClubServiceMockTest {
         //given
         Long clubId = 1L;
         Long missingId = 0L;
-        Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(mock(ClubIntroduction.class),
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalTime.of(9, 0),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
@@ -194,7 +228,15 @@ public class ClubServiceMockTest {
         ClubImage image = createClubImage(clubIntroduction);
         clubIntroduction.addImage(image);
         ReflectionTestUtils.setField(image, "id", 1L);
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
@@ -249,7 +291,15 @@ public class ClubServiceMockTest {
         ClubIntroduction clubIntroduction = createClubIntroduction();
         ClubImage image = createClubImage(clubIntroduction);
         clubIntroduction.addImage(image);
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         User user = createUser( "loginId", "123456");
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
 
@@ -273,7 +323,15 @@ public class ClubServiceMockTest {
         ClubIntroduction clubIntroduction = createClubIntroduction();
         ClubImage image = createClubImage(clubIntroduction);
         clubIntroduction.addImage(image);
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", clubId);
 
         given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
@@ -400,8 +458,15 @@ public class ClubServiceMockTest {
         clubIntroduction.addImage(existingImage2);
         clubIntroduction.addImage(existingImage3);
 
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
-                LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
 
         // 유지할 이미지 ID: 1L (old1.jpg)
@@ -458,8 +523,15 @@ public class ClubServiceMockTest {
         clubIntroduction.addImage(existingImage1);
         clubIntroduction.addImage(existingImage2);
 
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
-                LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
 
         // 유지할 이미지 없음 (모두 삭제)
@@ -547,8 +619,15 @@ public class ClubServiceMockTest {
         clubIntroduction.addImage(existingImage1);
         clubIntroduction.addImage(existingImage2);
 
-        Club club = createClub(clubIntroduction, LocalDateTime.of(2025, 9, 3, 0, 0),
-                LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", 1L);
 
         // 유지할 이미지 없음 (모두 삭제)
@@ -640,7 +719,10 @@ public class ClubServiceMockTest {
         Long clubId = 1L;
 
         Club club = mock(Club.class);
-        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(mock(ClubApplyForm.class)));
+        ClubApplyForm clubApplyForm = mock(ClubApplyForm.class);
+        given(clubApplyForm.getClub()).willReturn(club);
+        given(club.getIsInterviewRequired()).willReturn(true);
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
 
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(
                 eq(clubId), eq(Role.APPLICANT), eq(status), eq(stage)))
@@ -657,7 +739,13 @@ public class ClubServiceMockTest {
     private static Stream<Arguments> provideStatusAndClubMembers() {
         Club club = createClub(mock(ClubIntroduction.class),
                 LocalDateTime.of(2025, 9, 3, 0, 0),
-                LocalDateTime.of(2025, 9, 20, 23, 59));
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ClubApplyForm clubApplyForm = createClubApplyForm(club);
 
         User user1 = createUser("loginId1", "111111");
@@ -686,7 +774,15 @@ public class ClubServiceMockTest {
     void viewApplicantsByNoFilter() {
         //given
         Long clubId = 1L;
-        Club club = createClub(mock(ClubIntroduction.class), LocalDateTime.of(2025, 9, 3, 0, 0), LocalDateTime.of(2025, 9, 20, 23, 59));
+        Club club = createClub(mock(ClubIntroduction.class),
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
         ReflectionTestUtils.setField(club, "id", clubId);
 
         User user1 = createUser( "loginId1", "111111");
@@ -703,6 +799,11 @@ public class ClubServiceMockTest {
         ReflectionTestUtils.setField(application2, "id", 2L);
         ReflectionTestUtils.setField(application3, "id", 3L);
 
+        // 면접 시간 정보 추가
+        application1.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+        application2.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+        application3.updatePreferInterviewInfo(Map.of(LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))));
+
         ClubMember clubMember1 = createClubMember(user1, club, application1, Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember2 = createClubMember(user2, club, application2, Role.APPLICANT, ActiveStatus.ACTIVE);
         ClubMember clubMember3 = createClubMember(user3, club, application3, Role.APPLICANT, ActiveStatus.ACTIVE);
@@ -714,12 +815,14 @@ public class ClubServiceMockTest {
 
         List<ApplicantResponseDto> expect = List.of(
                 new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
+                        Status.PENDING, null, 1L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
                 new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED, 2L),
+                        Status.APPROVED, null,2L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
                 new ApplicantResponseDto("김춘식", "333333", "철학과", "010-1234-5678", "123@email.com",
-                        Status.REJECTED, 3L)
-        );
+                        Status.REJECTED, null,3L, List.of(new ApplicantResponseDto.preferInterviewInfo(
+                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))));
 
         //when
         ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(1L, null, Stage.INTERVIEW);
@@ -759,7 +862,13 @@ public class ClubServiceMockTest {
     private static Club createClub(
             ClubIntroduction clubIntroduction,
             LocalDateTime recruitStart,
-            LocalDateTime recruitEnd
+            LocalDateTime recruitEnd,
+            Boolean isInterviewRequired,
+            LocalDateTime interviewStartDate,
+            LocalDateTime interviewEndDate,
+            LocalTime interviewStartTime,
+            LocalTime interviewEndTime
+
     ) {
         return Club.builder()
                 .name("카태켐")
@@ -771,6 +880,11 @@ public class ClubServiceMockTest {
                 .recruitStart(recruitStart)
                 .recruitEnd(recruitEnd)
                 .regularMeetingInfo("매주 화요일 오후 6시반")
+                .isInterviewRequired(isInterviewRequired)
+                .interviewStartDate(interviewStartDate)
+                .interviewEndDate(interviewEndDate)
+                .interviewStartTime(interviewStartTime)
+                .interviewEndTime(interviewEndTime)
                 .build();
     }
 

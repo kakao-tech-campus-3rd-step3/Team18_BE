@@ -89,4 +89,18 @@ public interface ApplicationRepository extends JpaRepository<Application, Long> 
       AND cm.role = :role
     """)
     List<Application> findAllByClubIdAndRole(Long clubId, Role role);
+
+    @Query("""
+    SELECT 
+        a.interviewDate as interviewDate,
+        a.interviewTime as interviewTime,
+        count(a.id) as assignedCount
+    FROM Application a
+    JOIN a.clubApplyForm caf
+    WHERE caf.club.id = :clubId
+      AND a.interviewDate is not null
+      AND a.interviewTime is not null
+    GROUP BY a.interviewDate, a.interviewTime
+    """)
+    List<InterviewSlotCountProjection> countInterviewSlots(Long clubId);
 }

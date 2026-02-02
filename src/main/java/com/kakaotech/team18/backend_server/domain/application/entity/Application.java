@@ -17,14 +17,20 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.List;
-
+@Slf4j
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -60,13 +66,23 @@ public class Application extends BaseEntity {
     @OneToMany(mappedBy = "application", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
 
+    private LocalDate interviewDate;
+
+    private LocalTime interviewTime;
+
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("date ASC")
+    private List<InterviewPreference> interviewPreferences = new ArrayList<>();
+
     @Builder
-    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage) {
+    private Application(User user, ClubApplyForm clubApplyForm, Status status, Stage stage, LocalDate interviewDate, LocalTime interviewTime) {
         this.user = user;
         this.clubApplyForm = clubApplyForm;
         this.status = (status != null) ? status : Status.PENDING; // 기본값 보존
         this.stage = (stage != null) ? stage : Stage.INTERVIEW;
         this.averageRating = 0.0;
+        this.interviewDate = interviewDate;
+        this.interviewTime = interviewTime;
     }
 
     /**
@@ -84,5 +100,36 @@ public class Application extends BaseEntity {
 
     public void updateAverageRating(Double averageRating) {
         this.averageRating = averageRating;
+    }
+
+    public void updatePreferInterviewInfo(Map<LocalDate, List<LocalTime>> preferInterviewInfo) {
+        log.info("{}지원자 인터뷰 선호 시간 정보 업데이트", this.id);
+
+        // orphanRemoval=true 이므로 기존 선호 정보는 전부 제거
+        this.interviewPreferences.clear();
+
+        if (preferInterviewInfo == null || preferInterviewInfo.isEmpty()) {
+            log.info("{}지원자 인터뷰 선호 시간 정보가 비어있습니다.", this.id);
+            return;
+        }
+
+        for (Map.Entry<LocalDate, List<LocalTime>> entry : preferInterviewInfo.entrySet()) {
+            LocalDate date = entry.getKey();
+            List<LocalTime> timeSlots = entry.getValue();
+
+            // date는 필수, timeSlots는 null이면 빈 리스트로 처리
+            if (date == null) continue;
+
+            this.interviewPreferences.add(new InterviewPreference(this, date, timeSlots));
+        }
+
+        log.info("{}지원자 인터뷰 선호 시간 정보 업데이트 완료", this.id);
+    }
+
+    public void updateInterviewInfo(LocalDateTime interviewSchedule) {
+        log.info("지원자의 인터뷰 일정 업데이트 시작 applicationId={}, interviewSchedule={}", this.id, interviewSchedule);
+        this.interviewDate = interviewSchedule.toLocalDate();
+        this.interviewTime = interviewSchedule.toLocalTime();
+        log.info("지원자의 인터뷰 일정 업데이트 완료 applicationId={}, interviewSchedule={}", this.id, interviewSchedule);
     }
 }

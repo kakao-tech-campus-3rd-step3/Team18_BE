@@ -31,7 +31,15 @@
     <!-- 사용자가 입력한 메시지: 개행 유지 -->
     <pre th:text="${message}">OT는 10/7(화) 19:00입니다…</pre>
   </div>
-
+    <!-- 면접 일정 안내 -->
+  <div class="card" th:if="${interviewDate != null and interviewTime != null}">
+    <div style="font-weight:600; margin-bottom:8px;">면접 일정</div>
+    <div>
+        면접 날짜는
+        <strong th:text="${interviewDate}">2026-01-02</strong> 일
+        <strong th:text="${interviewTime}">10:30</strong> 입니다.
+    </div>
+  </div>
   <div class="footer">
     본 메일은 회신 시 동아리 회장(Reply-To)에게 전달됩니다.<br/>
     © <span th:text="${clubName}">동아리명</span>

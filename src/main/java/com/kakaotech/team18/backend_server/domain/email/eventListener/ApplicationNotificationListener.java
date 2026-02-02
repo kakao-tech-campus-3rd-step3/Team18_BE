@@ -1,16 +1,13 @@
 package com.kakaotech.team18.backend_server.domain.email.eventListener;
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
-import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
@@ -39,7 +36,7 @@ public class ApplicationNotificationListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onInterviewApproved(InterviewApprovedEvent event) {
         ApplicationInfoDto info = event.info();
-        emailService.sendInterviewApprovedResultToApplicant(info,  event.message());
+        emailService.sendInterviewApprovedResultToApplicant(info,  event.message(), event.interviewSchedule());
         log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 

@@ -1,11 +1,13 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
-import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.application.repository.InterviewSlotCountProjection;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto.InterviewDateSlotsDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
@@ -28,8 +30,13 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApply
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubMemberNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.service.S3Service;
+import com.kakaotech.team18.backend_server.global.util.DateUtil;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -125,7 +132,10 @@ public class ClubServiceImpl implements ClubService {
                 applicantList.size(),
                 pendingApplications.size(),
                 club.getRecruitStart().toLocalDate(),
-                club.getRecruitEnd().toLocalDate());
+                club.getRecruitEnd().toLocalDate(),
+                club.getInterviewStartDate().toLocalDate(),
+                club.getInterviewEndDate().toLocalDate(),
+                DateUtil.formatTimeRange(club.getInterviewStartTime(), club.getInterviewEndTime()));
     }
 
     @Override
@@ -147,11 +157,34 @@ public class ClubServiceImpl implements ClubService {
         } else {
             message = clubApplyForm.getFinalMessage();
         }
+
+        List<InterviewSlotCountProjection> rows = applicationRepository.countInterviewSlots(clubId);
+
+        Map<LocalDate, Map<LocalTime, Integer>> grouped = getLocalDateMap(rows);
+
+        List<InterviewDateSlotsDto> interviewSchedule =
+                grouped.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(dateEntry -> new InterviewDateSlotsDto(
+                                dateEntry.getKey(),
+                                dateEntry.getValue().entrySet().stream()
+                                        .sorted(Map.Entry.comparingByKey())
+                                        .map(timeEntry ->
+                                                new InterviewSlotCountDto(
+                                                        timeEntry.getKey(),
+                                                        timeEntry.getValue()
+                                                )
+                                        )
+                                        .toList()
+                        ))
+                        .toList();
         return new ClubDashboardApplicantResponseDto(
+                clubApplyForm.getClub().getIsInterviewRequired(),
                 applicants
                         .stream()
                         .map(ApplicantResponseDto::from)
                         .toList(),
+                interviewSchedule,
                 message);
     }
 
@@ -198,6 +231,17 @@ public class ClubServiceImpl implements ClubService {
         log.info("Successfully uploaded and updated images for clubId: {}", clubId);
         applicationEventPublisher.publishEvent(new ClubImageDeletedEvent(clubId, deleteTargetUrls));
         return new SuccessResponseDto(true);
+    }
+
+    private Map<LocalDate, Map<LocalTime, Integer>> getLocalDateMap(List<InterviewSlotCountProjection> rows) {
+        return rows.stream()
+                .collect(Collectors.groupingBy(
+                        InterviewSlotCountProjection::getInterviewDate,
+                        Collectors.toMap(
+                                InterviewSlotCountProjection::getInterviewTime,
+                                r -> (int) r.getAssignedCount()
+                        )
+                ));
     }
     // ---- private helpers ----
     private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {

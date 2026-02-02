@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
@@ -13,6 +14,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -170,6 +172,73 @@ class ApplicationControllerTest {
         // when
         ResultActions resultActions = mockMvc.perform(
                 patch("/api/clubs/{clubId}/applications/{applicationId}/status", clubId, applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(invalidRequestBody)
+        );
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
+    }
+
+    @Test
+    @DisplayName("지원자 면접 일정 변경 - 성공")
+    void updateApplicationInterviewSchedule_success() throws Exception {
+        // given
+        Long clubId = 1L;
+        Long applicationId = 1L;
+        ApplicationFixedInterviewRequestDto requestDto = new ApplicationFixedInterviewRequestDto(LocalDateTime.of(2026, 2, 10, 10, 0));
+
+        given(applicationService.updateApplicationInterviewSchedule(any(Long.class), any(ApplicationFixedInterviewRequestDto.class)))
+                .willReturn(new SuccessResponseDto(true));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+        );
+
+        // then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("지원자 면접 일정 변경 - 실패 (지원서 없음)")
+    void updateApplicationInterviewSchedule_fail_applicationNotFound() throws Exception {
+        // given
+        Long clubId = 1L;
+        Long nonExistentApplicationId = 999L;
+        ApplicationFixedInterviewRequestDto requestDto = new ApplicationFixedInterviewRequestDto(LocalDateTime.of(2026, 2, 10, 10, 0));
+
+        given(applicationService.updateApplicationInterviewSchedule(any(Long.class), any(ApplicationFixedInterviewRequestDto.class)))
+                .willThrow(new ApplicationNotFoundException("테스트 detail 블라블라"));
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, nonExistentApplicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto))
+        );
+
+        // then
+        resultActions.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.APPLICATION_NOT_FOUND.name()));
+    }
+
+    @Test
+    @DisplayName("지원자 면접 일정 변경 - 실패 (잘못된 요청 값 - 날짜 누락)")
+    void updateApplicationInterviewSchedule_fail_invalidInputValue() throws Exception {
+        // given
+        Long clubId = 1L;
+        Long applicationId = 1L;
+        // interviewAt 필드가 없는 잘못된 요청
+        String invalidRequestBody = "{}";
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestBody)
         );

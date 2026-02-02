@@ -18,6 +18,8 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto.InterviewDateSlotsDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
@@ -30,6 +32,7 @@ import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -177,7 +180,10 @@ class ClubControllerTest {
                 1,
                 1,
                 LocalDate.of(2025, 9, 15),
-                LocalDate.of(2025, 9, 20)
+                LocalDate.of(2025, 9, 20),
+                LocalDate.of(2025, 9, 1),
+                LocalDate.of(2025, 9, 5),
+                "09:00 ~ 21:00"
                 );
 
         //when
@@ -197,12 +203,23 @@ class ClubControllerTest {
         Long clubId = 1L;
         String status = "미정";
         String stage = String.valueOf(Stage.INTERVIEW);
+        LocalDateTime confirmedTime = LocalDateTime.of(2025, 1, 2, 10, 0);
+
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
+                false,
                 List.of(
-                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
-                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 2L)),
+                        new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678",
+                                "123@email.com",
+                                Status.PENDING, confirmedTime, 1L,
+                                List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
+                        new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678",
+                                "123@email.com",
+                                Status.PENDING, null, 2L,
+                                List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0)))))),
+                List.of(new InterviewDateSlotsDto(LocalDate.of(2025, 1, 2),
+                        List.of(new InterviewSlotCountDto(LocalTime.of(12, 1, 2), 1)))),
                 "message");
 
         //when
@@ -213,7 +230,17 @@ class ClubControllerTest {
                         .param("status", status)
                 .param("stage", stage))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.interviewRequired").value(false))
+                .andExpect(jsonPath("$.applicants.size()").value(2))
+                .andExpect(jsonPath("$.applicants[0].confirmedTime").value("2025-01-02T10:00:00"))
+                .andExpect(jsonPath("$.applicants[1].confirmedTime").isEmpty())
+                .andExpect(jsonPath("$.interviewSchedule.size()").value(1))
+                .andExpect(jsonPath("$.interviewSchedule[0].date").value("2025-01-02"))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots.size()").value(1))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots[0].time").value("12:01:02"))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots[0].assignedCount").value(1))
+                .andExpect(jsonPath("$.message").value("message"));
     }
 
     @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status 값이 비어 있으면 모든 지원자를 조회한다.")
@@ -223,14 +250,24 @@ class ClubControllerTest {
         Long clubId = 1L;
         String status = null;
         String stage = String.valueOf(Stage.INTERVIEW);
+        LocalDateTime confirmedTime = LocalDateTime.of(2025, 1, 2, 10, 0);
+
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
+                true,
                 List.of(
-                new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678", "123@email.com",
-                        Status.PENDING, 1L),
-                new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678", "123@email.com",
-                        Status.APPROVED, 2L)),
-                "message"
-        );
+                        new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678",
+                                "123@email.com",
+                                Status.PENDING, confirmedTime, 1L,
+                                List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0))))),
+                        new ApplicantResponseDto("김춘식", "222222", "철학과", "010-1234-5678",
+                                "123@email.com",
+                                Status.PENDING, null, 2L,
+                                List.of(new ApplicantResponseDto.preferInterviewInfo(
+                                        LocalDate.of(2025, 1, 2), List.of(LocalTime.of(10, 0)))))),
+                List.of(new InterviewDateSlotsDto(LocalDate.of(2025, 1, 2),
+                        List.of(new InterviewSlotCountDto(LocalTime.of(12, 1, 2), 1)))),
+                "message");
 
         //when
         when(clubService.getApplicantsByStatusAndStage(clubId, null, Stage.INTERVIEW)).thenReturn(expect);
@@ -240,7 +277,17 @@ class ClubControllerTest {
                         .param("status", status)
                 .param("stage", stage))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.interviewRequired").value(true))
+                .andExpect(jsonPath("$.applicants.size()").value(2))
+                .andExpect(jsonPath("$.applicants[0].confirmedTime").value("2025-01-02T10:00:00"))
+                .andExpect(jsonPath("$.applicants[1].confirmedTime").isEmpty())
+                .andExpect(jsonPath("$.interviewSchedule.size()").value(1))
+                .andExpect(jsonPath("$.interviewSchedule[0].date").value("2025-01-02"))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots.size()").value(1))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots[0].time").value("12:01:02"))
+                .andExpect(jsonPath("$.interviewSchedule[0].slots[0].assignedCount").value(1))
+                .andExpect(jsonPath("$.message").value("message"));
     }
 
     @DisplayName("동아리 대쉬보드에서 지원서의 상태를 통해 지원자를 필터링 조회시 Status에 등록되지 않은 쿼리파라미터를 주면 404NotFoud에러가 발생한다.")

@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
@@ -65,6 +66,23 @@ public class ApplicationController {
         SuccessResponseDto responseDto = applicationService.updateApplicationStatus(applicationId, requestDto);
         return ResponseEntity.ok(responseDto);
     }
+
+    @Operation(summary = "지원자의 면접 일정 변경", description = "동아리 운영진이 지원자의 면접 일정을 변경합니다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "상태 변경 성공"),
+            @ApiResponse(responseCode = "404", description = "상태를 변경할 지원서를 찾을 수 없음")
+    })
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutiveForApplication(#applicationId)")
+    @PatchMapping("/{clubId}/applications/{applicationId}/interview")
+    public ResponseEntity<SuccessResponseDto> updateApplicationInterviewSchedule(
+            @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId,
+            @Parameter(description = "상태를 변경할 지원서의 고유 ID", required = true, example = "100") @PathVariable("applicationId") Long applicationId,
+            @Valid @RequestBody ApplicationFixedInterviewRequestDto requestDto
+    ) {
+        SuccessResponseDto responseDto = applicationService.updateApplicationInterviewSchedule(applicationId, requestDto);
+        return ResponseEntity.ok(responseDto);
+    }
+
 
     @Operation(
             summary = "지원서 제출",
