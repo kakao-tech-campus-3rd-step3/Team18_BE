@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +34,9 @@ public class DateUtil {
      * @return -> Map<선택한 날자, List<선택한 시간>>
      */
     public static Map<LocalDate, List<LocalTime>> parseDateAndTimeSlots(String dateInfo) {
-        if (dateInfo == null || dateInfo.isBlank()) return new HashMap<>();
+        if (dateInfo == null || dateInfo.isBlank()) return new LinkedHashMap<>();
 
-        Map<LocalDate, List<LocalTime>> result = new HashMap<>();
+        Map<LocalDate, List<LocalTime>> result = new LinkedHashMap<>();
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("H:mm");
 
