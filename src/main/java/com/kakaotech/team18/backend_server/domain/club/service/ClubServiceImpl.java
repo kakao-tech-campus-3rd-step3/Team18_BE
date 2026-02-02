@@ -133,9 +133,10 @@ public class ClubServiceImpl implements ClubService {
                 pendingApplications.size(),
                 club.getRecruitStart().toLocalDate(),
                 club.getRecruitEnd().toLocalDate(),
-                club.getInterviewStartDate().toLocalDate(),
-                club.getInterviewEndDate().toLocalDate(),
-                DateUtil.formatTimeRange(club.getInterviewStartTime(), club.getInterviewEndTime()));
+                club.getInterviewStartDate() != null ? club.getInterviewStartDate().toLocalDate() : null,
+                club.getInterviewEndDate() != null ? club.getInterviewEndDate().toLocalDate() : null,
+                (club.getInterviewStartTime() != null && club.getInterviewEndTime() != null) ?
+                        DateUtil.formatTimeRange(club.getInterviewStartTime(), club.getInterviewEndTime()) : null);
     }
 
     @Override
