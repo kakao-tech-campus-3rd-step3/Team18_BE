@@ -206,6 +206,7 @@ class ClubControllerTest {
         LocalDateTime confirmedTime = LocalDateTime.of(2025, 1, 2, 10, 0);
 
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
+                false,
                 List.of(
                         new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678",
                                 "123@email.com",
@@ -230,6 +231,7 @@ class ClubControllerTest {
                 .param("stage", stage))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.interviewRequired").value(false))
                 .andExpect(jsonPath("$.applicants.size()").value(2))
                 .andExpect(jsonPath("$.applicants[0].confirmedTime").value("2025-01-02T10:00:00"))
                 .andExpect(jsonPath("$.applicants[1].confirmedTime").isEmpty())
@@ -251,6 +253,7 @@ class ClubControllerTest {
         LocalDateTime confirmedTime = LocalDateTime.of(2025, 1, 2, 10, 0);
 
         ClubDashboardApplicantResponseDto expect = new ClubDashboardApplicantResponseDto(
+                true,
                 List.of(
                         new ApplicantResponseDto("김춘식", "111111", "철학과", "010-1234-5678",
                                 "123@email.com",
@@ -275,6 +278,7 @@ class ClubControllerTest {
                 .param("stage", stage))
                 .andDo(print())
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.interviewRequired").value(true))
                 .andExpect(jsonPath("$.applicants.size()").value(2))
                 .andExpect(jsonPath("$.applicants[0].confirmedTime").value("2025-01-02T10:00:00"))
                 .andExpect(jsonPath("$.applicants[1].confirmedTime").isEmpty())

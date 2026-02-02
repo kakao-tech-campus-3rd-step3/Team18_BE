@@ -719,7 +719,10 @@ public class ClubServiceMockTest {
         Long clubId = 1L;
 
         Club club = mock(Club.class);
-        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(mock(ClubApplyForm.class)));
+        ClubApplyForm clubApplyForm = mock(ClubApplyForm.class);
+        given(clubApplyForm.getClub()).willReturn(club);
+        given(club.getIsInterviewRequired()).willReturn(true);
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
 
         given(clubMemberRepository.findByClubIdAndRoleAndApplicationStatusAndStage(
                 eq(clubId), eq(Role.APPLICANT), eq(status), eq(stage)))
