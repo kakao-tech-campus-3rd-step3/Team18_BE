@@ -13,7 +13,10 @@ import static org.mockito.Mockito.verify;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateResponseDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberRoleUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberSaveRequestDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubMemberUpdateRequestDto;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.AcademicStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
@@ -24,6 +27,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CannotDeleteSelfException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
@@ -45,6 +49,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ClubMemberServiceTest {
@@ -224,10 +229,6 @@ class ClubMemberServiceTest {
         );
         MockMultipartFile file = createExcelFile("members.xlsx", data);
 
-        // Mocking registerMember behavior (내부 호출)
-        // 주의: 같은 클래스 내의 메서드 호출은 @Spy를 쓰지 않는 한 Mocking이 안 됨.
-        // 여기서는 registerMember가 실제로 실행되도록 두고, 내부 의존성들을 Mocking해야 함.
-        
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByClubMember_Club_IdAndStudentId(anyLong(), anyString()))
                 .willReturn(Optional.empty()); // 모두 신규
@@ -295,9 +296,138 @@ class ClubMemberServiceTest {
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.INVALID_FILE);
     }
 
+    @Test
+    @DisplayName("동아리원 정보 수정 성공")
+    void updateMember_Success() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        ClubMemberUpdateRequestDto requestDto = new ClubMemberUpdateRequestDto(
+                "박개명", null, null, null, null, null, null
+        );
+        ClubMemberProfile profile = createProfile("박원래", "212121", Role.CLUB_MEMBER);
+
+        given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
+        // 중복 검사 통과 (학번 변경 없음)
+
+        // when
+        ClubMemberResponseDto result = clubMemberService.updateMember(clubId, profileId, requestDto);
+
+        // then
+        assertThat(result.name()).isEqualTo("박개명"); // 이름 변경됨
+        assertThat(result.studentId()).isEqualTo("212121"); // 학번 유지됨
+    }
+
+    @Test
+    @DisplayName("동아리원 정보 수정 실패 - 중복 학번")
+    void updateMember_Fail_DuplicateStudentId() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        ClubMemberUpdateRequestDto requestDto = new ClubMemberUpdateRequestDto(
+                null, "20245678", null, null, null, null, null // 다른 사람 학번으로 변경 시도
+        );
+        ClubMemberProfile profile = createProfile("이지훈", "20245678", Role.CLUB_MEMBER);
+
+        given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
+        given(clubMemberProfileRepository.existsByClubMember_Club_IdAndStudentIdAndIdNot(clubId, "20245678", profileId))
+                .willReturn(true); // 이미 존재함
+
+        // when & then
+        assertThatThrownBy(() -> clubMemberService.updateMember(clubId, profileId, requestDto))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_ALREADY_EXISTS);
+    }
+
+    @Test
+    @DisplayName("동아리원 직책 변경 성공 - 회장 요청")
+    void updateMemberRole_Success() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        ClubMemberRoleUpdateRequestDto requestDto = new ClubMemberRoleUpdateRequestDto(Role.CLUB_EXECUTIVE);
+        ClubMemberProfile profile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
+
+        given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN); // 회장
+        given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
+
+        // when
+        ClubMemberRoleUpdateResponseDto result = clubMemberService.updateMemberRole(clubId, profileId, requestDto);
+
+        // then
+        assertThat(result.newRole()).isEqualTo(Role.CLUB_EXECUTIVE);
+        assertThat(profile.getClubMember().getRole()).isEqualTo(Role.CLUB_EXECUTIVE); // 동기화 확인
+    }
+
+    @Test
+    @DisplayName("동아리원 직책 변경 실패 - 운영진 요청")
+    void updateMemberRole_Fail_Forbidden() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        ClubMemberRoleUpdateRequestDto requestDto = new ClubMemberRoleUpdateRequestDto(Role.CLUB_EXECUTIVE);
+
+        given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_EXECUTIVE); // 운영진
+
+        // when & then
+        assertThatThrownBy(() -> clubMemberService.updateMemberRole(clubId, profileId, requestDto))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.FORBIDDEN);
+    }
+
+    @Test
+    @DisplayName("동아리원 삭제 성공")
+    void deleteMember_Success() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        Long currentUserId = 100L;
+        ClubMemberProfile profile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
+        // profile의 주인은 userId가 999L (createProfile에서 설정)
+        
+        given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
+        given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
+        given(customSecurityService.getCurrentUserId()).willReturn(currentUserId);
+        // isOwner -> false (100 != 999)
+
+        // when
+        clubMemberService.deleteMember(clubId, profileId);
+
+        // then
+        verify(clubMemberRepository, times(1)).delete(any(ClubMember.class));
+    }
+
+    @Test
+    @DisplayName("동아리원 삭제 실패 - 자기 자신 삭제")
+    void deleteMember_Fail_SelfDelete() {
+        // given
+        Long clubId = 1L;
+        Long profileId = 501L;
+        Long currentUserId = 100L;
+        
+        // 내 프로필 생성 (User ID = 100)
+        User user = User.builder().name("나회장").studentId("20231234").build();
+        ReflectionTestUtils.setField(user, "id", currentUserId); // ID 강제 주입
+
+        Club club = Club.builder().build();
+        ClubMember clubMember = ClubMember.builder().user(user).club(club).role(Role.CLUB_ADMIN).build();
+        ClubMemberProfile profile = ClubMemberProfile.builder().clubMember(clubMember).name("나회장").role(Role.CLUB_ADMIN).build();
+        clubMember.setProfile(profile);
+
+        given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
+        given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
+        given(customSecurityService.getCurrentUserId()).willReturn(currentUserId);
+
+        // when & then
+        assertThatThrownBy(() -> clubMemberService.deleteMember(clubId, profileId))
+                .isInstanceOf(CannotDeleteSelfException.class);
+    }
+
     private ClubMemberProfile createProfile(String name, String studentId, Role role) {
         User user = User.builder().name(name).studentId(studentId).build();
-        Club club = Club.builder().build();
+        ReflectionTestUtils.setField(user, "id", 999L); // ID 강제 주입
+
+        Club club = Club.builder().name("동아리움").build();
         
         ClubMember clubMember = ClubMember.builder()
                 .user(user)
