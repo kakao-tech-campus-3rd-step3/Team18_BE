@@ -13,7 +13,8 @@ contactPoints:
         type: discord
         settings:
           url: ${DISCORD_WEBHOOK_URL}
-          use_discord_username: true
+          use_discord_username: false
+          username: Monitoring Bot
         disableResolveMessage: false
 
 # Notification Policies - 알림 라우팅 정책
