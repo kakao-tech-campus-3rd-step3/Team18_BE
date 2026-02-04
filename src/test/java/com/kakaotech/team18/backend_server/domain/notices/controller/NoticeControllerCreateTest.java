@@ -32,232 +32,148 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 class NoticeControllerCreateTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockitoBean
-    private NoticeService noticeService;
+        @MockitoBean
+        private NoticeService noticeService;
 
-    @MockitoBean
-    private CustomSecurityService customSecurityService;
+        @MockitoBean
+        private CustomSecurityService customSecurityService;
 
-    @Test
-    @WithMockUser
-    @DisplayName("POST /api/notices - SYSTEM_ADMIN 권한 성공")
-    void createNotice_asSystemAdmin_success() throws Exception {
-        // given
-        when(customSecurityService.isSystemAdmin()).thenReturn(true);
+        @Test
+        @WithMockUser
+        @DisplayName("POST /api/notices - SYSTEM_ADMIN 권한 성공")
+        void createNotice_asSystemAdmin_success() throws Exception {
+                // given
+                when(customSecurityService.isSystemAdmin()).thenReturn(true);
 
-        NoticeResponseDto response = new NoticeResponseDto(
-                1L,
-                "Test Notice",
-                "Test Content",
-                LocalDateTime.now(),
-                "관리자",
-                "admin@test.com",
-                List.of()
-        );
-
-        when(noticeService.createNotice(any(NoticeCreateRequestDto.class), anyList(), any()))
-                .thenReturn(response);
-
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "Test Notice".getBytes()
-        );
-
-        MockMultipartFile contentPart = new MockMultipartFile(
-                "content",
-                "",
-                "text/plain",
-                "Test Content".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .file(contentPart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isCreated())
-                .andExpect(header().exists("Location"))
-                .andExpect(header().string("Location", "http://localhost/api/notices/1"))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.title").value("Test Notice"))
-                .andExpect(jsonPath("$.content").value("Test Content"));
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("POST /api/notices - 권한 없음 (403)")
-    void createNotice_notSystemAdmin_forbidden() throws Exception {
-        // given
-        when(customSecurityService.isSystemAdmin()).thenReturn(false);
-
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "Test Notice".getBytes()
-        );
-
-        MockMultipartFile contentPart = new MockMultipartFile(
-                "content",
-                "",
-                "text/plain",
-                "Test Content".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .file(contentPart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isForbidden());
-    }
-
-    @Test
-    @DisplayName("POST /api/notices - 인증 없음 (401)")
-    void createNotice_unauthenticated_unauthorized() throws Exception {
-        // given
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "Test Notice".getBytes()
-        );
-
-        MockMultipartFile contentPart = new MockMultipartFile(
-                "content",
-                "",
-                "text/plain",
-                "Test Content".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .file(contentPart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("POST /api/notices - 파일 첨부 성공")
-    void createNotice_withFiles_success() throws Exception {
-        // given
-        when(customSecurityService.isSystemAdmin()).thenReturn(true);
-
-        NoticeResponseDto response = new NoticeResponseDto(
-                1L,
-                "Test Notice with Files",
-                "Test Content",
-                LocalDateTime.now(),
-                "관리자",
-                "admin@test.com",
-                List.of(
-                        new NoticeResponseDto.FileDetail(
+                NoticeResponseDto response = new NoticeResponseDto(
                                 1L,
+                                "Test Notice",
+                                "Test Content",
+                                LocalDateTime.now(),
+                                "관리자",
+                                "admin@test.com",
+                                List.of());
+
+                when(noticeService.createNotice(any(NoticeCreateRequestDto.class), any(), any()))
+                                .thenReturn(response);
+
+                // when & then
+                mockMvc.perform(multipart("/api/notices")
+                                .param("title", "Test Notice")
+                                .param("content", "Test Content")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isCreated())
+                                .andExpect(header().exists("Location"))
+                                .andExpect(header().string("Location", "http://localhost/api/notices/1"))
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.title").value("Test Notice"))
+                                .andExpect(jsonPath("$.content").value("Test Content"));
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("POST /api/notices - 권한 없음 (403)")
+        void createNotice_notSystemAdmin_forbidden() throws Exception {
+                // given
+                when(customSecurityService.isSystemAdmin()).thenReturn(false);
+
+                // when & then
+                mockMvc.perform(multipart("/api/notices")
+                                .param("title", "Test Notice")
+                                .param("content", "Test Content")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        @DisplayName("POST /api/notices - 인증 없음 (401)")
+        void createNotice_unauthenticated_unauthorized() throws Exception {
+                // when & then
+                mockMvc.perform(multipart("/api/notices")
+                                .param("title", "Test Notice")
+                                .param("content", "Test Content")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @WithMockUser
+        @DisplayName("POST /api/notices - 파일 첨부 성공")
+        void createNotice_withFiles_success() throws Exception {
+                // given
+                when(customSecurityService.isSystemAdmin()).thenReturn(true);
+
+                NoticeResponseDto response = new NoticeResponseDto(
+                                1L,
+                                "Test Notice with Files",
+                                "Test Content",
+                                LocalDateTime.now(),
+                                "관리자",
+                                "admin@test.com",
+                                List.of(
+                                                new NoticeResponseDto.FileDetail(
+                                                                1L,
+                                                                "test.pdf",
+                                                                "https://presigned-url.com/test.pdf",
+                                                                "https://bucket.s3.region.amazonaws.com/attachments/uuid-test.pdf")));
+
+                when(noticeService.createNotice(any(NoticeCreateRequestDto.class), anyList(), any()))
+                                .thenReturn(response);
+
+                MockMultipartFile filePart = new MockMultipartFile(
+                                "files",
                                 "test.pdf",
-                                "https://presigned-url.com/test.pdf",
-                                "https://bucket.s3.region.amazonaws.com/attachments/uuid-test.pdf"
-                        )
-                )
-        );
+                                "application/pdf",
+                                "test pdf content".getBytes());
 
-        when(noticeService.createNotice(any(NoticeCreateRequestDto.class), anyList(), any()))
-                .thenReturn(response);
+                // when & then
+                mockMvc.perform(multipart("/api/notices")
+                                .file(filePart)
+                                .param("title", "Test Notice with Files")
+                                .param("content", "Test Content")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isCreated())
+                                .andExpect(header().exists("Location"))
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.file").isArray())
+                                .andExpect(jsonPath("$.file[0].name").value("test.pdf"));
+        }
 
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "Test Notice with Files".getBytes()
-        );
+        @Test
+        @WithMockUser
+        @DisplayName("POST /api/notices - 필수 필드 누락 (400)")
+        void createNotice_missingRequiredFields_badRequest() throws Exception {
+                // given
+                when(customSecurityService.isSystemAdmin()).thenReturn(true);
 
-        MockMultipartFile contentPart = new MockMultipartFile(
-                "content",
-                "",
-                "text/plain",
-                "Test Content".getBytes()
-        );
+                // when & then - title만 있고 content 없음
+                mockMvc.perform(multipart("/api/notices")
+                                .param("title", "Test Notice")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isBadRequest());
+        }
 
-        MockMultipartFile filePart = new MockMultipartFile(
-                "files",
-                "test.pdf",
-                "application/pdf",
-                "test pdf content".getBytes()
-        );
+        @Test
+        @WithMockUser
+        @DisplayName("POST /api/notices - 빈 제목 (400)")
+        void createNotice_blankTitle_badRequest() throws Exception {
+                // given
+                when(customSecurityService.isSystemAdmin()).thenReturn(true);
 
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .file(contentPart)
-                        .file(filePart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isCreated())
-                .andExpect(header().exists("Location"))
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.file").isArray())
-                .andExpect(jsonPath("$.file[0].name").value("test.pdf"));
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("POST /api/notices - 필수 필드 누락 (400)")
-    void createNotice_missingRequiredFields_badRequest() throws Exception {
-        // given
-        when(customSecurityService.isSystemAdmin()).thenReturn(true);
-
-        // title만 있고 content 없음
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "Test Notice".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    @WithMockUser
-    @DisplayName("POST /api/notices - 빈 제목 (400)")
-    void createNotice_blankTitle_badRequest() throws Exception {
-        // given
-        when(customSecurityService.isSystemAdmin()).thenReturn(true);
-
-        MockMultipartFile titlePart = new MockMultipartFile(
-                "title",
-                "",
-                "text/plain",
-                "".getBytes()  // 빈 제목
-        );
-
-        MockMultipartFile contentPart = new MockMultipartFile(
-                "content",
-                "",
-                "text/plain",
-                "Test Content".getBytes()
-        );
-
-        // when & then
-        mockMvc.perform(multipart("/api/notices")
-                        .file(titlePart)
-                        .file(contentPart)
-                        .with(csrf())
-                        .contentType(MediaType.MULTIPART_FORM_DATA))
-                .andExpect(status().isBadRequest());
-    }
+                // when & then
+                mockMvc.perform(multipart("/api/notices")
+                                .param("title", "") // 빈 제목
+                                .param("content", "Test Content")
+                                .with(csrf())
+                                .contentType(MediaType.MULTIPART_FORM_DATA))
+                                .andExpect(status().isBadRequest());
+        }
 }
