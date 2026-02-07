@@ -16,91 +16,100 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
-    Optional<Application> findByClubApplyFormIdAndUserId(Long clubApplyFormId, Long userId);
+        Optional<Application> findByClubApplyFormIdAndUserId(Long clubApplyFormId, Long userId);
 
-    @Query("""
-            select app
-            from Application app
-            join fetch app.clubApplyForm
-            where app.clubApplyForm.id = :clubApplyFormId and app.status = :status
-            """)
-    List<Application> findByClubApplyFormIdAndStatus(Long clubApplyFormId, Status status);
+        @Query("""
+                        select app
+                        from Application app
+                        join fetch app.clubApplyForm
+                        where app.clubApplyForm.id = :clubApplyFormId and app.status = :status
+                        """)
+        List<Application> findByClubApplyFormIdAndStatus(Long clubApplyFormId, Status status);
 
-    @Query("""
-            select a 
-            from Application a
-            join a.user u 
-            where u.studentId = :studentId and a.clubApplyForm = :form
-            """)
-    Optional<Application> findByStudentIdAndClubApplyForm(String studentId, ClubApplyForm form);
+        @Query("""
+                        select a
+                        from Application a
+                        join a.user u
+                        where u.studentId = :studentId and a.clubApplyForm = :form
+                        """)
+        Optional<Application> findByStudentIdAndClubApplyForm(String studentId, ClubApplyForm form);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-             SELECT a
-             FROM Application a
-             WHERE a.id = :id""")
-    Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
+        @Lock(LockModeType.PESSIMISTIC_WRITE)
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        WHERE a.id = :id""")
+        Optional<Application> findByIdWithPessimisticLock(@Param("id") Long id);
 
-    /**
-     * applicationId를 사용하여, 해당 지원서가 속한 동아리의 ID(clubId)를 조회합니다.
-     * <p>
-     * 엔티티 전체를 로딩하지 않고 필요한 clubId 값만 직접 조회(Projection)하여 성능을 최적화합니다.
-     * CustomSecurityService에서 특정 지원서에 대한 권한을 검사할 때 사용됩니다.
-     *
-     * @param applicationId 조회할 지원서의 ID
-     * @return 해당 지원서가 속한 Club의 ID
-     */
-    @Query("""
-            SELECT a.clubApplyForm.club.id
-            FROM Application a
-            WHERE a.id = :applicationId
-            """)
-    Optional<Long> findClubIdByApplicationId(@Param("applicationId") Long applicationId);
+        /**
+         * applicationId를 사용하여, 해당 지원서가 속한 동아리의 ID(clubId)를 조회합니다.
+         * <p>
+         * 엔티티 전체를 로딩하지 않고 필요한 clubId 값만 직접 조회(Projection)하여 성능을 최적화합니다.
+         * CustomSecurityService에서 특정 지원서에 대한 권한을 검사할 때 사용됩니다.
+         *
+         * @param applicationId 조회할 지원서의 ID
+         * @return 해당 지원서가 속한 Club의 ID
+         */
+        @Query("""
+                        SELECT a.clubApplyForm.club.id
+                        FROM Application a
+                        WHERE a.id = :applicationId
+                        """)
+        Optional<Long> findClubIdByApplicationId(@Param("applicationId") Long applicationId);
 
-    @Query("""
-            SELECT a
-            FROM Application a
-            WHERE a.clubApplyForm.club.id = :clubId AND a.stage = :stage""")
-    List<Application> findAllByClubIdAndStage(Long clubId, Stage stage);
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        WHERE a.clubApplyForm.club.id = :clubId AND a.stage = :stage""")
+        List<Application> findAllByClubIdAndStage(Long clubId, Stage stage);
 
-    @Query("""
-            SELECT a
-            FROM Application a
-            WHERE a.clubApplyForm.club.id = :clubId""")
-    List<Application> findAllByClubId(Long clubId);
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        WHERE a.clubApplyForm.club.id = :clubId""")
+        List<Application> findAllByClubId(Long clubId);
 
-    @Query("""
-    SELECT a
-    FROM Application a
-    JOIN FETCH a.user
-    JOIN ClubMember cm ON cm.application = a
-    WHERE cm.club.id = :clubId
-      AND cm.role = :role
-      AND a.stage = :stage
-    """)
-    List<Application> findAllByClubIdAndRoleAndStage(Long clubId, Role role, Stage stage);
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        JOIN FETCH a.user
+                        JOIN ClubMember cm ON cm.application = a
+                        WHERE cm.club.id = :clubId
+                          AND cm.role = :role
+                          AND a.stage = :stage
+                        """)
+        List<Application> findAllByClubIdAndRoleAndStage(Long clubId, Role role, Stage stage);
 
-    @Query("""
-    SELECT a
-    FROM Application a
-    JOIN FETCH a.user
-    JOIN ClubMember cm ON cm.application = a
-    WHERE cm.club.id = :clubId
-      AND cm.role = :role
-    """)
-    List<Application> findAllByClubIdAndRole(Long clubId, Role role);
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        JOIN FETCH a.user
+                        JOIN ClubMember cm ON cm.application = a
+                        WHERE cm.club.id = :clubId
+                          AND cm.role = :role
+                        """)
+        List<Application> findAllByClubIdAndRole(Long clubId, Role role);
 
-    @Query("""
-    SELECT 
-        a.interviewDate as interviewDate,
-        a.interviewTime as interviewTime,
-        count(a.id) as assignedCount
-    FROM Application a
-    JOIN a.clubApplyForm caf
-    WHERE caf.club.id = :clubId
-      AND a.interviewDate is not null
-      AND a.interviewTime is not null
-    GROUP BY a.interviewDate, a.interviewTime
-    """)
-    List<InterviewSlotCountProjection> countInterviewSlots(Long clubId);
+        @Query("""
+                        SELECT
+                            a.interviewDate as interviewDate,
+                            a.interviewTime as interviewTime,
+                            count(a.id) as assignedCount
+                        FROM Application a
+                        JOIN a.clubApplyForm caf
+                        WHERE caf.club.id = :clubId
+                          AND a.interviewDate is not null
+                          AND a.interviewTime is not null
+                        GROUP BY a.interviewDate, a.interviewTime
+                        """)
+        List<InterviewSlotCountProjection> countInterviewSlots(Long clubId);
+
+        @Query("""
+                        SELECT a
+                        FROM Application a
+                        JOIN FETCH a.clubApplyForm caf
+                        JOIN FETCH caf.club
+                        WHERE a.user.id = :userId
+                        ORDER BY a.createdAt DESC""")
+        List<Application> findAllByUserId(@Param("userId") Long userId);
 }

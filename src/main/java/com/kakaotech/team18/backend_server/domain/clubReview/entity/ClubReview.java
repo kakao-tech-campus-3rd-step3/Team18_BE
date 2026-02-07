@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubReview.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,16 +28,17 @@ public class ClubReview extends BaseEntity {
     @JoinColumn(name = "club_id")
     private Club club;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
     @Column(name = "content", nullable = false, length = 500)
     private String content;
 
-    @Column(name = "writer", nullable = false)
-    private String writer;
-
     @Builder
-    private ClubReview(Club club, String content, String writer) {
+    private ClubReview(Club club, User user, String content) {
         this.club = club;
+        this.user = user;
         this.content = content;
-        this.writer = writer;
     }
 }

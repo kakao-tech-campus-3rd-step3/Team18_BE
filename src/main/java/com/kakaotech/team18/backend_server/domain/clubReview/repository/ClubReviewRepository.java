@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ClubReviewRepository extends JpaRepository<ClubReview, Long> {
 
     List<ClubReview> findByClubId(Long clubId);
+
+    List<ClubReview> findByUserIdOrderByCreatedAtDesc(Long userId);
 }
