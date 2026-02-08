@@ -1,0 +1,33 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'dongarium-monitor'
+
+scrape_configs:
+  # Prometheus 자체 메트릭
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Spring Boot Application (운영: Docker 네트워크)
+  - job_name: 'dongarium-app'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ['dongarium-server:8080']
+        labels:
+          application: 'dongarium'
+          environment: 'prod'
+
+  # Spring Boot Application (로컬: IDE에서 실행 시)
+  - job_name: 'dongarium-app-local'
+    metrics_path: '/actuator/prometheus'
+    scrape_interval: 10s
+    scrape_timeout: 5s
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+        labels:
+          application: 'dongarium'
+          environment: 'local'
