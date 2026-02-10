@@ -105,7 +105,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     .user(user)
                     .club(club)
                     .activeStatus(ActiveStatus.ACTIVE)
-                    .role(targetRole) // Clubmember의 role도 결정된 Role로 설정
+                    .role(targetRole) // ClubMember의 role도 결정된 Role로 설정
                     .build();
 
             ClubMemberProfile profile = ClubMemberProfile.builder()
@@ -129,7 +129,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
     @Override
     @Transactional
-    public void registerMembersByExcel(Long clubId, MultipartFile file) throws IOException {
+    public void registerMembersByExcel(Long clubId, MultipartFile file) {
         // 1. 파일 유효성 검사
         if (file.isEmpty()) {
             throw new CustomException(ErrorCode.INVALID_FILE, "파일이 비어있습니다.");
@@ -139,7 +139,12 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         }
 
         // 2. 엑셀 파싱 (형식 오류 수집)
-        ExcelParseResult parseResult = ExcelUtils.parseExcel(file);
+        ExcelParseResult parseResult;
+        try {
+            parseResult = ExcelUtils.parseExcel(file);
+        } catch (IOException e) {
+            throw new CustomException(ErrorCode.INVALID_FILE, "파일을 읽는 도중 오류가 발생했습니다.");
+        }
 
         // 3. 파싱된 DTO 리스트를 순회하며 DB 저장 (비즈니스 오류 수집)
         // 형식 오류가 있어도, 성공한 데이터들에 대해서는 비즈니스 검증을 계속 진행하여 에러를 한 번에 모음

@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -86,7 +85,7 @@ public class ClubMemberController {
             @Parameter(description = "동아리 ID", required = true, example = "1") @PathVariable Long clubId,
             @Parameter(description = "엑셀 파일 (.xlsx, .xls)", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
             @RequestPart("file") MultipartFile file
-    ) throws IOException {
+    ) {
         clubMemberService.registerMembersByExcel(clubId, file);
         return ResponseEntity.ok(new SuccessResponseDto(true));
     }
