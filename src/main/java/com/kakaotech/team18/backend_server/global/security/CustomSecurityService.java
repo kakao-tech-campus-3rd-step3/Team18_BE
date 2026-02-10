@@ -107,6 +107,11 @@ public class CustomSecurityService {
         }
 
         String roleStr = memberships.get(clubId.toString());
+
+        if (roleStr == null || roleStr.isEmpty()) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED_USER, "유효하지 않은 Role 정보입니다.");
+        }
+
         try {
             return Role.valueOf(roleStr);
         } catch (IllegalArgumentException e) {
