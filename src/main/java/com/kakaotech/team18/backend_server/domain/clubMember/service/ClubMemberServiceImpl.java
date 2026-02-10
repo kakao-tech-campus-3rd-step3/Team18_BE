@@ -134,7 +134,8 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         if (file.isEmpty()) {
             throw new CustomException(ErrorCode.INVALID_FILE, "파일이 비어있습니다.");
         }
-        if (!file.getOriginalFilename().endsWith(".xlsx") && !file.getOriginalFilename().endsWith(".xls")) {
+        String filename = file.getOriginalFilename();
+        if (filename == null || (!filename.endsWith(".xlsx") && !filename.endsWith(".xls"))) {
             throw new CustomException(ErrorCode.INVALID_FILE, "엑셀 파일(.xlsx, .xls)만 업로드 가능합니다.");
         }
 

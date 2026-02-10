@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.entity;
 
 import com.kakaotech.team18.backend_server.domain.BaseEntity;
+import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -90,7 +91,8 @@ public class ClubMemberProfile extends BaseEntity {
     }
 
     public boolean isOwner(Long userId) {
-        return this.clubMember.getUser().getId().equals(userId);
+        User user = this.clubMember.getUser();
+        return user != null && userId != null && userId.equals(user.getId());
     }
 
     private String getOrDefault(String newValue, String oldValue) {
