@@ -5,20 +5,25 @@ import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.files.entity.File;
 import com.kakaotech.team18.backend_server.domain.files.repository.FileDataRepository;
+import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeCreateRequestDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticePageResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.entity.Notice;
 import com.kakaotech.team18.backend_server.domain.notices.repository.NoticeRepository;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AwsS3Exception;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.FileNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoticeNotFoundException;
+import com.kakaotech.team18.backend_server.global.service.S3Service;
 
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -35,12 +40,12 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional(readOnly = true)
 public class NoticeServiceImpl implements NoticeService {
 
     private final NoticeRepository noticeRepository;
     private final ClubMemberRepository clubMemberRepository;
     private final FileDataRepository  fileDataRepository;
+    private final S3Service s3Service;
     private final String bucketName;
     private final S3Presigner presigner;
 
@@ -48,12 +53,14 @@ public class NoticeServiceImpl implements NoticeService {
             NoticeRepository noticeRepository,
             ClubMemberRepository clubMemberRepository,
             FileDataRepository fileDataRepository,
+            S3Service s3Service,
             S3Presigner presigner,
             @Value("${cloud.aws.s3.bucket-attachments}") String bucketName
             ){
         this.noticeRepository = noticeRepository;
         this.clubMemberRepository = clubMemberRepository;
         this.fileDataRepository = fileDataRepository;
+        this.s3Service = s3Service;
         this.presigner = presigner;
         this.bucketName = bucketName;
     }
@@ -175,5 +182,98 @@ public class NoticeServiceImpl implements NoticeService {
         String encodedKey = rawPath.startsWith("/") ? rawPath.substring(1) : rawPath;
 
         return java.net.URLDecoder.decode(encodedKey, StandardCharsets.UTF_8);
+    }
+
+    @Override
+    @Transactional
+    public NoticeResponseDto createNotice(
+            NoticeCreateRequestDto requestDto,
+            List<MultipartFile> files,
+            Authentication authentication
+    ) {
+        // 1. Notice 엔티티 생성 및 저장
+        Notice notice = Notice.builder()
+                .title(requestDto.title())
+                .content(requestDto.content())
+                .isAlive(true)
+                .build();
+
+        Notice savedNotice = noticeRepository.save(notice);
+        log.info("Notice created with id={}", savedNotice.getId());
+
+        // 2. 파일이 있으면 S3 업로드 및 File 엔티티 생성
+        List<File> uploadedFiles = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                if (!file.isEmpty()) {
+                    try {
+                        // S3에 업로드
+                        String s3Uri = s3Service.uploadAttachment(file);
+
+                        // File 엔티티 생성 및 저장
+                        File fileEntity = File.builder()
+                                .notice(savedNotice)
+                                .name(file.getOriginalFilename())
+                                .type(file.getContentType())
+                                .objectUri(s3Uri)
+                                .build();
+
+                        File savedFile = fileDataRepository.save(fileEntity);
+                        uploadedFiles.add(savedFile);
+                        log.info("File uploaded: name={}, uri={}", savedFile.getName(), s3Uri);
+
+                    } catch (Exception e) {
+                        log.error("File upload failed for notice id={}", savedNotice.getId(), e);
+                        throw new AwsS3Exception("파일 업로드 중 오류가 발생했습니다: " + file.getOriginalFilename());
+                    }
+                }
+            }
+        }
+
+        // 3. 작성자 정보 조회
+        Optional<ClubMember> systemAdmin = clubMemberRepository.findFirstByRole(Role.SYSTEM_ADMIN);
+        String authorName = systemAdmin
+                .map(cm -> cm.getUser().getName())
+                .orElse("관리자");
+        String authorEmail = systemAdmin
+                .map(cm -> cm.getUser().getEmail())
+                .orElse("jnupole004@gmail.com");
+
+        // 4. 파일 presigned URL 생성
+        List<NoticeResponseDto.FileDetail> fileDetails = new ArrayList<>();
+        for (File file : uploadedFiles) {
+            String objectKey = extractObjectKeyFromUri(file.getObjectUri(), bucketName);
+
+            GetObjectRequest getReq = GetObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .responseContentDisposition(contentDispositionAttachment(file.getName()))
+                    .build();
+
+            GetObjectPresignRequest presignReq = GetObjectPresignRequest.builder()
+                    .signatureDuration(Duration.ofDays(7))
+                    .getObjectRequest(getReq)
+                    .build();
+
+            String presignedUrl = presigner.presignGetObject(presignReq).url().toString();
+
+            fileDetails.add(new NoticeResponseDto.FileDetail(
+                    file.getId(),
+                    file.getName(),
+                    presignedUrl,
+                    file.getObjectUri()
+            ));
+        }
+
+        // 5. NoticeResponseDto 반환
+        return new NoticeResponseDto(
+                savedNotice.getId(),
+                savedNotice.getTitle(),
+                savedNotice.getContent(),
+                savedNotice.getCreatedAt(),
+                authorName,
+                authorEmail,
+                fileDetails
+        );
     }
 }

@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.notices.controller;
 
+import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeCreateRequestDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticePageResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.dto.NoticeResponseDto;
 import com.kakaotech.team18.backend_server.domain.notices.service.NoticeService;
@@ -8,17 +9,28 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Tag(name = "공지사항 API", description = "공지사항 목록 및 상세 조회 API")
+import java.net.URI;
+import java.util.List;
+
+@Tag(name = "공지사항 API", description = "공지사항 조회 및 작성 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/notices")
@@ -66,5 +78,44 @@ public class NoticeController {
     ) {
         NoticeResponseDto response = noticeService.getNoticeById(noticeId);
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(
+            summary = "공지사항 생성 (SYSTEM_ADMIN 전용)",
+            description = """
+                    새로운 공지사항을 생성합니다.
+                    - 권한: SYSTEM_ADMIN만 가능
+                    - 요청 형식: multipart/form-data
+                    - 파일: 선택 사항 (여러 파일 업로드 가능)
+                    - 응답: 201 Created + Location 헤더
+                    """
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "공지사항 생성 성공"),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청 데이터"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자"),
+            @ApiResponse(responseCode = "403", description = "권한 없음 (SYSTEM_ADMIN 아님)")
+    })
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("@customSecurityService.isSystemAdmin()")
+    public ResponseEntity<NoticeResponseDto> createNotice(
+            @Parameter(description = "공지사항 제목 및 내용")
+            @Valid @ModelAttribute NoticeCreateRequestDto requestDto,
+
+            @Parameter(description = "첨부 파일 목록 (선택 사항)")
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+
+            Authentication authentication
+    ) {
+        NoticeResponseDto response = noticeService.createNotice(requestDto, files, authentication);
+
+        // Location 헤더 생성
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
     }
 }
