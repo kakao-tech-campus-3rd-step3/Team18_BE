@@ -93,9 +93,6 @@ dependencies {
     // Apache POI (Excel)
     implementation 'org.apache.poi:poi:5.4.0'
     implementation 'org.apache.poi:poi-ooxml:5.4.0'
-
-    // OpenCSV (CSV)
-    implementation 'com.opencsv:opencsv:5.10'
 }
 
 tasks.named('test') {
