@@ -77,8 +77,8 @@ class ClubMemberServiceTest {
     void getClubMembers_Success() {
         // given
         Long clubId = 1L;
-        ClubMemberProfile profile1 = createProfile("이지훈", "20231234", Role.CLUB_EXECUTIVE);
-        ClubMemberProfile profile2 = createProfile("김철수", "20245678", Role.CLUB_MEMBER);
+        ClubMemberProfile profile1 = createProfile(10L, 100L, "이지훈", "20231234", Role.CLUB_EXECUTIVE);
+        ClubMemberProfile profile2 = createProfile(20L, 200L, "김철수", "20245678", Role.CLUB_MEMBER);
 
         given(clubRepository.existsById(clubId)).willReturn(true);
         given(clubMemberProfileRepository.findAllByClubId(clubId)).willReturn(List.of(profile1, profile2));
@@ -165,7 +165,7 @@ class ClubMemberServiceTest {
         // given
         Long clubId = 1L;
         ClubMemberSaveRequestDto requestDto = createRequestDto("이지훈", "20231234", Role.CLUB_MEMBER);
-        ClubMemberProfile existingProfile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER); // 이름 일치
+        ClubMemberProfile existingProfile = createProfile(10L, 100L, "이지훈", "20231234", Role.CLUB_MEMBER); // 이름 일치
 
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByClubMember_Club_IdAndStudentId(clubId, requestDto.studentId()))
@@ -187,7 +187,7 @@ class ClubMemberServiceTest {
         // given
         Long clubId = 1L;
         ClubMemberSaveRequestDto requestDto = createRequestDto("김기춘", "20231234", Role.CLUB_MEMBER); // 이름 다름
-        ClubMemberProfile existingProfile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
+        ClubMemberProfile existingProfile = createProfile(10L, 100L, "이지훈", "20231234", Role.CLUB_MEMBER);
 
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByClubMember_Club_IdAndStudentId(clubId, requestDto.studentId()))
@@ -271,7 +271,7 @@ class ClubMemberServiceTest {
         );
         MockMultipartFile file = createExcelFile("members.xlsx", data);
 
-        ClubMemberProfile existingProfile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
+        ClubMemberProfile existingProfile = createProfile(10L, 100L, "이지훈", "20231234", Role.CLUB_MEMBER);
         
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByClubMember_Club_IdAndStudentId(clubId, "20231234"))
@@ -305,7 +305,7 @@ class ClubMemberServiceTest {
         ClubMemberUpdateRequestDto requestDto = new ClubMemberUpdateRequestDto(
                 "박개명", null, null, null, null, null, null
         );
-        ClubMemberProfile profile = createProfile("박원래", "212121", Role.CLUB_MEMBER);
+        ClubMemberProfile profile = createProfile(profileId, 100L, "박원래", "212121", Role.CLUB_MEMBER);
 
         given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
         // 중복 검사 통과 (학번 변경 없음)
@@ -327,7 +327,7 @@ class ClubMemberServiceTest {
         ClubMemberUpdateRequestDto requestDto = new ClubMemberUpdateRequestDto(
                 null, "20245678", null, null, null, null, null // 다른 사람 학번으로 변경 시도
         );
-        ClubMemberProfile profile = createProfile("이지훈", "20245678", Role.CLUB_MEMBER);
+        ClubMemberProfile profile = createProfile(profileId, 100L, "이지훈", "20231234", Role.CLUB_MEMBER);
 
         given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
         given(clubMemberProfileRepository.existsByClubMember_Club_IdAndStudentIdAndIdNot(clubId, "20245678", profileId))
@@ -346,7 +346,7 @@ class ClubMemberServiceTest {
         Long clubId = 1L;
         Long profileId = 501L;
         ClubMemberRoleUpdateRequestDto requestDto = new ClubMemberRoleUpdateRequestDto(Role.CLUB_EXECUTIVE);
-        ClubMemberProfile profile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
+        ClubMemberProfile profile = createProfile(profileId, 100L, "이지훈", "20231234", Role.CLUB_MEMBER);
 
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN); // 회장
         given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
@@ -376,14 +376,39 @@ class ClubMemberServiceTest {
     }
 
     @Test
+    @DisplayName("동아리원 직책 변경 성공 - 회장직 이양")
+    void updateMemberRole_Success_TransferAdmin() {
+        // given
+        Long clubId = 1L;
+        Long oldAdminProfileId = 10L;
+        Long newAdminProfileId = 20L;
+        
+        ClubMemberProfile oldAdmin = createProfile(oldAdminProfileId, 100L, "나회장", "111111", Role.CLUB_ADMIN);
+        ClubMemberProfile newAdmin = createProfile(newAdminProfileId, 200L, "너회장", "222222", Role.CLUB_MEMBER);
+        
+        ClubMemberRoleUpdateRequestDto requestDto = new ClubMemberRoleUpdateRequestDto(Role.CLUB_ADMIN);
+
+        given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
+        given(clubMemberProfileRepository.findByIdAndClubId(newAdminProfileId, clubId)).willReturn(Optional.of(newAdmin));
+        given(clubMemberProfileRepository.findByClubMember_Club_IdAndRole(clubId, Role.CLUB_ADMIN)).willReturn(Optional.of(oldAdmin));
+
+        // when
+        ClubMemberRoleUpdateResponseDto result = clubMemberService.updateMemberRole(clubId, newAdminProfileId, requestDto);
+
+        // then
+        assertThat(result.newRole()).isEqualTo(Role.CLUB_ADMIN);
+        assertThat(newAdmin.getRole()).isEqualTo(Role.CLUB_ADMIN); // 새 회장 승격 확인
+        assertThat(oldAdmin.getRole()).isEqualTo(Role.CLUB_MEMBER); // 기존 회장 강등 확인
+    }
+
+    @Test
     @DisplayName("동아리원 삭제 성공")
     void deleteMember_Success() {
         // given
         Long clubId = 1L;
         Long profileId = 501L;
         Long currentUserId = 100L;
-        ClubMemberProfile profile = createProfile("이지훈", "20231234", Role.CLUB_MEMBER);
-        // profile의 주인은 userId가 999L (createProfile에서 설정)
+        ClubMemberProfile profile = createProfile(profileId, 999L, "이지훈", "20231234", Role.CLUB_MEMBER);
         
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)).willReturn(Optional.of(profile));
@@ -407,11 +432,12 @@ class ClubMemberServiceTest {
         
         // 내 프로필 생성 (User ID = 100)
         User user = User.builder().name("나회장").studentId("20231234").build();
-        ReflectionTestUtils.setField(user, "id", currentUserId); // ID 강제 주입
+        ReflectionTestUtils.setField(user, "id", currentUserId);
 
         Club club = Club.builder().build();
         ClubMember clubMember = ClubMember.builder().user(user).club(club).role(Role.CLUB_ADMIN).build();
         ClubMemberProfile profile = ClubMemberProfile.builder().clubMember(clubMember).name("나회장").role(Role.CLUB_ADMIN).build();
+        ReflectionTestUtils.setField(profile, "id", profileId);
         clubMember.setProfile(profile);
 
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
@@ -423,9 +449,9 @@ class ClubMemberServiceTest {
                 .isInstanceOf(CannotDeleteSelfException.class);
     }
 
-    private ClubMemberProfile createProfile(String name, String studentId, Role role) {
+    private ClubMemberProfile createProfile(Long profileId, Long userId, String name, String studentId, Role role) {
         User user = User.builder().name(name).studentId(studentId).build();
-        ReflectionTestUtils.setField(user, "id", 999L); // ID 강제 주입
+        ReflectionTestUtils.setField(user, "id", userId);
 
         Club club = Club.builder().name("동아리움").build();
         
@@ -437,7 +463,7 @@ class ClubMemberServiceTest {
                 .build();
 
         ClubMemberProfile profile = ClubMemberProfile.builder()
-                .clubMember(clubMember) // ClubMember 연결
+                .clubMember(clubMember)
                 .name(name)
                 .studentId(studentId)
                 .phoneNumber("010-1234-5678")
@@ -447,6 +473,7 @@ class ClubMemberServiceTest {
                 .joinDate(LocalDate.of(2024, 3, 1))
                 .role(role)
                 .build();
+        ReflectionTestUtils.setField(profile, "id", profileId);
         
         clubMember.setProfile(profile); // 양방향 연결
         return profile;

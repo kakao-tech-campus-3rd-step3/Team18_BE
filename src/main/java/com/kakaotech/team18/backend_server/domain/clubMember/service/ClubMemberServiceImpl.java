@@ -203,13 +203,31 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         Role previousRole = profile.getRole();
         Role newRole = requestDto.role();
 
-        // 3. Role 업데이트 (Profile & ClubMember 동기화)
+        // 3. 회장직 이양 로직 (새로운 역할이 회장인 경우)
+        if (newRole == Role.CLUB_ADMIN) {
+            Optional<ClubMemberProfile> currentAdminProfile = clubMemberProfileRepository.findByClubMember_Club_IdAndRole(clubId, Role.CLUB_ADMIN);
+            
+            // 기존 회장이 존재하고, 그 사람이 이번에 임명되는 사람이 아니라면 강등
+            if (currentAdminProfile.isPresent() && !currentAdminProfile.get().getId().equals(profileId)) {
+                ClubMemberProfile oldAdmin = currentAdminProfile.get();
+                oldAdmin.updateRole(Role.CLUB_MEMBER); // 일반 부원으로 강등
+                oldAdmin.getClubMember().updateRole(Role.CLUB_MEMBER);
+            }
+        }
+
+        // 4. Role 업데이트 (Profile & ClubMember 동기화)
         profile.updateRole(newRole);
         profile.getClubMember().updateRole(newRole);
 
-        // 4. 메시지 생성
-        String message = newRole == Role.CLUB_MEMBER ?
-                "일반 부원으로 역할이 변경되었습니다." : "운영진으로 역할이 변경되었습니다.";
+        // 5. 메시지 생성
+        String message;
+        if (newRole == Role.CLUB_MEMBER) {
+            message = "일반 부원으로 역할이 변경되었습니다.";
+        } else if (newRole == Role.CLUB_EXECUTIVE) {
+            message = "운영진으로 역할이 변경되었습니다.";
+        } else {
+            message = "회장으로 역할이 변경되었습니다.";
+        }
 
         return ClubMemberRoleUpdateResponseDto.builder()
                 .clubId(clubId)

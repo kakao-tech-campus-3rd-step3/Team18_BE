@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubMember.repository;
 
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMemberProfile;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface ClubMemberProfileRepository extends JpaRepository<ClubMemberPro
     Optional<ClubMemberProfile> findByClubMember_Club_IdAndStudentId(Long clubId, String studentId);
 
     boolean existsByClubMember_Club_IdAndStudentIdAndIdNot(Long clubId, String studentId, Long profileId);
+
+    Optional<ClubMemberProfile> findByClubMember_Club_IdAndRole(Long clubId, Role role);
 }
