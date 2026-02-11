@@ -35,7 +35,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserActivityDto getMyActivities(Long userId) {
-        List<UserClubReviewDto> reviews = clubReviewRepository.findByUserIdOrderByCreatedAtDesc(userId)
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId.toString()));
+
+        List<UserClubReviewDto> reviews = clubReviewRepository.findByWriterOrderByCreatedAtDesc(user.getStudentId())
                 .stream()
                 .map(review -> new UserClubReviewDto(
                         review.getId(),

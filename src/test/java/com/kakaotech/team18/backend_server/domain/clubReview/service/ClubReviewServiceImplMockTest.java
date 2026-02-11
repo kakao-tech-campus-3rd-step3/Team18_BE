@@ -63,7 +63,7 @@ class ClubReviewServiceImplMockTest {
                 ClubReview clubReview = ClubReview.builder()
                                 .club(club)
                                 .content(requestDto.content())
-                                .user(user)
+                                .writer(requestDto.studentId())
                                 .build();
 
                 given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId))
@@ -99,7 +99,7 @@ class ClubReviewServiceImplMockTest {
                 ClubReview clubReview = ClubReview.builder()
                                 .club(club)
                                 .content(requestDto.content())
-                                .user(user)
+                                .writer(requestDto.studentId())
                                 .build();
                 given(clubMemberRepository.findByClubIdAndUserStudentId(clubId, studentId))
                                 .willReturn(Optional.of(clubMember));
@@ -148,20 +148,17 @@ class ClubReviewServiceImplMockTest {
                 Club club = Club.builder().name("Test Club").build();
                 ReflectionTestUtils.setField(club, "id", clubId);
 
-                User user1 = User.builder().studentId("20250001").build();
-                User user2 = User.builder().studentId("20250002").build();
-
                 ClubReview review1 = ClubReview.builder()
                                 .club(club)
                                 .content("리뷰 내용 1")
-                                .user(user1)
+                                .writer("20250001")
                                 .build();
                 ReflectionTestUtils.setField(review1, "id", 1L);
 
                 ClubReview review2 = ClubReview.builder()
                                 .club(club)
                                 .content("리뷰 내용 2")
-                                .user(user2)
+                                .writer("20250002")
                                 .build();
                 ReflectionTestUtils.setField(review2, "id", 2L);
 

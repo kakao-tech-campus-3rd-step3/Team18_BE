@@ -8,5 +8,5 @@ public interface ClubReviewRepository extends JpaRepository<ClubReview, Long> {
 
     List<ClubReview> findByClubId(Long clubId);
 
-    List<ClubReview> findByUserIdOrderByCreatedAtDesc(Long userId);
+    List<ClubReview> findByWriterOrderByCreatedAtDesc(String writer);
 }
