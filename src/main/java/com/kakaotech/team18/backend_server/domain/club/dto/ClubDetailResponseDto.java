@@ -29,7 +29,10 @@ public record ClubDetailResponseDto(
         @Schema(description = "동아리 회장 연락처", example = "010-1234-5678") String presidentPhoneNumber,
         @Schema(description = "모집 시작일") LocalDateTime recruitStart,
         @Schema(description = "모집 마감일") LocalDateTime recruitEnd,
-        @Schema(description = "동아리 지원 유의사항 목록") String applicationNotice
+        @Schema(description = "동아리 지원 유의사항 목록") String applicationNotice,
+        @Schema(description = "서비스 등록 여부") Boolean isRegistered,
+        @Schema(description = "에브리타임 홍보 게시글 URL") String everyTimeUrl,
+        @Schema(description = "구글 폼 URL") String googleFormUrl
 ) {
 
     public static ClubDetailResponseDto from(Club club, User user) {
@@ -56,6 +59,9 @@ public record ClubDetailResponseDto(
                 recruitStart(club.getRecruitStart()).
                 recruitEnd(club.getRecruitEnd()).
                 applicationNotice(club.getCaution()).
+                isRegistered(club.getIsRegistered()).
+                everyTimeUrl(club.getEveryTimeUrl()).
+                googleFormUrl(club.getGoogleFormUrl()).
                 build();
     }
     public record ClubImageResponseDto(

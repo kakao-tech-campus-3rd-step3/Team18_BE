@@ -11,4 +11,5 @@ public interface ClubSummary {
     String getShortIntroduction();
     LocalDateTime getRecruitStart();
     LocalDateTime getRecruitEnd();
+    Boolean getIsRegistered();
 }

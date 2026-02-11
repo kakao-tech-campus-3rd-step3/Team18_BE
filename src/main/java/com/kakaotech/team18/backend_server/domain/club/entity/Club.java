@@ -67,11 +67,14 @@ public class Club extends BaseEntity {
 
     private String regularMeetingInfo;
 
-    @Column(length = 2048)
-    private String applicationUrl;
-
     @Column(nullable = false)
-    private Boolean isExternal;
+    private Boolean isRegistered;
+
+    @Column(length = 2048)
+    private String everyTimeUrl;
+
+    @Column(length = 2048)
+    private String googleFormUrl;
 
     @Builder
     private Club(
@@ -89,8 +92,9 @@ public class Club extends BaseEntity {
             LocalTime interviewStartTime,
             LocalTime interviewEndTime,
             String regularMeetingInfo,
-            String applicationUrl,
-            Boolean isExternal) {
+            Boolean isRegistered,
+            String everyTimeUrl,
+            String googleFormUrl) {
         this.name = name;
         this.category = category;
         this.location = location;
@@ -105,8 +109,9 @@ public class Club extends BaseEntity {
         this.interviewStartTime = interviewStartTime;
         this.interviewEndTime = interviewEndTime;
         this.regularMeetingInfo = regularMeetingInfo;
-        this.applicationUrl = applicationUrl;
-        this.isExternal = (isExternal != null) ? isExternal : false;
+        this.isRegistered = (isRegistered != null) ? isRegistered : false;
+        this.everyTimeUrl = everyTimeUrl;
+        this.googleFormUrl = googleFormUrl;
     }
 
     public void updateDetail(ClubDetailRequestDto dto) {
@@ -116,6 +121,8 @@ public class Club extends BaseEntity {
         this.shortIntroduction = dto.shortIntroduction();
         this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
+        this.everyTimeUrl = dto.everyTimeUrl();
+        this.googleFormUrl = dto.googleFormUrl();
         this.introduction.update(dto);
     }
 

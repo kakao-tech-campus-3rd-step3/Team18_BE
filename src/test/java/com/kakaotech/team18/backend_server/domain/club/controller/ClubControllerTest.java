@@ -71,7 +71,8 @@ class ClubControllerTest {
                 "동아리1",
                 Category.STUDY,
                 "짧은 소개1",
-                "모집중"
+                "모집중",
+                true
         );
 
         ClubListResponseDto.ClubsInfo club2 = new ClubListResponseDto.ClubsInfo(
@@ -79,7 +80,8 @@ class ClubControllerTest {
                 "동아리2",
                 Category.SPORTS,
                 "짧은 소개2",
-                "모집 종료"
+                "모집 종료",
+                false
         );
 
         ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2));
@@ -106,7 +108,8 @@ class ClubControllerTest {
                 "동아리1",
                 Category.STUDY,
                 "짧은 소개1",
-                "모집중"
+                "모집중",
+                true
         );
 
         ClubListResponseDto.ClubsInfo club2 = new ClubListResponseDto.ClubsInfo(
@@ -114,7 +117,8 @@ class ClubControllerTest {
                 "동아리2",
                 Category.SPORTS,
                 "짧은 소개2",
-                "모집 종료"
+                "모집 종료",
+                false
         );
 
         String category = "STUDY";

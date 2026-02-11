@@ -269,7 +269,10 @@ public class ClubServiceMockTest {
                     "010-1234-5678",
                     LocalDateTime.of(2025, 9, 3, 0, 0),
                     LocalDateTime.of(2025, 9, 20, 23, 59),
-                    "주의사항"
+                    "주의사항",
+                    false,
+                    null,
+                    null
             );
 
             //when

@@ -64,6 +64,7 @@ class ClubServiceImplTest {
         private final String shortIntroduction;
         private final LocalDateTime recruitStart;
         private final LocalDateTime recruitEnd;
+        private final Boolean isRegistered = false;
     }
 
     @Nested
