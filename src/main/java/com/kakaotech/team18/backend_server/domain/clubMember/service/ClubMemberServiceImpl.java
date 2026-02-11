@@ -27,6 +27,7 @@ import com.kakaotech.team18.backend_server.global.security.CustomSecurityService
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -88,10 +89,13 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     requestDto.academicStatus(),
                     parseJoinDate(requestDto.joinDate())
             );
-            profile.updateRole(targetRole); // 결정된 Role로 업데이트
-            // ClubMember의 Role도 동기화
-            profile.getClubMember().updateRole(targetRole);
-
+            
+            // 회장일 때만 Role 업데이트 수행 (운영진에 의한 강등 방지)
+            if (currentUserRole == Role.CLUB_ADMIN) {
+                profile.updateRole(targetRole);
+                profile.getClubMember().updateRole(targetRole);
+            }
+            
             return ClubMemberResponseDto.from(profile);
         } else {
             // 5. 존재하지 않으면 신규 등록
@@ -294,6 +298,10 @@ public class ClubMemberServiceImpl implements ClubMemberService {
     }
 
     private LocalDate parseJoinDate(String joinDateStr) {
-        return LocalDate.parse(joinDateStr + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        try {
+            return LocalDate.parse(joinDateStr + "-01", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        } catch (DateTimeParseException e) {
+            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE, "가입일자 형식이 올바르지 않습니다. (YYYY-MM)");
+        }
     }
 }
