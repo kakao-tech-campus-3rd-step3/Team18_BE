@@ -2,6 +2,8 @@ package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -84,5 +86,44 @@ public class CustomSecurityService {
         // 4. 역할이 CLUB_ADMIN 또는 CLUB_EXECUTIVE인지 확인
         return Objects.equals(userRoleForClub, Role.CLUB_ADMIN.name()) ||
                Objects.equals(userRoleForClub, Role.CLUB_EXECUTIVE.name());
+    }
+
+    /**
+     * 현재 로그인한 사용자의 특정 동아리(clubId)에서의 Role을 반환합니다.
+     *
+     * @param clubId 동아리 ID
+     * @return Role (해당 동아리의 직책)
+     * @throws CustomException 해당 동아리에 대한 권한 정보가 없을 경우
+     */
+    public Role getUserRoleInClub(Long clubId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED_USER);
+        }
+
+        Map<String, String> memberships = principalDetails.getMemberships();
+        if (memberships == null || !memberships.containsKey(clubId.toString())) {
+            throw new CustomException(ErrorCode.FORBIDDEN, "해당 동아리에 대한 권한 정보가 없습니다.");
+        }
+
+        String roleStr = memberships.get(clubId.toString());
+
+        if (roleStr == null || roleStr.isEmpty()) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED_USER, "유효하지 않은 Role 정보입니다.");
+        }
+
+        try {
+            return Role.valueOf(roleStr);
+        } catch (IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.INTERNAL_SERVER_ERROR, "유효하지 않은 Role 정보입니다.");
+        }
+    }
+
+    public Long getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof PrincipalDetails principalDetails)) {
+            throw new CustomException(ErrorCode.UNAUTHENTICATED_USER);
+        }
+        return principalDetails.getUserId();
     }
 }
