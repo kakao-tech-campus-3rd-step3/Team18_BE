@@ -157,6 +157,8 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             } catch (CustomException e) {
                 // registerMember 내부에서 발생한 비즈니스 예외를 수집
                 parseResult.addError(String.format("학번 %s: %s", dto.studentId(), e.getMessage()));
+            } catch (Exception e) {
+                parseResult.addError(String.format("학번 %s: 알 수 없는 오류가 발생했습니다. (%s)", dto.studentId(), e.getMessage()));
             }
         }
 
@@ -277,6 +279,10 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
 
     private User createShellUser(ClubMemberSaveRequestDto requestDto) {
+        if (userRepository.existsByPhoneNumber(requestDto.phoneNumber())) {
+            throw new CustomException(ErrorCode.EXISTING_USER_PHONE_NUMBER, "이미 사용 중인 전화번호입니다.");
+        }
+
         User user = User.builder()
                 .name(requestDto.name())
                 .studentId(requestDto.studentId())
