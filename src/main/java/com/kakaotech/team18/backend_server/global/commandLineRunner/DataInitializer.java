@@ -739,7 +739,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "• 정규활동인 과실회담과 꿈자람 과학 교실, 꿈자람 교실은 꼭 참석 필수\n" +
                                                 "• 지원서를 바탕으로 면접날짜 배정 및 면접 진행 예정")
                                 .build();
-                clubs.add(Club.builder().name("과실연").category(Category.VOLUNTEER).shortIntroduction("과학 교육 봉사 동아리").introduction(intro2).recruitStart(LocalDateTime.of(2026, 2, 12, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 18, 0)).regularMeetingInfo("매주 화요일 18:30~20:00 과실회담").caution("정규활동인 과실회담과 꿈자람 과학 교실, 꿈자람 교실은 꼭 참석 필수").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400282998").googleFormUrl("https://naver.me/5WUhwzpc").build());
+                clubs.add(Club.builder().name("과실연").category(Category.VOLUNTEER).location("제1학생회관").shortIntroduction("과학 교육 봉사 동아리").introduction(intro2).recruitStart(LocalDateTime.of(2026, 2, 12, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 18, 0)).regularMeetingInfo("매주 화요일 18:30~20:00 과실회담").caution("정규활동인 과실회담과 꿈자람 과학 교실, 꿈자람 교실은 꼭 참석 필수").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400282998").googleFormUrl("https://naver.me/5WUhwzpc").build());
 
                 // 3. 소리터관현악단 (비전공자 오케스트라)
                 ClubIntroduction intro3 = ClubIntroduction.builder()
@@ -812,7 +812,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "• 지원서 (70%) + 오디션 (30%)\n" +
                                                 "• 1분 내외의 자유곡을 준비해주세요! (장르 불문)")
                                 .build();
-                clubs.add(Club.builder().name("LIT:CH").category(Category.LITERATURE).shortIntroduction("스트릿 댄스 동아리").introduction(intro5).recruitStart(LocalDateTime.of(2026, 2, 9, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 8, 0, 0)).regularMeetingInfo("3월 3~4주차 기초 트레이닝 [월/화 16~18시, 19~21시]").caution("지원서 (70%) + 오디션 (30%), 1분 내외의 자유곡 준비 (장르 불문)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399873173").googleFormUrl("https://forms.gle/Bnq1qvqJrynbiYCt6").build());
+                clubs.add(Club.builder().name("LIT:CH").category(Category.LITERATURE).location("제1학생회관 314호").shortIntroduction("스트릿 댄스 동아리").introduction(intro5).recruitStart(LocalDateTime.of(2026, 2, 9, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 8, 0, 0)).regularMeetingInfo("3월 3~4주차 기초 트레이닝 [월/화 16~18시, 19~21시]").caution("지원서 (70%) + 오디션 (30%), 1분 내외의 자유곡 준비 (장르 불문)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399873173").googleFormUrl("https://forms.gle/Bnq1qvqJrynbiYCt6").build());
 
                 // 6. DOVE (축구)
                 ClubIntroduction intro6 = ClubIntroduction.builder()
@@ -832,7 +832,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "[연락처]\n" +
                                                 "• 인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요!")
                                 .build();
-                clubs.add(Club.builder().name("DOVE").category(Category.SPORTS).introduction(intro6).caution("인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399818659").googleFormUrl("인스타: @cnu_dove").build());
+                clubs.add(Club.builder().name("DOVE").category(Category.SPORTS).location("대운동장").introduction(intro6).caution("인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399818659").googleFormUrl("인스타: @cnu_dove").build());
 
                 // 7. 관현악반 (CNUO 오케스트라)
                 ClubIntroduction intro7 = ClubIntroduction.builder()
