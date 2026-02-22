@@ -686,6 +686,26 @@ public class DataInitializer implements CommandLineRunner {
                                 .department("국어국문학과")
                                 .build());
 
+                // 15번 동아리(ECHO) 회장
+                users.add(User.builder()
+                                .kakaoId(10068L)
+                                .email("eunji.choi@jnu.ac.kr")
+                                .name("최은지")
+                                .studentId("202568")
+                                .phoneNumber("010-3341-8820")
+                                .department("영어영문학과")
+                                .build());
+
+                // 16번 동아리(어푸어푸) 회장
+                users.add(User.builder()
+                                .kakaoId(10069L)
+                                .email("dohyun.nam@jnu.ac.kr")
+                                .name("남도현")
+                                .studentId("202569")
+                                .phoneNumber("010-7762-4415")
+                                .department("체육교육학과")
+                                .build());
+
                 return userRepository.saveAll(users);
         }
 
@@ -2219,16 +2239,34 @@ public class DataInitializer implements CommandLineRunner {
 
                 List<ClubMember> members = new ArrayList<>();
 
-                // ===== 1~16번 동아리 회장(CLUB_ADMIN) =====
-                for (int i = 1; i <= 16; i++) {
+                // ===== 1~14번 동아리 회장(CLUB_ADMIN) =====
+                for (int i = 1; i <= 14; i++) {
                         members.add(ClubMember.builder()
-                                        .user(userArr[i]) // user 1~14
-                                        .club(clubArr[i]) // club 1~14
+                                        .user(userArr[i])
+                                        .club(clubArr[i])
                                         .application(null)
                                         .activeStatus(ActiveStatus.ACTIVE)
                                         .role(Role.CLUB_ADMIN)
                                         .build());
                 }
+
+                // ===== 15번 동아리(ECHO) 회장 – user 68 =====
+                members.add(ClubMember.builder()
+                                .user(userArr[68])
+                                .club(clubArr[15])
+                                .application(null)
+                                .activeStatus(ActiveStatus.ACTIVE)
+                                .role(Role.CLUB_ADMIN)
+                                .build());
+
+                // ===== 16번 동아리(어푸어푸) 회장 – user 69 =====
+                members.add(ClubMember.builder()
+                                .user(userArr[69])
+                                .club(clubArr[16])
+                                .application(null)
+                                .activeStatus(ActiveStatus.ACTIVE)
+                                .role(Role.CLUB_ADMIN)
+                                .build());
 
                 // ===== 15~49번 지원자(APPLICANT) =====
                 for (int i = 15; i <= 49; i++) {
