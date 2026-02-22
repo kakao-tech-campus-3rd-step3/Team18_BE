@@ -16,7 +16,8 @@ public record ClubListResponseDto(
             @Schema(description = "동아리 이름", example = "개발하는 사람들") String name,
             @Schema(description = "동아리 카테고리", example = "STUDY") Category category,
             @Schema(description = "동아리 한 줄 소개", example = "함께 성장하는 개발 동아리입니다.") String shortIntroduction,
-            @Schema(description = "모집 상태", example = "모집중") String recruitStatus
+            @Schema(description = "모집 상태", example = "모집중") String recruitStatus,
+            @Schema(description = "서비스 등록 여부") Boolean isRegistered
     ){}
 
     public static ClubsInfo from(Club club) {
@@ -25,7 +26,8 @@ public record ClubListResponseDto(
                 club.getName(),
                 club.getCategory(),
                 club.getShortIntroduction(),
-                RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()).getDisplayName()
+                RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()).getDisplayName(),
+                club.getIsRegistered()
         );
     }
 
@@ -35,7 +37,8 @@ public record ClubListResponseDto(
                 summary.getName(),
                 summary.getCategory(),
                 summary.getShortIntroduction(),
-                recruitStatus
+                recruitStatus,
+                summary.getIsRegistered()
         );
     }
 }

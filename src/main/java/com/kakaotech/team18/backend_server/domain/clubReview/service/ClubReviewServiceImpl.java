@@ -30,9 +30,10 @@ public class ClubReviewServiceImpl implements ClubReviewService {
     @Override
     @Transactional
     public SuccessResponseDto createClubReview(Long clubId, ClubReviewRequestDto request) {
-        Optional<ClubMember> optionalClubMember = clubMemberRepository.findByClubIdAndUserStudentId(clubId, request.studentId());
+        Optional<ClubMember> optionalClubMember = clubMemberRepository.findByClubIdAndUserStudentId(clubId,
+                request.studentId());
 
-        //후기 작성은 동아리 멤버만 가능
+        // 후기 작성은 동아리 멤버만 가능
         if (optionalClubMember.isEmpty()) {
             log.warn("동아리에 가입되지 않은 학생입니다. clubId = {}, studentId = {}", clubId, request.studentId());
             throw new UnRegisteredUserException("리뷰를 작성하려면 동아리에 가입된 학생이어야 합니다.");

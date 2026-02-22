@@ -19,8 +19,16 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     List<Comment> findByApplicationIdWithUser(Long applicationId);
 
     @Query("""
-             SELECT AVG(c.rating)
-             FROM Comment c
-             WHERE c.application.id = :applicationId""")
+            SELECT AVG(c.rating)
+            FROM Comment c
+            WHERE c.application.id = :applicationId""")
     Optional<Double> findAverageRatingByApplicationId(@Param("applicationId") Long applicationId);
+
+    @Query("""
+            SELECT c
+            FROM Comment c
+            JOIN FETCH c.user
+            WHERE c.user.id = :userId
+            ORDER BY c.createdAt DESC""")
+    List<Comment> findAllByUserId(@Param("userId") Long userId);
 }

@@ -45,6 +45,8 @@ class ClubTest {
                 .introductionIdeal("Updated ideal")
                 .regularMeetingInfo("Updated regular meeting info")
                 .applicationNotice("Updated caution")
+                .everyTimeUrl("https://everytime.kr/test")
+                .googleFormUrl("https://docs.google.com/forms/test")
                 .build();
 
         club.updateDetail(dto);
@@ -58,6 +60,8 @@ class ClubTest {
         assertThat(club.getIntroduction().getOverview()).isEqualTo(dto.introductionOverview());
         assertThat(club.getIntroduction().getActivities()).isEqualTo(dto.introductionActivity());
         assertThat(club.getIntroduction().getIdeal()).isEqualTo(dto.introductionIdeal());
+        assertThat(club.getEveryTimeUrl()).isEqualTo(dto.everyTimeUrl());
+        assertThat(club.getGoogleFormUrl()).isEqualTo(dto.googleFormUrl());
         assertThat(club.getIntroduction().getImages())
                 .usingRecursiveComparison()
                 .isEqualTo(List.of(

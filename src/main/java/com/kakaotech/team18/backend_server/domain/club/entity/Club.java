@@ -32,7 +32,7 @@ public class Club extends BaseEntity {
     @Column(name = "club_id")
     private Long id;
 
-    @Column(name = "club_name",  nullable = false, unique = true)
+    @Column(name = "club_name", nullable = false, unique = true)
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -67,6 +67,15 @@ public class Club extends BaseEntity {
 
     private String regularMeetingInfo;
 
+    @Column(nullable = false)
+    private Boolean isRegistered;
+
+    @Column(length = 2048)
+    private String everyTimeUrl;
+
+    @Column(length = 2048)
+    private String googleFormUrl;
+
     @Builder
     private Club(
             String name,
@@ -82,7 +91,10 @@ public class Club extends BaseEntity {
             LocalDateTime interviewEndDate,
             LocalTime interviewStartTime,
             LocalTime interviewEndTime,
-            String regularMeetingInfo) {
+            String regularMeetingInfo,
+            Boolean isRegistered,
+            String everyTimeUrl,
+            String googleFormUrl) {
         this.name = name;
         this.category = category;
         this.location = location;
@@ -97,6 +109,9 @@ public class Club extends BaseEntity {
         this.interviewStartTime = interviewStartTime;
         this.interviewEndTime = interviewEndTime;
         this.regularMeetingInfo = regularMeetingInfo;
+        this.isRegistered = (isRegistered != null) ? isRegistered : false;
+        this.everyTimeUrl = everyTimeUrl;
+        this.googleFormUrl = googleFormUrl;
     }
 
     public void updateDetail(ClubDetailRequestDto dto) {
@@ -106,6 +121,8 @@ public class Club extends BaseEntity {
         this.shortIntroduction = dto.shortIntroduction();
         this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
+        this.everyTimeUrl = dto.everyTimeUrl();
+        this.googleFormUrl = dto.googleFormUrl();
         this.introduction.update(dto);
     }
 
@@ -115,7 +132,8 @@ public class Club extends BaseEntity {
         log.info("Updated recruit date for clubId: {} to start: {} end: {}", this.id, recruitStart, recruitEnd);
     }
 
-    public void updateInterviewDate(Boolean isInterviewRequired, LocalDateTime interviewStartDate, LocalDateTime interviewEndDate, LocalTime interviewStartTime, LocalTime interviewEndTime) {
+    public void updateInterviewDate(Boolean isInterviewRequired, LocalDateTime interviewStartDate,
+            LocalDateTime interviewEndDate, LocalTime interviewStartTime, LocalTime interviewEndTime) {
         this.isInterviewRequired = isInterviewRequired;
         this.interviewStartDate = interviewStartDate;
         this.interviewEndDate = interviewEndDate;
