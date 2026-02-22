@@ -789,7 +789,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "• 학년, 나이, 성별, 휴학생 상관없이 모집\n" +
                                                 "• 면접 없음")
                                 .build();
-                clubs.add(Club.builder().name("테크니션").category(Category.SPORTS).location("제1 학생마루 4층 424호").introduction(intro4).regularMeetingInfo("매주 화, 목 18:00-19:30 (참가 자율)").caution("신입부원 모집은 상시하고 있으며, 학년, 나이, 성별, 휴학생 상관없이 모집합니다. 면접은 없습니다.").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400219834").googleFormUrl("010-2203-3863").build());
+                clubs.add(Club.builder().name("테크니션").category(Category.SPORTS).location("제1 학생마루 4층 424호").introduction(intro4).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("매주 화, 목 18:00-19:30 (참가 자율)").caution("신입부원 모집은 상시하고 있으며, 학년, 나이, 성별, 휴학생 상관없이 모집합니다. 면접은 없습니다.").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400219834").googleFormUrl("010-2203-3863").build());
 
                 // 5. LIT:CH (스트릿 댄스)
                 ClubIntroduction intro5 = ClubIntroduction.builder()
@@ -832,7 +832,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "[연락처]\n" +
                                                 "• 인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요!")
                                 .build();
-                clubs.add(Club.builder().name("DOVE").category(Category.SPORTS).location("대운동장").introduction(intro6).caution("인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399818659").googleFormUrl("인스타: @cnu_dove").build());
+                clubs.add(Club.builder().name("DOVE").category(Category.SPORTS).location("대운동장").introduction(intro6).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).caution("인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399818659").googleFormUrl("인스타: @cnu_dove").build());
 
                 // 7. 관현악반 (CNUO 오케스트라)
                 ClubIntroduction intro7 = ClubIntroduction.builder()
@@ -855,7 +855,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "• 3월 알림아리 때 관현악반 부스 방문하여 입회원서 작성 시 최종입부 완료\n" +
                                                 "• 온라인 가입신청서는 1차 수요 조사 및 부스 방문 안내 용도")
                                 .build();
-                clubs.add(Club.builder().name("관현악반").category(Category.LITERATURE).location("제 1학생회관 307, 308호").shortIntroduction("47년 전통의 오케스트라").introduction(intro7).regularMeetingInfo("월~금 중 주 3회 이상 정기적인 출석 필수").caution("온라인 가입신청서 작성 후 알림아리 때 부스를 직접 방문하여 입회원서 및 서약서를 작성해야 가입 완료").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399569935").googleFormUrl("https://litt.ly/cnuo").build());
+                clubs.add(Club.builder().name("관현악반").category(Category.LITERATURE).location("제 1학생회관 307, 308호").shortIntroduction("47년 전통의 오케스트라").introduction(intro7).recruitStart(LocalDateTime.of(2026, 1, 31, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 6, 23, 59)).regularMeetingInfo("월~금 중 주 3회 이상 정기적인 출석 필수").caution("온라인 가입신청서 작성 후 알림아리 때 부스를 직접 방문하여 입회원서 및 서약서를 작성해야 가입 완료").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399569935").googleFormUrl("https://litt.ly/cnuo").build());
 
                 // 8. 아이디어스 (발명특허·공모전)
                 ClubIntroduction intro8 = ClubIntroduction.builder()
@@ -926,7 +926,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "• 대학(원)생, 재학생, 휴학생, 외국인 유학생 모두 포함\n\n" +
                                                 "라켓을 잡아본 적 없어도 괜찮습니다. PPP에서 함께 핑퐁의 세계에 빠져보세요.")
                                 .build();
-                clubs.add(Club.builder().name("PPP").category(Category.SPORTS).location("제2학생회관 405호").shortIntroduction("전남대학교 탁구 중앙 동아리").introduction(intro10).recruitEnd(LocalDateTime.of(2026, 3, 5, 0, 0)).regularMeetingInfo("정기 모임 18:00~22:00, 주 3회 다양한 요일로 활동").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400508043").googleFormUrl("https://docs.google.com/forms/d/e/example/viewform").build());
+                clubs.add(Club.builder().name("PPP").category(Category.SPORTS).location("제2학생회관 405호").shortIntroduction("전남대학교 탁구 중앙 동아리").introduction(intro10).recruitStart(LocalDateTime.of(2026, 2, 13, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 0, 0)).regularMeetingInfo("정기 모임 18:00~22:00, 주 3회 다양한 요일로 활동").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400508043").googleFormUrl("https://docs.google.com/forms/d/e/example/viewform").build());
 
 
                 // --- 11~14: 기존 동아리 ---
