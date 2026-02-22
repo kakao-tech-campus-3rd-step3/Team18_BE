@@ -954,51 +954,93 @@ public class DataInitializer implements CommandLineRunner {
                 // 11. KUSA (유네스코 봉사)
                 ClubIntroduction intro11 = ClubIntroduction.builder()
                                 .overview("유네스코학생회 KUSA는 50년 전통의 동아리로, 유네스코한국위원회가 전국 대학에 설립하고 활동을 지원하며 설립된 동아리입니다. " +
-                                                "현재 KUSA는 전국적으로 20여 개의 대학에서 활동 중입니다.")
-                                .activities("☑️하계 해외봉사\n" +
-                                                "☑️소모임 활동(보드게임, 운동, 독서)\n" +
-                                                "☑️교육봉사(지역아동센터 위주)\n" +
-                                                "☑️정기 플로깅\n" +
-                                                "☑️MT\n" +
-                                                "☑️유네스코 유적 탐방\n" +
-                                                "☑️북구 및 서구 자원봉사 연계 외부봉사")
-                                .ideal("전남대학교 재학생, 휴학생 중 한 학기 이상 활동 가능한 자")
+                                                "현재 KUSA는 전국적으로 20여 개의 대학에서 활동 중이며, 전남대학교 KUSA도 그 일환으로 활발히 운영되고 있습니다. " +
+                                                "하계 해외봉사를 비롯해 지역아동센터 교육봉사, 정기 플로깅, 유네스코 유적 탐방, 자원봉사 연계 외부봉사 등 " +
+                                                "봉사와 문화 활동을 아우르는 다양한 프로그램을 운영합니다. " +
+                                                "소모임(보드게임, 운동, 독서)과 MT 등 친목 활동도 함께 진행해 동아리 구성원 간의 유대도 쌓아갑니다.")
+                                .activities("☑️ 하계 해외봉사\n" +
+                                                "☑️ 소모임 활동 (보드게임, 운동, 독서 등 취미 기반 소그룹 활동)\n" +
+                                                "☑️ 교육봉사 (지역아동센터 위주의 학습·놀이 지원)\n" +
+                                                "☑️ 정기 플로깅 (환경 정화 봉사)\n" +
+                                                "☑️ MT (회원 간 친목 도모)\n" +
+                                                "☑️ 유네스코 유적 탐방\n" +
+                                                "☑️ 북구 및 서구 자원봉사센터 연계 외부봉사")
+                                .ideal("KUSA는 나눔을 실천하고 싶은 분을 환영합니다.\n\n" +
+                                                "[자격요건]\n" +
+                                                "• 전남대학교 재학생 또는 휴학생\n" +
+                                                "• 한 학기 이상 활동 가능한 분\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 면접 없이 구글폼 답변 내용으로 선발\n" +
+                                                "• 지원 마감: 2월 28일(금) 23:59\n" +
+                                                "• 결과 발표: 3월 3일(화) 단톡방 초대로 안내")
                                 .build();
                 clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).location("").shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
 
                 // 12. 전검회 (검도)
                 ClubIntroduction intro12 = ClubIntroduction.builder()
                                 .overview("전검회는 전남대학교 검도 동아리입니다. 오치 검도관과 연계하여 체계적인 검도 수련을 진행하며, " +
-                                                "입문자부터 경험자까지 모두 함께할 수 있는 열린 동아리입니다.")
-                                .activities("연계 도장 '오치 검도관'에서 평일 4시/5시반/6시반/7시반/8시반 중 본인이 원하는 시간대에 검도 활동")
-                                .ideal("나이, 학번, 학년 제한 없이 검도를 처음 배우시는 분들, 쉬어칼 하고 계셨던 분들 모두 환영합니다!")
+                                                "입문자부터 경험자까지 모두 함께할 수 있는 열린 동아리입니다. " +
+                                                "평일 총 5개 시간대 중 본인의 수업 일정에 맞는 시간대를 자유롭게 선택해 수련할 수 있어 " +
+                                                "바쁜 대학 생활 속에서도 부담 없이 참여할 수 있습니다. " +
+                                                "검도 유경험자는 물론, 검도를 전혀 해본 적 없는 입문자도 처음부터 차근차근 배울 수 있습니다.")
+                                .activities("연계 도장 '오치 검도관'에서 평일 아래 시간대 중 본인이 원하는 시간을 선택해 참여합니다:\n\n" +
+                                                "• 1부: 오후 4:00\n" +
+                                                "• 2부: 오후 5:30\n" +
+                                                "• 3부: 오후 6:30\n" +
+                                                "• 4부: 오후 7:30\n" +
+                                                "• 5부: 오후 8:30\n\n" +
+                                                "개인 일정에 따라 자유롭게 시간대를 선택하여 참여할 수 있으며, 상시 모집으로 언제든지 가입 가능합니다.")
+                                .ideal("[가입 대상]\n" +
+                                                "• 나이, 학번, 학년 제한 없음\n" +
+                                                "• 검도를 처음 시작하는 입문자 환영\n" +
+                                                "• 검도를 한동안 쉬었다가 다시 시작하고 싶은 분 환영\n\n" +
+                                                "[가입 방법]\n" +
+                                                "• 학과, 학번, 이름을 문자로 보내주세요\n" +
+                                                "• 연락처: 010-9186-0153")
                                 .build();
                 clubs.add(Club.builder().name("전검회").category(Category.SPORTS).location("오치 검도관").shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
 
                 // 13. 별따오기 (천문 관측)
                 ClubIntroduction intro13 = ClubIntroduction.builder()
-                                .overview("별따오기는 전남대학교 천문 관측 동아리입니다. 정기관측, 반짝관측, 교내관측 등 다양한 관측 활동을 통해 " +
-                                                "별과 우주를 직접 경험하고 탐구하는 것을 목표로 합니다.")
-                                .activities("* 3, 5, 9, 11월 마지막 주 토요일 광주 근교로 1박 2일 간 떠나는 <정기관측>\n" +
-                                                "* 하늘이 맑은 날에는 당일치기로 별을 보러 떠나는 <반짝관측>\n" +
-                                                "* 교내에서 망원경을 통해 달과 행성을 관찰하는 <교내관측>\n" +
-                                                "* 실링왁스 등으로 천체를 배우는 <원데이 클래스>")
-                                .ideal("전남대학교 학생(신입생의 경우 학번이 아닌 수험번호를 기재해 주세요)")
+                                .overview("별따오기는 전남대학교 천문 관측 동아리입니다. " +
+                                                "정기관측, 반짝관측, 교내관측 등 다양한 관측 활동을 통해 별과 우주를 직접 경험하고 탐구하는 것을 목표로 합니다. " +
+                                                "3·5·9·11월 마지막 주 토요일에는 광주 근교로 1박 2일 정기관측을 떠나고, " +
+                                                "하늘이 맑은 날에는 당일치기 반짝관측도 진행합니다. " +
+                                                "교내에서도 망원경으로 달과 행성을 직접 관찰할 수 있으며, 실링왁스 등을 활용한 원데이 클래스로 천체를 더 가깝게 배울 수 있습니다.")
+                                .activities("* <정기관측> — 3, 5, 9, 11월 마지막 주 토요일, 광주 근교로 떠나는 1박 2일 관측 여행\n" +
+                                                "* <반짝관측> — 하늘이 맑은 날 당일치기로 별을 보러 떠나는 자유 관측\n" +
+                                                "* <교내관측> — 교내에서 망원경을 통해 달과 행성을 관찰하는 활동\n" +
+                                                "* <원데이 클래스> — 실링왁스 등 천체 관련 소품을 만들며 우주를 배우는 체험 활동")
+                                .ideal("[가입 대상]\n" +
+                                                "• 전남대학교 재학생 누구나\n" +
+                                                "• 신입생은 학번이 아닌 수험번호로 기재\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 구글폼 제출 후 면접 진행\n" +
+                                                "• 면접 일정: 3월 4일~6일 예정 (단톡방 초대 후 추후 안내)")
                                 .build();
                 clubs.add(Club.builder().name("별따오기").category(Category.STUDY).location("").shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
 
                 // 14. SEA-FOX (스쿠버다이빙)
                 ClubIntroduction intro14 = ClubIntroduction.builder()
-                                .overview("Sea-fox는 40년 넘게 이어져 온 전남대학교 유일무이 스쿠버다이빙 동아리로 정기다이빙, 자격증 취득, " +
-                                                "수영장 연습, 친목 활동까지 다양한 경험을 하실 수 있습니다. " +
-                                                "또한 남해 미조, 울릉도, 제주도, 거문도, 통영, 여수 등 다양한 지역에서 다이빙을 진행합니다.")
-                                .activities("계절별 정기 다이빙/수영장 연습/친목 활동/자격증 취득")
+                                .overview("SEA-FOX는 40년 넘게 이어져 온 전남대학교 유일무이 스쿠버다이빙 동아리입니다. " +
+                                                "계절마다 국내 주요 다이빙 포인트를 찾아 정기 다이빙을 진행하며, " +
+                                                "남해 미조, 울릉도, 제주도, 거문도, 통영, 여수 등 아름다운 바다를 누벼왔습니다. " +
+                                                "정기 다이빙 외에도 광주 근교 수영장에서 꾸준히 수중 연습을 진행하고, " +
+                                                "스쿠버다이빙 자격증 취득을 지원하여 완전한 다이버로 성장할 수 있는 환경을 제공합니다.")
+                                .activities("• 계절별 정기 다이빙 — 남해 미조, 울릉도, 제주도, 거문도, 통영, 여수 등 국내 주요 다이빙 포인트\n" +
+                                                "• 광주 근교 수영장 정기 수중 연습\n" +
+                                                "• 스쿠버다이빙 자격증 취득 지원\n" +
+                                                "• MT, 회식 등 친목 활동")
                                 .ideal("🐠 새로운 경험을 하고 싶으신 분!\n\n" +
                                                 "🐟 스킨스쿠버에 관심이 있으신 분!\n\n" +
                                                 "🦈 물이나 바다를 좋아하시는 분!\n\n" +
                                                 "🐋 다양한 사람들과 만나고 싶으신 분!\n\n" +
                                                 "🐳 해양생물에 관심이 있으신 분!\n\n" +
-                                                "나이와 학번 제한 없이 신청하실 수 있습니다:)")
+                                                "나이와 학번 제한 없이 신청하실 수 있습니다:)\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 네이버폼 신청 후 동아리방에서 대면 면접 진행\n" +
+                                                "• 면접 시간은 문자로 개별 공지\n" +
+                                                "• 면접 불참 시 자동 탈락, 문자 수신 후 참여 여부 답장 필수")
                                 .build();
                 clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).location("").shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
 
@@ -1016,19 +1058,38 @@ public class DataInitializer implements CommandLineRunner {
                                                 "A : 목요일 수업은 Keyword time, Speaker time으로 구성되며 소규모 그룹 수업으로 진행됩니다.\n" +
                                                 "📍Keyword time : 수업 시작 직후 제시되는 주제에 대한 Free talking으로 진행합니다.\n" +
                                                 "📍Speaker time : 수업 시작 후 제시되는 주제에 대해 각자 이야기와 질문을 하며 조원들끼리 대화를 나누는 시간입니다.")
-                                .ideal("에코는 신입생, 고학년, 휴학생 모두 모두 환영합니다!\n" +
-                                                "1년간 성실하게 활동하실 수만 있다면 주저하지 말고 지원하세요~ " +
-                                                "참고로 6개월간 성실하게 활동한 회원에 대하여 몇 달간 휴회하는 것을 허용하고 있습니다.")
+                                .ideal("에코는 신입생, 고학년, 휴학생 모두 환영합니다!\n" +
+                                                "1년간 성실하게 활동하실 수만 있다면 주저하지 말고 지원하세요~\n" +
+                                                "참고로 6개월간 성실하게 활동한 회원에 대하여 몇 달간 휴회하는 것을 허용하고 있습니다.\n\n" +
+                                                "[정기 모임]\n" +
+                                                "• 매주 월요일·목요일 18:15~19:20 (제2학생회관 308호 동아리방 및 강의실)\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 구글폼에서 지원서 작성 후 제출\n" +
+                                                "• 면접: 3월 17일(화)~19일(목), 동아리방(제2학생회관 308호)에서 대면 진행")
                                 .build();
                 clubs.add(Club.builder().name("ECHO").category(Category.STUDY).location("제2학생회관 308호").shortIntroduction("매주 월·목 영어회화 실력을 키우는 영어 스터디 동아리").introduction(intro15).recruitStart(LocalDateTime.of(2026, 3, 2, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 13, 23, 59)).regularMeetingInfo("매주 월요일·목요일 18:15~19:20 (동아리방 및 강의실)").caution("구글폼 링크에 들어가시면 \"지원서류\"를 첨부해 두었습니다. 작성 후 제출하시면 됩니다! 면접: 3월 17일(화)부터 19일(목)까지 동아리방(제2학생회관 308호)에서 대면으로 진행합니다.").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400660768").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSd8EBNbSSTgs6nmWIQhD_ilMcL3c5uNYdgNOFWqxJrXWeO8VQ/viewform").build());
 
                 // 16. 어푸어푸 (수영)
                 ClubIntroduction intro16 = ClubIntroduction.builder()
-                                .overview("어푸어푸는 수영을 좋아하는 전남대, 광주교대 학생들이 모인 동아리인데요.\n" +
-                                                "같은 취미를 가진 사람들이 모여 통하는 것도 많고, 멘토-멘티 프로그램을 통한 피드백으로 수영실력 향상이 가능합니다.")
+                                .overview("어푸어푸는 수영을 좋아하는 전남대·광주교대 학생들이 모인 연합 수영 동아리입니다. " +
+                                                "같은 취미를 가진 사람들이 모여 서로 통하는 것도 많고, " +
+                                                "멘토-멘티 프로그램을 통해 선배 회원이 직접 피드백을 제공하며 수영 실력 향상을 돕습니다. " +
+                                                "매주 토요일 광주 우산수영장에서 정기 수영을 진행하며, " +
+                                                "수영을 좋아한다면 실력에 상관없이 누구나 함께할 수 있습니다.")
                                 .activities("Q. 수영은 어떻게 진행되나요?\n" +
-                                                "A. 매주 토요일 4시~6시까지 광주 우산수영장에서 멘토링 프로그램과 기본적인 준비 수영 후에 진행합니다~")
-                                .ideal("수영을 좋아하는 누구나, 전남대학교 재/휴학생, 대학원생")
+                                                "A. 매주 토요일 오후 4시~6시, 광주 우산수영장에서 진행됩니다.\n" +
+                                                "기본적인 준비 수영 후 멘토링 프로그램을 통해 본 수영 활동을 이어갑니다~\n\n" +
+                                                "Q. 모집·면접은 어떻게 진행되나요?\n" +
+                                                "A. 알림아리 기간(3월 4~5일) 홍보부스를 직접 방문하시거나,\n" +
+                                                "구글폼을 제출하신 후 면접 일정을 조율하시면 됩니다.")
+                                .ideal("[가입 대상]\n" +
+                                                "• 수영을 좋아하는 누구나\n" +
+                                                "• 전남대학교 재학생·휴학생·대학원생\n" +
+                                                "• 광주교대 재학생\n\n" +
+                                                "[정기 모임]\n" +
+                                                "• 매주 토요일 16:00~18:00, 광주 우산수영장\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 알림아리 기간(3월 4~5일) 홍보부스 방문 또는 구글폼 제출 후 면접 진행")
                                 .build();
                 clubs.add(Club.builder().name("어푸어푸").category(Category.SPORTS).location("광주 우산수영장").shortIntroduction("전남대·광주교대 연합 수영 동아리").introduction(intro16).recruitStart(LocalDateTime.of(2026, 2, 20, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).regularMeetingInfo("매주 토요일 16:00~18:00 (광주 우산수영장)").caution("지원 및 모집방식: 알림아리 기간(3월 4~5일)\n직접 홍보부스로 찾아오시거나 모집기간 동안 구글 폼 제출하셔서 면접 시간을 잡으시면 됩니다.").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/401078194").googleFormUrl("https://form.naver.com/response/-rm-550f6VArzKzF5qYCKg").build());
 
