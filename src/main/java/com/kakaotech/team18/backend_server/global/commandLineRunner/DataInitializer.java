@@ -1856,14 +1856,8 @@ public class DataInitializer implements CommandLineRunner {
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "아이디어스", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "미담장학회", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "PPP", Status.PENDING, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid, "PPP", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "글빛", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "무대열전", Status.PENDING, Stage.INTERVIEW,
-                                0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "FC JNU", Status.PENDING, Stage.INTERVIEW,
-                                0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid, "엘피스", Status.PENDING, Stage.INTERVIEW, 0.0));
 
                 return applicationRepository.saveAll(apps);
         }
@@ -1891,18 +1885,18 @@ public class DataInitializer implements CommandLineRunner {
 
         private void seedAnswers() {
 
-                // Application 1 ~ 39 미리 로드 (1-based)
-                Application[] apps = new Application[40];
-                for (long i = 1; i <= 39; i++) {
+                // Application 1 ~ 35 미리 로드 (1-based)
+                Application[] apps = new Application[36];
+                for (long i = 1; i <= 35; i++) {
                         long finalI = i;
                         apps[(int) i] = applicationRepository.findById(i)
                                         .orElseThrow(() -> new IllegalStateException(
                                                         "Application not found: " + finalI));
                 }
 
-                // FormQuestion 1 ~ 56 미리 로드 (1-based)
-                FormQuestion[] questions = new FormQuestion[57];
-                for (long i = 1; i <= 56; i++) {
+                // FormQuestion 1 ~ 40 미리 로드 (1-based, 클럽 1~10의 질문)
+                FormQuestion[] questions = new FormQuestion[41];
+                for (long i = 1; i <= 40; i++) {
                         long finalI = i;
                         questions[(int) i] = formQuestionRepository.findById(i)
                                         .orElseThrow(() -> new IllegalStateException(
@@ -2201,122 +2195,6 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 11. 글빛 (문학·창작, form11, questions 41~44) – app36 ========
-                {
-                        Application app = apps[36];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[41])
-                                        .answer("시와 짧은 산문을 쓰는 것을 좋아하는 학생입니다. 일상에서 느끼는 감정을 짧은 문장으로 기록하는 습관이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[42])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[43])
-                                        .answer("글빛에서 정기 합평을 통해 다른 사람의 시선을 배우고, 제 글도 조금 더 단단하게 다듬고 싶습니다. 동인지 제작에도 꼭 참여해 보고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[44])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 OT 및 면담이 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 12. 무대열전 (연극·공연예술·종교, form12, questions 45~48) – app37 ========
-                {
-                        Application app = apps[37];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[45])
-                                        .answer("연극과 찬양을 좋아하는 기독교 신앙인입니다. 교회에서 성극과 찬양팀 활동을 한 경험이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[46])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[47])
-                                        .answer("무대열전에서 신앙과 삶의 이야기를 담은 연극을 함께 만들어보고 싶습니다. 연기뿐 아니라, 무대 연출과 기획에도 관심이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[48])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 중에서 면접 및 오디션 참여 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 13. FC JNU (축구, form13, questions 49~52) – app38 ========
-                {
-                        Application app = apps[38];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[49])
-                                        .answer("축구를 5년 이상 해온 학생입니다. 주 포지션은 중앙 미드필더이며, 패스와 연계 플레이에 강점이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[50])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[51])
-                                        .answer("FC JNU에서 꾸준히 훈련하며 체력을 기르고, 교내 리그전에서 팀 우승에 기여해 보고 싶습니다. 팀 분위기를 좋게 만드는 역할도 함께 하고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[52])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 OT 및 실기 참여가 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 14. 엘피스 (기독교 신앙·예배, form14, questions 53~56) – app39 ========
-                {
-                        Application app = apps[39];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[53])
-                                        .answer("모태신앙으로 자라 현재도 주일마다 교회에 출석하고 있는 학생입니다. 대학 생활 속에서 신앙을 함께 나눌 공동체를 찾고 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[54])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[55])
-                                        .answer("엘피스에서 말씀과 찬양을 함께 나누며 신앙을 다시 정비하고 싶습니다. 찬양팀이나 예배 스태프로 섬길 수 있다면 기꺼이 돕고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[56])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 환영 모임 및 면담 참여 가능합니다.")
-                                        .build());
-                }
-
                 // 실제 insert
                 answerRepository.saveAll(answers);
         }
@@ -2352,8 +2230,8 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ===== 15~53번 지원자(APPLICANT) =====
-                for (int i = 15; i <= 53; i++) {
+                // ===== 15~49번 지원자(APPLICANT) =====
+                for (int i = 15; i <= 49; i++) {
                         members.add(ClubMember.builder()
                                         .user(userArr[i])
                                         .club(apps[i - 14].getClubApplyForm().getClub()) // application으로부터 클럽 자동 매칭
