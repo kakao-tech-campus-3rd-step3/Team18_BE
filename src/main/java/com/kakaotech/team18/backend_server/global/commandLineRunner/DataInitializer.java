@@ -689,786 +689,356 @@ public class DataInitializer implements CommandLineRunner {
                 return userRepository.saveAll(users);
         }
 
-        private List<Club> seedClubsWithIntroAndImages() {
-                // if (clubRepository.count() > 0) return clubRepository.findAll();
 
+        private List<Club> seedClubsWithIntroAndImages() {
                 List<Club> clubs = new ArrayList<>();
 
-                // 1. 인터엑스 (사회문제 탐구)
+                // --- 1~10: 실제 동아리 데이터 ---
+
+                // 1. 얼라이브 (얼티밋 프리스비)
                 ClubIntroduction intro1 = ClubIntroduction.builder()
-                                .overview("인터엑스(INTER-X)는 ‘사회와 교차하다(Intersect with Society)’라는 의미를 담은 사회문제 탐구 동아리로, " +
-                                                "우리 주변의 다양한 사회적 현상을 비판적으로 바라보고, 실제 변화를 만들어가는 것을 목표로 합니다. " +
-                                                "단순히 뉴스를 소비하거나 담론을 나누는 수준을 넘어, 문제의 구조를 분석하고 실질적인 대안을 모색하는 데 초점을 맞추고 있습니다. "
-                                                +
-                                                "우리는 사회 문제를 학문적 관점에서 탐구하면서도, 현장에서 체감할 수 있는 실천적 접근을 중요하게 생각합니다. " +
-                                                "경제적 불평등, 젠더 이슈, 환경 위기, 세대 갈등, 기술 윤리 등 매 학기 다양한 주제를 다루며, " +
-                                                "회원 각자가 가진 전공과 관심사를 토대로 팀을 구성하여 심층적인 연구와 행동을 병행합니다. " +
-                                                "이 과정에서 단순한 ‘지식 습득’을 넘어, 스스로 문제를 정의하고 해결을 설계하는 사고력과 협력 능력을 함께 기를 수 있습니다. "
-                                                +
-                                                "인터엑스는 지적 담론의 장이자, 변화를 실험하는 플랫폼으로서, ‘생각을 행동으로 옮기는 대학생 공동체’를 지향합니다. " +
-                                                "서로 다른 시각을 가진 사람들이 모여 대화하고, 함께 사회를 이해하며, 작은 변화를 쌓아가는 과정 자체가 인터엑스의 철학입니다.")
-                                .activities("인터엑스의 핵심 활동은 세 가지 축으로 이루어져 있습니다. " +
-                                                "첫째, 주제 세미나입니다. 매주 한 가지 사회 문제를 중심으로 회원들이 직접 발표와 토론을 진행하며, " +
-                                                "이슈의 역사적 맥락, 이해관계자, 정책적 대안 등을 심층적으로 분석합니다. 세미나는 단순한 토론을 넘어, " +
-                                                "비판적 사고력과 논리적 표현 능력을 훈련하는 공간입니다. " +
-                                                "둘째, 프로젝트 활동입니다. 학기 초 구성된 소모임 단위로 각자의 주제를 선정해 조사와 인터뷰, 데이터 분석, 캠페인 기획 등을 진행합니다. "
-                                                +
-                                                "예를 들어, 청년 주거 문제를 다룬 팀은 실제 원룸 임대 현황을 조사하고, 지역 청년정책팀과의 간담회를 추진하기도 했습니다. "
-                                                +
-                                                "또한 여성 안전, 기후 행동, 장애 인식 개선 등 구체적 사회 의제를 중심으로 외부 기관(NGO, 시민단체, 언론 등)과 협업하는 경우도 많습니다. "
-                                                +
-                                                "셋째, 성과 공유와 외부 교류입니다. 학기 말에는 ‘인터엑스 포럼’을 개최해 각 팀의 연구·활동 결과를 발표하고, " +
-                                                "이를 정리한 ‘인터엑스 리서치북’을 발간합니다. 해당 자료는 매년 아카이브 형태로 보존되어, " +
-                                                "후속 기수의 참고 자료이자 대학 사회문제 연구 커뮤니티의 자산으로 남습니다. " +
-                                                "이외에도 정기적인 지역사회 봉사활동, 사회혁신 관련 워크숍, 타 대학 동아리와의 공동 세미나 등 다양한 외부 프로그램을 통해 "
-                                                +
-                                                "단순한 교내 동아리를 넘어 하나의 ‘사회참여 네트워크’로 발전하고 있습니다. " +
-                                                "회원들은 이러한 과정을 통해 연구력뿐 아니라 기획력, 리더십, 그리고 시민의식까지 함께 성장시키게 됩니다.")
-                                .ideal("인터엑스는 ‘의문을 품고, 끝까지 탐구하며, 함께 해답을 만들어가는 사람’을 기다립니다.\n\n" +
+                                .overview("얼라이브는 전남대학교 총동아리연합회 체육분과에 소속된 중앙동아리이며, " +
+                                                "얼티밋 프리스비(Ultimate Frisbee, 원반을 사용하는 팀 스포츠)를 하고 있는 동아리입니다. " +
+                                                "얼티밋 프리스비는 원반(프리스비)을 이용해 엔드존에 패스를 연결하며 득점하는 팀 스포츠로, " +
+                                                "심판 없이 선수 스스로 판정하는 '스피릿 오브 더 게임(Spirit of the Game)' 정신을 기반으로 합니다. " +
+                                                "초보자도 부담 없이 시작할 수 있으며, 함께 뛰고 성장하는 과정 자체가 얼라이브의 핵심 가치입니다.")
+                                .activities("• 매주 화, 목 18시 30분~21시 30분 대운동장 정기 연습\n" +
+                                                "• 기초 스로잉·캐칭부터 팀 전술 훈련까지 체계적 커리큘럼\n" +
+                                                "• 전국 대학 얼티밋 프리스비 대회 참가\n" +
+                                                "• 신입 부원 대상 기초 클리닉 및 룰 교육\n" +
+                                                "• MT, 뒤풀이 등 팀 친목 활동")
+                                .ideal("얼라이브는 '함께 뛰며 성장하는 팀 플레이어'를 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 사회문제에 관심이 많고, 학문적 또는 실천적 접근을 즐기는 분\n" +
-                                                "• 다양한 관점에서 현상을 분석하고 근거를 제시할 수 있는 비판적 사고력을 가진 분\n" +
-                                                "• 글쓰기와 문서 정리를 통해 생각을 구조화할 수 있는 분\n" +
-                                                "• 주 1회 세미나 및 프로젝트에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 타인의 의견을 경청하고 협력적 논의를 이끌 수 있는 커뮤니케이션 역량이 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 사회학, 정치학, 경제학, 심리학, 환경학 등 인문·사회 분야에 관심이 있는 분\n" +
-                                                "• 데이터 분석, 시각화, 인터뷰, 설문조사 등 연구적 방법론 경험이 있는 분\n" +
-                                                "• 캠페인, 봉사, 정책 제안 등 사회참여 활동 경험이 있는 분\n" +
-                                                "• 발표나 리포트 작성, 인포그래픽 제작 등 콘텐츠 표현 능력이 있는 분\n" +
-                                                "• 프로젝트 리딩 경험 또는 팀워크를 통해 공동 성과를 만들어본 경험이 있는 분\n" +
-                                                "• 타 대학 동아리, 시민단체, 학회 등 외부 협업 경험이 있는 분\n\n" +
-                                                "인터엑스는 전공, 학년, 배경에 관계없이 ‘문제를 진지하게 바라보고, 함께 해결을 고민하는 사람’을 환영합니다. " +
-                                                "사회문제를 탐구하고 실천으로 연결하고 싶은 분이라면, 인터엑스에서 그 첫걸음을 내딛어 보세요.")
+                                                "• 새로운 스포츠에 도전하고 싶은 전남대 재학생\n" +
+                                                "• 주 2회 정기 연습에 꾸준히 참여할 수 있는 분\n" +
+                                                "• 팀워크와 페어플레이를 중요하게 생각하는 분\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 별도의 면접 없이 구글 폼 답변 내용을 통해 신입회원 선발\n" +
+                                                "• 경험이 없어도 전혀 상관없습니다. 얼라이브에서 프리스비의 짜릿한 매력을 함께 느껴보세요.")
                                 .build();
-                intro1.addImages(List.of(
-                                "https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1526976668912-1a811878dd37?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1576267423445-b2e0074d68a4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1609234656388-0ff363383899?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1932"));
+                clubs.add(Club.builder().name("얼라이브").category(Category.SPORTS).location("제2학생마루 306호").shortIntroduction("얼티밋 프리스비 스포츠 동아리").introduction(intro1).recruitStart(LocalDateTime.of(2026, 2, 16, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 13, 23, 59)).regularMeetingInfo("매주 화, 목 18시 30분~21시 30분, 대운동장").caution("별도의 면접 없이 구글 폼 답변 내용을 통해 신입회원 선발").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400314201").googleFormUrl("https://forms.gle/4Hz4UAkYLsfWXf2J6").build());
 
-                Club club1 = Club.builder()
-                                .name("인터엑스")
-                                .category(Category.STUDY)
-                                .location("공7 201호")
-                                .shortIntroduction("사회문제 해결을 위한 토론과 프로젝트를 진행하는 학술 동아리")
-                                .introduction(intro1)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 화요일 오후 6시")
-                                .caution("휴학생 제외, 1~3학년 우대")
-                                .isRegistered(true)
-                                .everyTimeUrl("https://everytime.kr/370443/v/312345")
-                                .googleFormUrl("https://docs.google.com/forms/d/e/example1/viewform")
-                                .build();
-                clubs.add(club1);
-
-                // 2. 에이아이디브 (AI·데이터 연구)
+                // 2. 과실연 (과학 교육 봉사)
                 ClubIntroduction intro2 = ClubIntroduction.builder()
-                                .overview("AIDive는 인공지능(AI)과 데이터 분석을 깊이 탐구하며, 이론적 이해와 실무 역량을 함께 키우는 학술 동아리입니다. " +
-                                                "‘데이터 속에서 통찰을 발견하고, 기술로 문제를 해결한다’는 목표로 최신 AI 연구를 공부하고 실제 프로젝트에 적용합니다. "
-                                                +
-                                                "회원들은 논문 리뷰, 대회 참여, 코드 구현, 협업 툴 활용 등 다양한 과정을 통해 AI 기술의 본질과 응용을 동시에 경험합니다.")
-                                .activities("• 최신 논문 리뷰 및 토론 세션 진행\n" +
-                                                "• Kaggle / Dacon 등 데이터 분석 대회 팀 단위 참가\n" +
-                                                "• TensorFlow, PyTorch, Scikit-learn 등 실습 중심 스터디\n" +
-                                                "• 산업체 연계 세미나 및 실무 멘토링\n" +
-                                                "• 학기 말 AIDive Showcase 및 논문집 발간")
-                                .ideal("AIDive는 기술적 깊이와 협업적 사고를 함께 성장시키고자 하는 인재를 찾고 있습니다.\n\n" +
+                                .overview("과실연은 과학 교육 봉사를 중심으로 활동하는 전남대학교 봉사 동아리입니다. " +
+                                                "과학이라는 도구를 통해 지역 청소년들에게 배움의 기회를 제공하고, " +
+                                                "동시에 회원들 스스로도 가르치는 과정에서 과학적 사고력과 소통 능력을 기릅니다. " +
+                                                "매주 정기 과실회담을 통해 봉사 활동을 기획하고 피드백을 나누며, " +
+                                                "실험 중심의 체험형 교육 프로그램을 직접 설계하고 진행합니다.")
+                                .activities("• 매주 화요일 18:30~20:00 정기 과실회담 (꿈교, 꿈과교를 위한 조 활동 진행)\n" +
+                                                "• 한 학기 2번 청소년 과학교육봉사 프로그램 시행 (꿈자람 교실, 꿈자람 과학 교실)\n" +
+                                                "• 대내외적 자체 봉사 프로그램 (플로깅, 북구 자원봉사센터 봉사, 쏙쏙캠프)\n" +
+                                                "• MT, 감귤제 등 친목 활동\n" +
+                                                "• 야구장, 보드게임 등 다양한 소모임 진행")
+                                .ideal("과실연은 '과학으로 나눔을 실천하는 사람'을 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 인공지능, 데이터 과학, 통계, 수학 등 기술적 주제에 관심이 있는 분\n" +
-                                                "• Python, R 등 프로그래밍 언어를 활용한 기본적인 데이터 분석 경험이 있는 분\n" +
-                                                "• 논리적 사고력과 문제 해결 능력을 기반으로 프로젝트를 수행할 수 있는 분\n" +
-                                                "• 새로운 기술을 스스로 탐구하고 꾸준히 학습할 의지가 있는 분\n" +
-                                                "• 팀 단위 프로젝트에서 협업과 소통을 즐기는 분\n" +
-                                                "• GitHub, Notion, Slack 등의 협업 도구 사용에 익숙하거나 배우려는 의지가 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 머신러닝/딥러닝 프레임워크(PyTorch, TensorFlow 등) 실습 경험이 있는 분\n" +
-                                                "• Kaggle, Dacon 등 데이터 분석 대회 참가 또는 프로젝트 경험이 있는 분\n" +
-                                                "• 통계적 분석, 데이터 시각화(Matplotlib, Seaborn 등)에 능숙한 분\n" +
-                                                "• 논문 리뷰, 모델 구현, 리서치 리포트 작성 등 연구형 활동에 흥미가 있는 분\n" +
-                                                "• 산업계 AI 트렌드, AI 윤리, 데이터 거버넌스 등에 관심이 있는 분\n" +
-                                                "• 수학적 사고력(선형대수, 확률, 최적화 등)을 활용해 모델을 이해하고 설명할 수 있는 분\n\n" +
-                                                "AIDive는 단순한 기술 습득이 아닌, ‘AI를 통한 문제 해결의 가치’를 함께 고민하는 사람들을 환영합니다. " +
-                                                "AI의 원리를 이해하고, 데이터를 통해 사회적·산업적 인사이트를 창출하고 싶은 분이라면, " +
-                                                "AIDive가 당신의 성장 여정을 함께할 최고의 팀이 될 것입니다.")
+                                                "• 과학 교육 봉사에 관심이 있는 전남대 재학생 (전공 무관)\n" +
+                                                "• 매주 정기 모임 및 봉사 활동에 성실히 참여할 수 있는 분\n" +
+                                                "• 청소년과 소통하며 가르치는 것에 보람을 느끼는 분\n\n" +
+                                                "[유의사항]\n" +
+                                                "• 정규활동인 과실회담과 꿈자람 과학 교실, 꿈자람 교실은 꼭 참석 필수\n" +
+                                                "• 지원서를 바탕으로 면접날짜 배정 및 면접 진행 예정")
                                 .build();
-                intro2.addImages(List.of(
-                                "https://images.unsplash.com/photo-1549057446-9f5c6ac91a04?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1334",
-                                "https://plus.unsplash.com/premium_photo-1663040303769-cd3ee2dfb172?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=688",
-                                "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1074",
-                                "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
+                clubs.add(Club.builder().name("과실연").category(Category.VOLUNTEER).location("제1학생회관").shortIntroduction("과학 교육 봉사 동아리").introduction(intro2).recruitStart(LocalDateTime.of(2026, 2, 12, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 18, 0)).regularMeetingInfo("매주 화요일 18:30~20:00 과실회담").caution("정규활동인 과실회담과 꿈자람 과학 교실, 꿈자람 교실은 꼭 참석 필수").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400282998").googleFormUrl("https://naver.me/5WUhwzpc").build());
 
-                Club club2 = Club.builder()
-                                .name("에이아이디브")
-                                .category(Category.STUDY)
-                                .location("공5 202호")
-                                .shortIntroduction("AI·데이터 분석 연구를 통해 기술을 배우는 학술 동아리")
-                                .introduction(intro2)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 수요일 오후 7시")
-                                .caution("프로그래밍 기초자 우대")
-                                .isRegistered(true)
-                                .everyTimeUrl("https://everytime.kr/370443/v/412345")
-                                .build();
-                clubs.add(club2);
-
-                // 3. 코드마스터 (프로그래밍·개발)
+                // 3. 소리터관현악단 (비전공자 오케스트라)
                 ClubIntroduction intro3 = ClubIntroduction.builder()
-                                .overview("코드마스터(CodeMaster)는 프로그래밍을 중심으로 다양한 개발 기술을 탐구하고, 실제 서비스를 만들어보며 성장하는 개발 동아리입니다. "
-                                                +
-                                                "최신 언어와 프레임워크를 학습하고, 학기마다 팀 단위로 프로젝트를 진행하여 실무형 개발 경험을 쌓습니다. " +
-                                                "웹, 앱, 인공지능, 게임 등 다양한 분야의 개발을 다루며, 단순한 코딩 실습을 넘어 ‘문제를 정의하고 해결하는 능력’을 함께 키우는 것을 목표로 합니다. "
-                                                +
-                                                "회원들은 함께 스터디를 운영하고 코드 리뷰를 진행하며, 개발 지식뿐 아니라 협업 문화와 소프트웨어 설계 감각도 익히게 됩니다. "
-                                                +
-                                                "코드마스터는 ‘코드를 통해 세상을 바꾸는 경험’을 함께 만들어가는 대학생 개발자 커뮤니티입니다.")
-                                .activities("• 주 1회 개발 세미나 및 코드 리뷰 세션\n" +
-                                                "• 알고리즘·자료구조 스터디 운영 (백준, 프로그래머스 등)\n" +
-                                                "• 웹/앱/AI 분야 팀 프로젝트 수행 및 포트폴리오 제작\n" +
-                                                "• GitHub를 활용한 버전 관리 및 협업 실습\n" +
-                                                "• 오픈소스 기여 활동 및 외부 해커톤 참가\n" +
-                                                "• 학기 말 Demo Day(결과 발표회) 개최로 프로젝트 성과 공유")
-                                .ideal("코드마스터는 ‘함께 배우고, 함께 성장하는 개발자 공동체’를 지향합니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 프로그래밍 학습에 열정이 있고 꾸준히 실습을 이어갈 수 있는 분\n" +
-                                                "• 웹, 앱, AI, 게임 등 특정 개발 분야에 관심이 있는 분\n" +
-                                                "• 새로운 기술을 배우고 직접 적용해보는 것을 즐기는 분\n" +
-                                                "• 오류를 두려워하지 않고 문제 해결 과정을 즐길 수 있는 분\n" +
-                                                "• 협업과 피드백을 긍정적으로 받아들이는 태도를 가진 분\n" +
-                                                "• 주 1회 이상 세션 및 프로젝트 활동에 성실히 참여할 수 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• Java, Python, JavaScript 등 주요 언어를 활용한 간단한 프로그램 개발 경험이 있는 분\n" +
-                                                "• Git, Notion, Slack 등 협업 툴을 사용해본 경험이 있는 분\n" +
-                                                "• 개인 혹은 팀 단위로 프로젝트를 진행해본 경험이 있는 분\n" +
-                                                "• 알고리즘 문제 풀이(백준, 프로그래머스 등)에 꾸준히 참여하고 있는 분\n" +
-                                                "• UI/UX, 데이터베이스, 네트워크 등 컴퓨터공학 기초 지식이 있는 분\n" +
-                                                "• 해커톤, 공모전, 학술제 등 대외 활동에 관심이 있는 분\n\n" +
-                                                "코드마스터는 학년이나 전공과 관계없이 ‘배움에 진심인 사람’을 환영합니다. " +
-                                                "개발이 처음이어도 괜찮습니다. 함께 배우고, 스스로 만들어가며, 성장하는 경험을 하고 싶은 분이라면 코드마스터와 잘 맞을 것입니다.")
+                                .overview("소리터관현악단은 1989년에 설립된 비전공자 중심의 오케스트라 동아리로, " +
+                                                "자유로운 분위기 속에서 울림을 함께하고 있습니다. " +
+                                                "음악을 사랑하는 사람들과 함께하며, 누구나 부담 없이 연주를 즐길 수 있습니다. " +
+                                                "24시간 자유롭게 연습할 수 있는 넓은 동아리방을 보유하고 있으며, " +
+                                                "매학기 개인 연주 및 소규모 합주 기회를 제공합니다.")
+                                .activities("• 매 학기 정기 연주회에서 클래식, 영화·드라마 OST, 뉴에이지, 재즈 등 다양한 장르의 곡 연주\n" +
+                                                "• 팀별 연주 (3~5인 구성으로 팀을 나누어 1~2곡 연습)\n" +
+                                                "• 개인 연주 (희망자에 한해 개인 연주 기회 제공)\n" +
+                                                "• 5월 말 1학기 정기 연주회 예정\n" +
+                                                "• 모든 활동 참여는 선택!")
+                                .ideal("소리터관현악단은 '음악을 함께 만들어가는 따뜻한 연주자'를 기다립니다.\n\n" +
+                                                "[가입 대상]\n" +
+                                                "• 기본적인 악기 연주 경험이 있는 비전공자\n\n" +
+                                                "[모집 악기]\n" +
+                                                "• 현악기: 바이올린, 첼로, 비올라\n" +
+                                                "• 관악기: 플루트, 클라리넷, 금관악기 등\n" +
+                                                "• 피아노\n\n" +
+                                                "[유의사항]\n" +
+                                                "• 전공자는 본인 전공 악기로 지원 불가\n" +
+                                                "• 피아노와 플루트는 활동 인원이 많은 관계로 1~2명만 선발하거나 선발하지 않을 수 있음\n" +
+                                                "• 방학 중 또는 알림아리 이후에 간단한 면접(악기 테스트 포함 가능) 예정")
                                 .build();
-                intro3.addImages(List.of(
-                                "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&auto=format&fit=crop&q=60",
-                                "https://images.unsplash.com/photo-1587620962725-abab7fe55159?w=1600&auto=format&fit=crop&q=60",
-                                "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1600&auto=format&fit=crop&q=60"));
+                clubs.add(Club.builder().name("소리터관현악단").category(Category.LITERATURE).location("용지와 테니스코트 사이 건물 1층").shortIntroduction("비전공자 오케스트라").introduction(intro3).recruitStart(LocalDateTime.of(2026, 2, 10, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 0, 0)).caution("방학 중 또는 알림아리 이후에 간단한 면접이 있을 예정 (악기 테스트 가능)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399984087").googleFormUrl("https://forms.gle/zsFNfvkSRhF3Q2je8").build());
 
-                Club club3 = Club.builder()
-                                .name("코드마스터")
-                                .category(Category.STUDY)
-                                .location("공5 102호")
-                                .shortIntroduction("프로그래밍과 최신 기술을 함께 공부하고 프로젝트로 실습하는 동아리")
-                                .introduction(intro3)
-                                .recruitStart(LocalDateTime.of(2025, 9, 5, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 수요일 오후 7시")
-                                .caution("모든 학년 지원 가능")
-                                .isRegistered(true)
-                                .googleFormUrl("https://docs.google.com/forms/d/e/example3/viewform")
-                                .build();
-                clubs.add(club3);
-
-                // 4. 로보테크 (스포츠·스포츠테크)
+                // 4. 테크니션 (복싱)
                 ClubIntroduction intro4 = ClubIntroduction.builder()
-                                .overview("로보테크(RoboTech)는 ‘기술과 스포츠’를 함께 즐기는 스포츠·스포츠테크 동아리입니다. " +
-                                                "축구, 농구, 배드민턴, 러닝 등 다양한 종목을 함께 즐기면서, 동시에 로봇·센서·트래킹 장비 등을 활용해 " +
-                                                "운동 기록을 측정하고 분석하는 활동도 함께 진행합니다. " +
-                                                "단순히 경기를 하는 데서 그치지 않고, 나와 팀의 움직임을 데이터로 보고, 더 똑똑하게 훈련하는 문화를 지향합니다. " +
-                                                "예를 들어, 경기 영상 분석, 심박수·속도·이동 경로 측정, 간단한 자동 기록 장비(득점 센서, 타이머 등)를 직접 만들어보는 등 "
-                                                +
-                                                "스포츠와 공학적 호기심을 한 번에 만족시킬 수 있는 활동으로 채워져 있습니다. " +
-                                                "운동을 좋아하는 학생, 기술을 함께 얹어보고 싶은 학생이라면 누구나 함께할 수 있는 열린 스포츠 동아리입니다.")
-                                .activities("• 주 1회 이상 정기 스포츠 활동 (축구, 농구, 배드민턴 등 종목은 학기별 논의 후 결정)\n" +
-                                                "• 러닝·체력 향상 프로그램 및 기록 측정(거리, 페이스, 심박 등)\n" +
-                                                "• 스마트워치, 스포츠 트래커, 액션캠 등을 활용한 퍼포먼스 분석\n" +
-                                                "• 간단한 스포츠 보조 장비 제작(타이머, 득점판, 센서 기반 기록 시스템 등)\n" +
-                                                "• 교내·외 체육대회, 친선 경기, 스포츠 페스티벌 참가\n" +
-                                                "• 학기 말 기록 공유 및 ‘로보테크 스포츠 챌린지’ 개최")
-                                .ideal("로보테크는 ‘함께 뛰고, 함께 기록하고, 함께 성장하는 사람’을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 운동을 즐기고, 새로운 스포츠 종목에 도전해보고 싶은 학부생\n" +
-                                                "• 승패보다 팀워크와 과정 자체를 중요하게 생각하는 분\n" +
-                                                "• 정기적인 운동 모임에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 기록 측정, 운동 데이터 분석, 스포츠테크에 관심이 있는 분\n" +
-                                                "• 다른 사람과 함께 땀 흘리는 것을 즐기고, 기본적인 예의를 갖춘 분\n" +
-                                                "• 초보라도 배우면서 즐길 마음가짐이 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 축구, 농구, 배드민턴, 러닝 등 한 가지 이상 종목에 자신 있는 분\n" +
-                                                "• 스마트워치, 스포츠 트래커, 액션캠 등 기기를 활용해본 경험이 있는 분\n" +
-                                                "• 간단한 프로그래밍 또는 하드웨어(센서, 아두이노 등)에 관심이 있는 분\n" +
-                                                "• 팀 스포츠에서 주장, 리더, 매니저 등 역할을 맡아본 경험이 있는 분\n" +
-                                                "• 교내 체육대회, 대외 스포츠 대회 등 참가 경험이 있는 분\n" +
-                                                "• 스포츠 콘텐츠(하이라이트 영상, 기록 정리, 카드뉴스 등) 제작에 흥미가 있는 분\n\n" +
-                                                "로보테크는 ‘운동을 좋아하는 사람’과 ‘기술을 좋아하는 사람’이 함께 어울릴 수 있는 공간입니다. " +
-                                                "숨이 차도록 뛰는 순간도, 기록을 보며 웃고 떠드는 시간도 모두 즐기고 싶은 분이라면 로보테크와 잘 어울릴 것입니다.")
+                                .overview("테크니션은 '참피온 복싱 체육관'과 제휴를 맺어 운동을 진행하고 있는 복싱 동아리입니다. " +
+                                                "참피온 복싱 체육관에서는 관장님께 체계적이고 전문적인 복싱 지도를 받을 수 있습니다. " +
+                                                "체육관에는 복싱링, 샌드백, 런닝머신, 간단한 웨이트 장비가 구비되어 있으며, 샤워실 및 탈의실이 마련되어 있습니다. " +
+                                                "체육관은 평일 15:00~23:00까지 운영하며, 언제든 개인적으로 방문하여 운동하실 수 있습니다. " +
+                                                "평일 15시 전이나 주말/공휴일은 체육관 비밀번호를 입력하여 자율운동이 가능합니다. " +
+                                                "동아리에 가입하시면 체육관 일반 회원보다 두 배 할인된 가격으로 복싱을 배우실 수 있습니다.")
+                                .activities("• 매주 화, 목 18:00~19:30 단체 운동 진행 (참가는 자율)\n" +
+                                                "• 전문 관장님 지도 하 체계적인 복싱 기본기 습득\n" +
+                                                "• 참피온 복싱 체육관 자유 이용 (평일 15:00~23:00)\n" +
+                                                "• 일반 관원들과 함께 운동하는 열린 환경\n" +
+                                                "• 정기 친목 모임")
+                                .ideal("테크니션은 이런 분께 추천합니다.\n\n" +
+                                                "• 평소에 복싱에 관심이 있지만, 가격이 부담스러워 망설이셨던 분들\n" +
+                                                "• 멋들어진 취미를 가지고 싶으신 분들\n" +
+                                                "• 다이어트, 자기관리를 즐겁게 하고 싶은 분들\n\n" +
+                                                "[모집 안내]\n" +
+                                                "• 신입부원 모집은 상시 진행\n" +
+                                                "• 학년, 나이, 성별, 휴학생 상관없이 모집\n" +
+                                                "• 면접 없음")
                                 .build();
-                intro4.addImages(List.of(
-                                "https://images.unsplash.com/photo-1642775073532-65020022b8d0?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1755053757912-a63da9d6e0e2?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1171",
-                                "https://plus.unsplash.com/premium_photo-1716396589501-fe11f268a0ca?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1742767069929-0c663150b164?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687"));
+                clubs.add(Club.builder().name("테크니션").category(Category.SPORTS).location("제1 학생마루 4층 424호").introduction(intro4).regularMeetingInfo("매주 화, 목 18:00-19:30 (참가 자율)").caution("신입부원 모집은 상시하고 있으며, 학년, 나이, 성별, 휴학생 상관없이 모집합니다. 면접은 없습니다.").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400219834").googleFormUrl("010-2203-3863").build());
 
-                Club club4 = Club.builder()
-                                .name("로보테크")
-                                .category(Category.STUDY)
-                                .location("공4 104호")
-                                .shortIntroduction("로봇 설계와 제어를 함께 배우는 공학 창작 동아리")
-                                .introduction(intro4)
-                                .recruitStart(LocalDateTime.of(2025, 3, 4, 9, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 3, 18, 18, 0, 0))
-                                .regularMeetingInfo("매주 목요일 오후 6시")
-                                .caution("기계·전기전자 전공자 우대")
-                                .isRegistered(true)
-                                .build();
-                clubs.add(club4);
-
-                // 5. 아트픽 (예술·디자인 재능기부 봉사)
+                // 5. LIT:CH (스트릿 댄스)
                 ClubIntroduction intro5 = ClubIntroduction.builder()
-                                .overview("아트픽(ArtPick)은 예술·디자인 재능을 활용해 지역사회에 따뜻한 변화를 만들어가는 봉사·나눔 동아리입니다. " +
-                                                "벽화 그리기, 공간 디자인, 교육 프로그램 지원, 캠페인 포스터 제작 등 시각 예술을 기반으로 한 다양한 재능기부 활동을 진행합니다. "
-                                                +
-                                                "지역 아동센터, 사회복지시설, 학교 행사 등과 연계해 환경을 아름답게 꾸미거나, 아이들과 함께 그림·공예 활동을 하며 정서적 지지를 나누는 것이 아트픽의 주요 목표입니다. "
-                                                +
-                                                "아트픽은 ‘잘 그리는 사람들만 모이는 곳’이 아니라, 그림과 디자인을 좋아하는 마음을 바탕으로 작은 재능을 함께 나누고 싶은 학생들이 모이는 커뮤니티입니다. "
-                                                +
-                                                "완벽한 실력보다, 함께 준비하고 땀 흘리며 한 공간을 바꾸고 하나의 프로젝트를 완성하는 과정을 소중히 여깁니다.")
-                                .activities("• 지역 아동센터, 복지시설 등과 연계한 벽화·공간 꾸미기 봉사\n" +
-                                                "• 아이들을 위한 미술·공예 체험 프로그램 기획 및 진행 보조\n" +
-                                                "• 학교·지역 행사용 포스터, 배너, 카드뉴스 등 디자인 재능기부\n" +
-                                                "• 캠페인(환경, 안전, 인권 등) 관련 시각물 제작과 나눔 활동\n" +
-                                                "• 봉사 활동 결과물 아카이빙(사진, 기록집, 온라인 갤러리) 제작\n" +
-                                                "• 학기 말 활동 공유 세션 및 작은 결과 전시회 개최")
-                                .ideal("아트픽은 ‘작은 예술을 따뜻한 나눔으로 바꾸는 사람’을 찾습니다.\n\n" +
+                                .overview("LIT:CH(릿치)는 스트릿 문화를 기반으로 춤을 사랑하는 사람들이 모인 동아리입니다. " +
+                                                "힙합, 팝핑, 락킹, 왁킹, 브레이킹 등 다양한 스트릿 댄스 장르를 다루며, " +
+                                                "춤을 사랑하는 학생들이 모여 함께 연습하고 무대를 만들어가는 공동체입니다. " +
+                                                "릿치는 열정과 성실도를 가장 중요하게 생각합니다!")
+                                .activities("• 6기 멤버: 3월 3~4주차 기초 트레이닝 [월/화 16~18시, 19~21시] - 일주일에 네 타임 중 두 타임 선택 후 참여\n" +
+                                                "• 신규 가입시 비기너로 구분되며, 승급과제 수행 후 멤버로서 무대 참여 가능\n" +
+                                                "• 비디오그래퍼: 활동비 및 워크숍 비용 면제, 기초·장르 트레이닝 참여 가능 (영상 촬영을 위해 무대 참여는 불가)\n" +
+                                                "• 교내 축제, 입학식 등 정기 무대 공연\n" +
+                                                "• 외부 댄스 대회 및 배틀 참가\n" +
+                                                "• 촬영(영상 작업) 및 SNS 콘텐츠 제작")
+                                .ideal("릿치는 열정과 성실도를 가장 중요하게 생각합니다!\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 그림, 디자인, 공예 등 예술적 표현에 관심이 있는 학부생\n" +
-                                                "• 완성도보다 함께 준비하고 참여하는 과정 자체를 즐기는 분\n" +
-                                                "• 아이들·지역 주민 등과의 소통에 부담이 없고, 친절하게 대화할 수 있는 분\n" +
-                                                "• 정기 모임 및 봉사 일정에 성실히 참여할 수 있는 분\n" +
-                                                "• 타인의 공간과 시간을 존중하고 책임감 있게 행동할 수 있는 분\n" +
-                                                "• 팀 단위 프로젝트에서 역할을 맡아 끝까지 수행할 수 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 드로잉, 회화, 일러스트, 그래픽 디자인 등 한 가지 이상 분야의 작업 경험이 있는 분\n" +
-                                                "• Photoshop, Illustrator, Procreate 등 디자인 툴 사용 경험이 있는 분\n" +
-                                                "• 벽화, 포스터, 굿즈 제작 등 시각물 제작 경험이 있는 분\n" +
-                                                "• 아동·청소년 대상 교육 봉사 또는 프로그램 진행 보조 경험이 있는 분\n" +
-                                                "• 봉사활동 기획, 행사 운영, 기록 정리(사진·글 등)에 관심이 있는 분\n" +
-                                                "• 예술 재능기부나 사회공헌 활동에 꾸준히 참여해보고 싶은 분\n\n" +
-                                                "아트픽은 ‘완벽한 예술가’보다 ‘따뜻한 마음을 가진 예술 동아리원’을 기다립니다. " +
-                                                "작은 선과 색으로 누군가의 하루를 밝히고 싶은 분이라면, 아트픽에서 그 마음을 함께 나누어 주세요.")
+                                                "• 1년 이상 활동이 가능하신 열정 넘치는 학우\n" +
+                                                "• 신입생이든, 휴학생이든, 성별/나이 제한 없이 춤을 사랑하시는 분들 모두 환영\n\n" +
+                                                "[선발 방식]\n" +
+                                                "• 구글 폼으로 신청서 작성 및 제출\n" +
+                                                "• 지원서 (70%) + 오디션 (30%)\n" +
+                                                "• 1분 내외의 자유곡을 준비해주세요! (장르 불문)")
                                 .build();
-                intro5.addImages(List.of(
-                                "https://plus.unsplash.com/premium_photo-1663054644344-0d6e2da6e6f7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://plus.unsplash.com/premium_photo-1663091477072-91baad11832a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1571277129183-8a5ed585a9a4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://plus.unsplash.com/premium_photo-1723514542872-ef0ff7597213?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=2070"));
+                clubs.add(Club.builder().name("LIT:CH").category(Category.LITERATURE).location("제1학생회관 314호").shortIntroduction("스트릿 댄스 동아리").introduction(intro5).recruitStart(LocalDateTime.of(2026, 2, 9, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 8, 0, 0)).regularMeetingInfo("3월 3~4주차 기초 트레이닝 [월/화 16~18시, 19~21시]").caution("지원서 (70%) + 오디션 (30%), 1분 내외의 자유곡 준비 (장르 불문)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399873173").googleFormUrl("https://forms.gle/Bnq1qvqJrynbiYCt6").build());
 
-                Club club5 = Club.builder()
-                                .name("아트픽")
-                                .category(Category.LITERATURE)
-                                .location("예술관 301호")
-                                .shortIntroduction("창작 활동과 전시를 중심으로 활동하는 예술 동아리")
-                                .introduction(intro5)
-                                .recruitStart(LocalDateTime.of(2025, 9, 7, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 금요일 오후 5시")
-                                .caution("학년·전공 무관, 예술 열정만 있으면 OK")
-                                .isRegistered(true)
-                                .build();
-                clubs.add(club5);
-
-                // 6. 리버스 (음악·공연 봉사)
+                // 6. DOVE (축구)
                 ClubIntroduction intro6 = ClubIntroduction.builder()
-                                .overview("리버스(Reverse)는 음악을 통해 따뜻한 마음을 전하고, 공연으로 세상에 긍정적인 에너지를 나누는 봉사·공연 동아리입니다. " +
-                                                "밴드, 보컬, 연주, 작곡 등 음악적 재능을 살려 복지시설, 병원, 지역 행사 등에서 공연 봉사를 진행하며, 음악이 주는 위로와 즐거움을 사람들에게 전하는 것을 목표로 합니다. "
-                                                +
-                                                "정기적으로 교내 공연을 열어 모인 수익을 기부하거나, 사회적 메시지를 담은 버스킹을 통해 음악의 가치를 확장합니다. " +
-                                                "리버스는 실력보다 ‘진심 어린 연주’와 ‘관객과의 공감’을 중요하게 생각하며, 음악을 통해 함께 웃고 울 수 있는 따뜻한 무대를 만들어갑니다. "
-                                                +
-                                                "음악으로 마음을 나누고 싶은 모든 학생에게 열려 있습니다.")
-                                .activities("• 지역 아동센터, 요양원, 병원 등 방문 공연 봉사\n" +
-                                                "• 학교 축제 및 교내 정기 공연 수익 기부 프로젝트\n" +
-                                                "• 사회적 메시지를 담은 버스킹·거리 공연 기획\n" +
-                                                "• 보컬·악기·합주 등 파트별 정기 연습\n" +
-                                                "• 음원 제작 및 녹음 프로젝트 (후원 캠페인 송 등)\n" +
-                                                "• 교외 문화행사·자선 공연·지역 축제 참가")
-                                .ideal("리버스는 ‘음악으로 따뜻한 마음을 전하는 사람’을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 음악을 사랑하고, 이를 통해 긍정적인 변화를 만들어가고 싶은 학부생\n" +
-                                                "• 보컬, 기타, 베이스, 드럼, 키보드 등 밴드 세션이나 작곡·편곡에 관심이 있는 분\n" +
-                                                "• 정기적인 합주·공연 준비에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 봉사 공연, 지역 행사 등 외부 무대 참여에 적극적인 분\n" +
-                                                "• 팀 단위 협업을 즐기며, 함께 무대를 완성하려는 책임감을 가진 분\n" +
-                                                "• 무대 경험이 없어도, 음악을 통해 나눔을 실천하고 싶은 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 보컬 또는 밴드 세션(기타, 베이스, 드럼, 키보드 등) 연주 경험이 있는 분\n" +
-                                                "• 작곡, 편곡, 음향 장비(믹서, 오디오 인터페이스 등) 사용 경험이 있는 분\n" +
-                                                "• 공연 기획, 무대 연출, 조명, 영상 촬영 등에 관심이 있는 분\n" +
-                                                "• 자선 공연, 병원·복지시설 공연 등 봉사활동 경험이 있는 분\n" +
-                                                "• 음원 제작, 녹음, 홍보 콘텐츠 제작 경험이 있는 분\n" +
-                                                "• 음악으로 사회적 메시지를 전달하는 활동(환경, 평화, 인권 등)에 관심이 있는 분\n\n" +
-                                                "리버스는 ‘음악으로 나누는 봉사’를 실천하는 사람들의 무대입니다. " +
-                                                "화려하지 않아도 괜찮습니다. 한 사람의 하루를 따뜻하게 만드는 노래 한 곡, 작은 공연 하나로도 세상을 바꿀 수 있다고 믿습니다. "
-                                                +
-                                                "당신의 진심 어린 목소리와 연주를 리버스의 무대에서 함께 들려주세요.")
+                                .overview("DOVE는 전남대학교 총동아리연합회 체육분과 소속 축구 동아리입니다. " +
+                                                "체계적인 전술 훈련과 팀워크를 바탕으로 교내외 다양한 축구 대회에서 활약하고 있습니다. " +
+                                                "DOVE는 단순히 공을 차는 모임이 아니라, 축구를 매개로 학과와 학년을 넘어 " +
+                                                "새로운 인연을 만들고, 승리와 패배를 함께 경험하며 성장하는 공동체입니다.")
+                                .activities("• 수상경력: 전남대 총장배 축구대회 11회 우승 (95, 96, 97, 98, 99, 00, 02, 03, 04, 19, 23)\n" +
+                                                "• 교내 총장배 축구대회 및 리그전 참가\n" +
+                                                "• 교외 대학동아리 축구대회 참가\n" +
+                                                "• 체계적인 전술 훈련 진행\n" +
+                                                "• 정기 회식 및 팀 빌딩 활동")
+                                .ideal("DOVE는 이런 사람을 찾습니다.\n\n" +
+                                                "• 축구에 열정이 있는 사람들\n" +
+                                                "• 체계적인 전술 훈련을 원하는 사람들\n" +
+                                                "• 다양한 대회(교내 총장배, 교외 대학동아리 축구대회 등)에 참가하여 대학생활에 추억을 쌓고 싶은 사람들\n\n" +
+                                                "[연락처]\n" +
+                                                "• 인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요!")
                                 .build();
-                intro6.addImages(List.of(
-                                "https://plus.unsplash.com/premium_photo-1661335458798-74635c70b8a8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://plus.unsplash.com/premium_photo-1664298415497-60325b13618f?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1723816411168-175869ed9797?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1171",
-                                "https://images.unsplash.com/photo-1687585612054-2fd94d0aec00?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
+                clubs.add(Club.builder().name("DOVE").category(Category.SPORTS).location("대운동장").introduction(intro6).caution("인스타, 신입회원 오픈채팅방 또는 연락처로 연락 주세요").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399818659").googleFormUrl("인스타: @cnu_dove").build());
 
-                Club club6 = Club.builder()
-                                .name("리버스")
-                                .category(Category.VOLUNTEER)
-                                .location("음악관 B101")
-                                .shortIntroduction("밴드·보컬·작곡 등 음악 공연을 함께하는 동아리")
-                                .introduction(intro6)
-                                .recruitStart(LocalDateTime.of(2025, 3, 6, 9, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 3, 20, 18, 0, 0))
-                                .regularMeetingInfo("매주 화요일 오후 6시")
-                                .caution("오디션 후 합격자 활동 가능")
-                                .isRegistered(true)
-                                .build();
-                clubs.add(club6);
-
-                // 7. 포커스 (사진·영상 봉사)
+                // 7. 관현악반 (CNUO 오케스트라)
                 ClubIntroduction intro7 = ClubIntroduction.builder()
-                                .overview("포커스(FOCUS)는 사진과 영상을 통해 사회의 따뜻한 이야기를 기록하고 전하는 봉사·나눔 동아리입니다. " +
-                                                "카메라와 영상 기술을 활용하여 복지기관, 지역 행사, 사회적 캠페인 등에서 재능기부 활동을 진행하며, " +
-                                                "세상을 밝히는 사람들의 모습을 담고 그 의미를 널리 알리는 것을 목표로 합니다. " +
-                                                "회원들은 사진 촬영, 영상 제작, 편집, 콘텐츠 기획 등 다양한 역할을 맡아, 시각적 스토리텔링으로 사회의 긍정적인 변화를 기록합니다. "
-                                                +
-                                                "포커스는 ‘기록을 통한 나눔’을 실천하는 동아리로, 예술과 봉사의 가치를 동시에 추구하는 학생들이 함께합니다.")
-                                .activities("• 지역 복지기관, 봉사 현장, 행사 등에서 사진·영상 촬영 봉사\n" +
-                                                "• 학교·지역 사회 공익 캠페인(환경, 안전, 인권 등) 영상 제작\n" +
-                                                "• 사회적 이슈나 봉사활동을 주제로 한 다큐멘터리·인터뷰 영상 기획\n" +
-                                                "• 복지시설 홍보물(소개 영상, 사진 포스터 등) 제작 지원\n" +
-                                                "• 사진전 및 영상 상영회를 통한 나눔 문화 확산 활동\n" +
-                                                "• 사진·영상 제작 관련 교육 세션 및 후배 멘토링 진행")
-                                .ideal("포커스는 ‘세상의 선한 순간을 기록하고, 따뜻한 시선을 나누는 사람’을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 사진, 영상, 콘텐츠 제작에 관심이 있고 이를 통해 사회에 기여하고 싶은 학부생\n" +
-                                                "• 사람, 현장, 사회 문제를 관찰하고 진정성 있게 기록하고 싶은 분\n" +
-                                                "• 지역사회 행사나 봉사활동에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 팀 단위 프로젝트(촬영, 편집, 기획 등)에 협력적으로 참여할 수 있는 분\n" +
-                                                "• 영상미보다 ‘메시지’와 ‘진심’을 중요하게 여기는 분\n" +
-                                                "• 작품 공개(사진전, 상영회 등)에 부담 없이 참여할 수 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• DSLR, 미러리스, 캠코더 등 촬영 장비 사용 경험이 있는 분\n" +
-                                                "• 사진 후보정(라이트룸, 포토샵) 또는 영상 편집(Premiere Pro, DaVinci Resolve 등) 경험이 있는 분\n"
-                                                +
-                                                "• 인터뷰, 다큐멘터리, 홍보영상 등 실사 기반 콘텐츠 제작 경험이 있는 분\n" +
-                                                "• 지역 행사·공익 캠페인 등 사회공헌 프로젝트에 참여한 경험이 있는 분\n" +
-                                                "• 스토리텔링, 영상 연출, 내레이션 등 서사적 감각이 뛰어난 분\n" +
-                                                "• 사진·영상 매체를 통해 ‘사람’을 담는 데에 흥미가 있는 분\n\n" +
-                                                "포커스는 기술보다 ‘진심 어린 시선’을 더 중요하게 생각합니다. " +
-                                                "누군가의 웃음, 노력, 따뜻한 순간을 카메라에 담고 싶다면, 포커스와 함께 세상을 조금 더 빛나게 만들어보세요.")
+                                .overview("전남대 관현악반 CNUO는 47년의 역사를 바탕으로 정기연주회, 신입생 환영연주회, " +
+                                                "교내·외 공연 등을 통해 전남대학교를 대표하는 오케스트라 동아리로 활동하고 있습니다. " +
+                                                "교향곡, 협주곡, 서곡 등 폭넓은 클래식 레퍼토리를 다루며, " +
+                                                "현악, 관악, 타악 파트의 조화로운 앙상블을 추구합니다.")
+                                .activities("• 자축제, 신입생 환영연주회, 정기연주회, 외부 버스킹 공연 등 다채로운 연주 활동\n" +
+                                                "• MT, 체육대회, 수련회, 야유회 등 따뜻하고 즐거운 친목 활동\n" +
+                                                "• 월~금 중 주 3회 이상 정기 합주 연습\n" +
+                                                "• 파트별 섹션 연습 및 전체 합주\n" +
+                                                "• 가입비: 5,000원 / 정기 회비: 70,000원 (연주회 준비, MT, 야유회 등에 사용)\n" +
+                                                "• 악기 대여비: 10,000원 (공용 악기 한정, 선착순 배정)")
+                                .ideal("관현악반은 '오케스트라의 일원으로서 하모니를 만들어갈 연주자'를 찾습니다.\n\n" +
+                                                "[가입 대상]\n" +
+                                                "• 악기를 배우고 싶거나 연주를 꿈꾸는 신입생, 재학생, 복학생, 휴학생 누구나\n" +
+                                                "• 오케스트라에서 사용되는 모든 악기에 관심 있는 분들\n\n" +
+                                                "[가입 방법]\n" +
+                                                "• 관현악반 프로필 링크에서 온라인 가입신청서 작성\n" +
+                                                "• 3월 알림아리 때 관현악반 부스 방문하여 입회원서 작성 시 최종입부 완료\n" +
+                                                "• 온라인 가입신청서는 1차 수요 조사 및 부스 방문 안내 용도")
                                 .build();
+                clubs.add(Club.builder().name("관현악반").category(Category.LITERATURE).location("제 1학생회관 307, 308호").shortIntroduction("47년 전통의 오케스트라").introduction(intro7).regularMeetingInfo("월~금 중 주 3회 이상 정기적인 출석 필수").caution("온라인 가입신청서 작성 후 알림아리 때 부스를 직접 방문하여 입회원서 및 서약서를 작성해야 가입 완료").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399569935").googleFormUrl("https://litt.ly/cnuo").build());
 
-                Club club7 = Club.builder()
-                                .name("포커스")
-                                .category(Category.LITERATURE) // 봉사 동아리
-                                .location("미디어관 204호")
-                                .shortIntroduction("사진과 영상으로 세상의 따뜻한 이야기를 기록하는 봉사 동아리")
-                                .introduction(intro7)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 목요일 오후 5시")
-                                .caution("촬영 장비 보유 여부와 관계없이 참여 가능")
-                                .isRegistered(true)
-                                .build();
-                clubs.add(club7);
-
-                intro7.addImages(List.of(
-                                "https://images.unsplash.com/photo-1650006414512-ba9f6aaf5bf4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
-                                "https://images.unsplash.com/photo-1609748629093-a5c6c6e4ca6a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1468109320504-a5e48f17cfb7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1237",
-                                "https://images.unsplash.com/photo-1663046064997-4f0822dbc797?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1972"));
-
-                // 8. 온기나눔 (봉사·나눔)
+                // 8. 아이디어스 (발명특허·공모전)
                 ClubIntroduction intro8 = ClubIntroduction.builder()
-                                .overview("온기나눔은 지역 사회에 작은 따뜻함을 전하고자 모인 봉사·나눔 동아리입니다. " +
-                                                "사회복지시설, 지역 아동센터, 노인복지관, 장애인 복지기관 등과 협력하여 정기적인 봉사활동을 기획하고 실행합니다. " +
-                                                "단순히 일회성 봉사에 그치지 않고, 꾸준한 관계 맺기와 지속 가능한 활동을 통해 지역 사회에 긍정적인 변화를 만들어가는 것을 목표로 합니다. "
-                                                +
-                                                "회원들은 아이들과의 학습·놀이 활동, 어르신 말벗 및 생활 지원, 환경 정화 활동, 후원 캠페인 등 다양한 프로그램을 함께 준비합니다. "
-                                                +
-                                                "온기나눔은 ‘거창한 영웅’이 아니라, 일상 속에서 할 수 있는 작은 실천을 모아 큰 변화를 만들어가는 학생들의 공간입니다. "
-                                                +
-                                                "함께 웃고, 함께 돕고, 함께 성장하는 경험을 하고 싶은 학생이라면 누구나 온기나눔의 활동에 참여할 수 있습니다.")
-                                .activities("• 사회복지시설, 지역 아동센터, 노인복지관 등과 연계한 정기 봉사활동\n" +
-                                                "• 아동·청소년 멘토링, 학습 지도, 놀이·문화 체험 프로그램 진행\n" +
-                                                "• 독거 어르신 말벗·생활 지원, 도시락·간식 나눔 활동\n" +
-                                                "• 환경 정화, 캠퍼스 및 지역 사회 청소, 플로깅 등 환경 봉사\n" +
-                                                "• 후원 캠페인, 바자회, 기부 연계 프로그램 기획 및 실행\n" +
-                                                "• 봉사 후기집·활동 리포트 제작 및 공유를 통한 나눔 문화 확산")
-                                .ideal("온기나눔은 ‘작은 배려를 행동으로 옮기는 사람’을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 타인의 입장에서 생각하고 공감하려는 마음을 가진 학부생\n" +
-                                                "• 정기적인 봉사활동과 준비 모임에 성실하게 참여할 수 있는 분\n" +
-                                                "• 눈에 띄지 않는 일이라도 꾸준히 맡아서 수행할 수 있는 책임감 있는 분\n" +
-                                                "• 동아리 구성원 및 기관 관계자와 원활하게 소통할 수 있는 분\n" +
-                                                "• 사진·글 등으로 봉사 기록을 남기고 공유하는 데 부담이 없는 분\n" +
-                                                "• 봉사를 통해 본인의 성장과 지역 사회의 변화를 함께 경험하고 싶은 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 사회복지시설, 지역 아동센터, 봉사 단체 등에서 활동해본 경험이 있는 분\n" +
-                                                "• 프로그램 기획, 행사 운영, 안내·진행 등 사람들과 함께하는 활동을 좋아하는 분\n" +
-                                                "• 포스터·카드뉴스 제작 등 홍보 콘텐츠 제작 경험이 있는 분\n" +
-                                                "• 사진 촬영, 글쓰기 등을 통해 봉사 활동을 기록하고 아카이빙하는 데 관심이 있는 분\n" +
-                                                "• 사회복지, 교육, 상담, 심리 등 관련 분야에 관심이 있거나 전공 중인 분\n" +
-                                                "• 장기적인 관점에서 한 기관 또는 한 대상과 꾸준히 관계를 맺고 싶은 분\n\n" +
-                                                "온기나눔은 완벽한 사람을 찾지 않습니다. " +
-                                                "작은 시간과 마음을 내어 타인에게 온기를 전하고 싶은 마음이 있다면, 그 자체로 충분한 시작입니다. " +
-                                                "함께라서 더 따뜻한 봉사를 경험하고 싶은 분들을 온기나눔이 기다리고 있습니다.")
+                                .overview("Turn your idea into reality! 아이디어스는 상상을 실현하는 전남대학교 유일 발명특허 및 공모전 동아리입니다. " +
+                                                "일상 속 불편함에서 출발한 창의적 아이디어를 발명품이나 비즈니스 모델로 발전시키고, " +
+                                                "실제 특허 출원 및 공모전 수상으로 이어가는 것을 목표로 합니다. " +
+                                                "우수 활동자 선정(상금: 기프티콘), 단체 회식 지원비(개강·중간·종강파티), " +
+                                                "팀별 지원비, 시험기간 간식사업 등 다양한 복지도 제공합니다.")
+                                .activities("• 희망 공모전 분야에 맞춰 팀 빌딩\n" +
+                                                "• 매주 월요일 19시, 전체회의를 통해 각 팀의 진행상황 및 결과 발표 (시험기간 제외)\n" +
+                                                "• 피드백을 통한 아이디어 수정 보완 및 구체화\n" +
+                                                "• 특허 출원 및 공모전을 통한 아이디어 구현\n" +
+                                                "• 우수 활동자 선�� (매학기 최우수 1명, 우수 2명)")
+                                .ideal("아이디어스는 이런 사람을 찾습니다.\n\n" +
+                                                "• 전남대학교 재학생/휴학생 누구나\n" +
+                                                "• 공모전에 나가고 싶은 사람\n" +
+                                                "• 발표 능력을 향상하고 싶은 사람\n" +
+                                                "• 스펙을 쌓고 싶은 사람\n" +
+                                                "• 다양한 과 사람들과 교류하고 싶은 사람\n" +
+                                                "• 특허를 내고 싶은 사람\n\n" +
+                                                "[선발 일정]\n" +
+                                                "• 서류합격자 발표: 2026.02.04\n" +
+                                                "• 대면 면접: 2026.02.11~2026.02.12\n" +
+                                                "• 최종합격자 발표: 2026.02.14")
                                 .build();
-                intro8.addImages(List.of(
-                                "https://images.unsplash.com/photo-1616680214429-d79397e56688?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://plus.unsplash.com/premium_photo-1681140560906-4610ee700d1b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1758599669327-83d310882929?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1332",
-                                "https://plus.unsplash.com/premium_photo-1663040337189-fa6906bf2bc4?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
+                clubs.add(Club.builder().name("아이디어스").category(Category.STUDY).location("제1학생회관 412호").shortIntroduction("상상을 실현하는 발명특허·공모전 동아리").introduction(intro8).recruitStart(LocalDateTime.of(2026, 1, 21, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 1, 0, 0)).regularMeetingInfo("매주 월요일 19시 전체회의 (시험기간 제외)").caution("서류합격자 발표: 2026.02.04, 대면 면접: 2026.02.11~02.12, 최종합격자 발표: 2026.02.14").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/399004379").googleFormUrl("https://docs.google.com/forms/d/e/example/viewform").build());
 
-                Club club8 = Club.builder()
-                                .name("온기나눔")
-                                .category(Category.VOLUNTEER)
-                                .location("사회관 108호")
-                                .shortIntroduction("지역사회 봉사와 나눔 실천을 중심으로 하는 봉사 동아리")
-                                .introduction(intro8)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 토요일 오전 10시")
-                                .caution("정기 봉사 참여 필수")
-                                .isRegistered(true)
-                                .build();
-                clubs.add(club8);
-
-                // 9. 비즈온 (창업·비즈니스)
+                // 9. 미담장학회 (교육 기부 봉사)
                 ClubIntroduction intro9 = ClubIntroduction.builder()
-                                .overview("비즈온(BizOn)은 ‘비즈니스로 세상을 바꾸자’는 비전을 가진 창업·경영 동아리입니다. " +
-                                                "창의적인 아이디어를 실현 가능한 비즈니스 모델로 발전시키고, 실제 시장 검증과 실행을 통해 스타트업의 전 과정을 경험합니다. "
-                                                +
-                                                "회원들은 팀을 구성해 문제를 정의하고 고객을 분석하며, 서비스 기획부터 마케팅, 재무 모델링까지 전 과정을 직접 수행합니다. "
-                                                +
-                                                "단순히 이론을 배우는 것을 넘어 ‘실행 중심의 학습(learning by doing)’을 추구하며, 실제 창업 생태계 속에서 성장할 수 있는 기회를 제공합니다. "
-                                                +
-                                                "비즈온은 스타트업, 사회적 기업, 테크 비즈니스 등 다양한 형태의 창업을 함께 탐구하며, 도전적인 아이디어가 현실이 되는 과정을 함께 만들어갑니다.")
-                                .activities("• 비즈니스 모델(BM) 수립 및 고객 문제 탐색 워크숍\n" +
-                                                "• 팀 단위 창업 아이디어 기획 및 시제품(MVP) 개발\n" +
-                                                "• 교내·외 창업 경진대회 참가 및 피칭 실습\n" +
-                                                "• 기업가 정신, 마케팅, 재무 등 실무 중심 세미나 운영\n" +
-                                                "• 스타트업 대표 및 전문가 초청 멘토링 세션\n" +
-                                                "• 투자 유치 모의 피칭, IR 자료 제작, 사업계획서 컨설팅")
-                                .ideal("비즈온은 ‘아이디어를 실행으로 옮기고, 시장을 통해 검증하는 사람’을 찾습니다.\n\n" +
+                                .overview("미담장학회는 대한민국 청소년들이 경제적 여건과 관계없이 교육받을 권리를 목표로 하는 교육 기부 동아리입니다. " +
+                                                "전국 국공립 대학생 멘토들이 함께하는 교육기부 시스템을 운영하며, " +
+                                                "전남대학교 미담장학회는 초·중학생 교과목 멘토링을 주력으로 합니다. " +
+                                                "교육부·한국창의재단 주관 '교육기부 우수기관'으로 선정된 바 있습니다.")
+                                .activities("• 1:1 또는 1:N 방식의 교과 멘토링 및 놀이지도 (정기 봉사)\n" +
+                                                "  - 초·중학생 교과목 멘토링: 매곡중앙, 보람, 서머힐북구, 오정, 해달별 지역아동센터\n" +
+                                                "  - 학교 밖 청소년 대상 검정고시 및 수능 멘토링: 북구 학교밖청소년지원센터\n" +
+                                                "• 자체 기획 봉사: 학교 밖 청소년 대상 진로 탐색 프로그램 '러닝메이트', 아동센터 멘티 대상 '원데이 클래스'\n" +
+                                                "• 외부 연계 봉사: 진로 멘토링, 광주 교육청 수학과학축전 행사 보조, 심리·상담 멘토링\n" +
+                                                "• 개강/종강파티, MT, 소풍, 마니또, 시험기간 응원사업 등 친목 활동")
+                                .ideal("미담장학회는 '교육으로 세상을 바꾸는 따뜻한 멘토'를 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 창업, 스타트업, 비즈니스 기획에 관심이 있는 학부생\n" +
-                                                "• 문제를 발견하고 새로운 해결책을 제시하는 데 흥미가 있는 분\n" +
-                                                "• 도전정신이 강하고 불확실한 환경에서도 실행력을 보여줄 수 있는 분\n" +
-                                                "• 팀 단위로 기획, 개발, 마케팅 등 다양한 역할을 수행할 수 있는 협업형 인재\n" +
-                                                "• 매주 정기 세션 및 프로젝트에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 시장조사, 사용자 인터뷰, 피칭 등 실전 경험을 쌓고자 하는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 창업 관련 대회, 해커톤, 공모전 등에 참가한 경험이 있는 분\n" +
-                                                "• 비즈니스 모델 캔버스, 린 캔버스 등 기획 프레임워크 활용 경험이 있는 분\n" +
-                                                "• 제품 기획, 디자인, 개발, 마케팅, 재무 등 한 분야 이상에 실무적 이해가 있는 분\n" +
-                                                "• 스타트업, 인큐베이팅, 액셀러레이팅 프로그램 등에 관심이 있는 분\n" +
-                                                "• 피칭, 프레젠테이션, 커뮤니케이션 능력이 뛰어난 분\n" +
-                                                "• 사회문제를 창의적으로 해결하는 임팩트 비즈니스에 관심이 있는 분\n\n" +
-                                                "비즈온은 ‘도전’과 ‘실행’을 즐기는 모든 학생에게 열려 있습니다. " +
-                                                "아이디어가 있다면 현실로 옮기고, 없더라도 함께 만들어가면 됩니다. " +
-                                                "당신의 첫 창업 경험, 비즈온에서 시작해보세요.")
+                                                "• 책임감 있으신 분\n" +
+                                                "• 교육 봉사에 관심 있으신 분\n" +
+                                                "• 1~3학년 재학생\n" +
+                                                "• 2학기 이상 활동 가능하신 분 (군 휴학 제외, 최소 한 학기 정기 봉사 참여 필수)\n\n" +
+                                                "[정기 봉사 시간대]\n" +
+                                                "• 아동센터: 13:30~15:30 / 14:00~16:00 / 15:00~17:00 / 15:30~17:30 / 16:00~18:00\n" +
+                                                "• 학교밖청소년지원센터: 9:00~18:00 중 2시간 이상")
                                 .build();
-                intro9.addImages(List.of(
-                                "https://images.unsplash.com/photo-1700241956206-79b70da5f4b8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1161",
-                                "https://images.unsplash.com/photo-1621856625680-282ec3a17db8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1565882694798-4c9d004e65b7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1176",
-                                "https://plus.unsplash.com/premium_photo-1661400034625-d9ff65962f48?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1332"));
+                clubs.add(Club.builder().name("미담장학회").category(Category.VOLUNTEER).location("제 2학생회관 301호").shortIntroduction("교육기부 우수기관 선정 교육 봉사 동아리").introduction(intro9).recruitStart(LocalDateTime.of(2026, 2, 13, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 25, 0, 0)).isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/544806/v/400400343").googleFormUrl("https://naver.me/GVV5zstA").build());
 
-                Club club9 = Club.builder()
-                                .name("비즈온")
-                                .category(Category.STUDY)
-                                .location("경영관 201호")
-                                .shortIntroduction("창업 아이디어를 현실로 만드는 비즈니스 창업 동아리")
-                                .introduction(intro9)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 월요일 오후 6시")
-                                .caution("창업 경진대회 참가 의지 필수")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club9);
-
-                // 10. 핀라이트 (금융·투자)
+                // 10. PPP (탁구)
                 ClubIntroduction intro10 = ClubIntroduction.builder()
-                                .overview("핀라이트(Finlight)는 금융과 투자를 중심으로 경제적 사고력과 분석 능력을 기르는 학술 동아리입니다. " +
-                                                "‘금융(Finance)’과 ‘빛(Light)’의 합성어로, 세상의 흐름을 읽고 경제의 본질을 이해하며, 올바른 금융 지식을 통해 스스로의 미래를 밝히자는 뜻을 담고 있습니다. "
-                                                +
-                                                "회원들은 국내외 경제 이슈를 토론하고, 실제 주식 및 자산 운용 사례를 분석하며, 투자와 재테크의 기본 원리를 학문적으로 탐구합니다. "
-                                                +
-                                                "또한 단기 수익보다 ‘지속 가능한 투자’를 목표로 하여, 장기적 관점에서 합리적인 의사결정을 내릴 수 있는 금융인으로 성장하는 것을 지향합니다. "
-                                                +
-                                                "핀라이트는 금융을 단순히 돈을 버는 수단이 아닌, 사회와 개인을 이해하는 지식의 한 축으로 바라봅니다.")
-                                .activities("• 주식 및 ETF 모의투자 프로그램 운영\n" +
-                                                "• 거시경제, 산업 트렌드, 기업 재무분석 세미나\n" +
-                                                "• 경제 시사 토론 및 주간 리포트 발표\n" +
-                                                "• 금융 관련 자격증(투자자산운용사, AFPK 등) 스터디 진행\n" +
-                                                "• 가상 포트폴리오 구성 및 수익률 분석\n" +
-                                                "• 금융 전문가 초청 특강 및 금융권 진로 멘토링 세션")
-                                .ideal("핀라이트는 ‘데이터를 읽고, 흐름을 이해하며, 금융을 통해 사고하는 사람’을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 경제, 경영, 금융, 투자 등 관련 분야에 관심이 있는 학부생\n" +
-                                                "• 주식, 채권, 부동산, 대체투자 등 다양한 자산군에 흥미가 있는 분\n" +
-                                                "• 숫자와 데이터 해석에 강점을 가지고 있으며, 논리적 사고를 즐기는 분\n" +
-                                                "• 경제 뉴스를 꾸준히 탐독하고 스스로 시장의 흐름을 분석하려는 학습 태도를 가진 분\n" +
-                                                "• 단기 성과보다는 장기적 관점에서 금융 지식을 쌓고자 하는 분\n" +
-                                                "• 팀 세미나 및 리서치 프로젝트에 꾸준히 참여할 수 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 주식, ETF, 가상자산 등 실제 투자 경험이 있는 분\n" +
-                                                "• 재무제표 분석, 밸류에이션(가치평가), 산업 리서치 경험이 있는 분\n" +
-                                                "• Excel, Power BI, Python 등 데이터 분석 도구를 활용할 수 있는 분\n" +
-                                                "• 경제·금융 관련 공모전, 경진대회, 리서치 챌린지 참가 경험이 있는 분\n" +
-                                                "• CFA, AFPK, 투자자산운용사 등 금융 자격증 취득을 준비하거나 보유한 분\n" +
-                                                "• 금융권 진로(자산운용, 투자은행, 컨설팅 등)에 관심이 있는 분\n\n" +
-                                                "핀라이트는 ‘빠른 수익’보다 ‘깊은 이해’를 추구합니다. " +
-                                                "시장의 흐름을 공부하며 금융의 원리를 탐구하고, 경제적 통찰력을 키워가고 싶은 분이라면 핀라이트에서 함께 성장해보세요.")
+                                .overview("PPP는 전남대학교 탁구 중앙 동아리입니다. " +
+                                                "탁구를 사랑하는 학생들이 모여 실력을 키우고, 즐겁게 운동하며, " +
+                                                "교내외 대회에서 활약하는 것을 목표로 합니다. " +
+                                                "대학(원)생, 재학생, 휴학생, 외국인 유학생 모두 가입 가능합니다.")
+                                .activities("• 매주 정기 모임 3회 (18:00~22:00, 다양한 요일로 활동)\n" +
+                                                "• 동아리 내 1:1 탁구 훈련\n" +
+                                                "• 동아리 내 탁구 대회 (IPL)\n" +
+                                                "• 호남권 대학 교류전\n" +
+                                                "• 개강 및 종강 파티, MT\n" +
+                                                "• 테마 행사(리그전 등)와 번개모임\n" +
+                                                "• 지역생활체육대회 / 전국대학탁구대회 참여")
+                                .ideal("PPP는 '탁구를 즐기며 함께 성장하고 싶은 사람'을 찾습니다.\n\n" +
+                                                "[모집 대상]\n" +
+                                                "• 적극적으로 활동 가능한 전남대생\n" +
+                                                "• 대학(원)생, 재학생, 휴학생, 외국인 유학생 모두 포함\n\n" +
+                                                "라켓을 잡아본 적 없어도 괜찮습니다. PPP에서 함께 핑퐁의 세계에 빠져보세요.")
                                 .build();
-                intro10.addImages(List.of(
-                                "https://plus.unsplash.com/premium_photo-1661782751910-da7995e9baa7?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1169",
-                                "https://plus.unsplash.com/premium_photo-1661611260273-4312872f53da?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1992",
-                                "https://plus.unsplash.com/premium_photo-1661746154460-1ee9008a501b?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://plus.unsplash.com/premium_photo-1663040170703-cb0d52d66165?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
+                clubs.add(Club.builder().name("PPP").category(Category.SPORTS).location("제2학생회관 405호").shortIntroduction("전남대학교 탁구 중앙 동아리").introduction(intro10).recruitEnd(LocalDateTime.of(2026, 3, 5, 0, 0)).regularMeetingInfo("정기 모임 18:00~22:00, 주 3회 다양한 요일로 활동").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400508043").googleFormUrl("https://docs.google.com/forms/d/e/example/viewform").build());
 
-                Club club10 = Club.builder()
-                                .name("핀라이트")
-                                .category(Category.STUDY)
-                                .location("경상관 110호")
-                                .shortIntroduction("경제·금융 지식을 함께 배우는 투자 학술 동아리")
-                                .introduction(intro10)
-                                .recruitStart(LocalDateTime.of(2025, 3, 10, 9, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 3, 24, 18, 0, 0))
-                                .regularMeetingInfo("매주 금요일 오후 7시")
-                                .caution("경제신문 정기 구독자 우대")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club10);
+
+                // --- 11~14: 기존 동아리 ---
 
                 // 11. 글빛 (문학·창작)
                 ClubIntroduction intro11 = ClubIntroduction.builder()
                                 .overview("글빛은 시, 소설, 수필, 에세이 등 다양한 문학 창작 활동을 통해 생각과 감정을 글로 표현하는 문예·창작 동아리입니다. " +
-                                                "‘빛나는 글로 마음을 잇는다’는 의미처럼, 개인의 이야기를 예술적 언어로 표현하고, 서로의 작품을 읽고 나누며 성장하는 것을 목표로 합니다. "
-                                                +
-                                                "학기 중에는 정기 창작 모임을 통해 글을 쓰고 피드백을 주고받으며, 문학적 표현력과 사유의 깊이를 함께 발전시켜 나갑니다. "
-                                                +
-                                                "또한 문학 작품 낭독회, 글쓰기 워크숍, 교내 문예대회 참가 등 다양한 활동을 통해 문학을 즐기고 공유하는 문화를 만들어가고 있습니다. "
-                                                +
-                                                "글빛은 글을 ‘잘 쓰는 사람’보다, 글을 통해 세상을 더 깊이 이해하고 싶은 사람들의 모임입니다.")
+                                                "'빛나는 글로 마음을 잇는다'는 의미처럼, 개인의 이야기를 예술적 언어로 표현하고, " +
+                                                "서로의 작품을 읽고 나누며 성장하는 것을 목표로 합니다. " +
+                                                "학기 중에는 정기 창작 모임을 통해 글을 쓰고 피드백을 주고받으며, " +
+                                                "문학적 표현력과 사유의 깊이를 함께 발전시켜 나갑니다. " +
+                                                "글빛은 글을 '잘 쓰는 사람'보다, 글을 통해 세상을 더 깊이 이해하고 싶은 사람들의 모임입니다.")
                                 .activities("• 주제별 창작 모임 및 자유 창작 세션 운영 (시, 소설, 수필 등)\n" +
                                                 "• 완성된 작품을 바탕으로 한 합평회(피드백 모임) 진행\n" +
                                                 "• 문학 낭독회 및 창작 발표회 개최\n" +
                                                 "• 교내·외 문예 공모전 및 대회 참가\n" +
-                                                "• 학기 말 ‘글빛 동인지’ 발간 및 전시 부스 운영\n" +
+                                                "• 학기 말 '글빛 동인지' 발간\n" +
                                                 "• 문학 강연, 창작 워크숍, 독서토론회 등 정기 세미나 진행")
-                                .ideal("글빛은 ‘사유를 글로 표현하고, 감정을 나누는 사람’을 기다립니다.\n\n" +
+                                .ideal("글빛은 '사유를 글로 표현하고, 감정을 나누는 사람'을 기다립니다.\n\n" +
                                                 "[자격요건]\n" +
                                                 "• 글쓰기와 문학에 관심이 있는 학부생 (전공 무관)\n" +
-                                                "• 시, 소설, 수필 등 자유로운 형식의 창작에 도전하고 싶은 분\n" +
                                                 "• 자신의 생각과 감정을 언어로 풀어내는 데 즐거움을 느끼는 분\n" +
                                                 "• 다른 사람의 작품을 존중하고 진심 어린 피드백을 나눌 수 있는 분\n" +
-                                                "• 정기 모임 및 합평회에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 완성도보다 ‘표현의 진정성’을 중요하게 생각하는 분\n\n" +
+                                                "• 정기 모임 및 합평회에 꾸준히 참여할 수 있는 성실한 분\n\n" +
                                                 "[우대사항]\n" +
                                                 "• 교내·외 문예대회, 공모전, 블로그 등에서 창작 경험이 있는 분\n" +
-                                                "• 출판, 편집, 스토리텔링, 시나리오 등 문학적 글쓰기에 흥미가 있는 분\n" +
-                                                "• 낭독회, 전시, 오디오북 등 문학 콘텐츠 제작에 관심이 있는 분\n" +
-                                                "• 비평문, 에세이, 리뷰 등 분석적 글쓰기를 좋아하는 분\n" +
-                                                "• 인문학·철학·예술 분야에 관심이 있어 글에 깊이를 더하고 싶은 분\n" +
-                                                "• 꾸준히 글을 쓰고자 하는 습관을 기르고 싶은 분\n\n" +
-                                                "글빛은 ‘문학이 어려운 사람’에게도 열려 있습니다. " +
-                                                "중요한 것은 표현의 완성도가 아니라, 자신만의 이야기를 진심으로 전하려는 마음입니다. " +
-                                                "단어 하나, 문장 하나를 통해 세상을 바라보는 시선이 확장되는 경험—그 여정을 함께하고 싶은 분이라면, 글빛이 당신의 이야기를 기다리고 있습니다.")
+                                                "• 출판, 편집, 시나리오 등 문학적 글쓰기에 흥미가 있는 분\n" +
+                                                "• 인문학·철학·예술 분야에 관심이 있는 분\n\n" +
+                                                "글빛은 '문학이 어려운 사람'에게도 열려 있습니다. 단어 하나, 문장 하나를 통해 세상을 바라보는 시선이 확장되는 경험을 함께해 보세요.")
                                 .build();
+                clubs.add(Club.builder().name("글빛").category(Category.LITERATURE).location("인문관 113호").shortIntroduction("글을 통해 세상을 이해하는 창작 동아리").introduction(intro11).isInterviewRequired(true).isRegistered(true).build());
 
-                intro11.addImages(List.of(
-                                "https://plus.unsplash.com/premium_photo-1661661591757-89ebfe7b357a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1183",
-                                "https://plus.unsplash.com/premium_photo-1661694072616-955dc258120e?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1159",
-                                "https://images.unsplash.com/photo-1655472355485-d949925e67bb?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1052",
-                                "https://plus.unsplash.com/premium_photo-1725408127758-fb45b0f11ad9?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1224"));
-
-                Club club11 = Club.builder()
-                                .name("글빛")
-                                .category(Category.LITERATURE)
-                                .location("인문관 113호")
-                                .shortIntroduction("시·소설·수필 등 창작을 통해 감성과 표현을 나누는 문예 동아리")
-                                .introduction(intro11)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 금요일 오후 6시")
-                                .caution("창작 경험자 우대, 신입회원 대상 글쓰기 워크숍 운영 예정")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club11);
-
-                // 12. 무대열전 (연극·공연예술 · 종교)
+                // 12. 무대열전 (연극·공연예술)
                 ClubIntroduction intro12 = ClubIntroduction.builder()
                                 .overview("무대열전은 연극과 공연예술을 통해 신앙과 삶의 이야기를 풀어내는 공연예술 동아리입니다. " +
-                                                "우리는 무대를 하나의 ‘작은 예배 공간’이자 ‘이야기의 장’으로 바라보며, 사랑, 용서, 희망, 회복과 같은 주제를 연극으로 표현합니다. "
-                                                +
-                                                "성경 속 이야기나 신앙인의 삶, 일상에서 느끼는 고민과 질문들을 각색하여, 관객이 공감하고 위로를 받을 수 있는 작품을 만드는 것을 목표로 합니다. "
-                                                +
-                                                "무대열전의 공연은 단순한 오락을 넘어, 관객과 함께 삶의 의미를 돌아보고, 신앙적 메시지를 나누는 시간이 되기를 지향합니다. "
-                                                +
-                                                "연기와 무대를 처음 접하는 사람이라도, 진심으로 ‘이야기를 전하고 싶다’는 마음이 있다면 누구나 함께할 수 있습니다.")
+                                                "무대를 하나의 '작은 예배 공간'이자 '이야기의 장'으로 바라보며, " +
+                                                "사랑, 용서, 희망, 회복과 같은 주제를 연극으로 표현합니다. " +
+                                                "성경 속 이야기나 신앙인의 삶, 일상에서 느끼는 고민과 질문들을 각색하여, " +
+                                                "관객이 공감하고 위로를 받을 수 있는 작품을 만드는 것을 목표로 합니다. " +
+                                                "연기와 무대를 처음 접하는 사람이라도, 진심으로 '이야기를 전하고 싶다'는 마음이 있다면 누구나 함께할 수 있습니다.")
                                 .activities("• 신앙과 삶을 주제로 한 공연 대본 기획 및 각색 작업\n" +
                                                 "• 연기 기본기·발성·동선 등 연습 및 역할별 리허설\n" +
                                                 "• 무대 연출, 조명, 음향, 소품·무대미술 워크숍 진행\n" +
                                                 "• 교내 공연, 채플·예배 특송 공연, 지역 교회·기관 초청 공연\n" +
-                                                "• 공연 전후 묵상·나눔 시간 및 작품 주제에 대한 신앙·인문 토론\n" +
-                                                "• 학기 말 정기 공연 및 간증/작품 해설이 포함된 관객과의 대화 시간 마련")
-                                .ideal("무대열전은 ‘무대를 통해 믿음과 이야기를 전하고 싶은 사람’을 찾습니다.\n\n" +
+                                                "• 공연 전후 묵상·나눔 시간 및 작품 주제에 대한 토론\n" +
+                                                "• 학기 말 정기 공연 및 관객과의 대화 시간 마련")
+                                .ideal("무대열전은 '무대를 통해 믿음과 이야기를 전하고 싶은 사람'을 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 연극, 공연, 무대예술에 관심이 있고 함께 작품을 만들어보고 싶은 학부생\n" +
-                                                "• 사랑, 용서, 소망, 용기 등 신앙적 가치와 삶의 이야기를 나누는 데 마음이 있는 분\n" +
+                                                "• 연극, 공연, 무대예술에 관심이 있는 학부생\n" +
                                                 "• 팀 연습과 공연 준비에 꾸준히 참여할 수 있는 성실한 분\n" +
                                                 "• 무대 위·뒤에서 맡은 역할을 책임감 있게 수행할 수 있는 분\n" +
-                                                "• 관객과의 소통, 나눔, 피드백을 기쁘게 받아들일 수 있는 분\n" +
-                                                "• 특정 종교에 대한 적대감이 없고, 신앙적 메시지를 담은 공연에 자연스럽게 참여할 수 있는 분\n\n" +
+                                                "• 신앙적 메시지를 담은 공연에 자연스럽게 참여할 수 있는 분\n\n" +
                                                 "[우대사항]\n" +
-                                                "• 연극·뮤지컬·연기 동아리 또는 학교·교회 공연 활동 경험이 있는 분\n" +
+                                                "• 연극·뮤지컬·연기 동아리 또는 공연 활동 경험이 있는 분\n" +
                                                 "• 대본 집필, 각색, 시나리오 작성 등 글쓰기 경험이 있는 분\n" +
-                                                "• 무대 연출, 조명, 음향, 무대미술, 의상 등 스태프 업무에 관심이 있는 분\n" +
-                                                "• 찬양팀, 성가대, 워십팀 등 예배 관련 예술 활동 경험이 있는 분\n" +
-                                                "• 사람들 앞에서 말하기, 발표, 진행(사회) 경험이 있는 분\n" +
-                                                "• 신앙, 종교, 철학, 인문학적 주제를 작품에 녹여보고 싶은 분\n\n" +
-                                                "무대열전은 ‘완벽한 배우’를 찾지 않습니다. " +
-                                                "서툴러도 괜찮습니다. 중요한 것은 무대를 통해 전하고 싶은 진심과, 함께 준비하는 과정을 소중히 여기는 마음입니다. " +
-                                                "신앙과 예술, 공연과 나눔이 만나는 무대에서 새로운 이야기를 함께 써 내려가고 싶은 분들을 기다리고 있습니다.")
+                                                "• 무대 연출, 조명, 음향, 무대미술 등 스태프 업무에 관심이 있는 분\n\n" +
+                                                "무대열전은 '완벽한 배우'를 찾지 않습니다. 서툴러도 괜찮습니다. 무대를 통해 전하고 싶은 진심이 있다면 함께해 주세요.")
                                 .build();
-
-                intro12.addImages(List.of(
-                                "https://images.unsplash.com/photo-1563175594-561873ec6588?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1590758369991-5aec00cf3387?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1334",
-                                "https://images.unsplash.com/photo-1741681001067-848c04ff9849?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1752300779727-13d587a42881?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=627"));
-
-                Club club12 = Club.builder()
-                                .name("무대열전")
-                                .category(Category.LITERATURE)
-                                .location("예술관 114호")
-                                .shortIntroduction("신앙과 삶의 이야기를 연극과 공연으로 전하는 공연예술 동아리")
-                                .introduction(intro12)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 토요일 오후 1시")
-                                .caution("공연 준비 기간에는 추가 연습이 있을 수 있으며, 공연 전 참여율 80% 이상 필요")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club12);
+                clubs.add(Club.builder().name("무대열전").category(Category.LITERATURE).location("예술관 114호").shortIntroduction("신앙과 연극의 만남 무대열전").introduction(intro12).isInterviewRequired(true).isRegistered(true).build());
 
                 // 13. FC JNU (축구)
                 ClubIntroduction intro13 = ClubIntroduction.builder()
                                 .overview("FC JNU는 축구를 사랑하는 학생들이 모여 땀과 열정을 함께 나누는 전남대학교 대표 축구 동아리입니다. " +
                                                 "단순히 공을 차는 모임이 아니라, 스포츠맨십과 팀워크를 중심으로 건강한 교류 문화를 만들어가는 것이 목표입니다. " +
-                                                "회원들은 정기적인 훈련과 연습 경기를 통해 기술을 향상시키고, 교내 리그전과 지역 친선 경기에서 실력을 겨룹니다. " +
+                                                "정기적인 훈련과 연습 경기를 통해 기술을 향상시키고, 교내 리그전과 지역 친선 경기에서 실력을 겨룹니다. " +
                                                 "축구를 매개로 학과, 학년, 전공의 경계를 넘어 새로운 인연을 만들며, 팀원 간의 단결력과 협동심을 기릅니다. " +
-                                                "FC JNU는 승리보다 ‘함께 뛰는 즐거움’을 더 중요하게 생각하는 공동체입니다. 초보부터 숙련자까지, 축구를 진심으로 즐기고 싶은 학생이라면 누구나 환영합니다.")
-                                .activities("• 주 2회 정기 훈련 및 내부 연습 경기 (기초 체력 + 기술 향상 훈련)\n" +
+                                                "FC JNU는 승리보다 '함께 뛰는 즐거움'을 더 중요하게 생각하는 공동체입니다.")
+                                .activities("• 주 2회 정기 훈련 및 내부 연습 경기\n" +
                                                 "• 전남대학교 교내 리그전 및 학과별 친선 대회 참가\n" +
-                                                "• 지역 대학·아마추어팀과의 교류전 및 스파링 경기\n" +
-                                                "• 전술·포지션·팀워크 중심의 전략 회의 및 훈련 세션\n" +
-                                                "• 체력 강화 프로그램(러닝, 스트레칭, 근력운동) 병행\n" +
-                                                "• 방학 중 전지훈련 및 ‘FC JNU 컵’ 자체 토너먼트 개최\n" +
-                                                "• 경기 후 회식 및 팀 커뮤니티 모임을 통한 친목 도모")
-                                .ideal("FC JNU는 ‘함께 뛰며, 함께 성장하는 선수’를 찾습니다.\n\n" +
+                                                "• 지역 대학·아마추어팀과의 교류전\n" +
+                                                "• 전술·포지션·팀워크 중심의 전략 회의\n" +
+                                                "• 체력 강화 프로그램 병행\n" +
+                                                "• 방학 중 전지훈련 및 'FC JNU 컵' 자체 토너먼트 개최")
+                                .ideal("FC JNU는 '함께 뛰며, 함께 성장하는 선수'를 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
-                                                "• 축구를 좋아하고 정기 훈련 및 경기 참여가 가능한 학부생\n" +
+                                                "• 축구를 좋아하고 정기 훈련에 참여할 수 있는 학부생\n" +
                                                 "• 팀워크를 존중하며 동료를 배려할 줄 아는 분\n" +
-                                                "• 승패에 연연하기보다 운동 자체를 즐길 줄 아는 긍정적인 마인드\n" +
-                                                "• 주 1회 이상 연습 경기 또는 훈련에 꾸준히 참여할 수 있는 분\n" +
-                                                "• 운동 중 안전 수칙을 지키고 책임감 있게 활동할 수 있는 분\n" +
-                                                "• 포지션(공격수, 미드필더, 수비수, 골키퍼)에 관계없이 팀 내 역할을 충실히 수행할 수 있는 분\n\n" +
+                                                "• 주 1회 이상 연습 또는 경기에 꾸준히 참여 가능한 분\n\n" +
                                                 "[우대사항]\n" +
                                                 "• 중·고등학교 또는 동호회 수준의 축구 경험이 있는 분\n" +
-                                                "• 포지션별 전문성(세트피스, 골키핑, 수비 라인 조율 등)을 갖춘 분\n" +
-                                                "• 경기 운영, 전략 구상, 코칭 등 리더십 역량이 있는 분\n" +
-                                                "• 심판 자격증, 스포츠 지도사 등 관련 자격 보유자\n" +
-                                                "• 체육 관련 전공 또는 스포츠 분석, 트레이닝에 관심 있는 분\n" +
-                                                "• 축구 외에도 러닝, 풋살 등 체력 향상 프로그램 참여 의지가 있는 분\n\n" +
-                                                "FC JNU는 ‘승리를 위한 팀’이 아니라 ‘함께 뛰며 성장하는 팀’입니다. " +
-                                                "축구화를 신는 순간부터 서로가 한 팀이 됩니다. " +
-                                                "열정과 땀, 웃음으로 가득한 운동장에서 진짜 팀워크를 느끼고 싶은 분이라면, FC JNU가 그 무대를 준비하고 있습니다.")
+                                                "• 포지션별 전문성을 갖춘 분\n\n" +
+                                                "초보부터 숙련자까지 누구나 환영합니다. FC JNU에서 함께 뛰어 보세요.")
                                 .build();
-
-                intro13.addImages(List.of(
-                                "https://images.unsplash.com/photo-1762053275412-03726506562a?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1591953551286-91b742a52199?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1025",
-                                "https://images.unsplash.com/photo-1720904926069-553422e33314?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1208",
-                                "https://images.unsplash.com/photo-1739550635585-484633b21450?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
-
-                Club club13 = Club.builder()
-                                .name("FC JNU")
-                                .category(Category.SPORTS)
-                                .location("운동장")
-                                .shortIntroduction("축구를 통해 교류하고 팀워크를 다지는 전남대학교 대표 체육 동아리")
-                                .introduction(intro13)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 수요일 오후 7시, 주말 연습 경기 진행")
-                                .caution("연습 경기 참여 필수, 부상 예방을 위한 기본 스트레칭 필수")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club13);
+                clubs.add(Club.builder().name("FC JNU").category(Category.SPORTS).location("대운동장").shortIntroduction("땀과 열정의 FC JNU").introduction(intro13).isInterviewRequired(false).isRegistered(true).build());
 
                 // 14. 엘피스 (기독교 신앙·예배)
                 ClubIntroduction intro14 = ClubIntroduction.builder()
-                                .overview("엘피스(Elpis)는 ‘소망’이라는 뜻의 헬라어에서 이름을 따온 전남대학교 기독교 신앙 공동체 동아리입니다. " +
+                                .overview("엘피스(Elpis)는 '소망'이라는 뜻의 헬라어에서 이름을 따온 전남대학교 기독교 신앙 공동체 동아리입니다. " +
                                                 "하나님을 예배하고, 말씀을 배우며, 서로의 삶을 나누는 따뜻한 믿음의 공동체를 지향합니다. " +
+                                                "매주 정기 예배와 소그룹 성경 공부를 통해 신앙의 기초를 다지고, " +
+                                                "기도 모임과 찬양을 통해 하나님과 더 깊이 교제합니다. " +
                                                 "엘피스는 단순한 종교 모임이 아니라, 대학이라는 공간 속에서 신앙의 의미를 함께 고민하고, " +
-                                                "진리를 배우며, 사랑과 섬김의 삶을 실천하는 신앙인들의 모임입니다. " +
-                                                "매주 정기 예배와 소그룹 성경 공부를 통해 신앙의 기초를 다지고, 기도 모임과 찬양을 통해 하나님과 더 깊이 교제합니다. " +
-                                                "또한 학기 중에는 교내외 봉사활동, 찬양콘서트, 수련회, 캠퍼스 전도 등 다양한 신앙 프로그램을 함께 진행하며, " +
-                                                "‘믿음이 있는 지성인, 지성이 있는 신앙인’을 목표로 성장해갑니다.")
+                                                "'믿음이 있는 지성인, 지성이 있는 신앙인'을 목표로 성장해가는 공동체입니다.")
                                 .activities("• 주 1회 정기 예배 및 찬양 모임\n" +
                                                 "• 소그룹 성경 공부(Bible Study) 및 묵상 나눔\n" +
-                                                "• 신앙 간증 및 주제별 세미나(진로, 인간관계, 사회문제 등)\n" +
-                                                "• 교내외 봉사활동(노숙인 급식 봉사, 지역아동센터 멘토링 등)\n" +
+                                                "• 신앙 간증 및 주제별 세미나\n" +
+                                                "• 교내외 봉사활동 (노숙인 급식 봉사, 지역아동센터 멘토링 등)\n" +
                                                 "• 연합 수련회, 리트릿, 찬양콘서트 등 신앙 교류 행사\n" +
                                                 "• 시험기간 기도모임 및 신입생 환영예배 진행")
-                                .ideal("엘피스는 ‘믿음을 나누고, 사랑으로 섬기는 사람’을 찾습니다.\n\n" +
+                                .ideal("엘피스는 '믿음을 나누고, 사랑으로 섬기는 사람'을 찾습니다.\n\n" +
                                                 "[자격요건]\n" +
                                                 "• 기독교 신앙을 가진 학생 또는 신앙에 관심이 있는 학부생\n" +
-                                                "• 말씀을 배우고 예배에 참여하며 신앙 공동체의 일원으로 함께하고 싶은 분\n" +
                                                 "• 정기 모임(예배, 소그룹, 기도모임 등)에 꾸준히 참여할 수 있는 분\n" +
                                                 "• 타인을 존중하고 열린 마음으로 신앙과 생각을 나눌 수 있는 분\n" +
-                                                "• 공동체 생활 속에서 서로를 위해 기도하고 돕는 것을 즐기는 분\n" +
                                                 "• 교내외 봉사, 찬양, 나눔 활동에 관심이 있는 분\n\n" +
                                                 "[우대사항]\n" +
-                                                "• 찬양팀(보컬, 악기 연주 등) 또는 예배 스태프(영상, 음향, 조명 등) 참여 경험이 있는 분\n" +
+                                                "• 찬양팀(보컬, 악기 연주) 또는 예배 스태프 경험이 있는 분\n" +
                                                 "• 성경 공부나 소그룹 인도 경험이 있는 분\n" +
-                                                "• 예배 기획, 봉사 프로그램 운영, 교회 사역 등 리더십 경험이 있는 분\n" +
-                                                "• 신앙적 상담, 기도 모임 진행, 후배 멘토링에 관심이 있는 분\n" +
-                                                "• 교회, 선교 단체 등에서 활동 중이거나 신앙 네트워크를 확장하고 싶은 분\n\n" +
-                                                "엘피스는 신앙의 깊이와 인간적인 따뜻함이 공존하는 공동체입니다. " +
-                                                "하나님을 향한 찬양, 서로를 위한 기도, 그리고 삶으로 드리는 예배 속에서 진정한 소망을 찾고 싶은 분들을 초대합니다. " +
-                                                "엘피스의 무대는 교회가 아닌 ‘캠퍼스’이며, 우리의 예배는 일상의 모든 순간에 이어집니다.")
+                                                "• 예배 기획, 봉사 프로그램 운영 등 리더십 경험이 있는 분\n\n" +
+                                                "엘피스는 신앙의 깊이와 인간적인 따뜻함이 공존하는 공동체입니다. 캠퍼스에서 소망을 함께 나누고 싶은 분들을 초대합니다.")
                                 .build();
-
-                intro14.addImages(List.of(
-                                "https://plus.unsplash.com/premium_photo-1734014584899-f98e51c73960?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
-                                "https://plus.unsplash.com/premium_photo-1734014582198-408d2aae4931?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=687",
-                                "https://plus.unsplash.com/premium_photo-1723914175304-04f9b50b13e6?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170",
-                                "https://images.unsplash.com/photo-1723745707852-fa60211d73a8?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1170"));
-
-                Club club14 = Club.builder()
-                                .name("엘피스")
-                                .category(Category.RELIGION)
-                                .location("학생회관 207호")
-                                .shortIntroduction("예배와 나눔을 통해 신앙의 소망을 함께 세워가는 기독교 동아리")
-                                .introduction(intro14)
-                                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0, 0))
-                                .recruitEnd(LocalDateTime.of(2025, 11, 30, 23, 59, 0))
-                                .regularMeetingInfo("매주 목요일 오후 6시 예배, 주말 소그룹 모임")
-                                .caution("특정 교단 소속 없이, 모든 기독교 신앙인을 환영합니다.")
-                                .isRegistered(false)
-                                .build();
-                clubs.add(club14);
+                clubs.add(Club.builder().name("엘피스").category(Category.RELIGION).location("학생회관 207호").shortIntroduction("캠퍼스 속 믿음의 동행").introduction(intro14).isInterviewRequired(false).isRegistered(true).build());
 
                 return clubRepository.saveAll(clubs);
         }
@@ -1482,84 +1052,84 @@ public class DataInitializer implements CommandLineRunner {
 
                 ClubApplyForm form1 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("인터엑스"))
-                                                .title("인터엑스 2025 상반기 모집")
+                                                .club(clubByName.get("얼라이브"))
+                                                .title("얼라이브 2025 상반기 모집")
                                                 .description("사회문제 해결과 토론에 열정이 있는 분들을 모집합니다. 함께 배우고 실천하며 작은 변화를 만들어가요.")
                                                 .build());
                 forms.add(form1);
 
                 ClubApplyForm form2 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("에이아이디브"))
-                                                .title("에이아이디브 2025 상반기 신입 부원 모집")
+                                                .club(clubByName.get("과실연"))
+                                                .title("과실연 2025 상반기 신입 부원 모집")
                                                 .description("AI와 데이터 분석에 관심 있는 학생들을 환영합니다. 논문 스터디와 실전 프로젝트를 함께해요.")
                                                 .build());
                 forms.add(form2);
 
                 ClubApplyForm form3 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("코드마스터"))
-                                                .title("코드마스터 2025 상반기 리쿠르팅")
+                                                .club(clubByName.get("소리터관현악단"))
+                                                .title("소리터관현악단 2025 상반기 리쿠르팅")
                                                 .description("프로그래밍 실력을 키우고 싶은 개발자 지망생을 모집합니다. 함께 공부하고 실제 서비스를 만들어봅시다.")
                                                 .build());
                 forms.add(form3);
 
-                // 로보테크는 스포츠·스포츠테크 동아리로 변경된 버전에 맞게 수정
+                // 테크니션는 스포츠·스포츠테크 동아리로 변경된 버전에 맞게 수정
                 ClubApplyForm form4 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("로보테크"))
-                                                .title("로보테크 2025 스포츠·스포츠테크 팀원 모집")
+                                                .club(clubByName.get("테크니션"))
+                                                .title("테크니션 2025 스포츠·스포츠테크 팀원 모집")
                                                 .description("축구·농구 등 다양한 스포츠를 즐기며, 기록 측정과 스포츠테크에도 도전해보고 싶은 학생을 찾습니다. 함께 뛰고, 함께 데이터로 성장해요.")
                                                 .build());
                 forms.add(form4);
 
-                // 아트픽은 예술·디자인 재능기부 봉사 동아리로 수정
+                // LIT:CH은 예술·디자인 재능기부 봉사 동아리로 수정
                 ClubApplyForm form5 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("아트픽"))
-                                                .title("아트픽 2025 예술 재능기부 봉사단 모집")
+                                                .club(clubByName.get("LIT:CH"))
+                                                .title("LIT:CH 2025 예술 재능기부 봉사단 모집")
                                                 .description("벽화, 공간 꾸미기, 포스터 제작 등 예술·디자인 재능을 나누고 싶은 분을 모집합니다. 전공 무관, 그림과 디자인을 좋아하는 마음이면 충분해요.")
                                                 .build());
                 forms.add(form5);
 
-                // 리버스는 음악 공연 봉사 동아리로 수정
+                // DOVE는 음악 공연 봉사 동아리로 수정
                 ClubApplyForm form6 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("리버스"))
-                                                .title("리버스 2025 음악 봉사팀 신입 모집")
+                                                .club(clubByName.get("DOVE"))
+                                                .title("DOVE 2025 음악 봉사팀 신입 모집")
                                                 .description("보컬, 연주, 작곡 등 음악에 열정 있는 분을 찾습니다. 복지시설 공연과 자선무대를 함께 준비하며 음악으로 따뜻함을 나눠요.")
                                                 .build());
                 forms.add(form6);
 
-                // 포커스는 사진·영상 재능기부 봉사 동아리로 수정
+                // 관현악반는 사진·영상 재능기부 봉사 동아리로 수정
                 ClubApplyForm form7 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("포커스"))
-                                                .title("포커스 2025 사진·영상 봉사팀 모집")
+                                                .club(clubByName.get("관현악반"))
+                                                .title("관현악반 2025 사진·영상 봉사팀 모집")
                                                 .description("사진과 영상으로 봉사 현장과 공익 캠페인을 기록하고 싶은 분을 모집합니다. 장비가 없어도, 배워보고 싶은 열정만 있으면 환영해요.")
                                                 .build());
                 forms.add(form7);
 
                 ClubApplyForm form8 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("온기나눔"))
-                                                .title("온기나눔 2025 봉사활동 참가자 모집")
+                                                .club(clubByName.get("아이디어스"))
+                                                .title("아이디어스 2025 봉사활동 참가자 모집")
                                                 .description("지역 아동센터 및 복지시설 봉사활동에 함께할 따뜻한 마음의 부원을 찾습니다. 꾸준히 함께할 분이라면 전공·학년 상관없이 환영합니다.")
                                                 .build());
                 forms.add(form8);
 
                 ClubApplyForm form9 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("비즈온"))
-                                                .title("비즈온 2025 창업 아이디어팀 모집")
+                                                .club(clubByName.get("미담장학회"))
+                                                .title("미담장학회 2025 창업 아이디어팀 모집")
                                                 .description("창업과 비즈니스에 관심 있는 학생들을 위한 리쿠르팅입니다. 함께 아이디어를 사업으로 발전시키고, 창업 경진대회에도 도전해봐요.")
                                                 .build());
                 forms.add(form9);
 
                 ClubApplyForm form10 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("핀라이트"))
-                                                .title("핀라이트 2025 경제·금융 세미나 참여자 모집")
+                                                .club(clubByName.get("PPP"))
+                                                .title("PPP 2025 경제·금융 세미나 참여자 모집")
                                                 .description("금융과 투자에 관심 있는 학생을 모집합니다. 모의투자와 시사 경제 세미나를 통해 함께 공부하고 분석해요.")
                                                 .build());
                 forms.add(form10);
@@ -1602,7 +1172,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 // ========== 6) FORM_QUESTION ==========
 
-                // --- form1 (인터엑스: 사회문제 탐구) ---
+                // --- form1 (얼라이브: 사회문제 탐구) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form1)
                                 .question("간단한 자기소개와 전공, 그리고 관심 있는 사회 문제를 함께 적어주세요.")
@@ -1622,7 +1192,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form1)
-                                .question("인터엑스에 지원하게 된 동기와 함께 깊이 탐구해보고 싶은 사회 문제를 구체적으로 작성해주세요.")
+                                .question("얼라이브에 지원하게 된 동기와 함께 깊이 탐구해보고 싶은 사회 문제를 구체적으로 작성해주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(3L)
@@ -1630,7 +1200,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form1)
-                                .question("인터엑스 1차 면접 가능 시간대를 선택해주세요.")
+                                .question("얼라이브 1차 면접 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1642,7 +1212,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form2 (에이아이디브: AI·데이터 연구) ---
+                // --- form2 (과실연: AI·데이터 연구) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form2)
                                 .question("간단한 자기소개와 함께 프로그래밍 및 수학·통계 배경을 적어주세요.")
@@ -1682,7 +1252,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form3 (코드마스터: 프로그래밍·개발) ---
+                // --- form3 (소리터관현악단: 프로그래밍·개발) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form3)
                                 .question("사용 가능한 프로그래밍 언어와 각각의 숙련도를 적어주세요.")
@@ -1702,7 +1272,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form3)
-                                .question("코드마스터에서 만들고 싶은 서비스나 프로젝트 아이디어가 있다면 자유롭게 적어주세요.")
+                                .question("소리터관현악단에서 만들고 싶은 서비스나 프로젝트 아이디어가 있다면 자유롭게 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1710,7 +1280,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form3)
-                                .question("코드마스터 면접 및 OT 가능 시간대를 선택해주세요.")
+                                .question("소리터관현악단 면접 및 OT 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1722,7 +1292,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form4 (로보테크: 스포츠·스포츠테크) ---
+                // --- form4 (테크니션: 스포츠·스포츠테크) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form4)
                                 .question("간단한 자기소개와 함께 좋아하는 스포츠 종목, 주 포지션(또는 관심 포지션)을 적어주세요.")
@@ -1750,7 +1320,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form4)
-                                .question("로보테크 OT 및 간단한 실기·적응 테스트가 가능한 시간대를 선택해주세요.")
+                                .question("테크니션 OT 및 간단한 실기·적응 테스트가 가능한 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1762,7 +1332,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form5 (아트픽: 예술·디자인 재능기부 봉사) ---
+                // --- form5 (LIT:CH: 예술·디자인 재능기부 봉사) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form5)
                                 .question("관심 있는 예술·디자인 분야(예: 회화, 일러스트, 그래픽, 사진 등)와 본인의 작업 스타일 또는 강점을 적어주세요.")
@@ -1782,7 +1352,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form5)
-                                .question("아트픽에서 해보고 싶은 예술 재능기부 활동(벽화, 교육, 디자인 제작 등)이나 개인적인 목표를 자유롭게 적어주세요.")
+                                .question("LIT:CH에서 해보고 싶은 예술 재능기부 활동(벽화, 교육, 디자인 제작 등)이나 개인적인 목표를 자유롭게 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1790,7 +1360,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form5)
-                                .question("아트픽 OT 및 인터뷰 가능 시간대를 선택해주세요.")
+                                .question("LIT:CH OT 및 인터뷰 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1802,7 +1372,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form6 (리버스: 음악·공연 봉사) ---
+                // --- form6 (DOVE: 음악·공연 봉사) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form6)
                                 .question("주로 활동하고 싶은 파트(보컬, 기타, 베이스, 드럼, 키보드 등)와 그동안의 음악 관련 경험을 적어주세요.")
@@ -1822,7 +1392,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form6)
-                                .question("리버스에서 함께 만들고 싶은 봉사 공연 형태(복지시설 공연, 자선 콘서트 등)나 음악으로 전하고 싶은 메시지가 있다면 적어주세요.")
+                                .question("DOVE에서 함께 만들고 싶은 봉사 공연 형태(복지시설 공연, 자선 콘서트 등)나 음악으로 전하고 싶은 메시지가 있다면 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1830,7 +1400,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form6)
-                                .question("리버스 오디션 및 면접 가능 시간대를 선택해주세요.")
+                                .question("DOVE 오디션 및 면접 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1842,7 +1412,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form7 (포커스: 사진·영상 봉사) ---
+                // --- form7 (관현악반: 사진·영상 봉사) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form7)
                                 .question("사진과 영상 중 더 관심 있는 분야와 사용 중인 장비(카메라, 휴대폰 등), 그리고 경험 수준을 적어주세요.")
@@ -1862,7 +1432,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form7)
-                                .question("포커스에서 제작해보고 싶은 공익/봉사 관련 사진·영상 콘텐츠(예: 봉사 현장 기록, 공익 캠페인 영상 등)가 있다면 적어주세요.")
+                                .question("관현악반에서 제작해보고 싶은 공익/봉사 관련 사진·영상 콘텐츠(예: 봉사 현장 기록, 공익 캠페인 영상 등)가 있다면 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1870,7 +1440,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form7)
-                                .question("포커스 OT 및 인터뷰 가능 시간대를 선택해주세요.")
+                                .question("관현악반 OT 및 인터뷰 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1882,7 +1452,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form8 (온기나눔: 봉사·나눔) ---
+                // --- form8 (아이디어스: 봉사·나눔) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form8)
                                 .question("이전에 참여해본 봉사활동이 있다면 경험과 기관, 활동 내용을 간단히 적어주세요.")
@@ -1902,7 +1472,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form8)
-                                .question("온기나눔 활동을 통해 이루고 싶은 목표나 기대하는 점을 자유롭게 작성해주세요.")
+                                .question("아이디어스 활동을 통해 이루고 싶은 목표나 기대하는 점을 자유롭게 작성해주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(3L)
@@ -1910,7 +1480,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form8)
-                                .question("온기나눔 OT 및 활동 안내를 위한 만남이 가능한 시간대를 선택해주세요.")
+                                .question("아이디어스 OT 및 활동 안내를 위한 만남이 가능한 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1922,7 +1492,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form9 (비즈온: 창업·비즈니스) ---
+                // --- form9 (미담장학회: 창업·비즈니스) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form9)
                                 .question("간단한 자기소개와 함께 관심 있는 산업·비즈니스 분야를 적어주세요.")
@@ -1942,7 +1512,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form9)
-                                .question("비즈온에서 함께 구현해보고 싶은 창업 아이디어나 해결하고 싶은 문제를 구체적으로 적어주세요.")
+                                .question("미담장학회에서 함께 구현해보고 싶은 창업 아이디어나 해결하고 싶은 문제를 구체적으로 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1950,7 +1520,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form9)
-                                .question("비즈온 면접 및 아이디어 피드백 세션 참여 가능 시간대를 선택해주세요.")
+                                .question("미담장학회 면접 및 아이디어 피드백 세션 참여 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -1962,7 +1532,7 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form10 (핀라이트: 금융·투자) ---
+                // --- form10 (PPP: 금융·투자) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form10)
                                 .question("경제·금융에 관심을 갖게 된 계기와 현재 관심 있는 투자 분야를 적어주세요.")
@@ -1982,7 +1552,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form10)
-                                .question("핀라이트에서 배우고 싶은 내용이나 스스로 세운 금융·투자 관련 목표를 구체적으로 적어주세요.")
+                                .question("PPP에서 배우고 싶은 내용이나 스스로 세운 금융·투자 관련 목표를 구체적으로 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1990,7 +1560,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form10)
-                                .question("핀라이트 OT 및 면담 가능 시간대를 선택해주세요.")
+                                .question("PPP OT 및 면담 가능 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
@@ -2182,68 +1752,68 @@ public class DataInitializer implements CommandLineRunner {
                 // 공통 함수 느낌으로 쓰지만, 그냥 로컬 변수로 처리
                 // 1~5번 동아리: 각각 6개 (3 status x 2 stage)
 
-                // ===== 1. 인터엑스 =====
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING, Stage.INTERVIEW,
+                // ===== 1. 얼라이브 =====
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.PENDING, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.PENDING, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.APPROVED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.APPROVED, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.APPROVED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.REJECTED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "인터엑스", Status.REJECTED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "얼라이브", Status.REJECTED, Stage.FINAL, 0.0));
 
-                // ===== 2. 에이아이디브 =====
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING, Stage.INTERVIEW,
+                // ===== 2. 과실연 =====
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.PENDING, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.PENDING, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.APPROVED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.APPROVED, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.APPROVED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.REJECTED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "에이아이디브", Status.REJECTED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "과실연", Status.REJECTED, Stage.FINAL, 0.0));
 
-                // ===== 3. 코드마스터 =====
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING, Stage.INTERVIEW,
+                // ===== 3. 소리터관현악단 =====
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.PENDING, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.PENDING, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.APPROVED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.APPROVED, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.APPROVED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.REJECTED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "코드마스터", Status.REJECTED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "소리터관현악단", Status.REJECTED, Stage.FINAL, 0.0));
 
-                // ===== 4. 로보테크 (스포츠·스포츠테크) =====
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING, Stage.INTERVIEW,
+                // ===== 4. 테크니션 (스포츠·스포츠테크) =====
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.PENDING, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.PENDING, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.APPROVED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.APPROVED, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.APPROVED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.REJECTED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "로보테크", Status.REJECTED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "테크니션", Status.REJECTED, Stage.FINAL, 0.0));
 
-                // ===== 5. 아트픽 (예술 재능기부 봉사) =====
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.PENDING, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.INTERVIEW,
+                // ===== 5. LIT:CH (예술 재능기부 봉사) =====
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.PENDING, Stage.INTERVIEW, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.PENDING, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.APPROVED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.APPROVED, Stage.FINAL, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.APPROVED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.REJECTED, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아트픽", Status.REJECTED, Stage.FINAL, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "LIT:CH", Status.REJECTED, Stage.FINAL, 0.0));
 
                 // ===== 나머지 9개 동아리: 각 1개 (PENDING + INTERVIEW) =====
 
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "리버스", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "포커스", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "온기나눔", Status.PENDING, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "DOVE", Status.PENDING, Stage.INTERVIEW, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "관현악반", Status.PENDING, Stage.INTERVIEW, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "아이디어스", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "비즈온", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "핀라이트", Status.PENDING, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "미담장학회", Status.PENDING, Stage.INTERVIEW, 0.0));
+                apps.add(buildApp(userByStudentId, formByClubName, sid++, "PPP", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "글빛", Status.PENDING, Stage.INTERVIEW, 0.0));
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "무대열전", Status.PENDING, Stage.INTERVIEW,
@@ -2298,7 +1868,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 List<Answer> answers = new ArrayList<>();
 
-                // ========== 1. 인터엑스 (form1, questions 1~4) ==========
+                // ========== 1. 얼라이브 (form1, questions 1~4) ==========
                 for (int i = 1; i <= 6; i++) {
                         Application app = apps[i];
 
@@ -2317,7 +1887,7 @@ public class DataInitializer implements CommandLineRunner {
                         answers.add(Answer.builder()
                                         .application(app)
                                         .formQuestion(questions[3])
-                                        .answer("혼자 고민하던 사회 문제를 구조적으로 이해하고, 비슷한 문제의식을 가진 사람들과 함께 토론하며 작은 행동으로 옮기고 싶어서 인터엑스에 지원했습니다.")
+                                        .answer("혼자 고민하던 사회 문제를 구조적으로 이해하고, 비슷한 문제의식을 가진 사람들과 함께 토론하며 작은 행동으로 옮기고 싶어서 얼라이브에 지원했습니다.")
                                         .build());
 
                         answers.add(Answer.builder()
@@ -2327,7 +1897,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ========== 2. 에이아이디브 (form2, questions 5~8) ==========
+                // ========== 2. 과실연 (form2, questions 5~8) ==========
                 for (int i = 7; i <= 12; i++) {
                         Application app = apps[i];
 
@@ -2356,7 +1926,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ========== 3. 코드마스터 (form3, questions 9~12) ==========
+                // ========== 3. 소리터관현악단 (form3, questions 9~12) ==========
                 for (int i = 13; i <= 18; i++) {
                         Application app = apps[i];
 
@@ -2375,7 +1945,7 @@ public class DataInitializer implements CommandLineRunner {
                         answers.add(Answer.builder()
                                         .application(app)
                                         .formQuestion(questions[11])
-                                        .answer("코드마스터에서 풀스택 웹 서비스를 팀과 함께 기획하고 개발해 배포까지 경험해 보고 싶습니다. 코드 리뷰를 통해 좋은 개발 습관도 만들고 싶습니다.")
+                                        .answer("소리터관현악단에서 풀스택 웹 서비스를 팀과 함께 기획하고 개발해 배포까지 경험해 보고 싶습니다. 코드 리뷰를 통해 좋은 개발 습관도 만들고 싶습니다.")
                                         .build());
 
                         answers.add(Answer.builder()
@@ -2385,7 +1955,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ========== 4. 로보테크 (스포츠·스포츠테크, form4, questions 13~16) ==========
+                // ========== 4. 테크니션 (스포츠·스포츠테크, form4, questions 13~16) ==========
                 for (int i = 19; i <= 24; i++) {
                         Application app = apps[i];
 
@@ -2414,7 +1984,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ========== 5. 아트픽 (예술 재능기부 봉사, form5, questions 17~20) ==========
+                // ========== 5. LIT:CH (예술 재능기부 봉사, form5, questions 17~20) ==========
                 for (int i = 25; i <= 30; i++) {
                         Application app = apps[i];
 
@@ -2443,7 +2013,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 6. 리버스 (음악 봉사, form6, questions 21~24) – app31 ========
+                // ======== 6. DOVE (음악 봉사, form6, questions 21~24) – app31 ========
                 {
                         Application app = apps[31];
 
@@ -2472,7 +2042,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 7. 포커스 (사진·영상 봉사, form7, questions 25~28) – app32 ========
+                // ======== 7. 관현악반 (사진·영상 봉사, form7, questions 25~28) – app32 ========
                 {
                         Application app = apps[32];
 
@@ -2501,7 +2071,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 8. 온기나눔 (봉사·나눔, form8, questions 29~32) – app33 ========
+                // ======== 8. 아이디어스 (봉사·나눔, form8, questions 29~32) – app33 ========
                 {
                         Application app = apps[33];
 
@@ -2530,7 +2100,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 9. 비즈온 (창업·비즈니스, form9, questions 33~36) – app34 ========
+                // ======== 9. 미담장학회 (창업·비즈니스, form9, questions 33~36) – app34 ========
                 {
                         Application app = apps[34];
 
@@ -2559,7 +2129,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 10. 핀라이트 (금융·투자, form10, questions 37~40) – app35 ========
+                // ======== 10. PPP (금융·투자, form10, questions 37~40) – app35 ========
                 {
                         Application app = apps[35];
 
@@ -2753,7 +2323,7 @@ public class DataInitializer implements CommandLineRunner {
                 // ===== 54번: 시스템 관리자 (SYSTEM_ADMIN) =====
                 members.add(ClubMember.builder()
                                 .user(userArr[54])
-                                .club(clubArr[1]) // 1번 동아리 (예: 인터엑스)
+                                .club(clubArr[1]) // 1번 동아리 (예: 얼라이브)
                                 .application(null)
                                 .activeStatus(ActiveStatus.ACTIVE)
                                 .role(Role.SYSTEM_ADMIN)
@@ -3184,16 +2754,16 @@ public class DataInitializer implements CommandLineRunner {
         private void seedClubReviews(List<Club> clubs) {
                 // if (clubReviewRepository.count() > 0) return;
 
-                Club club1 = clubs.get(0); // club_id = 1, "인터엑스"
-                Club club2 = clubs.get(1); // club_id = 2, "에이아이디브"
-                Club club3 = clubs.get(2); // club_id = 3, "코드마스터"
-                Club club4 = clubs.get(3); // club_id = 4, "로보테크"
-                Club club5 = clubs.get(4); // club_id = 5, "아트픽"
-                Club club6 = clubs.get(5); // club_id = 6, "리버스"
-                Club club7 = clubs.get(6); // club_id = 7, "포커스"
-                Club club8 = clubs.get(7); // club_id = 8, "온기나눔"
-                Club club9 = clubs.get(8); // club_id = 9, "비즈온"
-                Club club10 = clubs.get(9); // club_id = 10, "핀라이트"
+                Club club1 = clubs.get(0); // club_id = 1, "얼라이브"
+                Club club2 = clubs.get(1); // club_id = 2, "과실연"
+                Club club3 = clubs.get(2); // club_id = 3, "소리터관현악단"
+                Club club4 = clubs.get(3); // club_id = 4, "테크니션"
+                Club club5 = clubs.get(4); // club_id = 5, "LIT:CH"
+                Club club6 = clubs.get(5); // club_id = 6, "DOVE"
+                Club club7 = clubs.get(6); // club_id = 7, "관현악반"
+                Club club8 = clubs.get(7); // club_id = 8, "아이디어스"
+                Club club9 = clubs.get(8); // club_id = 9, "미담장학회"
+                Club club10 = clubs.get(9); // club_id = 10, "PPP"
                 Club club11 = clubs.get(10); // club_id = 11, "글빛"
                 Club club12 = clubs.get(11); // club_id = 12, "무대열전"
                 Club club13 = clubs.get(12); // club_id = 13, "FC JNU"
@@ -3219,7 +2789,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202523")
                                 .build());
 
-                // 에이아이디브
+                // 과실연
                 reviews.add(ClubReview.builder()
                                 .club(club2)
                                 .content("최신 AI 논문을 함께 읽고 토론하는 세션이 정말 유익했습니다. 혼자서는 어려웠을 텐데, 동아리원들과 함께하니 깊이 있는 학습이 가능했어요.")
@@ -3236,7 +2806,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202532")
                                 .build());
 
-                // 코드마스터
+                // 소리터관현악단
                 reviews.add(ClubReview.builder()
                                 .club(club3)
                                 .content("실제 서비스를 기획하고 배포까지 해보는 경험이 정말 소중했습니다. 팀 프로젝트를 통해 협업 능력과 문제 해결 능력을 기를 수 있었어요.")
@@ -3253,7 +2823,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202545")
                                 .build());
 
-                // 로보테크
+                // 테크니션
                 reviews.add(ClubReview.builder()
                                 .club(club4)
                                 .content("운동만 하는 게 아니라, 데이터를 분석하고 전략을 짜는 과정이 정말 재미있습니다. 스마트하게 운동하는 법을 배울 수 있어요.")
@@ -3270,7 +2840,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202518")
                                 .build());
 
-                // 아트픽
+                // LIT:CH
                 reviews.add(ClubReview.builder()
                                 .club(club5)
                                 .content("벽화 봉사를 통해 낡은 공간이 화사하게 바뀌는 것을 보며 큰 보람을 느꼈습니다. 제 재능이 누군가에게 기쁨이 될 수 있다는 사실이 행복했어요.")
@@ -3287,7 +2857,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202529")
                                 .build());
 
-                // 리버스
+                // DOVE
                 reviews.add(ClubReview.builder()
                                 .club(club6)
                                 .content("음악으로 봉사할 수 있다는 점이 가장 큰 매력입니다. 저희의 연주를 듣고 기뻐하시는 분들을 보며 큰 감동을 받았습니다.")
@@ -3304,7 +2874,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202508")
                                 .build());
 
-                // 포커스
+                // 관현악반
                 reviews.add(ClubReview.builder()
                                 .club(club7)
                                 .content("사진과 영상으로 봉사 현장의 감동을 기록하고, 더 많은 사람들에게 알릴 수 있다는 점이 정말 의미있습니다.")
@@ -3321,7 +2891,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202558")
                                 .build());
 
-                // 온기나눔
+                // 아이디어스
                 reviews.add(ClubReview.builder()
                                 .club(club8)
                                 .content("꾸준히 한 기관에서 봉사하며 아이들과 정이 많이 들었어요. 일회성 봉사와는 다른 깊은 유대감을 느낄 수 있는 곳입니다.")
@@ -3338,7 +2908,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202533")
                                 .build());
 
-                // 비즈온
+                // 미담장학회
                 reviews.add(ClubReview.builder()
                                 .club(club9)
                                 .content("아이디어만 있던 제 생각을 비즈니스 모델로 구체화하고, 실제 창업 경진대회에서 수상까지 한 경험은 정말 짜릿했습니다.")
@@ -3346,16 +2916,16 @@ public class DataInitializer implements CommandLineRunner {
                                 .build());
                 reviews.add(ClubReview.builder()
                                 .club(club9)
-                                .content("창업에 대한 막연한 꿈만 있었는데, 비즈온에서 체계적인 커리큘럼과 전문가 멘토링을 통해 많은 것을 배웠습니다. 창업에 관심 있다면 꼭 들어오세요.")
+                                .content("창업에 대한 막연한 꿈만 있었는데, 미담장학회에서 체계적인 커리큘럼과 전문가 멘토링을 통해 많은 것을 배웠습니다. 창업에 관심 있다면 꼭 들어오세요.")
                                 .writer("202530")
                                 .build());
                 reviews.add(ClubReview.builder()
                                 .club(club9)
-                                .content("팀원들과 밤새워가며 MVP를 만들고, 피칭을 준비했던 경험은 대학 생활 최고의 추억입니다. 열정적인 사람들과 함께 성장하고 싶다면 비즈온이 정답입니다.")
+                                .content("팀원들과 밤새워가며 MVP를 만들고, 피칭을 준비했던 경험은 대학 생활 최고의 추억입니다. 열정적인 사람들과 함께 성장하고 싶다면 미담장학회이 정답입니다.")
                                 .writer("202544")
                                 .build());
 
-                // 핀라이트
+                // PPP
                 reviews.add(ClubReview.builder()
                                 .club(club10)
                                 .content("경제 뉴스를 그냥 읽기만 하다가, 동아리 세미나를 통해 깊이 있는 분석과 토론을 하게 되니 세상을 보는 눈이 달라졌습니다.")
