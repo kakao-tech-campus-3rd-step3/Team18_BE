@@ -222,8 +222,8 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             // 기존 회장이 존재하고, 그 사람이 이번에 임명되는 사람이 아니라면 강등
             if (currentAdminProfile.isPresent() && !currentAdminProfile.get().getId().equals(profileId)) {
                 ClubMemberProfile oldAdmin = currentAdminProfile.get();
-                oldAdmin.updateRole(Role.CLUB_MEMBER); // 일반 부원으로 강등
-                oldAdmin.getClubMember().updateRole(Role.CLUB_MEMBER);
+                oldAdmin.updateRole(Role.CLUB_EXECUTIVE); // 운영진으로 강등
+                oldAdmin.getClubMember().updateRole(Role.CLUB_EXECUTIVE);
             }
         }
 

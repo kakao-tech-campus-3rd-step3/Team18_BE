@@ -398,7 +398,7 @@ class ClubMemberServiceTest {
         // then
         assertThat(result.newRole()).isEqualTo(Role.CLUB_ADMIN);
         assertThat(newAdmin.getRole()).isEqualTo(Role.CLUB_ADMIN); // 새 회장 승격 확인
-        assertThat(oldAdmin.getRole()).isEqualTo(Role.CLUB_MEMBER); // 기존 회장 강등 확인
+        assertThat(oldAdmin.getRole()).isEqualTo(Role.CLUB_EXECUTIVE); // 기존 회장 운영진으로 강등 확인
     }
 
     @Test
