@@ -944,7 +944,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "☑️북구 및 서구 자원봉사 연계 외부봉사")
                                 .ideal("전남대학교 재학생, 휴학생 중 한 학기 이상 활동 가능한 자")
                                 .build();
-                clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
+                clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).location("").shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
 
                 // 12. 전검회 (검도)
                 ClubIntroduction intro12 = ClubIntroduction.builder()
@@ -953,7 +953,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .activities("연계 도장 '오치 검도관'에서 평일 4시/5시반/6시반/7시반/8시반 중 본인이 원하는 시간대에 검도 활동")
                                 .ideal("나이, 학번, 학년 제한 없이 검도를 처음 배우시는 분들, 쉬어칼 하고 계셨던 분들 모두 환영합니다!")
                                 .build();
-                clubs.add(Club.builder().name("전검회").category(Category.SPORTS).shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
+                clubs.add(Club.builder().name("전검회").category(Category.SPORTS).location("오치 검도관").shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
 
                 // 13. 별따오기 (천문 관측)
                 ClubIntroduction intro13 = ClubIntroduction.builder()
@@ -965,7 +965,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "* 실링왁스 등으로 천체를 배우는 <원데이 클래스>")
                                 .ideal("전남대학교 학생(신입생의 경우 학번이 아닌 수험번호를 기재해 주세요)")
                                 .build();
-                clubs.add(Club.builder().name("별따오기").category(Category.STUDY).shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
+                clubs.add(Club.builder().name("별따오기").category(Category.STUDY).location("").shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
 
                 // 14. SEA-FOX (스쿠버다이빙)
                 ClubIntroduction intro14 = ClubIntroduction.builder()
@@ -980,7 +980,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "🐳 해양생물에 관심이 있으신 분!\n\n" +
                                                 "나이와 학번 제한 없이 신청하실 수 있습니다:)")
                                 .build();
-                clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
+                clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).location("").shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
 
                 // 15. ECHO (영어 회화)
                 ClubIntroduction intro15 = ClubIntroduction.builder()
