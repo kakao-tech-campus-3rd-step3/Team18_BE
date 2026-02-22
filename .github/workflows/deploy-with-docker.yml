@@ -96,7 +96,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_PRIVATE_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.yml,docker-compose.monitoring.yml,monitoring/"
           target: "${{ env.REMOTE_DIR }}/current"
 
       - name: Deploy on EC2 (create .env, set credHelpers, compose up)
@@ -197,3 +197,5 @@ jobs:
             ECR_REGISTRY="$REG" docker compose down || true
             ECR_REGISTRY="$REG" docker compose up -d --remove-orphans
             docker compose ps
+            # 모니터링 스택 실행 명령어
+            docker compose -f docker-compose.monitoring.yml up -d
