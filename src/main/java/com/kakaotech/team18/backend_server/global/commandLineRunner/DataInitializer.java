@@ -944,7 +944,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "☑️북구 및 서구 자원봉사 연계 외부봉사")
                                 .ideal("전남대학교 재학생, 휴학생 중 한 학기 이상 활동 가능한 자")
                                 .build();
-                clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
+                clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).location("").shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
 
                 // 12. 전검회 (검도)
                 ClubIntroduction intro12 = ClubIntroduction.builder()
@@ -953,7 +953,7 @@ public class DataInitializer implements CommandLineRunner {
                                 .activities("연계 도장 '오치 검도관'에서 평일 4시/5시반/6시반/7시반/8시반 중 본인이 원하는 시간대에 검도 활동")
                                 .ideal("나이, 학번, 학년 제한 없이 검도를 처음 배우시는 분들, 쉬어칼 하고 계셨던 분들 모두 환영합니다!")
                                 .build();
-                clubs.add(Club.builder().name("전검회").category(Category.SPORTS).shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
+                clubs.add(Club.builder().name("전검회").category(Category.SPORTS).location("오치 검도관").shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
 
                 // 13. 별따오기 (천문 관측)
                 ClubIntroduction intro13 = ClubIntroduction.builder()
@@ -965,7 +965,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "* 실링왁스 등으로 천체를 배우는 <원데이 클래스>")
                                 .ideal("전남대학교 학생(신입생의 경우 학번이 아닌 수험번호를 기재해 주세요)")
                                 .build();
-                clubs.add(Club.builder().name("별따오기").category(Category.STUDY).shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
+                clubs.add(Club.builder().name("별따오기").category(Category.STUDY).location("").shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
 
                 // 14. SEA-FOX (스쿠버다이빙)
                 ClubIntroduction intro14 = ClubIntroduction.builder()
@@ -980,7 +980,7 @@ public class DataInitializer implements CommandLineRunner {
                                                 "🐳 해양생물에 관심이 있으신 분!\n\n" +
                                                 "나이와 학번 제한 없이 신청하실 수 있습니다:)")
                                 .build();
-                clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
+                clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).location("").shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
 
                 // 15. ECHO (영어 회화)
                 ClubIntroduction intro15 = ClubIntroduction.builder()
@@ -1856,14 +1856,8 @@ public class DataInitializer implements CommandLineRunner {
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "아이디어스", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
                 apps.add(buildApp(userByStudentId, formByClubName, sid++, "미담장학회", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "PPP", Status.PENDING, Stage.INTERVIEW,
+                apps.add(buildApp(userByStudentId, formByClubName, sid, "PPP", Status.PENDING, Stage.INTERVIEW,
                                 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "글빛", Status.PENDING, Stage.INTERVIEW, 0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "무대열전", Status.PENDING, Stage.INTERVIEW,
-                                0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid++, "FC JNU", Status.PENDING, Stage.INTERVIEW,
-                                0.0));
-                apps.add(buildApp(userByStudentId, formByClubName, sid, "엘피스", Status.PENDING, Stage.INTERVIEW, 0.0));
 
                 return applicationRepository.saveAll(apps);
         }
@@ -1891,18 +1885,18 @@ public class DataInitializer implements CommandLineRunner {
 
         private void seedAnswers() {
 
-                // Application 1 ~ 39 미리 로드 (1-based)
-                Application[] apps = new Application[40];
-                for (long i = 1; i <= 39; i++) {
+                // Application 1 ~ 35 미리 로드 (1-based)
+                Application[] apps = new Application[36];
+                for (long i = 1; i <= 35; i++) {
                         long finalI = i;
                         apps[(int) i] = applicationRepository.findById(i)
                                         .orElseThrow(() -> new IllegalStateException(
                                                         "Application not found: " + finalI));
                 }
 
-                // FormQuestion 1 ~ 56 미리 로드 (1-based)
-                FormQuestion[] questions = new FormQuestion[57];
-                for (long i = 1; i <= 56; i++) {
+                // FormQuestion 1 ~ 40 미리 로드 (1-based, 클럽 1~10의 질문)
+                FormQuestion[] questions = new FormQuestion[41];
+                for (long i = 1; i <= 40; i++) {
                         long finalI = i;
                         questions[(int) i] = formQuestionRepository.findById(i)
                                         .orElseThrow(() -> new IllegalStateException(
@@ -2201,122 +2195,6 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ======== 11. 글빛 (문학·창작, form11, questions 41~44) – app36 ========
-                {
-                        Application app = apps[36];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[41])
-                                        .answer("시와 짧은 산문을 쓰는 것을 좋아하는 학생입니다. 일상에서 느끼는 감정을 짧은 문장으로 기록하는 습관이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[42])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[43])
-                                        .answer("글빛에서 정기 합평을 통해 다른 사람의 시선을 배우고, 제 글도 조금 더 단단하게 다듬고 싶습니다. 동인지 제작에도 꼭 참여해 보고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[44])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 OT 및 면담이 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 12. 무대열전 (연극·공연예술·종교, form12, questions 45~48) – app37 ========
-                {
-                        Application app = apps[37];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[45])
-                                        .answer("연극과 찬양을 좋아하는 기독교 신앙인입니다. 교회에서 성극과 찬양팀 활동을 한 경험이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[46])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[47])
-                                        .answer("무대열전에서 신앙과 삶의 이야기를 담은 연극을 함께 만들어보고 싶습니다. 연기뿐 아니라, 무대 연출과 기획에도 관심이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[48])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 중에서 면접 및 오디션 참여 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 13. FC JNU (축구, form13, questions 49~52) – app38 ========
-                {
-                        Application app = apps[38];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[49])
-                                        .answer("축구를 5년 이상 해온 학생입니다. 주 포지션은 중앙 미드필더이며, 패스와 연계 플레이에 강점이 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[50])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[51])
-                                        .answer("FC JNU에서 꾸준히 훈련하며 체력을 기르고, 교내 리그전에서 팀 우승에 기여해 보고 싶습니다. 팀 분위기를 좋게 만드는 역할도 함께 하고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[52])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 OT 및 실기 참여가 가능합니다.")
-                                        .build());
-                }
-
-                // ======== 14. 엘피스 (기독교 신앙·예배, form14, questions 53~56) – app39 ========
-                {
-                        Application app = apps[39];
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[53])
-                                        .answer("모태신앙으로 자라 현재도 주일마다 교회에 출석하고 있는 학생입니다. 대학 생활 속에서 신앙을 함께 나눌 공동체를 찾고 있습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[54])
-                                        .answer("예")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[55])
-                                        .answer("엘피스에서 말씀과 찬양을 함께 나누며 신앙을 다시 정비하고 싶습니다. 찬양팀이나 예배 스태프로 섬길 수 있다면 기꺼이 돕고 싶습니다.")
-                                        .build());
-
-                        answers.add(Answer.builder()
-                                        .application(app)
-                                        .formQuestion(questions[56])
-                                        .answer("2025-10-15 10:00~12:00, 2025-10-16 10:00~12:00 모두 환영 모임 및 면담 참여 가능합니다.")
-                                        .build());
-                }
-
                 // 실제 insert
                 answerRepository.saveAll(answers);
         }
@@ -2352,8 +2230,8 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // ===== 15~53번 지원자(APPLICANT) =====
-                for (int i = 15; i <= 53; i++) {
+                // ===== 15~49번 지원자(APPLICANT) =====
+                for (int i = 15; i <= 49; i++) {
                         members.add(ClubMember.builder()
                                         .user(userArr[i])
                                         .club(apps[i - 14].getClubApplyForm().getClub()) // application으로부터 클럽 자동 매칭
