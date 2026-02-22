@@ -929,116 +929,88 @@ public class DataInitializer implements CommandLineRunner {
                 clubs.add(Club.builder().name("PPP").category(Category.SPORTS).location("제2학생회관 405호").shortIntroduction("전남대학교 탁구 중앙 동아리").introduction(intro10).recruitStart(LocalDateTime.of(2026, 2, 13, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 0, 0)).regularMeetingInfo("정기 모임 18:00~22:00, 주 3회 다양한 요일로 활동").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400508043").googleFormUrl("https://docs.google.com/forms/d/e/example/viewform").build());
 
 
-                // --- 11~14: 기존 동아리 ---
+                // --- 11~16: 신규 실제 동아리 ---
 
-                // 11. 글빛 (문학·창작)
+                // 11. KUSA (유네스코 봉사)
                 ClubIntroduction intro11 = ClubIntroduction.builder()
-                                .overview("글빛은 시, 소설, 수필, 에세이 등 다양한 문학 창작 활동을 통해 생각과 감정을 글로 표현하는 문예·창작 동아리입니다. " +
-                                                "'빛나는 글로 마음을 잇는다'는 의미처럼, 개인의 이야기를 예술적 언어로 표현하고, " +
-                                                "서로의 작품을 읽고 나누며 성장하는 것을 목표로 합니다. " +
-                                                "학기 중에는 정기 창작 모임을 통해 글을 쓰고 피드백을 주고받으며, " +
-                                                "문학적 표현력과 사유의 깊이를 함께 발전시켜 나갑니다. " +
-                                                "글빛은 글을 '잘 쓰는 사람'보다, 글을 통해 세상을 더 깊이 이해하고 싶은 사람들의 모임입니다.")
-                                .activities("• 주제별 창작 모임 및 자유 창작 세션 운영 (시, 소설, 수필 등)\n" +
-                                                "• 완성된 작품을 바탕으로 한 합평회(피드백 모임) 진행\n" +
-                                                "• 문학 낭독회 및 창작 발표회 개최\n" +
-                                                "• 교내·외 문예 공모전 및 대회 참가\n" +
-                                                "• 학기 말 '글빛 동인지' 발간\n" +
-                                                "• 문학 강연, 창작 워크숍, 독서토론회 등 정기 세미나 진행")
-                                .ideal("글빛은 '사유를 글로 표현하고, 감정을 나누는 사람'을 기다립니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 글쓰기와 문학에 관심이 있는 학부생 (전공 무관)\n" +
-                                                "• 자신의 생각과 감정을 언어로 풀어내는 데 즐거움을 느끼는 분\n" +
-                                                "• 다른 사람의 작품을 존중하고 진심 어린 피드백을 나눌 수 있는 분\n" +
-                                                "• 정기 모임 및 합평회에 꾸준히 참여할 수 있는 성실한 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 교내·외 문예대회, 공모전, 블로그 등에서 창작 경험이 있는 분\n" +
-                                                "• 출판, 편집, 시나리오 등 문학적 글쓰기에 흥미가 있는 분\n" +
-                                                "• 인문학·철학·예술 분야에 관심이 있는 분\n\n" +
-                                                "글빛은 '문학이 어려운 사람'에게도 열려 있습니다. 단어 하나, 문장 하나를 통해 세상을 바라보는 시선이 확장되는 경험을 함께해 보세요.")
+                                .overview("유네스코학생회 KUSA는 50년 전통의 동아리로, 유네스코한국위원회가 전국 대학에 설립하고 활동을 지원하며 설립된 동아리입니다. " +
+                                                "현재 KUSA는 전국적으로 20여 개의 대학에서 활동 중입니다.")
+                                .activities("☑️하계 해외봉사\n" +
+                                                "☑️소모임 활동(보드게임, 운동, 독서)\n" +
+                                                "☑️교육봉사(지역아동센터 위주)\n" +
+                                                "☑️정기 플로깅\n" +
+                                                "☑️MT\n" +
+                                                "☑️유네스코 유적 탐방\n" +
+                                                "☑️북구 및 서구 자원봉사 연계 외부봉사")
+                                .ideal("전남대학교 재학생, 휴학생 중 한 학기 이상 활동 가능한 자")
                                 .build();
-                clubs.add(Club.builder().name("글빛").category(Category.LITERATURE).location("인문관 113호").shortIntroduction("글을 통해 세상을 이해하는 창작 동아리").introduction(intro11).isInterviewRequired(true).isRegistered(true).build());
+                clubs.add(Club.builder().name("KUSA").category(Category.VOLUNTEER).shortIntroduction("50년 전통의 유네스코 봉사 동아리").introduction(intro11).recruitStart(LocalDateTime.of(2026, 2, 19, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 절차는 생략하고, [2월 28일 23:59까지 폼 작성] 완료해주시면 폼 내용을 보고 선발할 예정입니다😊\n선발 결과는 3월 3일에 단톡방 초대 예정입니다.").isInterviewRequired(false).isRegistered(true).googleFormUrl("https://forms.gle/RG8J7Zx8SCtR4U5W9").build());
 
-                // 12. 무대열전 (연극·공연예술)
+                // 12. 전검회 (검도)
                 ClubIntroduction intro12 = ClubIntroduction.builder()
-                                .overview("무대열전은 연극과 공연예술을 통해 신앙과 삶의 이야기를 풀어내는 공연예술 동아리입니다. " +
-                                                "무대를 하나의 '작은 예배 공간'이자 '이야기의 장'으로 바라보며, " +
-                                                "사랑, 용서, 희망, 회복과 같은 주제를 연극으로 표현합니다. " +
-                                                "성경 속 이야기나 신앙인의 삶, 일상에서 느끼는 고민과 질문들을 각색하여, " +
-                                                "관객이 공감하고 위로를 받을 수 있는 작품을 만드는 것을 목표로 합니다. " +
-                                                "연기와 무대를 처음 접하는 사람이라도, 진심으로 '이야기를 전하고 싶다'는 마음이 있다면 누구나 함께할 수 있습니다.")
-                                .activities("• 신앙과 삶을 주제로 한 공연 대본 기획 및 각색 작업\n" +
-                                                "• 연기 기본기·발성·동선 등 연습 및 역할별 리허설\n" +
-                                                "• 무대 연출, 조명, 음향, 소품·무대미술 워크숍 진행\n" +
-                                                "• 교내 공연, 채플·예배 특송 공연, 지역 교회·기관 초청 공연\n" +
-                                                "• 공연 전후 묵상·나눔 시간 및 작품 주제에 대한 토론\n" +
-                                                "• 학기 말 정기 공연 및 관객과의 대화 시간 마련")
-                                .ideal("무대열전은 '무대를 통해 믿음과 이야기를 전하고 싶은 사람'을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 연극, 공연, 무대예술에 관심이 있는 학부생\n" +
-                                                "• 팀 연습과 공연 준비에 꾸준히 참여할 수 있는 성실한 분\n" +
-                                                "• 무대 위·뒤에서 맡은 역할을 책임감 있게 수행할 수 있는 분\n" +
-                                                "• 신앙적 메시지를 담은 공연에 자연스럽게 참여할 수 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 연극·뮤지컬·연기 동아리 또는 공연 활동 경험이 있는 분\n" +
-                                                "• 대본 집필, 각색, 시나리오 작성 등 글쓰기 경험이 있는 분\n" +
-                                                "• 무대 연출, 조명, 음향, 무대미술 등 스태프 업무에 관심이 있는 분\n\n" +
-                                                "무대열전은 '완벽한 배우'를 찾지 않습니다. 서툴러도 괜찮습니다. 무대를 통해 전하고 싶은 진심이 있다면 함께해 주세요.")
+                                .overview("전검회는 전남대학교 검도 동아리입니다. 오치 검도관과 연계하여 체계적인 검도 수련을 진행하며, " +
+                                                "입문자부터 경험자까지 모두 함께할 수 있는 열린 동아리입니다.")
+                                .activities("연계 도장 '오치 검도관'에서 평일 4시/5시반/6시반/7시반/8시반 중 본인이 원하는 시간대에 검도 활동")
+                                .ideal("나이, 학번, 학년 제한 없이 검도를 처음 배우시는 분들, 쉬어칼 하고 계셨던 분들 모두 환영합니다!")
                                 .build();
-                clubs.add(Club.builder().name("무대열전").category(Category.LITERATURE).location("예술관 114호").shortIntroduction("신앙과 연극의 만남 무대열전").introduction(intro12).isInterviewRequired(true).isRegistered(true).build());
+                clubs.add(Club.builder().name("전검회").category(Category.SPORTS).shortIntroduction("전남대학교 검도 동아리").introduction(intro12).recruitStart(LocalDateTime.of(1000, 1, 1, 0, 0)).recruitEnd(LocalDateTime.of(9999, 12, 31, 23, 59)).regularMeetingInfo("평일 4시/5시반/6시반/7시반/8시반 (오치 검도관)").caution("학과, 학번, 이름과 함께 문자를 보내주세요!\n연락처: 010-9186-0153").isInterviewRequired(false).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400783896").build());
 
-                // 13. FC JNU (축구)
+                // 13. 별따오기 (천문 관측)
                 ClubIntroduction intro13 = ClubIntroduction.builder()
-                                .overview("FC JNU는 축구를 사랑하는 학생들이 모여 땀과 열정을 함께 나누는 전남대학교 대표 축구 동아리입니다. " +
-                                                "단순히 공을 차는 모임이 아니라, 스포츠맨십과 팀워크를 중심으로 건강한 교류 문화를 만들어가는 것이 목표입니다. " +
-                                                "정기적인 훈련과 연습 경기를 통해 기술을 향상시키고, 교내 리그전과 지역 친선 경기에서 실력을 겨룹니다. " +
-                                                "축구를 매개로 학과, 학년, 전공의 경계를 넘어 새로운 인연을 만들며, 팀원 간의 단결력과 협동심을 기릅니다. " +
-                                                "FC JNU는 승리보다 '함께 뛰는 즐거움'을 더 중요하게 생각하는 공동체입니다.")
-                                .activities("• 주 2회 정기 훈련 및 내부 연습 경기\n" +
-                                                "• 전남대학교 교내 리그전 및 학과별 친선 대회 참가\n" +
-                                                "• 지역 대학·아마추어팀과의 교류전\n" +
-                                                "• 전술·포지션·팀워크 중심의 전략 회의\n" +
-                                                "• 체력 강화 프로그램 병행\n" +
-                                                "• 방학 중 전지훈련 및 'FC JNU 컵' 자체 토너먼트 개최")
-                                .ideal("FC JNU는 '함께 뛰며, 함께 성장하는 선수'를 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 축구를 좋아하고 정기 훈련에 참여할 수 있는 학부생\n" +
-                                                "• 팀워크를 존중하며 동료를 배려할 줄 아는 분\n" +
-                                                "• 주 1회 이상 연습 또는 경기에 꾸준히 참여 가능한 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 중·고등학교 또는 동호회 수준의 축구 경험이 있는 분\n" +
-                                                "• 포지션별 전문성을 갖춘 분\n\n" +
-                                                "초보부터 숙련자까지 누구나 환영합니다. FC JNU에서 함께 뛰어 보세요.")
+                                .overview("별따오기는 전남대학교 천문 관측 동아리입니다. 정기관측, 반짝관측, 교내관측 등 다양한 관측 활동을 통해 " +
+                                                "별과 우주를 직접 경험하고 탐구하는 것을 목표로 합니다.")
+                                .activities("* 3, 5, 9, 11월 마지막 주 토요일 광주 근교로 1박 2일 간 떠나는 <정기관측>\n" +
+                                                "* 하늘이 맑은 날에는 당일치기로 별을 보러 떠나는 <반짝관측>\n" +
+                                                "* 교내에서 망원경을 통해 달과 행성을 관찰하는 <교내관측>\n" +
+                                                "* 실링왁스 등으로 천체를 배우는 <원데이 클래스>")
+                                .ideal("전남대학교 학생(신입생의 경우 학번이 아닌 수험번호를 기재해 주세요)")
                                 .build();
-                clubs.add(Club.builder().name("FC JNU").category(Category.SPORTS).location("대운동장").shortIntroduction("땀과 열정의 FC JNU").introduction(intro13).isInterviewRequired(false).isRegistered(true).build());
+                clubs.add(Club.builder().name("별따오기").category(Category.STUDY).shortIntroduction("별따오기에 들어오셔서 멋진 별들을 직접 관측해 보세요").introduction(intro13).recruitStart(LocalDateTime.of(2026, 2, 18, 0, 0)).recruitEnd(LocalDateTime.of(2026, 2, 28, 23, 59)).caution("면접 일정\n- 3월 4일 ~ 6일 예정 (단톡 초대 후 추후 안내)").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400757589").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSfqyr9wdPeWjhEvpPf-NP4gIa2C-ZpLxmuUqFXuTMO12N6P_Q/viewform?usp=header").build());
 
-                // 14. 엘피스 (기독교 신앙·예배)
+                // 14. SEA-FOX (스쿠버다이빙)
                 ClubIntroduction intro14 = ClubIntroduction.builder()
-                                .overview("엘피스(Elpis)는 '소망'이라는 뜻의 헬라어에서 이름을 따온 전남대학교 기독교 신앙 공동체 동아리입니다. " +
-                                                "하나님을 예배하고, 말씀을 배우며, 서로의 삶을 나누는 따뜻한 믿음의 공동체를 지향합니다. " +
-                                                "매주 정기 예배와 소그룹 성경 공부를 통해 신앙의 기초를 다지고, " +
-                                                "기도 모임과 찬양을 통해 하나님과 더 깊이 교제합니다. " +
-                                                "엘피스는 단순한 종교 모임이 아니라, 대학이라는 공간 속에서 신앙의 의미를 함께 고민하고, " +
-                                                "'믿음이 있는 지성인, 지성이 있는 신앙인'을 목표로 성장해가는 공동체입니다.")
-                                .activities("• 주 1회 정기 예배 및 찬양 모임\n" +
-                                                "• 소그룹 성경 공부(Bible Study) 및 묵상 나눔\n" +
-                                                "• 신앙 간증 및 주제별 세미나\n" +
-                                                "• 교내외 봉사활동 (노숙인 급식 봉사, 지역아동센터 멘토링 등)\n" +
-                                                "• 연합 수련회, 리트릿, 찬양콘서트 등 신앙 교류 행사\n" +
-                                                "• 시험기간 기도모임 및 신입생 환영예배 진행")
-                                .ideal("엘피스는 '믿음을 나누고, 사랑으로 섬기는 사람'을 찾습니다.\n\n" +
-                                                "[자격요건]\n" +
-                                                "• 기독교 신앙을 가진 학생 또는 신앙에 관심이 있는 학부생\n" +
-                                                "• 정기 모임(예배, 소그룹, 기도모임 등)에 꾸준히 참여할 수 있는 분\n" +
-                                                "• 타인을 존중하고 열린 마음으로 신앙과 생각을 나눌 수 있는 분\n" +
-                                                "• 교내외 봉사, 찬양, 나눔 활동에 관심이 있는 분\n\n" +
-                                                "[우대사항]\n" +
-                                                "• 찬양팀(보컬, 악기 연주) 또는 예배 스태프 경험이 있는 분\n" +
-                                                "• 성경 공부나 소그룹 인도 경험이 있는 분\n" +
-                                                "• 예배 기획, 봉사 프로그램 운영 등 리더십 경험이 있는 분\n\n" +
-                                                "엘피스는 신앙의 깊이와 인간적인 따뜻함이 공존하는 공동체입니다. 캠퍼스에서 소망을 함께 나누고 싶은 분들을 초대합니다.")
+                                .overview("Sea-fox는 40년 넘게 이어져 온 전남대학교 유일무이 스쿠버다이빙 동아리로 정기다이빙, 자격증 취득, " +
+                                                "수영장 연습, 친목 활동까지 다양한 경험을 하실 수 있습니다. " +
+                                                "또한 남해 미조, 울릉도, 제주도, 거문도, 통영, 여수 등 다양한 지역에서 다이빙을 진행합니다.")
+                                .activities("계절별 정기 다이빙/수영장 연습/친목 활동/자격증 취득")
+                                .ideal("🐠 새로운 경험을 하고 싶으신 분!\n\n" +
+                                                "🐟 스킨스쿠버에 관심이 있으신 분!\n\n" +
+                                                "🦈 물이나 바다를 좋아하시는 분!\n\n" +
+                                                "🐋 다양한 사람들과 만나고 싶으신 분!\n\n" +
+                                                "🐳 해양생물에 관심이 있으신 분!\n\n" +
+                                                "나이와 학번 제한 없이 신청하실 수 있습니다:)")
                                 .build();
-                clubs.add(Club.builder().name("엘피스").category(Category.RELIGION).location("학생회관 207호").shortIntroduction("캠퍼스 속 믿음의 동행").introduction(intro14).isInterviewRequired(false).isRegistered(true).build());
+                clubs.add(Club.builder().name("SEA-FOX").category(Category.SPORTS).shortIntroduction("40년 전통 전남대 유일 스쿠버다이빙 동아리").introduction(intro14).recruitStart(LocalDateTime.of(2026, 2, 17, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).caution("네이버폼으로 가입 신청을 받은 후 동아리방에서 대면 면접이 진행될 예정입니다. / 상세 면접 시간은 추후 문자로 공지해드리겠습니다. 면접 불참 시 자동 탈락이며, 문자 수신 후 면접 참여 여부 답장 부탁드립니다.").isInterviewRequired(true).isRegistered(true).googleFormUrl("https://naver.me/GYDkioaa").build());
+
+                // 15. ECHO (영어 회화)
+                ClubIntroduction intro15 = ClubIntroduction.builder()
+                                .overview("Q : ECHO 활동, 무엇이 좋은가요?\n\n" +
+                                                "A : 주별로 다양한 주제를 연습하며 OPIC등 스피킹 시험 및 회화 실력 향상에 필수적인 영어 발화량 확보가 가능하고, " +
+                                                "전남대 교내 봉사, 교환학생(유학) 준비, 나아가 취업 준비를 위한 영어 면접 대비까지 가능합니다! " +
+                                                "꾸준한 영어회화를 위해 많은 인원들이 방학 때도 ZOOM으로 수업을 참여 중입니다.")
+                                .activities("Q : 월요일 리더 클래스의 진행 방식이 궁금합니다!\n\n" +
+                                                "A : 회원들이 돌아가며 리더를 맡게 되는데 리더는 본인이 관심 있는 주제로 수업자료를 준비하게 됩니다. " +
+                                                "리더 수업은 주제에 대한 리더의 발표와 리더가 준비한 3가지 질문에 회원들이 답변을 하는 Question time으로 진행됩니다.\n" +
+                                                "📍Question time은 회원분들의 집중력과 영어 사용 빈도를 높이기 위해 그룹별로 진행됩니다.\n\n" +
+                                                "Q : 목요일 소규모 그룹 클래스의 진행 방식이 궁금합니다!\n\n" +
+                                                "A : 목요일 수업은 Keyword time, Speaker time으로 구성되며 소규모 그룹 수업으로 진행됩니다.\n" +
+                                                "📍Keyword time : 수업 시작 직후 제시되는 주제에 대한 Free talking으로 진행합니다.\n" +
+                                                "📍Speaker time : 수업 시작 후 제시되는 주제에 대해 각자 이야기와 질문을 하며 조원들끼리 대화를 나누는 시간입니다.")
+                                .ideal("에코는 신입생, 고학년, 휴학생 모두 모두 환영합니다!\n" +
+                                                "1년간 성실하게 활동하실 수만 있다면 주저하지 말고 지원하세요~ " +
+                                                "참고로 6개월간 성실하게 활동한 회원에 대하여 몇 달간 휴회하는 것을 허용하고 있습니다.")
+                                .build();
+                clubs.add(Club.builder().name("ECHO").category(Category.STUDY).location("제2학생회관 308호").shortIntroduction("매주 월·목 영어회화 실력을 키우는 영어 스터디 동아리").introduction(intro15).recruitStart(LocalDateTime.of(2026, 3, 2, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 13, 23, 59)).regularMeetingInfo("매주 월요일·목요일 18:15~19:20 (동아리방 및 강의실)").caution("구글폼 링크에 들어가시면 \"지원서류\"를 첨부해 두었습니다. 작성 후 제출하시면 됩니다! 면접: 3월 17일(화)부터 19일(목)까지 동아리방(제2학생회관 308호)에서 대면으로 진행합니다.").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/400660768").googleFormUrl("https://docs.google.com/forms/d/e/1FAIpQLSd8EBNbSSTgs6nmWIQhD_ilMcL3c5uNYdgNOFWqxJrXWeO8VQ/viewform").build());
+
+                // 16. 어푸어푸 (수영)
+                ClubIntroduction intro16 = ClubIntroduction.builder()
+                                .overview("어푸어푸는 수영을 좋아하는 전남대, 광주교대 학생들이 모인 동아리인데요.\n" +
+                                                "같은 취미를 가진 사람들이 모여 통하는 것도 많고, 멘토-멘티 프로그램을 통한 피드백으로 수영실력 향상이 가능합니다.")
+                                .activities("Q. 수영은 어떻게 진행되나요?\n" +
+                                                "A. 매주 토요일 4시~6시까지 광주 우산수영장에서 멘토링 프로그램과 기본적인 준비 수영 후에 진행합니다~")
+                                .ideal("수영을 좋아하는 누구나, 전남대학교 재/휴학생, 대학원생")
+                                .build();
+                clubs.add(Club.builder().name("어푸어푸").category(Category.SPORTS).location("광주 우산수영장").shortIntroduction("전남대·광주교대 연합 수영 동아리").introduction(intro16).recruitStart(LocalDateTime.of(2026, 2, 20, 0, 0)).recruitEnd(LocalDateTime.of(2026, 3, 5, 23, 59)).regularMeetingInfo("매주 토요일 16:00~18:00 (광주 우산수영장)").caution("지원 및 모집방식: 알림아리 기간(3월 4~5일)\n직접 홍보부스로 찾아오시거나 모집기간 동안 구글 폼 제출하셔서 면접 시간을 잡으시면 됩니다.").isInterviewRequired(true).isRegistered(true).everyTimeUrl("https://everytime.kr/418923/v/401078194").googleFormUrl("https://form.naver.com/response/-rm-550f6VArzKzF5qYCKg").build());
 
                 return clubRepository.saveAll(clubs);
         }
@@ -1134,41 +1106,59 @@ public class DataInitializer implements CommandLineRunner {
                                                 .build());
                 forms.add(form10);
 
-                // 11. 글빛 (문학·창작)
+                // 11. KUSA (유네스코 봉사)
                 ClubApplyForm form11 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("글빛"))
-                                                .title("글빛 2025 상반기 창작 멤버 모집")
-                                                .description("시, 소설, 수필 등 글쓰기를 좋아하는 분들을 모집합니다. 합평 모임과 동인지 제작에 함께 참여해요.")
+                                                .club(clubByName.get("KUSA"))
+                                                .title("KUSA 2026 상반기 신입 회원 모집")
+                                                .description("전남대학교 유네스코학생회 KUSA에서 함께할 신입 회원을 모집합니다. 봉사와 국제교류에 관심 있는 분을 환영합니다.")
                                                 .build());
                 forms.add(form11);
 
-                // 12. 무대열전 (연극·공연예술·종교)
+                // 12. 전검회 (검도)
                 ClubApplyForm form12 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("무대열전"))
-                                                .title("무대열전 2025 신앙·연극 공연팀 모집")
-                                                .description("신앙과 삶의 이야기를 연극과 공연으로 전하고 싶은 분을 모집합니다. 연기, 대본, 연출, 조명 등 다양한 포지션에 도전해보세요.")
+                                                .club(clubByName.get("전검회"))
+                                                .title("전검회 2026 신입 단원 모집")
+                                                .description("검도에 관심 있는 누구나 환영합니다. 경험 유무에 관계없이 함께 수련해요.")
                                                 .build());
                 forms.add(form12);
 
-                // 13. FC JNU (축구)
+                // 13. 별따오기 (천문 관측)
                 ClubApplyForm form13 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("FC JNU"))
-                                                .title("FC JNU 2025 시즌 신규 선수 모집")
-                                                .description("축구를 좋아하고 함께 땀 흘릴 팀원을 찾습니다. 정기 훈련과 교내 리그전에서 진짜 팀워크를 느껴봐요.")
+                                                .club(clubByName.get("별따오기"))
+                                                .title("별따오기 2026 신입 관측단 모집")
+                                                .description("별과 우주에 관심 있는 분들을 모집합니다. 함께 밤하늘을 관측하며 우주의 신비를 탐구해요.")
                                                 .build());
                 forms.add(form13);
 
-                // 14. 엘피스 (기독교 신앙·예배)
+                // 14. SEA-FOX (스쿠버다이빙)
                 ClubApplyForm form14 = clubApplyFormRepository.save(
                                 ClubApplyForm.builder()
-                                                .club(clubByName.get("엘피스"))
-                                                .title("엘피스 2025 신입 공동체 회원 모집")
-                                                .description("예배와 말씀, 교제를 통해 신앙을 함께 세워갈 기독교 공동체입니다. 캠퍼스에서 믿음의 동행을 찾고 싶은 분을 초대합니다.")
+                                                .club(clubByName.get("SEA-FOX"))
+                                                .title("SEA-FOX 2026 신입 다이버 모집")
+                                                .description("스쿠버다이빙에 관심 있는 분이라면 누구든 환영합니다. 자격증 취득부터 정기 다이빙까지 함께해요.")
                                                 .build());
                 forms.add(form14);
+
+                // 15. ECHO (영어 회화)
+                ClubApplyForm form15 = clubApplyFormRepository.save(
+                                ClubApplyForm.builder()
+                                                .club(clubByName.get("ECHO"))
+                                                .title("ECHO 2026 상반기 신입 회원 모집")
+                                                .description("매주 월·목 영어 회화를 함께 연습할 신입 회원을 모집합니다. 영어 실력보다 열정이 중요합니다!")
+                                                .build());
+                forms.add(form15);
+
+                // 16. 어푸어푸 (수영)
+                ClubApplyForm form16 = clubApplyFormRepository.save(
+                                ClubApplyForm.builder()
+                                                .club(clubByName.get("어푸어푸"))
+                                                .title("어푸어푸 2026 신입 회원 모집")
+                                                .description("수영을 사랑하는 전남대·광주교대 학생들을 모집합니다. 멘토링 프로그램으로 함께 실력을 키워요.")
+                                                .build());
+                forms.add(form16);
 
                 // ========== 6) FORM_QUESTION ==========
 
@@ -1572,10 +1562,10 @@ public class DataInitializer implements CommandLineRunner {
                                                                                 LocalTime.of(12, 0)))))
                                 .build());
 
-                // --- form11 (글빛: 문학·창작) ---
+                // --- form11 (KUSA: 유네스코 봉사) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form11)
-                                .question("간단한 자기소개와 함께 주로 쓰는(또는 써보고 싶은) 글쓰기 장르(시, 소설, 수필 등)와 경험을 적어주세요.")
+                                .question("간단한 자기소개와 함께 봉사활동 경험 및 KUSA에 지원하게 된 동기를 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(1L)
@@ -1583,7 +1573,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form11)
-                                .question("주 1회 정기 모임 및 합평(작품 피드백 모임)에 꾸준히 참여가 가능하신가요?")
+                                .question("한 학기 이상 꾸준히 활동하실 수 있으신가요?")
                                 .fieldType(FieldType.RADIO)
                                 .isRequired(true)
                                 .displayOrder(2L)
@@ -1592,30 +1582,17 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form11)
-                                .question("글빛에 지원하게 된 동기와 앞으로 글빛에서 쓰고 싶은 글의 주제나 분위기를 자유롭게 적어주세요.")
-                                .fieldType(FieldType.TEXT)
+                                .question("가장 참여하고 싶은 활동을 선택해주세요.")
+                                .fieldType(FieldType.RADIO)
                                 .isRequired(false)
                                 .displayOrder(3L)
+                                .options(List.of("하계 해외봉사", "교육봉사", "플로깅", "소모임 활동"))
                                 .build());
 
-                formQuestionRepository.save(FormQuestion.builder()
-                                .clubApplyForm(form11)
-                                .question("글빛 OT 및 간단한 면담이 가능한 시간대를 선택해주세요.")
-                                .fieldType(FieldType.TIME_SLOT)
-                                .isRequired(true)
-                                .displayOrder(4L)
-                                .timeSlotOptions(List.of(
-                                                new TimeSlotOption(
-                                                                "2025-10-15 ~ 2025-10-16",
-                                                                new TimeSlotOption.TimeRange(
-                                                                                LocalTime.of(10, 0),
-                                                                                LocalTime.of(12, 0)))))
-                                .build());
-
-                // --- form12 (무대열전: 연극·공연예술·종교) ---
+                // --- form12 (전검회: 검도) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form12)
-                                .question("간단한 자기소개와 함께 연극·공연 경험(또는 관심 분야)과 신앙 배경(있다면)을 적어주세요.")
+                                .question("간단한 자기소개와 함께 검도 경험(유무, 기간 등)을 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(1L)
@@ -1623,7 +1600,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form12)
-                                .question("정기 연습(주 1회 이상)과 예배·나눔 모임에 꾸준히 참여가 가능하신가요?")
+                                .question("평일 도장 방문이 가능하신가요?")
                                 .fieldType(FieldType.RADIO)
                                 .isRequired(true)
                                 .displayOrder(2L)
@@ -1632,30 +1609,16 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form12)
-                                .question("무대열전에서 함께 다뤄보고 싶은 이야기나 작품의 주제(신앙, 삶, 인간관계 등)가 있다면 적어주세요.")
+                                .question("전검회에 지원하게 된 동기를 자유롭게 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
                                 .build());
 
-                formQuestionRepository.save(FormQuestion.builder()
-                                .clubApplyForm(form12)
-                                .question("무대열전 오디션/면접 및 오리엔테이션이 가능한 시간대를 선택해주세요.")
-                                .fieldType(FieldType.TIME_SLOT)
-                                .isRequired(true)
-                                .displayOrder(4L)
-                                .timeSlotOptions(List.of(
-                                                new TimeSlotOption(
-                                                                "2025-10-15 ~ 2025-10-16",
-                                                                new TimeSlotOption.TimeRange(
-                                                                                LocalTime.of(10, 0),
-                                                                                LocalTime.of(12, 0)))))
-                                .build());
-
-                // --- form13 (FC JNU: 축구) ---
+                // --- form13 (별따오기: 천문 관측) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form13)
-                                .question("본인의 주 포지션(또는 선호 포지션), 축구 경험(학교·동호회·취미 등), 그리고 간단한 자기소개를 적어주세요.")
+                                .question("간단한 자기소개와 함께 천문 및 우주에 관심을 갖게 된 계기를 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(1L)
@@ -1663,7 +1626,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form13)
-                                .question("주 1~2회 정기 훈련 및 주말 연습 경기/리그전에 꾸준히 참여가 가능하신가요?")
+                                .question("3, 5, 9, 11월 마지막 주 토요일 1박 2일 정기관측에 참여가 가능하신가요?")
                                 .fieldType(FieldType.RADIO)
                                 .isRequired(true)
                                 .displayOrder(2L)
@@ -1672,7 +1635,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form13)
-                                .question("FC JNU에서 이루고 싶은 목표(기량 향상, 교내 리그 우승, 체력 관리 등)와 팀에 기여할 수 있다고 생각하는 점을 적어주세요.")
+                                .question("별따오기에서 가장 해보고 싶은 활동을 자유롭게 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1680,22 +1643,22 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form13)
-                                .question("FC JNU OT 및 간단한 실기·체력 체크가 가능한 시간대를 선택해주세요.")
+                                .question("면접 가능한 시간대를 선택해주세요. (3월 4일 ~ 6일)")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
                                 .timeSlotOptions(List.of(
                                                 new TimeSlotOption(
-                                                                "2025-10-15 ~ 2025-10-16",
+                                                                "2026-03-04 ~ 2026-03-06",
                                                                 new TimeSlotOption.TimeRange(
                                                                                 LocalTime.of(10, 0),
-                                                                                LocalTime.of(12, 0)))))
+                                                                                LocalTime.of(18, 0)))))
                                 .build());
 
-                // --- form14 (엘피스: 기독교 신앙·예배) ---
+                // --- form14 (SEA-FOX: 스쿠버다이빙) ---
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form14)
-                                .question("간단한 자기소개와 현재 신앙 상태(출석 교회, 신앙 유무 또는 관심 계기 등)를 적어주세요.")
+                                .question("간단한 자기소개와 함께 스쿠버다이빙 또는 수영 경험(유무, 수준 등)을 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(true)
                                 .displayOrder(1L)
@@ -1703,7 +1666,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form14)
-                                .question("정기 예배 모임(주 1회)과 소그룹 모임에 꾸준히 참여하실 의향이 있으신가요?")
+                                .question("계절별 정기 다이빙(국내 여행 포함)에 참여가 가능하신가요?")
                                 .fieldType(FieldType.RADIO)
                                 .isRequired(true)
                                 .displayOrder(2L)
@@ -1712,7 +1675,7 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form14)
-                                .question("엘피스에서 기대하는 점(예: 신앙 성장, 공동체 교제, 찬양·봉사 참여 등)과 함께 나누고 싶은 기도제목이나 고민이 있다면 적어주세요.")
+                                .question("SEA-FOX에 지원하게 된 동기와 기대하는 점을 자유롭게 적어주세요.")
                                 .fieldType(FieldType.TEXT)
                                 .isRequired(false)
                                 .displayOrder(3L)
@@ -1720,16 +1683,96 @@ public class DataInitializer implements CommandLineRunner {
 
                 formQuestionRepository.save(FormQuestion.builder()
                                 .clubApplyForm(form14)
-                                .question("엘피스 환영 모임 및 간단한 면담이 가능한 시간대를 선택해주세요.")
+                                .question("대면 면접 가능한 시간대를 선택해주세요.")
                                 .fieldType(FieldType.TIME_SLOT)
                                 .isRequired(true)
                                 .displayOrder(4L)
                                 .timeSlotOptions(List.of(
                                                 new TimeSlotOption(
-                                                                "2025-10-15 ~ 2025-10-16",
+                                                                "2026-03-01 ~ 2026-03-05",
                                                                 new TimeSlotOption.TimeRange(
                                                                                 LocalTime.of(10, 0),
-                                                                                LocalTime.of(12, 0)))))
+                                                                                LocalTime.of(18, 0)))))
+                                .build());
+
+                // --- form15 (ECHO: 영어 회화) ---
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form15)
+                                .question("간단한 자기소개와 함께 영어 공부 경험 및 ECHO에 지원하게 된 동기를 적어주세요.")
+                                .fieldType(FieldType.TEXT)
+                                .isRequired(true)
+                                .displayOrder(1L)
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form15)
+                                .question("매주 월요일·목요일 18:15~19:20 정기 수업에 꾸준히 참여가 가능하신가요?")
+                                .fieldType(FieldType.RADIO)
+                                .isRequired(true)
+                                .displayOrder(2L)
+                                .options(List.of("예", "아니오"))
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form15)
+                                .question("ECHO에서 향상시키고 싶은 영어 역량(회화, 발표, 면접 등)을 자유롭게 적어주세요.")
+                                .fieldType(FieldType.TEXT)
+                                .isRequired(false)
+                                .displayOrder(3L)
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form15)
+                                .question("면접 가능한 시간대를 선택해주세요. (3월 17일 ~ 19일)")
+                                .fieldType(FieldType.TIME_SLOT)
+                                .isRequired(true)
+                                .displayOrder(4L)
+                                .timeSlotOptions(List.of(
+                                                new TimeSlotOption(
+                                                                "2026-03-17 ~ 2026-03-19",
+                                                                new TimeSlotOption.TimeRange(
+                                                                                LocalTime.of(10, 0),
+                                                                                LocalTime.of(18, 0)))))
+                                .build());
+
+                // --- form16 (어푸어푸: 수영) ---
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form16)
+                                .question("간단한 자기소개와 함께 수영 실력(입문/중급/고급) 및 지원 동기를 적어주세요.")
+                                .fieldType(FieldType.TEXT)
+                                .isRequired(true)
+                                .displayOrder(1L)
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form16)
+                                .question("매주 토요일 16:00~18:00 정기 수영에 참여가 가능하신가요?")
+                                .fieldType(FieldType.RADIO)
+                                .isRequired(true)
+                                .displayOrder(2L)
+                                .options(List.of("예", "아니오"))
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form16)
+                                .question("어푸어푸에서 기대하는 점을 자유롭게 적어주세요.")
+                                .fieldType(FieldType.TEXT)
+                                .isRequired(false)
+                                .displayOrder(3L)
+                                .build());
+
+                formQuestionRepository.save(FormQuestion.builder()
+                                .clubApplyForm(form16)
+                                .question("면접 가능한 시간대를 선택해주세요. (알림아리 기간 3월 4~5일)")
+                                .fieldType(FieldType.TIME_SLOT)
+                                .isRequired(true)
+                                .displayOrder(4L)
+                                .timeSlotOptions(List.of(
+                                                new TimeSlotOption(
+                                                                "2026-03-04 ~ 2026-03-05",
+                                                                new TimeSlotOption.TimeRange(
+                                                                                LocalTime.of(10, 0),
+                                                                                LocalTime.of(18, 0)))))
                                 .build());
 
                 clubApplyFormRepository.saveAll(forms);
@@ -2298,8 +2341,8 @@ public class DataInitializer implements CommandLineRunner {
 
                 List<ClubMember> members = new ArrayList<>();
 
-                // ===== 1~14번 동아리 회장(CLUB_ADMIN) =====
-                for (int i = 1; i <= 14; i++) {
+                // ===== 1~16번 동아리 회장(CLUB_ADMIN) =====
+                for (int i = 1; i <= 16; i++) {
                         members.add(ClubMember.builder()
                                         .user(userArr[i]) // user 1~14
                                         .club(clubArr[i]) // club 1~14
@@ -2764,10 +2807,6 @@ public class DataInitializer implements CommandLineRunner {
                 Club club8 = clubs.get(7); // club_id = 8, "아이디어스"
                 Club club9 = clubs.get(8); // club_id = 9, "미담장학회"
                 Club club10 = clubs.get(9); // club_id = 10, "PPP"
-                Club club11 = clubs.get(10); // club_id = 11, "글빛"
-                Club club12 = clubs.get(11); // club_id = 12, "무대열전"
-                Club club13 = clubs.get(12); // club_id = 13, "FC JNU"
-                Club club14 = clubs.get(13); // club_id = 14, "엘피스"
 
                 List<ClubReview> reviews = new ArrayList<>();
 
@@ -2942,73 +2981,6 @@ public class DataInitializer implements CommandLineRunner {
                                 .writer("202509")
                                 .build());
 
-                // 글빛
-                reviews.add(ClubReview.builder()
-                                .club(club11)
-                                .content("혼자서는 꾸준히 글을 쓰기 어려웠는데, 정기적인 합평회 덕분에 글쓰기 습관을 만들 수 있었습니다. 서로의 글을 읽고 나누는 시간이 정말 소중해요.")
-                                .writer("202520")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club11)
-                                .content("제 글이 동인지에 실렸을 때의 감동은 잊을 수 없습니다. 글쓰기를 좋아하는 사람들과 함께 감성을 나눌 수 있어 행복합니다.")
-                                .writer("202564")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club11)
-                                .content("따뜻하고 건설적인 피드백을 통해 제 글이 성장하는 것을 느낄 수 있었습니다. 글을 잘 쓰지 못해도, 쓰고 싶은 마음만 있다면 충분합니다.")
-                                .writer("202567")
-                                .build());
-
-                // 무대열전
-                reviews.add(ClubReview.builder()
-                                .club(club12)
-                                .content("연기 경험이 전혀 없었는데, 기초부터 차근차근 알려주셔서 용기를 내어 무대에 설 수 있었습니다. 제 안의 새로운 가능성을 발견했어요.")
-                                .writer("202513")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club12)
-                                .content("신앙적인 고민과 삶의 이야기를 연극으로 풀어내는 과정이 정말 은혜로웠습니다. 관객들과 함께 울고 웃으며 큰 위로를 얻었습니다.")
-                                .writer("202524")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club12)
-                                .content("배우뿐만 아니라 조명, 음향, 연출 등 다양한 스태프 역할을 경험해볼 수 있어서 좋았습니다. 하나의 공연을 위해 모두가 함께 땀 흘리는 과정이 정말 멋져요.")
-                                .writer("202557")
-                                .build());
-
-                // FC JNU
-                reviews.add(ClubReview.builder()
-                                .club(club13)
-                                .content("체계적인 훈련과 연습 경기를 통해 축구 실력이 정말 많이 늘었습니다. 이기는 것도 좋지만, 다 같이 땀 흘리는 과정이 더 즐거워요.")
-                                .writer("202502")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club13)
-                                .content("학년, 학과 상관없이 축구를 좋아하는 사람들이 모여 가족 같은 분위기입니다. 운동 끝나고 같이 먹는 치맥은 최고예요!")
-                                .writer("202526")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club13)
-                                .content("교내 리그전에 참여해서 다른 팀들과 실력을 겨루는 경험이 정말 재미있었습니다. 팀원들과 함께 승리를 위해 뛰는 순간은 잊지 못할 거예요.")
-                                .writer("202538")
-                                .build());
-
-                // 엘피스
-                reviews.add(ClubReview.builder()
-                                .club(club14)
-                                .content("대학 생활 속에서 신앙의 고민을 함께 나누고, 서로를 위해 기도해주는 공동체가 있다는 것이 정말 큰 힘이 됩니다.")
-                                .writer("202512")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club14)
-                                .content("소그룹 성경 공부를 통해 말씀을 더 깊이 알아가는 시간이 정말 유익합니다. 삶의 나눔을 통해 믿음이 더욱 단단해지는 것을 느껴요.")
-                                .writer("202534")
-                                .build());
-                reviews.add(ClubReview.builder()
-                                .club(club14)
-                                .content("찬양팀으로 섬기며 하나님께 제 목소리를 드릴 수 있어 기쁩니다. 예배를 함께 준비하고 만들어가는 과정 자체가 큰 은혜입니다.")
-                                .writer("202556")
-                                .build());
 
                 clubReviewRepository.saveAll(reviews);
         }
