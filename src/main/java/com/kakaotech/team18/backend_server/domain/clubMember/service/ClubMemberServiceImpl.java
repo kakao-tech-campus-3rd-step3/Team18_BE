@@ -208,7 +208,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             throw new CustomException(ErrorCode.FORBIDDEN, "동아리원 직책 변경은 회장만 가능합니다.");
         }
 
-        // 2. 프로필 조회
+        // 2. 프로필 조회 (대상)
         ClubMemberProfile profile = clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
 
@@ -217,13 +217,18 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
         // 3. 회장직 이양 로직 (새로운 역할이 회장인 경우)
         if (newRole == Role.CLUB_ADMIN) {
-            Optional<ClubMemberProfile> currentAdminProfile = clubMemberProfileRepository.findByClubMember_Club_IdAndRole(clubId, Role.CLUB_ADMIN);
+            // ClubMember 테이블 기준으로 현재 회장 조회 (프로필 유무 상관없이)
+            Optional<ClubMember> currentAdminMember = clubMemberRepository.findClubAdminByClubIdAndRole(clubId, Role.CLUB_ADMIN);
             
             // 기존 회장이 존재하고, 그 사람이 이번에 임명되는 사람이 아니라면 강등
-            if (currentAdminProfile.isPresent() && !currentAdminProfile.get().getId().equals(profileId)) {
-                ClubMemberProfile oldAdmin = currentAdminProfile.get();
+            if (currentAdminMember.isPresent() && !currentAdminMember.get().getId().equals(profile.getClubMember().getId())) {
+                ClubMember oldAdmin = currentAdminMember.get();
                 oldAdmin.updateRole(Role.CLUB_EXECUTIVE); // 운영진으로 강등
-                oldAdmin.getClubMember().updateRole(Role.CLUB_EXECUTIVE);
+                
+                // 프로필이 있다면 프로필도 동기화
+                if (oldAdmin.getProfile() != null) {
+                    oldAdmin.getProfile().updateRole(Role.CLUB_EXECUTIVE);
+                }
             }
         }
 

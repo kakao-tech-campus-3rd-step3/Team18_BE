@@ -386,11 +386,18 @@ class ClubMemberServiceTest {
         ClubMemberProfile oldAdmin = createProfile(oldAdminProfileId, 100L, "나회장", "111111", Role.CLUB_ADMIN);
         ClubMemberProfile newAdmin = createProfile(newAdminProfileId, 200L, "너회장", "222222", Role.CLUB_MEMBER);
         
+        // oldAdmin의 ClubMember ID 설정 (비교 로직에서 사용)
+        ReflectionTestUtils.setField(oldAdmin.getClubMember(), "id", 1000L);
+        ReflectionTestUtils.setField(newAdmin.getClubMember(), "id", 2000L);
+
         ClubMemberRoleUpdateRequestDto requestDto = new ClubMemberRoleUpdateRequestDto(Role.CLUB_ADMIN);
 
         given(customSecurityService.getUserRoleInClub(clubId)).willReturn(Role.CLUB_ADMIN);
         given(clubMemberProfileRepository.findByIdAndClubId(newAdminProfileId, clubId)).willReturn(Optional.of(newAdmin));
-        given(clubMemberProfileRepository.findByClubMember_Club_IdAndRole(clubId, Role.CLUB_ADMIN)).willReturn(Optional.of(oldAdmin));
+        
+        // ★ 수정됨: ClubMemberRepository Mocking
+        given(clubMemberRepository.findClubAdminByClubIdAndRole(clubId, Role.CLUB_ADMIN))
+                .willReturn(Optional.of(oldAdmin.getClubMember()));
 
         // when
         ClubMemberRoleUpdateResponseDto result = clubMemberService.updateMemberRole(clubId, newAdminProfileId, requestDto);
@@ -398,7 +405,7 @@ class ClubMemberServiceTest {
         // then
         assertThat(result.newRole()).isEqualTo(Role.CLUB_ADMIN);
         assertThat(newAdmin.getRole()).isEqualTo(Role.CLUB_ADMIN); // 새 회장 승격 확인
-        assertThat(oldAdmin.getRole()).isEqualTo(Role.CLUB_EXECUTIVE); // 기존 회장 운영진으로 강등 확인
+        assertThat(oldAdmin.getRole()).isEqualTo(Role.CLUB_EXECUTIVE); // 기존 회장 강등 확인
     }
 
     @Test
