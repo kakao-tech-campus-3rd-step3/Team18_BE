@@ -104,4 +104,6 @@ public interface ClubMemberRepository extends JpaRepository<ClubMember, Long> {
     @Query("update ClubMember cm set cm.application = null where cm.application.id = :applicationId")
     int clearApplicationByApplicationId(Long applicationId);
 
+    // User ID와 Club ID로 ClubMember 조회
+    Optional<ClubMember> findByUserIdAndClubId(Long userId, Long clubId);
 }
