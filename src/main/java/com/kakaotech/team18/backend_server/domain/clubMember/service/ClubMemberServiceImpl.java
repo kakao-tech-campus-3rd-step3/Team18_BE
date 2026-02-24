@@ -31,6 +31,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,12 @@ public class ClubMemberServiceImpl implements ClubMemberService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final CustomSecurityService customSecurityService;
+
+    @Value("${cloud.aws.s3.bucket-attachments}")
+    private String attachmentBucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     @Override
     public List<ClubMemberResponseDto> getClubMembers(Long clubId) {
@@ -63,9 +70,11 @@ public class ClubMemberServiceImpl implements ClubMemberService {
         Role currentUserRole = customSecurityService.getUserRoleInClub(clubId);
 
         // 2. Role 결정
-        Role targetRole = requestDto.role();
+        Role targetRole;
         if (currentUserRole == Role.CLUB_EXECUTIVE) {
             targetRole = Role.CLUB_MEMBER; // 운영진은 무조건 일반부원으로 등록
+        } else {
+            targetRole = requestDto.role();
         }
 
         // 3. 기존 프로필 조회 (학번 기준)
@@ -98,22 +107,41 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             
             return ClubMemberResponseDto.from(profile);
         } else {
-            // 5. 존재하지 않으면 신규 등록
+            // 5. 존재하지 않으면 신규 등록 (또는 기존 ClubMember에 프로필 연결)
             Club club = clubRepository.findById(clubId)
                     .orElseThrow(() -> new CustomException(ErrorCode.CLUB_NOT_FOUND, "clubId: " + clubId));
 
             User user = userRepository.findByStudentId(requestDto.studentId())
                     .orElseGet(() -> createShellUser(requestDto));
 
-            ClubMember clubMember = ClubMember.builder()
-                    .user(user)
-                    .club(club)
-                    .activeStatus(ActiveStatus.ACTIVE)
-                    .role(targetRole) // ClubMember의 role도 결정된 Role로 설정
-                    .build();
+            // 기존 ClubMember가 있는지 확인
+            ClubMember clubMember = clubMemberRepository.findByUserIdAndClubId(user.getId(), clubId)
+                    .orElseGet(() -> ClubMember.builder()
+                            .user(user)
+                            .club(club)
+                            .activeStatus(ActiveStatus.ACTIVE)
+                            .role(targetRole)
+                            .build());
+            
+            // Profile에 저장될 최종 Role 결정
+            Role finalRole = targetRole;
+            
+            // 기존 ClubMember가 있다면
+            if (clubMember.getId() != null) {
+                // 회장이면 요청받은 Role로 업데이트
+                if (currentUserRole == Role.CLUB_ADMIN) {
+                    clubMember.updateRole(targetRole);
+                } else {
+                    // 운영진이면 기존 Role 유지 (강등 방지)
+                    // 만약 기존 Role이 더 높다면 Profile도 그 Role을 따라가야 함
+                    if (clubMember.getRole() == Role.CLUB_EXECUTIVE || clubMember.getRole() == Role.CLUB_ADMIN) {
+                        finalRole = clubMember.getRole();
+                    }
+                }
+            }
 
             ClubMemberProfile profile = ClubMemberProfile.builder()
-                    .clubMember(clubMember)
+                    .clubMember(clubMember) // 연관관계 설정
                     .name(requestDto.name())
                     .studentId(requestDto.studentId())
                     .phoneNumber(requestDto.phoneNumber())
@@ -121,7 +149,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                     .department(requestDto.department())
                     .academicStatus(requestDto.academicStatus())
                     .joinDate(parseJoinDate(requestDto.joinDate()))
-                    .role(targetRole)
+                    .role(finalRole) // 보정된 Role 사용
                     .build();
 
             clubMember.setProfile(profile);
@@ -162,6 +190,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 // registerMember 내부에서 발생한 비즈니스 예외를 수집
                 parseResult.addError(String.format("학번 %s: %s", dto.studentId(), e.getMessage()));
             } catch (Exception e) {
+                // 그 외 예상치 못한 예외 수집
                 parseResult.addError(String.format("학번 %s: 알 수 없는 오류가 발생했습니다. (%s)", dto.studentId(), e.getMessage()));
             }
         }
@@ -208,7 +237,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
             throw new CustomException(ErrorCode.FORBIDDEN, "동아리원 직책 변경은 회장만 가능합니다.");
         }
 
-        // 2. 프로필 조회
+        // 2. 프로필 조회 (대상)
         ClubMemberProfile profile = clubMemberProfileRepository.findByIdAndClubId(profileId, clubId)
                 .orElseThrow(() -> new CustomException(ErrorCode.CLUB_MEMBER_NOT_FOUND, "profileId: " + profileId));
 
@@ -217,13 +246,18 @@ public class ClubMemberServiceImpl implements ClubMemberService {
 
         // 3. 회장직 이양 로직 (새로운 역할이 회장인 경우)
         if (newRole == Role.CLUB_ADMIN) {
-            Optional<ClubMemberProfile> currentAdminProfile = clubMemberProfileRepository.findByClubMember_Club_IdAndRole(clubId, Role.CLUB_ADMIN);
+            // ClubMember 테이블 기준으로 현재 회장 조회 (프로필 유무 상관없이)
+            Optional<ClubMember> currentAdminMember = clubMemberRepository.findClubAdminByClubIdAndRole(clubId, Role.CLUB_ADMIN);
             
             // 기존 회장이 존재하고, 그 사람이 이번에 임명되는 사람이 아니라면 강등
-            if (currentAdminProfile.isPresent() && !currentAdminProfile.get().getId().equals(profileId)) {
-                ClubMemberProfile oldAdmin = currentAdminProfile.get();
+            if (currentAdminMember.isPresent() && !currentAdminMember.get().getId().equals(profile.getClubMember().getId())) {
+                ClubMember oldAdmin = currentAdminMember.get();
                 oldAdmin.updateRole(Role.CLUB_EXECUTIVE); // 운영진으로 강등
-                oldAdmin.getClubMember().updateRole(Role.CLUB_EXECUTIVE);
+                
+                // 프로필이 있다면 프로필도 동기화
+                if (oldAdmin.getProfile() != null) {
+                    oldAdmin.getProfile().updateRole(Role.CLUB_EXECUTIVE);
+                }
             }
         }
 
@@ -279,6 +313,12 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 "해당 동아리원이 목록에서 삭제되었습니다.",
                 profileId
         );
+    }
+
+    @Override
+    public String getRegistrationFormUrl() {
+        return String.format("https://%s.s3.%s.amazonaws.com/%s",
+                attachmentBucket, region, "templates/members_template.xlsx");
     }
 
 

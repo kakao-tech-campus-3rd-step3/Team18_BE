@@ -16,4 +16,5 @@ public interface ClubMemberService {
     ClubMemberResponseDto updateMember(Long clubId, Long profileId, ClubMemberUpdateRequestDto requestDto);
     ClubMemberRoleUpdateResponseDto updateMemberRole(Long clubId, Long profileId, ClubMemberRoleUpdateRequestDto requestDto);
     ClubMemberDeleteResponseDto deleteMember(Long clubId, Long profileId);
+    String getRegistrationFormUrl();
 }

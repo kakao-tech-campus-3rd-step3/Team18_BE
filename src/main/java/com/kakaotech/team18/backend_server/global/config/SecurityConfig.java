@@ -75,6 +75,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/*").permitAll()
                 // 지원서 양식 조회 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
+                // 동아리원 일괄 등록 양식 다운로드 API (공개)
+                .requestMatchers(HttpMethod.GET, "/api/clubs/members/registration-form").permitAll()
                 // 지원서 제출 API (공개)
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
                 // 동아리 후기 조회 및 등록 API (공개)

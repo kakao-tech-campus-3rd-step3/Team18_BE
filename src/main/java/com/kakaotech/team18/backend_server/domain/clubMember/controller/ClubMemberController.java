@@ -17,7 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.net.URI;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,6 +41,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class ClubMemberController {
 
     private final ClubMemberService clubMemberService;
+
+    @Operation(summary = "동아리원 일괄 등록 양식 다운로드", description = "동아리원 일괄 등록을 위한 엑셀 양식 파일의 다운로드 URL을 반환합니다.")
+    @ApiResponse(responseCode = "302", description = "S3 URL로 리다이렉트")
+    @GetMapping("/members/registration-form")
+    public ResponseEntity<Void> getRegistrationForm() {
+        String url = clubMemberService.getRegistrationFormUrl();
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .location(URI.create(url))
+                .build();
+    }
 
     @Operation(summary = "동아리원 목록 조회", description = "특정 동아리의 전체 동아리원 목록을 조회합니다.")
     @ApiResponses({
