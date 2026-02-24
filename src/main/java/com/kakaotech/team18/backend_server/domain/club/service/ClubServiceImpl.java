@@ -32,11 +32,12 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFo
 import com.kakaotech.team18.backend_server.global.service.S3Service;
 import com.kakaotech.team18.backend_server.global.util.DateUtil;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,6 +50,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ClubServiceImpl implements ClubService {
+    private static final int INTERVIEW_SLOT_MINUTES = 30;
 
     private final ClubRepository clubRepository;
     private final ApplicationRepository applicationRepository;
@@ -161,24 +163,10 @@ public class ClubServiceImpl implements ClubService {
 
         List<InterviewSlotCountProjection> rows = applicationRepository.countInterviewSlots(clubId);
 
-        Map<LocalDate, Map<LocalTime, Integer>> grouped = getLocalDateMap(rows);
+        Map<LocalDate, Map<LocalTime, Integer>> grouped = buildInterviewScheduleTemplate(clubApplyForm.getClub());
+        mergeAssignedInterviewCounts(grouped, rows != null ? rows : List.of());
 
-        List<InterviewDateSlotsDto> interviewSchedule =
-                grouped.entrySet().stream()
-                        .sorted(Map.Entry.comparingByKey())
-                        .map(dateEntry -> new InterviewDateSlotsDto(
-                                dateEntry.getKey(),
-                                dateEntry.getValue().entrySet().stream()
-                                        .sorted(Map.Entry.comparingByKey())
-                                        .map(timeEntry ->
-                                                new InterviewSlotCountDto(
-                                                        timeEntry.getKey(),
-                                                        timeEntry.getValue()
-                                                )
-                                        )
-                                        .toList()
-                        ))
-                        .toList();
+        List<InterviewDateSlotsDto> interviewSchedule = convertToInterviewSchedule(grouped);
         return new ClubDashboardApplicantResponseDto(
                 clubApplyForm.getClub().getIsInterviewRequired(),
                 applicants
@@ -234,15 +222,68 @@ public class ClubServiceImpl implements ClubService {
         return new SuccessResponseDto(true);
     }
 
-    private Map<LocalDate, Map<LocalTime, Integer>> getLocalDateMap(List<InterviewSlotCountProjection> rows) {
-        return rows.stream()
-                .collect(Collectors.groupingBy(
-                        InterviewSlotCountProjection::getInterviewDate,
-                        Collectors.toMap(
-                                InterviewSlotCountProjection::getInterviewTime,
-                                r -> (int) r.getAssignedCount()
-                        )
-                ));
+    private Map<LocalDate, Map<LocalTime, Integer>> buildInterviewScheduleTemplate(Club club) {
+        Map<LocalDate, Map<LocalTime, Integer>> schedule = new TreeMap<>();
+        if (Boolean.FALSE.equals(club.getIsInterviewRequired())) {
+            return schedule;
+        }
+
+        LocalDateTime interviewStartDateTime = club.getInterviewStartDate();
+        LocalDateTime interviewEndDateTime = club.getInterviewEndDate();
+        LocalTime interviewStartTime = club.getInterviewStartTime();
+        LocalTime interviewEndTime = club.getInterviewEndTime();
+
+        if (interviewStartDateTime == null || interviewEndDateTime == null
+                || interviewStartTime == null || interviewEndTime == null) {
+            return schedule;
+        }
+
+        LocalDate startDate = interviewStartDateTime.toLocalDate();
+        LocalDate endDate = interviewEndDateTime.toLocalDate();
+
+        if (startDate.isAfter(endDate)) {
+            return schedule;
+        }
+        if (!interviewStartTime.isBefore(interviewEndTime)) {
+            return schedule;
+        }
+
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            Map<LocalTime, Integer> slots = new TreeMap<>();
+            for (LocalTime time = interviewStartTime; time.isBefore(interviewEndTime); time = time.plusMinutes(INTERVIEW_SLOT_MINUTES)) {
+                slots.put(time, 0);
+            }
+            schedule.put(date, slots);
+        }
+        return schedule;
+    }
+
+    private void mergeAssignedInterviewCounts(Map<LocalDate, Map<LocalTime, Integer>> grouped, List<InterviewSlotCountProjection> rows) {
+        for (InterviewSlotCountProjection row : rows) {
+            LocalDate date = row.getInterviewDate();
+            LocalTime time = row.getInterviewTime();
+            if (date == null || time == null) {
+                continue;
+            }
+            grouped.computeIfAbsent(date, ignored -> new TreeMap<>())
+                    .put(time, (int) row.getAssignedCount());
+        }
+    }
+
+    private List<InterviewDateSlotsDto> convertToInterviewSchedule(Map<LocalDate, Map<LocalTime, Integer>> grouped) {
+        return grouped.entrySet().stream()
+                .map(dateEntry -> new InterviewDateSlotsDto(
+                        dateEntry.getKey(),
+                        dateEntry.getValue().entrySet().stream()
+                                .map(timeEntry ->
+                                        new InterviewSlotCountDto(
+                                                timeEntry.getKey(),
+                                                timeEntry.getValue()
+                                        )
+                                )
+                                .toList()
+                ))
+                .toList();
     }
     // ---- private helpers ----
     private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {
