@@ -224,7 +224,7 @@ public class ClubServiceImpl implements ClubService {
 
     private Map<LocalDate, Map<LocalTime, Integer>> buildInterviewScheduleTemplate(Club club) {
         Map<LocalDate, Map<LocalTime, Integer>> schedule = new TreeMap<>();
-        if (Boolean.FALSE.equals(club.getIsInterviewRequired())) {
+        if (!Boolean.TRUE.equals(club.getIsInterviewRequired())) {
             return schedule;
         }
 
@@ -265,8 +265,11 @@ public class ClubServiceImpl implements ClubService {
             if (date == null || time == null) {
                 continue;
             }
-            grouped.computeIfAbsent(date, ignored -> new TreeMap<>())
-                    .put(time, (int) row.getAssignedCount());
+            Map<LocalTime, Integer> slots = grouped.get(date);
+            if (slots == null || !slots.containsKey(time)) {
+                continue;
+            }
+            slots.put(time, (int) row.getAssignedCount());
         }
     }
 

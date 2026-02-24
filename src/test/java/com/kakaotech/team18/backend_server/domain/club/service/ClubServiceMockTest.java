@@ -893,7 +893,9 @@ public class ClubServiceMockTest {
                 .willReturn(List.of());
         given(applicationRepository.countInterviewSlots(clubId)).willReturn(List.of(
                 projection(LocalDate.of(2026, 9, 1), LocalTime.of(14, 0), 2),
-                projection(LocalDate.of(2026, 9, 1), LocalTime.of(14, 30), 1)
+                projection(LocalDate.of(2026, 9, 1), LocalTime.of(14, 30), 1),
+                projection(LocalDate.of(2026, 9, 2), LocalTime.of(14, 0), 99), // template 밖 날짜
+                projection(LocalDate.of(2026, 9, 1), LocalTime.of(16, 0), 99) // template 밖 시간
         ));
 
         ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(clubId, null, Stage.INTERVIEW);
