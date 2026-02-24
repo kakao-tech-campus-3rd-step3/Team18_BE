@@ -31,6 +31,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +46,12 @@ public class ClubMemberServiceImpl implements ClubMemberService {
     private final UserRepository userRepository;
     private final ClubRepository clubRepository;
     private final CustomSecurityService customSecurityService;
+
+    @Value("${cloud.aws.s3.bucket-attachments}")
+    private String attachmentBucket;
+
+    @Value("${cloud.aws.region.static}")
+    private String region;
 
     @Override
     public List<ClubMemberResponseDto> getClubMembers(Long clubId) {
@@ -284,6 +291,12 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 "해당 동아리원이 목록에서 삭제되었습니다.",
                 profileId
         );
+    }
+
+    @Override
+    public String getRegistrationFormUrl() {
+        return String.format("https://%s.s3.%s.amazonaws.com/%s",
+                attachmentBucket, region, "templates/members_template.xlsx");
     }
 
 
