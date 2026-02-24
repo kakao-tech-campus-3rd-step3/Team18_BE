@@ -38,6 +38,8 @@ services:
       - GF_ALERTING_ENABLED=false
       # Discord Webhook URL (알림용)
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-}
+      # 외부 접근 URL (알림 링크에 사용)
+      - GF_SERVER_ROOT_URL=https://monitor.dongarium.co.kr
       # Timezone 설정
       - TZ=Asia/Seoul
     volumes:
