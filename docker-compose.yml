@@ -18,7 +18,7 @@ services:
       "--max_connections=200"
     ]
     ports:
-      - "3306:3306"        # EC2 밖에서 직접 접근 필요 없으면 이 라인은 주석처리 가능
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
     healthcheck:
@@ -37,8 +37,27 @@ services:
       timeout: 3s
       retries: 5
 
+  # 1회 실행용 (배포 스크립트에서 `compose run --rm migrate`로 실행)
+  # 최초 배포 시 기존 DB가 있다면 FLYWAY_BASELINE_ON_MIGRATE=true 옵션으로
+  # baseline을 찍은 후 해당 옵션을 제거할 것
+  migrate:
+    image: ${ECR_REGISTRY}/dongarium-migrate:${IMAGE_TAG}
+    container_name: dongarium-migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Seoul
+      FLYWAY_URL: jdbc:mysql://db:3306/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      FLYWAY_USER: ${DB_USER}
+      FLYWAY_PASSWORD: ${DB_PASSWORD}
+      FLYWAY_BASELINE_ON_MIGRATE: "true"
+      FLYWAY_BASELINE_VERSION: "1"
+    command: ["migrate"]
+    restart: "no"
+
   app:
-    image: ${ECR_REGISTRY}/dongarium-server:latest
+    image: ${ECR_REGISTRY}/dongarium-server:${IMAGE_TAG}
     container_name: dongarium-server
     restart: always
     logging:
@@ -91,7 +110,7 @@ services:
       SPRING_DATA_REDIS_HOST: ${REDIS_HOST}
       SPRING_DATA_REDIS_PORT: ${REDIS_PORT}
 
-      #AWS S3
+      # AWS S3
       CLOUD_AWS_S3_BUCKET: ${CLOUD_AWS_S3_BUCKET}
       CLOUD_AWS_S3_BUCKET_ATTACHMENTS: ${CLOUD_AWS_S3_BUCKET_ATTACHMENTS}
       CLOUD_AWS_REGION_STATIC: ${CLOUD_AWS_REGION_STATIC}
@@ -100,11 +119,10 @@ services:
       API_REST-CLIENT_CONNECT-TIMEOUT: ${API_REST_CLIENT_CONNECT_TIMEOUT:-3000}
       API_REST-CLIENT_READ-TIMEOUT: ${API_REST_CLIENT_READ_TIMEOUT:-3000}
 
-      #Loggin
+      # Logging
       LOGGING_DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
 
     healthcheck:
-      # 상태 코드 200이고 본문에 "status":"UP" 포함되면 성공
       test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'" ]
       interval: 30s
       timeout: 5s
