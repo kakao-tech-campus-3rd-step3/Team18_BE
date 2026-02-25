@@ -47,7 +47,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: system_cpu_usage{application="dongarium"} * 100
               instant: false
@@ -129,7 +129,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: sum(jvm_memory_used_bytes{application="dongarium", area="heap"}) / sum(jvm_memory_max_bytes{application="dongarium", area="heap"}) * 100
               instant: false
@@ -183,7 +183,7 @@ groups:
             relativeTimeRange:
               from: 180
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: sum(rate(http_server_requests_seconds_count{application="dongarium", status=~"5.."}[5m])) / sum(rate(http_server_requests_seconds_count{application="dongarium"}[5m])) * 100
               instant: false
@@ -227,7 +227,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{application="dongarium"}[5m])) by (le))
               instant: false
@@ -279,7 +279,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: rate(jvm_gc_pause_seconds_sum{application="dongarium"}[5m]) * 1000
               instant: false
@@ -323,7 +323,7 @@ groups:
             relativeTimeRange:
               from: 300
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: jvm_threads_live_threads{application="dongarium"}
               instant: false
@@ -375,7 +375,7 @@ groups:
             relativeTimeRange:
               from: 180
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: hikaricp_connections_pending{application="dongarium"}
               instant: false
@@ -427,7 +427,7 @@ groups:
             relativeTimeRange:
               from: 120
               to: 0
-            datasourceUid: Prometheus
+            datasourceUid: prometheus-datasource
             model:
               expr: up{job="dongarium-app"}
               instant: false
