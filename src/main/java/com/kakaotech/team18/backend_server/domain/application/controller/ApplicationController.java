@@ -73,7 +73,7 @@ public class ApplicationController {
             @ApiResponse(responseCode = "404", description = "상태를 변경할 지원서를 찾을 수 없음")
     })
     @PreAuthorize("@customSecurityService.isClubAdminOrExecutiveForApplication(#applicationId)")
-    @PatchMapping("/{clubId}/applications/{applicationId}/interview")
+    @PatchMapping("/{clubId}/applicants/{applicationId}/interview")
     public ResponseEntity<SuccessResponseDto> updateApplicationInterviewSchedule(
             @Parameter(description = "동아리의 고유 ID", required = true, example = "1") @PathVariable("clubId") Long clubId,
             @Parameter(description = "상태를 변경할 지원서의 고유 ID", required = true, example = "100") @PathVariable("applicationId") Long applicationId,

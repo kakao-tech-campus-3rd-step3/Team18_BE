@@ -194,7 +194,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, applicationId)
+                patch("/api/clubs/{clubId}/applicants/{applicationId}/interview", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -217,7 +217,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, nonExistentApplicationId)
+                patch("/api/clubs/{clubId}/applicants/{applicationId}/interview", clubId, nonExistentApplicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto))
         );
@@ -238,7 +238,7 @@ class ApplicationControllerTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                patch("/api/clubs/{clubId}/applications/{applicationId}/interview", clubId, applicationId)
+                patch("/api/clubs/{clubId}/applicants/{applicationId}/interview", clubId, applicationId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(invalidRequestBody)
         );
