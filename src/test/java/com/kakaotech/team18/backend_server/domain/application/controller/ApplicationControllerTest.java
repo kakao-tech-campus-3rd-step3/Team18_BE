@@ -34,6 +34,7 @@ import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
@@ -202,6 +203,35 @@ class ApplicationControllerTest {
         // then
         resultActions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));
+    }
+
+    @Test
+    @DisplayName("지원자 면접 일정 변경 - 성공 (잘못된 :00 꼬리 포맷 보정)")
+    void updateApplicationInterviewSchedule_success_withLenientDateTimeFormat() throws Exception {
+        Long clubId = 1L;
+        Long applicationId = 1L;
+        String requestBody = """
+                {
+                  "interviewAt": "2026-02-25T09:30:00:00"
+                }
+                """;
+
+        given(applicationService.updateApplicationInterviewSchedule(any(Long.class), any(ApplicationFixedInterviewRequestDto.class)))
+                .willReturn(new SuccessResponseDto(true));
+
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/clubs/{clubId}/applicants/{applicationId}/interview", clubId, applicationId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        );
+
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(applicationService).updateApplicationInterviewSchedule(
+                eq(applicationId),
+                argThat(dto -> LocalDateTime.of(2026, 2, 25, 9, 30).equals(dto.interviewAt()))
+        );
     }
 
     @Test
