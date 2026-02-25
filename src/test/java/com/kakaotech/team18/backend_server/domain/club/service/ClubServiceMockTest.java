@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.application.repository.InterviewSlotCountProjection;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
@@ -832,6 +833,100 @@ public class ClubServiceMockTest {
 
         //then
         assertThat(actual.applicants()).isEqualTo(expect);
+    }
+
+    @DisplayName("확정된 면접 인원이 없어도 Club 면접 일정 기반으로 30분 슬롯이 0명으로 내려온다.")
+    @Test
+    void interviewSchedule_returnsZeroFilledSlots_whenNoConfirmedInterviews() {
+        Long clubId = 1L;
+        Club club = createClub(
+                mock(ClubIntroduction.class),
+                LocalDateTime.of(2026, 9, 1, 0, 0),
+                LocalDateTime.of(2026, 9, 30, 23, 59),
+                true,
+                LocalDateTime.of(2026, 9, 1, 0, 0),
+                LocalDateTime.of(2026, 9, 2, 0, 0),
+                LocalTime.of(14, 0),
+                LocalTime.of(15, 30)
+        );
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(clubMemberRepository.findByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
+                .willReturn(List.of());
+        given(applicationRepository.countInterviewSlots(clubId)).willReturn(List.of());
+
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(clubId, null, Stage.INTERVIEW);
+
+        assertThat(actual.interviewSchedule()).hasSize(2);
+        assertThat(actual.interviewSchedule().get(0).date()).isEqualTo(LocalDate.of(2026, 9, 1));
+        assertThat(actual.interviewSchedule().get(0).slots())
+                .extracting(ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto::time)
+                .containsExactly(LocalTime.of(14, 0), LocalTime.of(14, 30), LocalTime.of(15, 0));
+        assertThat(actual.interviewSchedule().get(0).slots())
+                .extracting(ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto::assignedCount)
+                .containsExactly(0, 0, 0);
+        assertThat(actual.interviewSchedule().get(1).date()).isEqualTo(LocalDate.of(2026, 9, 2));
+        assertThat(actual.interviewSchedule().get(1).slots())
+                .extracting(ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto::assignedCount)
+                .containsExactly(0, 0, 0);
+    }
+
+    @DisplayName("확정된 면접 인원 카운트가 30분 슬롯에 정확히 반영된다.")
+    @Test
+    void interviewSchedule_mergesAssignedCountsIntoThirtyMinuteSlots() {
+        Long clubId = 1L;
+        Club club = createClub(
+                mock(ClubIntroduction.class),
+                LocalDateTime.of(2026, 9, 1, 0, 0),
+                LocalDateTime.of(2026, 9, 30, 23, 59),
+                true,
+                LocalDateTime.of(2026, 9, 1, 0, 0),
+                LocalDateTime.of(2026, 9, 1, 0, 0),
+                LocalTime.of(14, 0),
+                LocalTime.of(15, 30)
+        );
+        ClubApplyForm clubApplyForm = createClubApplyForm(club);
+
+        given(clubApplyFormRepository.findByClubId(clubId)).willReturn(Optional.of(clubApplyForm));
+        given(clubMemberRepository.findByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
+                .willReturn(List.of());
+        given(applicationRepository.countInterviewSlots(clubId)).willReturn(List.of(
+                projection(LocalDate.of(2026, 9, 1), LocalTime.of(14, 0), 2),
+                projection(LocalDate.of(2026, 9, 1), LocalTime.of(14, 30), 1),
+                projection(LocalDate.of(2026, 9, 2), LocalTime.of(14, 0), 99), // template 밖 날짜
+                projection(LocalDate.of(2026, 9, 1), LocalTime.of(16, 0), 99) // template 밖 시간
+        ));
+
+        ClubDashboardApplicantResponseDto actual = clubService.getApplicantsByStatusAndStage(clubId, null, Stage.INTERVIEW);
+
+        assertThat(actual.interviewSchedule()).hasSize(1);
+        assertThat(actual.interviewSchedule().get(0).date()).isEqualTo(LocalDate.of(2026, 9, 1));
+        assertThat(actual.interviewSchedule().get(0).slots())
+                .extracting(ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto::time)
+                .containsExactly(LocalTime.of(14, 0), LocalTime.of(14, 30), LocalTime.of(15, 0));
+        assertThat(actual.interviewSchedule().get(0).slots())
+                .extracting(ClubDashboardApplicantResponseDto.InterviewDateSlotsDto.InterviewSlotCountDto::assignedCount)
+                .containsExactly(2, 1, 0);
+    }
+
+    private static InterviewSlotCountProjection projection(LocalDate date, LocalTime time, long assignedCount) {
+        return new InterviewSlotCountProjection() {
+            @Override
+            public LocalDate getInterviewDate() {
+                return date;
+            }
+
+            @Override
+            public LocalTime getInterviewTime() {
+                return time;
+            }
+
+            @Override
+            public long getAssignedCount() {
+                return assignedCount;
+            }
+        };
     }
 
 
