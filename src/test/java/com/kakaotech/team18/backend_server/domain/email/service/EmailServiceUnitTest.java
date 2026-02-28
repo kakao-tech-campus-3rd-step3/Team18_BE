@@ -320,6 +320,8 @@ class EmailServiceUnitTest {
         verify(appApproved, never()).updateStatus(any());
         verify(appRejected,times(1)).updateStage(Stage.RESULT);
         verify(appRejected, never()).updateStatus(any());
+        verify(clubMemberRepository, times(1))
+                .updateRoleByApplicationId(201L, Role.APPLICANT, Role.CLUB_MEMBER);
 
         // 참조 끊기 + 단건 삭제
         verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(202L);
@@ -402,6 +404,8 @@ class EmailServiceUnitTest {
         verify(appApproved, never()).updateStatus(any());
         verify(appRejected, never()).updateStage(any());
         verify(appRejected, never()).updateStatus(any());
+        verify(clubMemberRepository, times(1))
+                .updateRoleByApplicationId(301L, Role.APPLICANT, Role.CLUB_MEMBER);
 
         // REJECTED만 참조 끊기 + 단건 삭제
         verify(clubMemberRepository, times(1)).clearApplicationByApplicationId(302L);

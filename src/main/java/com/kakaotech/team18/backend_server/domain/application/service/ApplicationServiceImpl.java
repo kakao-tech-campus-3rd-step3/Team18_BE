@@ -432,6 +432,8 @@ public class ApplicationServiceImpl implements ApplicationService {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 Stage originalStage = a.getStage();
                 a.updateStage(Stage.RESULT);
+                clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
+
                 publisher.publishEvent(new FinalApprovedEvent(
                         applicationInfoDto,
                         a.getId(),
@@ -466,6 +468,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .toList();
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
+                clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
                 publisher.publishEvent(new FinalApprovedEvent(
                         applicationInfoDto,
                         a.getId(),
