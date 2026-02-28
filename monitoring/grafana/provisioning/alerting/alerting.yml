@@ -215,7 +215,7 @@ groups:
         labels:
           severity: critical
           category: http
-        noDataState: NoData
+        noDataState: OK
         execErrState: Error
 
       # P95 응답 시간 높음 (1초 이상 5분 지속)
@@ -259,7 +259,7 @@ groups:
         labels:
           severity: warning
           category: http
-        noDataState: NoData
+        noDataState: OK
         execErrState: Error
 
   # ============================================
