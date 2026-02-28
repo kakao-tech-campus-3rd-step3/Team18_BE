@@ -4,6 +4,7 @@ datasources:
   - name: Prometheus
     uid: prometheus-datasource
     type: prometheus
+    uid: prometheus-datasource
     access: proxy
     url: http://prometheus:9090
     isDefault: true
