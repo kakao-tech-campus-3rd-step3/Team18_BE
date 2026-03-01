@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApp
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationStatusUpdateRequestDto;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
@@ -13,6 +14,7 @@ import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
@@ -276,6 +278,35 @@ class ApplicationControllerTest {
         // then
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
+    }
+
+    @Test
+    @DisplayName("합/불 처리 및 메세지 전송 - 실패 (면접 시간이 미정인 합격자 존재)")
+    void sendPassFailMessage_fail_unscheduledAcceptedApplicantExists() throws Exception {
+        // given
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지"
+                }
+                """;
+
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW)))
+                .willThrow(new UnscheduledAcceptedApplicantExistsException());
+
+        // when
+        ResultActions resultActions = mockMvc.perform(
+                patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody)
+        );
+
+        // then
+        resultActions.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS.name()))
+                .andExpect(jsonPath("$.message")
+                        .value("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면저 시간을 결정해주세요."));
     }
 
     @Nested
