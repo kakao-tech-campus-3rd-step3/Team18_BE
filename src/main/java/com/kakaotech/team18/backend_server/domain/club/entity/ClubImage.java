@@ -15,7 +15,7 @@ public class ClubImage extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 500, nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
