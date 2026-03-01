@@ -23,6 +23,7 @@ import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRe
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -462,6 +463,41 @@ class EmailServiceUnitTest {
         // 부수효과 없음
         verify(publisher, never()).publishEvent(any());
         // 단건 삭제/참조 끊기
+        verify(applicationRepository, never()).delete(any(Application.class));
+        verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
+        verify(clubApplyForm, never()).updateInterviewMessage(anyString());
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+    }
+
+    @Test
+    @DisplayName("stage=interview, APPROVED 중 면접 시간이 비어있으면 예외를 던지고 발송하지 않음")
+    void interviewStage_flow_unscheduledApprovedExists_throws() {
+        // given
+        Long clubId = 101L;
+        User president = User.builder()
+                .email("president@club.com")
+                .build();
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
+                .thenReturn(Optional.of(president));
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+
+        Application appApprovedWithoutSchedule = mock(Application.class);
+        when(appApprovedWithoutSchedule.getStage()).thenReturn(Stage.INTERVIEW);
+        when(appApprovedWithoutSchedule.getStatus()).thenReturn(Status.APPROVED);
+        when(appApprovedWithoutSchedule.getInterviewDate()).thenReturn(null);
+
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
+                .thenReturn(List.of(appApprovedWithoutSchedule));
+
+        ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
+
+        // when / then
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW))
+                .isInstanceOf(UnscheduledAcceptedApplicantExistsException.class);
+
+        // 부수효과 없음
+        verify(publisher, never()).publishEvent(any());
         verify(applicationRepository, never()).delete(any(Application.class));
         verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());

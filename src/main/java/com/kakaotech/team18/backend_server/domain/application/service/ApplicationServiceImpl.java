@@ -43,6 +43,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAn
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.util.DateUtil;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -380,7 +381,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (hasPending) {
                 throw new PendingApplicationsExistException();
             }
-            form.updateInterviewMessage(requestDto.message());
             List<Application> approved = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
@@ -389,6 +389,15 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
+
+            boolean hasUnscheduledApproved = approved.stream()
+                    .anyMatch(a -> a.getInterviewDate() == null || a.getInterviewTime() == null);
+            if (hasUnscheduledApproved) {
+                throw new UnscheduledAcceptedApplicantExistsException();
+            }
+
+            form.updateInterviewMessage(requestDto.message());
+
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 Stage originalStage = a.getStage();
