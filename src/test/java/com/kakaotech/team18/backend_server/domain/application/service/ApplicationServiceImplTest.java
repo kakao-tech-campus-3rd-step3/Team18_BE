@@ -21,9 +21,12 @@ import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerReposi
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyRequestDto.AnswerDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApplyResponseDto;
+import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationApprovedRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationFixedInterviewRequestDto;
 import com.kakaotech.team18.backend_server.domain.application.entity.InterviewPreference;
+import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
@@ -82,6 +85,9 @@ class ApplicationServiceImplTest {
 
     @Mock
     private FormQuestionRepository formQuestionRepository;
+
+    @Mock
+    private ClubRepository clubRepository;
 
     @Mock
     private ApplicationEventPublisher publisher;
@@ -351,6 +357,96 @@ class ApplicationServiceImplTest {
         assertTrue(responseDto.success());
         verify(applicationRepository, times(1)).findById(applicationId);
         verify(mockApplication, times(1)).updateInterviewInfo(newInterviewTime);
+    }
+
+    @Test
+    @DisplayName("sendPassFailMessage - 인터뷰 있는 동아리: INTERVIEW 합격 시 Stage.FINAL, Status.PENDING으로 변경")
+    void sendPassFailMessage_interview_withInterviewRequired_moveToFinalStage() {
+        // given
+        Long clubId = 1L;
+        ApplicationApprovedRequestDto requestDto = new ApplicationApprovedRequestDto("합격을 축하합니다");
+
+        ClubApplyForm mockClubApplyForm = mock(ClubApplyForm.class);
+        Club mockClub = mock(Club.class);
+        User mockPresident = mock(User.class);
+        User mockUser = mock(User.class);
+        Application mockApplication = mock(Application.class);
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(mockClubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(mockClub));
+        when(mockClub.getIsInterviewRequired()).thenReturn(true);
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
+                .thenReturn(Optional.of(mockPresident));
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
+                .thenReturn(List.of(mockApplication));
+        when(mockApplication.getStage()).thenReturn(Stage.INTERVIEW);
+        when(mockApplication.getStatus()).thenReturn(Status.APPROVED);
+
+        when(mockApplication.getClubApplyForm()).thenReturn(mockClubApplyForm);
+        when(mockClubApplyForm.getClub()).thenReturn(mockClub);
+        when(mockClub.getName()).thenReturn("테스트 동아리");
+        when(mockClub.getId()).thenReturn(clubId);
+        when(mockApplication.getUser()).thenReturn(mockUser);
+        when(mockUser.getName()).thenReturn("김지원");
+        when(mockPresident.getEmail()).thenReturn("president@test.com");
+        when(mockUser.getStudentId()).thenReturn("20230001");
+        when(mockUser.getDepartment()).thenReturn("컴퓨터공학과");
+        when(mockUser.getPhoneNumber()).thenReturn("010-1234-5678");
+        when(mockUser.getEmail()).thenReturn("user@test.com");
+
+        // when
+        SuccessResponseDto result = applicationService.sendPassFailMessage(clubId, requestDto, Stage.INTERVIEW);
+
+        // then
+        assertTrue(result.success());
+        verify(mockApplication, times(1)).updateStage(Stage.FINAL);
+        verify(mockApplication, times(1)).updateStatus(Status.PENDING);
+        verify(mockApplication, never()).updateStage(Stage.RESULT);
+    }
+
+    @Test
+    @DisplayName("sendPassFailMessage - 인터뷰 없는 동아리: INTERVIEW 합격 시 Stage.RESULT로 변경")
+    void sendPassFailMessage_interview_withoutInterviewRequired_moveToResultStage() {
+        // given
+        Long clubId = 1L;
+        ApplicationApprovedRequestDto requestDto = new ApplicationApprovedRequestDto("합격을 축하합니다");
+
+        ClubApplyForm mockClubApplyForm = mock(ClubApplyForm.class);
+        Club mockClub = mock(Club.class);
+        User mockPresident = mock(User.class);
+        User mockUser = mock(User.class);
+        Application mockApplication = mock(Application.class);
+
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(mockClubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(mockClub));
+        when(mockClub.getIsInterviewRequired()).thenReturn(false);
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
+                .thenReturn(Optional.of(mockPresident));
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.INTERVIEW))
+                .thenReturn(List.of(mockApplication));
+        when(mockApplication.getStage()).thenReturn(Stage.INTERVIEW);
+        when(mockApplication.getStatus()).thenReturn(Status.APPROVED);
+
+        when(mockApplication.getClubApplyForm()).thenReturn(mockClubApplyForm);
+        when(mockClubApplyForm.getClub()).thenReturn(mockClub);
+        when(mockClub.getName()).thenReturn("테스트 동아리");
+        when(mockClub.getId()).thenReturn(clubId);
+        when(mockApplication.getUser()).thenReturn(mockUser);
+        when(mockUser.getName()).thenReturn("김지원");
+        when(mockPresident.getEmail()).thenReturn("president@test.com");
+        when(mockUser.getStudentId()).thenReturn("20230001");
+        when(mockUser.getDepartment()).thenReturn("컴퓨터공학과");
+        when(mockUser.getPhoneNumber()).thenReturn("010-1234-5678");
+        when(mockUser.getEmail()).thenReturn("user@test.com");
+
+        // when
+        SuccessResponseDto result = applicationService.sendPassFailMessage(clubId, requestDto, Stage.INTERVIEW);
+
+        // then
+        assertTrue(result.success());
+        verify(mockApplication, times(1)).updateStage(Stage.RESULT);
+        verify(mockApplication, never()).updateStage(Stage.FINAL);
+        verify(mockApplication, never()).updateStatus(Status.PENDING);
     }
 
     @Test
