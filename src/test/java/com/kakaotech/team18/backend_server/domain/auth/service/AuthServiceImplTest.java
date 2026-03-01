@@ -17,8 +17,6 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
@@ -55,8 +53,6 @@ class AuthServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private ClubRepository clubRepository;
     @Mock
     private JwtProvider jwtProvider;
     @Mock
@@ -341,19 +337,11 @@ class AuthServiceImplTest {
                 .build();
         ReflectionTestUtils.setField(newUser, "id", 1L);
 
-        Club mockClub1 = Club.builder().build();
-        Club mockClub2 = Club.builder().build();
-        Club mockClub3 = Club.builder().build();
-
         given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
         given(jwtProvider.verify(temporaryToken)).willReturn(claims);
         given(userRepository.findByStudentId(studentId)).willReturn(Optional.empty());
         given(jwtProvider.createAccessToken(any(User.class))).willReturn("newAccessToken");
         given(jwtProvider.createRefreshToken(any(User.class))).willReturn("newRefreshToken");
-        given(clubRepository.findById(1L)).willReturn(Optional.of(mockClub1));
-        given(clubRepository.findById(2L)).willReturn(Optional.of(mockClub2));
-        given(clubRepository.findById(3L)).willReturn(Optional.of(mockClub3));
-        given(clubMemberRepository.save(any())).willAnswer(invocation -> invocation.getArgument(0));
 
         // when
         LoginSuccessResponseDto result = authService.register(bearerToken, requestDto);
