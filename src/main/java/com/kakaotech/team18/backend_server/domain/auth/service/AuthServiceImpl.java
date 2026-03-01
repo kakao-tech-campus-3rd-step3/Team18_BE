@@ -126,10 +126,15 @@ public class AuthServiceImpl implements AuthService {
             // 4-2. 신규 회원일 경우: 추가 정보 입력 필요
             log.info("신규 회원, 추가 정보 입력 필요");
 
+            String nickname = "익명";
+            if (kakaoUserInfo.getProperties() != null && kakaoUserInfo.getProperties().getNickname() != null) {
+                nickname = kakaoUserInfo.getProperties().getNickname();
+            }
+
             // 임시 토큰 발급
             String temporaryToken = jwtProvider.createTemporaryToken(
                     kakaoUserInfo.getId(),
-                    kakaoUserInfo.getProperties().getNickname()
+                    nickname
             );
 
             return new RegistrationRequiredResponseDto(AuthStatus.REGISTRATION_REQUIRED, temporaryToken);
