@@ -39,6 +39,7 @@ public enum ErrorCode {
     INVALID_TIME_SLOT("면접 시작 시간은 마감 시간보다 이전이어야 합니다.", HttpStatus.BAD_REQUEST),
     INVALID_EXCEL_DATA("엑셀 데이터 검증 실패", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_SELF("자기 자신은 삭제할 수 없습니다. 권한 위임 후 탈퇴해주세요.", HttpStatus.BAD_REQUEST),
+    UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면저 시간을 결정해주세요.", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),
