@@ -13,7 +13,7 @@ public class OrphanImageCleanupScheduler {
 
     private final OrphanImageCleanupService cleanupService;
 
-    @Scheduled(cron = "0 0 3 * * *")
+//    @Scheduled(cron = "0 0 3 * * *")
     public void cleanupOrphanImages() {
         try {
             log.info("Starting orphan image cleanup process...");
