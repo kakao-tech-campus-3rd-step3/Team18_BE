@@ -306,7 +306,7 @@ class ApplicationControllerTest {
         resultActions.andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS.name()))
                 .andExpect(jsonPath("$.message")
-                        .value("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면저 시간을 결정해주세요."));
+                        .value("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면접 시간을 결정해주세요."));
     }
 
     @Nested
