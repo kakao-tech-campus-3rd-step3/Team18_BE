@@ -1,18 +1,20 @@
 package com.kakaotech.team18.backend_server.global.config;
 
+import com.kakaotech.team18.backend_server.domain.activity.service.ActivityTrackingService;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnauthenticatedUserException;
+import com.kakaotech.team18.backend_server.global.security.ActivityTrackingFilter;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import com.kakaotech.team18.backend_server.global.security.JwtProperties;
 import com.kakaotech.team18.backend_server.global.security.JwtProvider;
 import com.kakaotech.team18.backend_server.global.security.PrincipalDetailsService;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,15 +38,18 @@ public class SecurityConfig {
     private final JwtProvider jwtProvider;
     private final PrincipalDetailsService principalDetailsService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final ObjectProvider<ActivityTrackingFilter> activityTrackingFilterProvider;
 
     public SecurityConfig(@Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver,
             JwtProvider jwtProvider,
             PrincipalDetailsService principalDetailsService,
-            RedisTemplate<String, String> redisTemplate) {
+            RedisTemplate<String, String> redisTemplate,
+            ObjectProvider<ActivityTrackingFilter> activityTrackingFilterProvider) {
         this.resolver = resolver;
         this.jwtProvider = jwtProvider;
         this.principalDetailsService = principalDetailsService;
         this.redisTemplate = redisTemplate;
+        this.activityTrackingFilterProvider = activityTrackingFilterProvider;
     }
 
     /**
@@ -95,8 +100,18 @@ public class SecurityConfig {
         http.addFilterBefore(
                 new JwtAuthenticationFilter(jwtProvider, principalDetailsService, resolver, redisTemplate),
                 UsernamePasswordAuthenticationFilter.class);
+        ActivityTrackingFilter activityTrackingFilter = activityTrackingFilterProvider.getIfAvailable();
+        if (activityTrackingFilter != null) {
+            http.addFilterAfter(activityTrackingFilter, JwtAuthenticationFilter.class);
+        }
 
         return http.build();
+    }
+
+    @Bean
+    @ConditionalOnBean(ActivityTrackingService.class)
+    public ActivityTrackingFilter activityTrackingFilter(ActivityTrackingService activityTrackingService) {
+        return new ActivityTrackingFilter(activityTrackingService);
     }
 
     private AuthenticationEntryPoint authenticationEntryPoint() {
