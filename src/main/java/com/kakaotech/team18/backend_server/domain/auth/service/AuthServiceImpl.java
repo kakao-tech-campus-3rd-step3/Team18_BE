@@ -10,16 +10,11 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
-import com.kakaotech.team18.backend_server.domain.club.entity.Club;
-import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
-import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
-import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
-import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
@@ -67,7 +62,6 @@ public class AuthServiceImpl implements AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
     private final ClubMemberRepository clubMemberRepository;
-    private final ClubRepository clubRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -188,8 +182,6 @@ public class AuthServiceImpl implements AuthService {
                     .department(registerRequestDto.department())
                     .build();
             userRepository.save(user);
-            //TODO 테스트 기간 이후에는 제거 필요
-            registerDefaultClubMemberships(user);
         }
 
         //clubId, Role 전달
@@ -346,25 +338,5 @@ public class AuthServiceImpl implements AuthService {
     private boolean isSystemAdmin(User user) {
         return clubMemberRepository.findByUser(user).stream()
                 .anyMatch(cm -> cm.getRole() == Role.SYSTEM_ADMIN);
-    }
-
-    private void registerDefaultClubMemberships(User user) {
-        List<Long> defaultClubs = List.of(1L, 2L, 3L);
-
-        defaultClubs.forEach(clubId -> {
-            Club club = clubRepository.findById(clubId)
-                    .orElseThrow(() -> {
-                        log.error("Default club not found: {}", clubId);
-                        return new ClubNotFoundException("Default club not found: " + clubId);
-                    });
-
-            clubMemberRepository.save(ClubMember.builder()
-                    .user(user)
-                    .club(club)
-                    .activeStatus(ActiveStatus.ACTIVE)
-                    .role(Role.CLUB_EXECUTIVE)
-                    .build());
-            log.info("User {} registered as CLUB_EXECUTIVE in club {}", user.getId(), club.getName());
-        });
     }
 }
