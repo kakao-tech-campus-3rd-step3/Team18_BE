@@ -13,7 +13,8 @@ public record ClubListResponseDto(
         UserStats stats
 ) {
     public record UserStats(
-            @Schema(description = "누적 방문자 수") long totalVisitors
+            @Schema(description = "누적 방문자 수") long totalVisitors,
+            @Schema(description = "누적 방문 횟수") long totalVisits
     ) {}
 
     public record ClubsInfo(

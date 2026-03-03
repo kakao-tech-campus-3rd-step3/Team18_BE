@@ -106,6 +106,7 @@ public class ClubServiceMockTest {
 
         given(clubRepository.findAllProjectedBy()).willReturn(List.of(summary));
         given(activityDailyRepository.count()).willReturn(100L);
+        given(activityDailyRepository.sumHitCount()).willReturn(500L);
 
         // when
         ClubListResponseDto result = clubService.getAllClubs();
@@ -114,6 +115,7 @@ public class ClubServiceMockTest {
         assertThat(result.clubs()).hasSize(1);
         assertThat(result.stats()).isNotNull();
         assertThat(result.stats().totalVisitors()).isEqualTo(100L);
+        assertThat(result.stats().totalVisits()).isEqualTo(500L);
     }
 
     @DisplayName("동아리 대쉬보드를 조회합니다.")

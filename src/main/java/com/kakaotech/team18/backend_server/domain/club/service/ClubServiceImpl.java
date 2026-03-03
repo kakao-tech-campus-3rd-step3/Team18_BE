@@ -306,6 +306,8 @@ public class ClubServiceImpl implements ClubService {
     }
 
     private ClubListResponseDto.UserStats buildUserStats() {
-        return new ClubListResponseDto.UserStats(activityDailyRepository.count());
+        return new ClubListResponseDto.UserStats(
+                activityDailyRepository.count(),
+                activityDailyRepository.sumHitCount());
     }
 }
