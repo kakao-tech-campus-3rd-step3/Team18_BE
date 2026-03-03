@@ -404,7 +404,10 @@ public class ApplicationServiceImpl implements ApplicationService {
                 if(isInterviewRequired) {
                     a.updateStage(Stage.FINAL);
                     a.updateStatus(Status.PENDING);
-                } else a.updateStage(Stage.RESULT);
+                } else {
+                    a.updateStage(Stage.RESULT);
+                    clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
+                }
                 publisher.publishEvent(new InterviewApprovedEvent(
                         applicationInfoDto,
                         a.getId(),

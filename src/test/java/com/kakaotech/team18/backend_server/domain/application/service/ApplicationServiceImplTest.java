@@ -426,6 +426,7 @@ class ApplicationServiceImplTest {
                 .thenReturn(List.of(mockApplication));
         when(mockApplication.getStage()).thenReturn(Stage.INTERVIEW);
         when(mockApplication.getStatus()).thenReturn(Status.APPROVED);
+        when(mockApplication.getId()).thenReturn(10L);
 
         when(mockApplication.getClubApplyForm()).thenReturn(mockClubApplyForm);
         when(mockClubApplyForm.getClub()).thenReturn(mockClub);
@@ -447,6 +448,7 @@ class ApplicationServiceImplTest {
         verify(mockApplication, times(1)).updateStage(Stage.RESULT);
         verify(mockApplication, never()).updateStage(Stage.FINAL);
         verify(mockApplication, never()).updateStatus(Status.PENDING);
+        verify(clubMemberRepository, times(1)).updateRoleByApplicationId(10L, Role.APPLICANT, Role.CLUB_MEMBER);
     }
 
     @Test
