@@ -32,7 +32,8 @@ public record ClubDetailResponseDto(
         @Schema(description = "동아리 지원 유의사항 목록") String applicationNotice,
         @Schema(description = "서비스 등록 여부") Boolean isRegistered,
         @Schema(description = "에브리타임 홍보 게시글 URL") String everyTimeUrl,
-        @Schema(description = "구글 폼 URL") String googleFormUrl
+        @Schema(description = "구글 폼 URL") String googleFormUrl,
+        @Schema(description = "인스타그램 URL") String instagramUrl
 ) {
 
     public static ClubDetailResponseDto from(Club club, User user) {
@@ -62,6 +63,7 @@ public record ClubDetailResponseDto(
                 isRegistered(club.getIsRegistered()).
                 everyTimeUrl(club.getEveryTimeUrl()).
                 googleFormUrl(club.getGoogleFormUrl()).
+                instagramUrl(club.getInstagramUrl()).
                 build();
     }
     public record ClubImageResponseDto(

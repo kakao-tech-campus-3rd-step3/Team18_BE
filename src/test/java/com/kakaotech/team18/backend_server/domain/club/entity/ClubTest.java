@@ -47,6 +47,7 @@ class ClubTest {
                 .applicationNotice("Updated caution")
                 .everyTimeUrl("https://everytime.kr/test")
                 .googleFormUrl("https://docs.google.com/forms/test")
+                .instagramUrl("https://www.instagram.com/test")
                 .build();
 
         club.updateDetail(dto);
@@ -62,6 +63,7 @@ class ClubTest {
         assertThat(club.getIntroduction().getIdeal()).isEqualTo(dto.introductionIdeal());
         assertThat(club.getEveryTimeUrl()).isEqualTo(dto.everyTimeUrl());
         assertThat(club.getGoogleFormUrl()).isEqualTo(dto.googleFormUrl());
+        assertThat(club.getInstagramUrl()).isEqualTo(dto.instagramUrl());
         assertThat(club.getIntroduction().getImages())
                 .usingRecursiveComparison()
                 .isEqualTo(List.of(

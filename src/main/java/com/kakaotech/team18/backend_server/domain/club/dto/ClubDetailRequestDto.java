@@ -60,5 +60,8 @@ public record ClubDetailRequestDto(
         String everyTimeUrl,
 
         @Schema(description = "구글 폼 URL", example = "https://docs.google.com/forms/d/e/1FAIpQLSc/viewform")
-        String googleFormUrl
+        String googleFormUrl,
+
+        @Schema(description = "인스타그램 URL", example = "https://www.instagram.com/example")
+        String instagramUrl
 ) {}
