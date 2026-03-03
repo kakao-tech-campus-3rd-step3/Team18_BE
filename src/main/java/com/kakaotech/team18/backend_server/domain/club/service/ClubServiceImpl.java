@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.club.service;
 
+import com.kakaotech.team18.backend_server.domain.activity.repository.ActivityDailyRepository;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
@@ -59,6 +60,7 @@ public class ClubServiceImpl implements ClubService {
     private final S3Service s3Service;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final ClubImageRepository clubImageRepository;
+    private final ActivityDailyRepository activityDailyRepository;
 
 
     @Override
@@ -79,7 +81,7 @@ public class ClubServiceImpl implements ClubService {
 
     @Override
     public ClubListResponseDto getAllClubs() {
-        return mapToResponse(clubRepository.findAllProjectedBy());
+        return mapToResponse(clubRepository.findAllProjectedBy(), buildUserStats());
     }
 
     @Override
@@ -290,13 +292,20 @@ public class ClubServiceImpl implements ClubService {
     }
     // ---- private helpers ----
     private ClubListResponseDto mapToResponse(List<ClubSummary> summaries) {
+        return mapToResponse(summaries, null);
+    }
+
+    private ClubListResponseDto mapToResponse(List<ClubSummary> summaries, ClubListResponseDto.UserStats stats) {
         List<ClubListResponseDto.ClubsInfo> clubs = summaries.stream()
                 .map(summary -> ClubListResponseDto.from(
                         summary,
                         RecruitStatusCalculator.calculate(summary.getRecruitStart(), summary.getRecruitEnd()).getDisplayName()
                 ))
                 .toList();
+        return new ClubListResponseDto(clubs, stats);
+    }
 
-        return new ClubListResponseDto(clubs);
+    private ClubListResponseDto.UserStats buildUserStats() {
+        return new ClubListResponseDto.UserStats(activityDailyRepository.count());
     }
 }

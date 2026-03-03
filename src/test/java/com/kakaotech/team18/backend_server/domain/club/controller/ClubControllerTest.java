@@ -84,7 +84,7 @@ class ClubControllerTest {
                 false
         );
 
-        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2));
+        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1, club2), null);
 
         when(clubService.getAllClubs()).thenReturn(mockResponse);
 
@@ -123,7 +123,7 @@ class ClubControllerTest {
 
         String category = "STUDY";
 
-        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1));
+        ClubListResponseDto mockResponse = new ClubListResponseDto(List.of(club1), null);
 
         when(clubService.getClubByCategory(category)).thenReturn(mockResponse);
 

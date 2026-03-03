@@ -10,6 +10,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
+import com.kakaotech.team18.backend_server.domain.activity.repository.ActivityDailyRepository;
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
@@ -17,6 +18,8 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.application.repository.InterviewSlotCountProjection;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashBoardResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDashboardApplicantResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
+import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailRequestDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubDetailResponseDto.ClubImageResponseDto;
@@ -82,9 +85,36 @@ public class ClubServiceMockTest {
     ClubImageRepository clubImageRepository;
     @Mock
     ApplicationEventPublisher applicationEventPublisher;
+    @Mock
+    ActivityDailyRepository activityDailyRepository;
 
     @InjectMocks
     ClubServiceImpl clubService;
+
+    @DisplayName("전체 동아리 목록과 이용자 통계를 함께 반환한다.")
+    @Test
+    void getAllClubs_returnsClubListWithStats() {
+        // given
+        ClubSummary summary = mock(ClubSummary.class);
+        given(summary.getId()).willReturn(1L);
+        given(summary.getName()).willReturn("카태켐");
+        given(summary.getCategory()).willReturn(Category.LITERATURE);
+        given(summary.getShortIntroduction()).willReturn("함께 배우는 카태켐");
+        given(summary.getRecruitStart()).willReturn(LocalDateTime.of(2025, 9, 1, 0, 0));
+        given(summary.getRecruitEnd()).willReturn(LocalDateTime.of(2025, 9, 30, 23, 59));
+        given(summary.getIsRegistered()).willReturn(true);
+
+        given(clubRepository.findAllProjectedBy()).willReturn(List.of(summary));
+        given(activityDailyRepository.count()).willReturn(100L);
+
+        // when
+        ClubListResponseDto result = clubService.getAllClubs();
+
+        // then
+        assertThat(result.clubs()).hasSize(1);
+        assertThat(result.stats()).isNotNull();
+        assertThat(result.stats().totalVisitors()).isEqualTo(100L);
+    }
 
     @DisplayName("동아리 대쉬보드를 조회합니다.")
     @Test
