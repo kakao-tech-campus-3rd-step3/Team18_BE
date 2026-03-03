@@ -76,6 +76,9 @@ public class Club extends BaseEntity {
     @Column(length = 2048)
     private String googleFormUrl;
 
+    @Column(length = 2048)
+    private String instagramUrl;
+
     @Builder
     private Club(
             String name,
@@ -94,7 +97,8 @@ public class Club extends BaseEntity {
             String regularMeetingInfo,
             Boolean isRegistered,
             String everyTimeUrl,
-            String googleFormUrl) {
+            String googleFormUrl,
+            String instagramUrl) {
         this.name = name;
         this.category = category;
         this.location = location;
@@ -112,6 +116,7 @@ public class Club extends BaseEntity {
         this.isRegistered = (isRegistered != null) ? isRegistered : false;
         this.everyTimeUrl = everyTimeUrl;
         this.googleFormUrl = googleFormUrl;
+        this.instagramUrl = instagramUrl;
     }
 
     public void updateDetail(ClubDetailRequestDto dto) {
@@ -123,6 +128,7 @@ public class Club extends BaseEntity {
         this.regularMeetingInfo = dto.regularMeetingInfo();
         this.everyTimeUrl = dto.everyTimeUrl();
         this.googleFormUrl = dto.googleFormUrl();
+        this.instagramUrl = dto.instagramUrl();
         this.introduction.update(dto);
     }
 

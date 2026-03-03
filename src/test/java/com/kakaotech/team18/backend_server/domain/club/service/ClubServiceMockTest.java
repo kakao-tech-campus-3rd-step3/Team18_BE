@@ -273,6 +273,7 @@ public class ClubServiceMockTest {
                     "주의사항",
                     false,
                     null,
+                    null,
                     null
             );
 

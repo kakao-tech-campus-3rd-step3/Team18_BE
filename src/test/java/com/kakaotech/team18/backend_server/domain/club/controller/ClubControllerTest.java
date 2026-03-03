@@ -163,6 +163,7 @@ class ClubControllerTest {
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
                 .applicationNotice("주의사항")
+                .instagramUrl("https://www.instagram.com/test")
                 .build();
 
         when(clubService.getClubDetail(clubId)).thenReturn(expected);
@@ -171,7 +172,8 @@ class ClubControllerTest {
         mockMvc.perform(get("/api/clubs/{clubId}", clubId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.clubId").value(clubId));
+                .andExpect(jsonPath("$.clubId").value(clubId))
+                .andExpect(jsonPath("$.instagramUrl").value("https://www.instagram.com/test"));
     }
 
     @DisplayName("동아리 대쉬보드 페이지를 조회한다.")
