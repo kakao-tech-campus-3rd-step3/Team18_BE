@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.kakaotech.team18.backend_server.domain.activity.repository.ActivityDailyRepository;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubListResponseDto;
 import com.kakaotech.team18.backend_server.domain.club.dto.ClubSummary;
@@ -52,7 +53,8 @@ class ClubServiceImplTest {
         S3Service s3Service = mock(S3Service.class);
         ApplicationEventPublisher applicationEventPublisher = mock(ApplicationEventPublisher.class);
         ClubImageRepository clubImageRepository = mock(ClubImageRepository.class);
-        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service, applicationEventPublisher, clubImageRepository);
+        ActivityDailyRepository activityDailyRepository = mock(ActivityDailyRepository.class);
+        clubService = new ClubServiceImpl(clubRepository, applicationRepository, clubMemberRepository, clubApplyFormRepository, s3Service, applicationEventPublisher, clubImageRepository, activityDailyRepository);
     }
 
     @Getter

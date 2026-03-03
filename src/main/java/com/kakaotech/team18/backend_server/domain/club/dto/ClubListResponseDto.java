@@ -9,8 +9,14 @@ import java.util.List;
 
 @Schema(description = "동아리 목록 조회 시 응답되는 기본 정보")
 public record ClubListResponseDto(
-        List<ClubsInfo> clubs
+        List<ClubsInfo> clubs,
+        UserStats stats
 ) {
+    public record UserStats(
+            @Schema(description = "누적 방문자 수") long totalVisitors,
+            @Schema(description = "누적 방문 횟수") long totalVisits
+    ) {}
+
     public record ClubsInfo(
             @Schema(description = "동아리 고유 ID", example = "1") Long id,
             @Schema(description = "동아리 이름", example = "개발하는 사람들") String name,
