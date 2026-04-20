@@ -321,6 +321,41 @@ public class ClubServiceMockTest {
         }
     }
 
+    @DisplayName("Club Detail 조회시 전화번호 비공개 설정이면 회장 전화번호를 null로 반환한다.")
+    @Test
+    void getClubDetailWithClosedTelNo() {
+        //given
+        Long clubId = 1L;
+        ClubIntroduction clubIntroduction = createClubIntroduction();
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+        User user = createUser("loginId", "123456");
+        ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
+
+        try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
+            mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
+                    .thenReturn(RecruitStatus.RECRUITING);
+
+            given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
+            given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
+
+            //when
+            ClubDetailResponseDto actual = clubService.getClubDetail(clubId);
+
+            //then
+            assertThat(actual.isTelNoOpen()).isFalse();
+            assertThat(actual.presidentPhoneNumber()).isNull();
+        }
+    }
+
     @DisplayName("Club Detail 조회시 존재하지 않는 clubId를 사용할 때 ClubNotFoundException이 실행된다.")
     @Test
     void getClubDetailWithWrongClubId() {

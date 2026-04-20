@@ -57,8 +57,8 @@ public record ClubDetailResponseDto(
                 regularMeetingInfo(club.getRegularMeetingInfo()).
                 recruitStatus(RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()).getDisplayName()).
                 presidentName(user.getName()).
-                presidentPhoneNumber(user.getPhoneNumber()).
                 isTelNoOpen(club.isTelNoOpen()).
+                presidentPhoneNumber(club.isTelNoOpen() ? user.getPhoneNumber() : null).
                 recruitStart(club.getRecruitStart()).
                 recruitEnd(club.getRecruitEnd()).
                 applicationNotice(club.getCaution()).
