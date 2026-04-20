@@ -160,6 +160,7 @@ class ClubControllerTest {
                 .recruitStatus("모집중")
                 .presidentName("김춘식")
                 .presidentPhoneNumber("010-1234-5678")
+                .isTelNoOpen(true)
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
                 .applicationNotice("주의사항")
@@ -173,6 +174,7 @@ class ClubControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clubId").value(clubId))
+                .andExpect(jsonPath("$.isTelNoOpen").value(true))
                 .andExpect(jsonPath("$.instagramUrl").value("https://www.instagram.com/test"));
     }
 
@@ -328,6 +330,7 @@ class ClubControllerTest {
                 .introductionIdeal("new ideal")
                 .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
+                .isTelNoOpen(true)
                 .build();
 
         //when
