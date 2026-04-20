@@ -271,6 +271,7 @@ public class ClubServiceMockTest {
                 LocalTime.of(21, 0)
         );
         ReflectionTestUtils.setField(club, "id", 1L);
+        ReflectionTestUtils.setField(club, "isTelNoOpen", true);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
@@ -300,6 +301,7 @@ public class ClubServiceMockTest {
                     "모집중", // mock이 반환할 값과 일치
                     "김춘식",
                     "010-1234-5678",
+                    true,
                     LocalDateTime.of(2025, 9, 3, 0, 0),
                     LocalDateTime.of(2025, 9, 20, 23, 59),
                     "주의사항",
@@ -407,6 +409,7 @@ public class ClubServiceMockTest {
                 .introductionIdeal("new ideal")
                 .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
+                .isTelNoOpen(true)
                 .build();
 
         // when
@@ -421,6 +424,7 @@ public class ClubServiceMockTest {
         assertThat(club.getShortIntroduction()).isEqualTo("new short");
         assertThat(club.getCaution()).isEqualTo("주의사항");
         assertThat(club.getRegularMeetingInfo()).isEqualTo("매주 수 18:00");
+        assertThat(club.isTelNoOpen()).isTrue();
 
         // introduction 교체 확인
         assertThat(club.getIntroduction()).isNotNull();

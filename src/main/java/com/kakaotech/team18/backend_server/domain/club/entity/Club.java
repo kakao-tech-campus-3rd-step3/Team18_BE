@@ -70,6 +70,9 @@ public class Club extends BaseEntity {
     @Column(nullable = false)
     private Boolean isRegistered;
 
+    @Column(nullable = false)
+    private boolean isTelNoOpen;
+
     @Column(length = 2048)
     private String everyTimeUrl;
 
@@ -96,6 +99,7 @@ public class Club extends BaseEntity {
             LocalTime interviewEndTime,
             String regularMeetingInfo,
             Boolean isRegistered,
+            boolean isTelNoOpen,
             String everyTimeUrl,
             String googleFormUrl,
             String instagramUrl) {
@@ -114,6 +118,7 @@ public class Club extends BaseEntity {
         this.interviewEndTime = interviewEndTime;
         this.regularMeetingInfo = regularMeetingInfo;
         this.isRegistered = (isRegistered != null) ? isRegistered : false;
+        this.isTelNoOpen = isTelNoOpen;
         this.everyTimeUrl = everyTimeUrl;
         this.googleFormUrl = googleFormUrl;
         this.instagramUrl = instagramUrl;
@@ -126,6 +131,7 @@ public class Club extends BaseEntity {
         this.shortIntroduction = dto.shortIntroduction();
         this.caution = dto.applicationNotice();
         this.regularMeetingInfo = dto.regularMeetingInfo();
+        this.isTelNoOpen = dto.isTelNoOpen();
         this.everyTimeUrl = dto.everyTimeUrl();
         this.googleFormUrl = dto.googleFormUrl();
         this.instagramUrl = dto.instagramUrl();
