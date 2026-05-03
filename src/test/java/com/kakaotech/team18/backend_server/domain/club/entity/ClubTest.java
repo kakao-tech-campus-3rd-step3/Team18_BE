@@ -44,6 +44,7 @@ class ClubTest {
                 .introductionActivity("Updated activities")
                 .introductionIdeal("Updated ideal")
                 .regularMeetingInfo("Updated regular meeting info")
+                .isTelNoOpen(true)
                 .applicationNotice("Updated caution")
                 .everyTimeUrl("https://everytime.kr/test")
                 .googleFormUrl("https://docs.google.com/forms/test")
@@ -58,6 +59,7 @@ class ClubTest {
         assertThat(club.getShortIntroduction()).isEqualTo(dto.shortIntroduction());
         assertThat(club.getCaution()).isEqualTo(dto.applicationNotice());
         assertThat(club.getRegularMeetingInfo()).isEqualTo(dto.regularMeetingInfo());
+        assertThat(club.isTelNoOpen()).isEqualTo(dto.isTelNoOpen());
         assertThat(club.getIntroduction().getOverview()).isEqualTo(dto.introductionOverview());
         assertThat(club.getIntroduction().getActivities()).isEqualTo(dto.introductionActivity());
         assertThat(club.getIntroduction().getIdeal()).isEqualTo(dto.introductionIdeal());

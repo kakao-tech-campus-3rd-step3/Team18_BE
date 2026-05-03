@@ -160,6 +160,7 @@ class ClubControllerTest {
                 .recruitStatus("모집중")
                 .presidentName("김춘식")
                 .presidentPhoneNumber("010-1234-5678")
+                .isTelNoOpen(true)
                 .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
                 .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
                 .applicationNotice("주의사항")
@@ -173,7 +174,44 @@ class ClubControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clubId").value(clubId))
+                .andExpect(jsonPath("$.isTelNoOpen").value(true))
                 .andExpect(jsonPath("$.instagramUrl").value("https://www.instagram.com/test"));
+    }
+
+    @DisplayName("동아리 상세 페이지 조회시 전화번호 비공개이면 전화번호는 null로 응답한다.")
+    @Test
+    void getClubDetail_telNoClosed_test() throws Exception {
+        //given
+        long clubId = 1L;
+
+        ClubDetailResponseDto expected = ClubDetailResponseDto.builder()
+                .clubId(clubId)
+                .clubName("카태켐")
+                .location("공대7호관 201호")
+                .category(LITERATURE)
+                .shortIntroduction("카카오 부트캠프")
+                .introductionImages(List.of())
+                .introductionOverview("개발자로 성장할 수 있는 부트캠프입니다.")
+                .introductionActivity("총 3단계로 이루어진 코스")
+                .introductionIdeal("열심열심")
+                .regularMeetingInfo("매주 화요일 오후 6시")
+                .recruitStatus("모집중")
+                .presidentName("김춘식")
+                .presidentPhoneNumber(null)
+                .isTelNoOpen(false)
+                .recruitStart(LocalDateTime.of(2025, 9, 3, 0, 0))
+                .recruitEnd(LocalDateTime.of(2025, 9, 20, 23, 59))
+                .applicationNotice("주의사항")
+                .build();
+
+        when(clubService.getClubDetail(clubId)).thenReturn(expected);
+
+        //when //then
+        mockMvc.perform(get("/api/clubs/{clubId}", clubId))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isTelNoOpen").value(false))
+                .andExpect(jsonPath("$.presidentPhoneNumber").isEmpty());
     }
 
     @DisplayName("동아리 대쉬보드 페이지를 조회한다.")
@@ -328,6 +366,7 @@ class ClubControllerTest {
                 .introductionIdeal("new ideal")
                 .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
+                .isTelNoOpen(true)
                 .build();
 
         //when

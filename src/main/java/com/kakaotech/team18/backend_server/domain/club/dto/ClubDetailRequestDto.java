@@ -4,7 +4,6 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
 import lombok.Builder;
 
 @Builder
@@ -51,6 +50,9 @@ public record ClubDetailRequestDto(
         String presidentName,
 
         String presidentPhoneNumber,
+
+        @Schema(description = "전화번호 상세페이지 공개 여부", example = "true")
+        boolean isTelNoOpen,
 
         @Schema(description = "등록/수정할 동아리 지원 유의사항", example = "지원 시 유의사항을 반드시 확인해주세요.")
         @NotBlank(message = "지원 유의사항은 필수입니다.")

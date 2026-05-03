@@ -271,6 +271,7 @@ public class ClubServiceMockTest {
                 LocalTime.of(21, 0)
         );
         ReflectionTestUtils.setField(club, "id", 1L);
+        ReflectionTestUtils.setField(club, "isTelNoOpen", true);
         User user = createUser("loginId", "123456");
         ReflectionTestUtils.setField(user, "id", 1L);
         ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
@@ -300,6 +301,7 @@ public class ClubServiceMockTest {
                     "모집중", // mock이 반환할 값과 일치
                     "김춘식",
                     "010-1234-5678",
+                    true,
                     LocalDateTime.of(2025, 9, 3, 0, 0),
                     LocalDateTime.of(2025, 9, 20, 23, 59),
                     "주의사항",
@@ -316,6 +318,41 @@ public class ClubServiceMockTest {
             assertThat(actual).isEqualTo(expect);
             verify(clubRepository).findClubDetailById(eq(clubId));
             verify(clubMemberRepository).findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN));
+        }
+    }
+
+    @DisplayName("Club Detail 조회시 전화번호 비공개 설정이면 회장 전화번호를 null로 반환한다.")
+    @Test
+    void getClubDetailWithClosedTelNo() {
+        //given
+        Long clubId = 1L;
+        ClubIntroduction clubIntroduction = createClubIntroduction();
+        Club club = createClub(clubIntroduction,
+                LocalDateTime.of(2025, 9, 3, 0, 0),
+                LocalDateTime.of(2025, 9, 20, 23, 59),
+                true,
+                LocalDateTime.of(2025, 9, 5, 0, 0),
+                LocalDateTime.of(2025, 9, 10, 0, 0),
+                LocalTime.of(9, 10),
+                LocalTime.of(21, 0)
+        );
+        ReflectionTestUtils.setField(club, "id", clubId);
+        User user = createUser("loginId", "123456");
+        ClubMember clubMember = createClubMember(user, club, mock(Application.class), Role.CLUB_ADMIN, ActiveStatus.ACTIVE);
+
+        try (MockedStatic<RecruitStatusCalculator> mockedCalculator = Mockito.mockStatic(RecruitStatusCalculator.class)) {
+            mockedCalculator.when(() -> RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd()))
+                    .thenReturn(RecruitStatus.RECRUITING);
+
+            given(clubRepository.findClubDetailById(eq(clubId))).willReturn(Optional.of(club));
+            given(clubMemberRepository.findClubAdminByClubIdAndRole(eq(clubId), eq(Role.CLUB_ADMIN))).willReturn(Optional.of(clubMember));
+
+            //when
+            ClubDetailResponseDto actual = clubService.getClubDetail(clubId);
+
+            //then
+            assertThat(actual.isTelNoOpen()).isFalse();
+            assertThat(actual.presidentPhoneNumber()).isNull();
         }
     }
 
@@ -407,6 +444,7 @@ public class ClubServiceMockTest {
                 .introductionIdeal("new ideal")
                 .applicationNotice("주의사항")
                 .regularMeetingInfo("매주 수 18:00")
+                .isTelNoOpen(true)
                 .build();
 
         // when
@@ -421,6 +459,7 @@ public class ClubServiceMockTest {
         assertThat(club.getShortIntroduction()).isEqualTo("new short");
         assertThat(club.getCaution()).isEqualTo("주의사항");
         assertThat(club.getRegularMeetingInfo()).isEqualTo("매주 수 18:00");
+        assertThat(club.isTelNoOpen()).isTrue();
 
         // introduction 교체 확인
         assertThat(club.getIntroduction()).isNotNull();
