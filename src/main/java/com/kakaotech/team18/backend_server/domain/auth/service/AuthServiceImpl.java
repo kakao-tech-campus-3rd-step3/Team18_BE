@@ -10,7 +10,11 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.dto.ClubListInfoDto;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
@@ -56,12 +60,15 @@ import org.springframework.web.client.RestClientResponseException;
 @Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
 
+    private static final Long SURVEY_CLUB_ID = 84L;
+
     private final UserRepository userRepository;
     private final JwtProvider jwtProvider;
     private final RestClient restClient;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
     private final ClubMemberRepository clubMemberRepository;
+    private final ClubRepository clubRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -98,6 +105,9 @@ public class AuthServiceImpl implements AuthService {
             // 4-1. 기존 회원일 경우: 로그인 성공 처리
             User user = userOptional.get();
             log.info("기존 회원 로그인: {}", user.getId());
+
+            //TODO 설문조사 이후 꼭 삭제할 것!!
+            grantSurveyClubExecutiveRole(user);
 
             // 정식 토큰 발급
             String accessToken = jwtProvider.createAccessToken(user);
@@ -183,6 +193,9 @@ public class AuthServiceImpl implements AuthService {
                     .build();
             userRepository.save(user);
         }
+
+        //TODO 설문조사 이후 꼭 삭제할 것!!
+        grantSurveyClubExecutiveRole(user);
 
         //clubId, Role 전달
         List<ClubListInfoDto> clubIdAndRoleList = clubMemberRepository.findClubListInfoByUser(user);
@@ -338,5 +351,26 @@ public class AuthServiceImpl implements AuthService {
     private boolean isSystemAdmin(User user) {
         return clubMemberRepository.findByUser(user).stream()
                 .anyMatch(cm -> cm.getRole() == Role.SYSTEM_ADMIN);
+    }
+
+    //TODO 설문조사 이후 꼭 삭제할 것!!
+    private void grantSurveyClubExecutiveRole(User user) {
+        clubRepository.findById(SURVEY_CLUB_ID)
+                .ifPresentOrElse(club -> registerSurveyClubMembershipIfAbsent(user, club),
+                        () -> log.warn("Survey club not found. Skip executive role grant: clubId={}", SURVEY_CLUB_ID));
+    }
+
+    private void registerSurveyClubMembershipIfAbsent(User user, Club club) {
+        if (clubMemberRepository.findByUserIdAndClubId(user.getId(), SURVEY_CLUB_ID).isPresent()) {
+            return;
+        }
+
+        clubMemberRepository.save(ClubMember.builder()
+                .user(user)
+                .club(club)
+                .activeStatus(ActiveStatus.ACTIVE)
+                .role(Role.CLUB_EXECUTIVE)
+                .build());
+        log.info("User {} registered as CLUB_EXECUTIVE in survey club {}", user.getId(), club.getName());
     }
 }

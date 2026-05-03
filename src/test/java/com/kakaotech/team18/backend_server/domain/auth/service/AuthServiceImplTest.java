@@ -17,6 +17,11 @@ import com.kakaotech.team18.backend_server.domain.auth.dto.RegistrationRequiredR
 import com.kakaotech.team18.backend_server.domain.auth.dto.ReissueResponseDto;
 import com.kakaotech.team18.backend_server.domain.auth.entity.RefreshToken;
 import com.kakaotech.team18.backend_server.domain.auth.repository.RefreshTokenRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
@@ -63,6 +68,8 @@ class AuthServiceImplTest {
     private JwtProperties jwtProperties;
     @Mock
     private ClubMemberRepository clubMemberRepository;
+    @Mock
+    private ClubRepository clubRepository;
 
     // RestClient의 플루언트 API를 Mocking하기 위한 추가 Mock 객체들
     @Mock
@@ -350,6 +357,56 @@ class AuthServiceImplTest {
         assertThat(result.status()).isEqualTo(AuthStatus.REGISTER_SUCCESS);
         assertThat(result.accessToken()).isEqualTo("newAccessToken");
         assertThat(result.refreshToken()).isEqualTo("newRefreshToken");
+    }
+
+    @DisplayName("신규 회원 가입 시 설문조사용 84번 동아리 운영진 권한을 부여한다")
+    @Test
+    void register_newUser_grantsSurveyClubExecutiveRole() {
+        // given
+        String bearerToken = "Bearer testTemporaryToken";
+        String temporaryToken = "testTemporaryToken";
+        Long kakaoId = 12345L;
+        String studentId = "newStudent123";
+        Long userId = 1L;
+        Long surveyClubId = 84L;
+
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "newUser", "new@example.com", studentId, "컴퓨터공학과", "01011112222"
+        );
+
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.TEMPORARY.name());
+        claims.put("kakaoId", kakaoId);
+
+        Club surveyClub = Club.builder()
+                .name("설문조사용 동아리")
+                .build();
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
+        given(jwtProvider.verify(temporaryToken)).willReturn(claims);
+        given(userRepository.findByStudentId(studentId)).willReturn(Optional.empty());
+        given(userRepository.save(any(User.class))).willAnswer(invocation -> {
+            User savedUser = invocation.getArgument(0);
+            ReflectionTestUtils.setField(savedUser, "id", userId);
+            return savedUser;
+        });
+        given(clubRepository.findById(surveyClubId)).willReturn(Optional.of(surveyClub));
+        given(clubMemberRepository.findByUserIdAndClubId(userId, surveyClubId)).willReturn(Optional.empty());
+        given(jwtProvider.createAccessToken(any(User.class))).willReturn("newAccessToken");
+        given(jwtProvider.createRefreshToken(any(User.class))).willReturn("newRefreshToken");
+
+        // when
+        authService.register(bearerToken, requestDto);
+
+        // then
+        ArgumentCaptor<ClubMember> clubMemberCaptor = ArgumentCaptor.forClass(ClubMember.class);
+        verify(clubMemberRepository).save(clubMemberCaptor.capture());
+
+        ClubMember savedClubMember = clubMemberCaptor.getValue();
+        assertThat(savedClubMember.getUser().getId()).isEqualTo(userId);
+        assertThat(savedClubMember.getClub()).isEqualTo(surveyClub);
+        assertThat(savedClubMember.getActiveStatus()).isEqualTo(ActiveStatus.ACTIVE);
+        assertThat(savedClubMember.getRole()).isEqualTo(Role.CLUB_EXECUTIVE);
     }
 
     @DisplayName("기존 사용자 계정 연결 성공")
