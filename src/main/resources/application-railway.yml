@@ -1,0 +1,125 @@
+# Railway profile. Self-contained because the root application.yml is gitignored.
+# All secrets / hosts must be supplied via Railway environment variables.
+
+server:
+  forward-headers-strategy: framework
+  tomcat:
+    max-swallow-size: 50MB
+
+logging:
+  level:
+    root: INFO
+    org.springframework.boot.autoconfigure.jdbc: INFO
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+
+api:
+  rest-client:
+    connect-timeout: 3000
+    read-timeout: 3000
+
+servlet:
+  multipart:
+    max-file-size: 5MB
+    max-request-size: 50MB
+
+spring:
+  task:
+    scheduling:
+      pool:
+        size: 2
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 50MB
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+    defer-datasource-initialization: false
+  sql:
+    init:
+      mode: never
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            scope:
+              - profile_nickname
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+            logout-redirect-uri: ${KAKAO_LOGOUT_REDIRECT_URI}
+
+  frontend:
+    main-page-uri: ${FRONTEND_MAIN_PAGE_URI}
+
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-validity-in-seconds: 1800
+    refresh-token-validity-in-seconds: 604800
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  email:
+    from: ${EMAIL_FROM:no-reply@gmail.com}
+    subject-prefix: "[동아리 지원]"
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_ACCESS_KEY_ID:}
+      secret-key: ${AWS_SECRET_ACCESS_KEY:}
+    s3:
+      bucket: ${AWS_S3_BUCKET:}
+      bucket-attachments: ${AWS_S3_BUCKET_ATTACHMENTS:}
+    region:
+      static: ${AWS_REGION:ap-northeast-2}

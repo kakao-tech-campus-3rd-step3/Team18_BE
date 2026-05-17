@@ -1,0 +1,25 @@
+# syntax=docker/dockerfile:1.7
+
+# ---- Build stage ----
+FROM eclipse-temurin:21-jdk-alpine AS builder
+WORKDIR /workspace
+
+COPY gradlew gradlew.bat ./
+COPY gradle ./gradle
+RUN chmod +x ./gradlew
+
+COPY build.gradle settings.gradle ./
+RUN ./gradlew --no-daemon dependencies > /dev/null 2>&1 || true
+
+COPY src ./src
+RUN ./gradlew --no-daemon -x test bootJar
+
+# ---- Runtime stage ----
+FROM eclipse-temurin:21-jre-alpine
+ENV TZ=Asia/Seoul
+WORKDIR /app
+
+COPY --from=builder /workspace/build/libs/*-SNAPSHOT.jar /app/project.jar
+
+EXPOSE 8080
+ENTRYPOINT ["sh","-c","exec java -Dserver.port=${PORT:-8080} -jar /app/project.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE:-railway}"]
