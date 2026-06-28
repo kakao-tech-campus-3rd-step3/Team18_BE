@@ -224,3 +224,13 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,windows,macos,dotenv,visualstudiocode,intellij+all
 
 src/main/resources/application.yml
+
+### oh-my-claudecode (OMC) ###
+.omc/
+.omc-workspace
+.claude/
+CLAUDE.local.md
+
+### Ouroboros (OOO) ###
+.harness/
+.ouroboros/
