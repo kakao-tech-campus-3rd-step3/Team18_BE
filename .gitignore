@@ -231,6 +231,10 @@ src/main/resources/application.yml
 .claude/
 CLAUDE.local.md
 
+### AI agent docs (팀원별로 다른 Claude/AI 플러그인 사용 — 추적 제외) ###
+AGENTS.md
+CLAUDE.md
+
 ### Ouroboros (OOO) ###
 .harness/
 .ouroboros/
