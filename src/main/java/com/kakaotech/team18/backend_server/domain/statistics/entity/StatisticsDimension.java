@@ -19,7 +19,15 @@ public enum StatisticsDimension {
     GENDER(DimensionType.CATEGORICAL),
     ADMISSION_YEAR(DimensionType.ORDINAL),
     DEPARTMENT(DimensionType.CATEGORICAL),
-    DAILY_APPLICATIONS(DimensionType.TIME_SERIES);
+    DAILY_APPLICATIONS(DimensionType.TIME_SERIES),
+
+    /**
+     * 모집 진행 중 당일의 시간대별 지원 건수.
+     * <p>
+     * 일자 버킷과 단위가 달라 {@link #DAILY_APPLICATIONS}에 섞지 않고 별도 dimension으로 분리한다.
+     * 모집 기간이 아니면 빈 버킷을 반환한다.
+     */
+    TODAY_HOURLY_APPLICATIONS(DimensionType.TIME_SERIES);
 
     private final DimensionType type;
 

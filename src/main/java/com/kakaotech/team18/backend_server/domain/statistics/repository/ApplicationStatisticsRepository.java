@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -71,6 +72,19 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             ORDER BY count(a.id) DESC, u.department ASC
             """)
     List<DepartmentCount> aggregateDepartment(@Param("clubApplyFormId") Long clubApplyFormId);
+
+    /**
+     * 지원서 접수 시각 목록.
+     * <p>
+     * 날짜 단위 GROUP BY를 DB에서 하지 않는 이유는 날짜 함수가 H2와 MySQL에서 다르고, 지원자가 없는 날을
+     * 0으로 채우려면 어차피 모집 기간 전체를 순회해야 하기 때문이다.
+     */
+    @Query("""
+            SELECT a.createdAt
+            FROM Application a
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            """)
+    List<LocalDateTime> findCreatedAtList(@Param("clubApplyFormId") Long clubApplyFormId);
 
     /** 성별 집계 결과 projection. */
     interface GenderCount {

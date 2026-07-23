@@ -2,6 +2,9 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import static com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsServiceImpl.KST;
 
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatus;
+import com.kakaotech.team18.backend_server.domain.club.util.RecruitStatusCalculator;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.DimensionAggregation;
@@ -11,8 +14,12 @@ import com.kakaotech.team18.backend_server.domain.statistics.repository.Applicat
 import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -38,6 +45,9 @@ public class StatisticsAggregator {
 
     /** 값이 없는 버킷의 표시 문자열. */
     public static final String UNKNOWN_LABEL = "미입력";
+
+    /** 일자별 추이가 만들어낼 수 있는 최대 버킷 수. 모집 기간이 잘못 설정돼도 응답이 폭주하지 않게 한다. */
+    private static final int MAX_SERIES_DAYS = 366;
 
     /** 학과 통계 해석 시 반드시 함께 노출해야 하는 주의 문구. */
     public static final String DEPARTMENT_NOTICE =
@@ -65,8 +75,122 @@ public class StatisticsAggregator {
             case GENDER -> DimensionAggregation.of(aggregateGender(form.getId()));
             case ADMISSION_YEAR -> DimensionAggregation.of(aggregateAdmissionYear(form.getId()));
             case DEPARTMENT -> aggregateDepartment(form.getId());
-            case DAILY_APPLICATIONS -> DimensionAggregation.empty();
+            case DAILY_APPLICATIONS -> aggregateDailyApplications(form);
+            case TODAY_HOURLY_APPLICATIONS -> aggregateTodayHourlyApplications(form);
         };
+    }
+
+    /**
+     * 일자별 지원 추이를 집계합니다.
+     * <p>
+     * 모집 시작일부터 마감일까지 <strong>지원자가 없는 날도 0으로 채운다.</strong> 빠진 날짜를 프론트가 알아서
+     * 메우게 하면 클라이언트마다 그래프 모양이 달라진다.
+     * <p>
+     * <strong>마감일 이후 접수 건도 버리지 않고 그대로 집계한다.</strong> 버리면 시계열 합계가
+     * {@code totalApplicants}와 어긋나 어느 쪽이 맞는지 알 수 없게 된다. 마감 이후 접수가 있다면 그 사실이
+     * 그래프에 드러나는 편이 낫다.
+     */
+    private DimensionAggregation aggregateDailyApplications(ClubApplyForm form) {
+        List<LocalDateTime> createdAtList = statisticsRepository.findCreatedAtList(form.getId());
+
+        Map<LocalDate, Long> byDate = new HashMap<>();
+        for (LocalDateTime createdAt : createdAtList) {
+            byDate.merge(toKstDate(createdAt), 1L, Long::sum);
+        }
+
+        LocalDate from = resolveSeriesStart(form, byDate);
+        LocalDate to = resolveSeriesEnd(form, byDate);
+        if (from == null || to == null || from.isAfter(to)) {
+            return DimensionAggregation.empty();
+        }
+
+        // 모집 기간 설정이 잘못돼 범위가 비정상적으로 넓어도 응답이 폭주하지 않게 상한을 둔다.
+        long days = ChronoUnit.DAYS.between(from, to) + 1;
+        boolean truncated = false;
+        if (days > MAX_SERIES_DAYS) {
+            log.warn("지원 추이 구간이 상한을 초과해 잘라냅니다. clubApplyFormId={}, from={}, to={}, days={}",
+                    form.getId(), from, to, days);
+            from = to.minusDays(MAX_SERIES_DAYS - 1L);
+            truncated = true;
+        }
+
+        List<RawBucket> buckets = new ArrayList<>();
+        for (LocalDate date = from; !date.isAfter(to); date = date.plusDays(1)) {
+            buckets.add(RawBucket.of(
+                    date.toString(),
+                    String.format("%d월 %d일", date.getMonthValue(), date.getDayOfMonth()),
+                    byDate.getOrDefault(date, 0L)));
+        }
+
+        return new DimensionAggregation(buckets, truncated ? true : null, null);
+    }
+
+    /**
+     * 모집 진행 중 당일의 시간대별 지원 건수를 집계합니다.
+     * <p>
+     * 모집 기간이 아니면 빈 결과를 반환한다. 마감 직전 몰림을 보여주기 위한 데이터라, 모집이 끝난 뒤에는
+     * 일자별 추이만으로 충분하다.
+     */
+    private DimensionAggregation aggregateTodayHourlyApplications(ClubApplyForm form) {
+        Club club = form.getClub();
+        if (RecruitStatusCalculator.calculate(club.getRecruitStart(), club.getRecruitEnd())
+                != RecruitStatus.RECRUITING) {
+            return DimensionAggregation.empty();
+        }
+
+        LocalDate today = LocalDate.now(KST);
+        Map<Integer, Long> byHour = new HashMap<>();
+        for (LocalDateTime createdAt : statisticsRepository.findCreatedAtList(form.getId())) {
+            if (toKstDate(createdAt).equals(today)) {
+                byHour.merge(createdAt.getHour(), 1L, Long::sum);
+            }
+        }
+
+        List<RawBucket> buckets = new ArrayList<>();
+        for (int hour = 0; hour <= LocalTime.now(KST).getHour(); hour++) {
+            buckets.add(RawBucket.of(
+                    String.format("%s %02d", today, hour),
+                    hour + "시",
+                    byHour.getOrDefault(hour, 0L)));
+        }
+        return DimensionAggregation.of(buckets);
+    }
+
+    /**
+     * 시계열의 시작일. 모집 시작일을 쓰되, 없으면 가장 이른 지원일로 대체한다.
+     */
+    private LocalDate resolveSeriesStart(ClubApplyForm form, Map<LocalDate, Long> byDate) {
+        LocalDateTime recruitStart = form.getClub().getRecruitStart();
+        if (recruitStart != null) {
+            return recruitStart.toLocalDate();
+        }
+        // 모집 기간이 설정되지 않은 지원폼(RecruitStatus.NOT_SCHEDULED)도 접수 자체는 가능하므로,
+        // 실제 지원 기록이 있으면 그 범위만이라도 보여준다.
+        return byDate.keySet().stream().min(LocalDate::compareTo).orElse(null);
+    }
+
+    /**
+     * 시계열의 종료일. 마감일과 마지막 지원일 중 더 늦은 쪽을 쓴다.
+     */
+    private LocalDate resolveSeriesEnd(ClubApplyForm form, Map<LocalDate, Long> byDate) {
+        LocalDate lastApplied = byDate.keySet().stream().max(LocalDate::compareTo).orElse(null);
+        LocalDateTime recruitEnd = form.getClub().getRecruitEnd();
+        if (recruitEnd == null) {
+            return lastApplied;
+        }
+        LocalDate end = recruitEnd.toLocalDate();
+        return (lastApplied != null && lastApplied.isAfter(end)) ? lastApplied : end;
+    }
+
+    /**
+     * 접수 시각의 일자를 구합니다.
+     * <p>
+     * {@code createdAt}은 시간대 정보가 없는 {@code LocalDateTime}이고, 운영 DB 연결이
+     * {@code serverTimezone=Asia/Seoul}로 설정되어 있어 이미 KST 기준 값이다. 따라서 여기서 시간대를 다시
+     * 변환하면 오히려 어긋난다. 서버·DB 시간대가 바뀌면 이 가정이 깨지므로 배포 환경 변경 시 확인이 필요하다.
+     */
+    private LocalDate toKstDate(LocalDateTime createdAt) {
+        return createdAt.toLocalDate();
     }
 
     /**
