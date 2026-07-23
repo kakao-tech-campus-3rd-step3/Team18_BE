@@ -39,6 +39,7 @@ public class StatisticsPrecomputeService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsServiceImpl statisticsService;
     private final StatisticsCacheStore cacheStore;
+    private final StatisticsSnapshotReader snapshotReader;
     private final StatisticsProperties properties;
 
     /**
@@ -115,6 +116,13 @@ public class StatisticsPrecomputeService {
      * 직전에 들어온 몇 건이 영영 반영되지 않은 채로 남는다.
      */
     private boolean shouldPublish(ClubApplyForm form, long totalApplicants) {
+        if (snapshotReader.exists(form.getId())) {
+            // 스냅샷이 확정본이므로 조회는 그쪽을 본다. 여기서 계산해 봐야 쓰이지 않는 데다,
+            // 이 시점에는 불합격 지원서가 이미 삭제되어 왜곡된 값이 나온다.
+            log.debug("확정 스냅샷이 있어 사전 계산 대상에서 제외합니다. clubApplyFormId={}", form.getId());
+            return false;
+        }
+
         if (totalApplicants == 0) {
             log.debug("지원자가 없어 사전 계산 대상에서 제외합니다. clubApplyFormId={}", form.getId());
             return false;

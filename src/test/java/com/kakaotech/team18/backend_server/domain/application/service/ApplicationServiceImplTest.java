@@ -37,6 +37,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -263,7 +264,8 @@ class ApplicationServiceImplTest {
         // questionNum을 0L로 설정 (FormQuestion의 displayOrder가 1L일 때, 서비스 로직에서 disp-1 = 0을 조회하므로)
         AnswerDto answerDto = new AnswerDto(0L, "면접 가능 날짜는?", interviewTimeNode);
         ApplicationApplyRequestDto requestDto = new ApplicationApplyRequestDto(
-                "test@test.com", "김지원", studentId, "010-1234-5678", "컴퓨터공학과", List.of(answerDto)
+                "test@test.com", "김지원", studentId, "010-1234-5678", "컴퓨터공학과", Gender.FEMALE,
+                List.of(answerDto)
         );
 
         ClubApplyForm mockForm = mock(ClubApplyForm.class);

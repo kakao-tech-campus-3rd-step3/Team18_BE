@@ -39,6 +39,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final StatisticsAggregator aggregator;
     private final StatisticsMasker masker;
     private final StatisticsCacheStore cacheStore;
+    private final StatisticsSnapshotReader snapshotReader;
     private final StatisticsProperties properties;
 
     /** 캐시 미스 시 같은 지원폼의 집계가 동시에 여러 번 실행되지 않도록 잡는 JVM 내부 잠금. */
@@ -48,6 +49,13 @@ public class StatisticsServiceImpl implements StatisticsService {
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
+
+        // 스냅샷이 있으면 그것이 확정본이다. 이 시점에는 불합격 지원서가 이미 삭제되었을 수 있어
+        // 지금 다시 집계하면 합격자만 남은 왜곡된 분포가 나온다.
+        Optional<StatisticsResponseDto> snapshot = snapshotReader.find(clubApplyFormId);
+        if (snapshot.isPresent()) {
+            return project(snapshot.get(), dimensions);
+        }
 
         if (!properties.precompute().enabled()) {
             return calculate(form, dimensions);

@@ -12,6 +12,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubA
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsSnapshotService;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
@@ -78,6 +79,12 @@ class EmailServiceUnitTest {
     ClubApplyForm clubApplyForm;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
+    /**
+     * 단계 전환은 불합격 지원서를 삭제하기 전에 확정 통계를 저장한다(#335).
+     * 이 테스트의 관심사는 아니지만, 주입되지 않으면 단계 전환 자체가 NPE로 죽는다.
+     */
+    @Mock
+    StatisticsSnapshotService statisticsSnapshotService;
 
     @Captor
     ArgumentCaptor<Map<String,Object>> modelCaptor;

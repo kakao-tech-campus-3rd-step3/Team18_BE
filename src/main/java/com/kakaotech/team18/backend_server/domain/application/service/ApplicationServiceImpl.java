@@ -31,6 +31,7 @@ import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
+import com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsSnapshotService;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
@@ -75,6 +76,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
     private final ClubMemberRepository clubMemberRepository;
+    private final StatisticsSnapshotService statisticsSnapshotService;
     private static final int MAX_READ_LIMIT = 100;
 
     @Override
@@ -379,6 +381,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
+
+        // 이 메서드의 단계 전환 분기에서 불합격 지원서가 삭제된다(아래 INTERVIEW / stage == null 분기).
+        // 지원폼과 지원자를 잇는 유일한 연결이 Application이므로, 삭제 후에 집계하면 합격자만 남아
+        // 성비/학과 분포가 완전히 왜곡된다. 어떤 분기를 타든 삭제보다 먼저 확정 통계를 남긴다.
+        // 저장에 실패하면 예외가 전파되어 이 트랜잭션 전체가 롤백되므로 삭제도 진행되지 않는다.
+        statisticsSnapshotService.saveIfAbsent(form);
 
         if(stage == Stage.INTERVIEW) {
             List<Application> apps = applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, stage);

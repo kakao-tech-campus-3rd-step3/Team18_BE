@@ -21,6 +21,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
+import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 
@@ -206,7 +207,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(president));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", Gender.MALE,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("안녕하세요")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
@@ -274,7 +275,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(existing));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", Gender.MALE,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("남")),
@@ -338,7 +339,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(president));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과", Gender.FEMALE,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
