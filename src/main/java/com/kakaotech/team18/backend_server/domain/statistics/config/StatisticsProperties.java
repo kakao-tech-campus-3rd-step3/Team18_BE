@@ -19,8 +19,21 @@ public record StatisticsProperties(
         @DefaultValue Masking masking,
         @DefaultValue Department department,
         @DefaultValue AdmissionYear admissionYear,
+        @DefaultValue Disclosure disclosure,
         @DefaultValue Precompute precompute
 ) {
+
+    /**
+     * @param blackoutBeforeDeadline 마감 직전 이 시간 동안은 지원 현황을 공개하지 않는다.
+     *                               <p>
+     *                               마감이 임박한 시점의 지원자 수는 "지금 넣어도 승산이 없다"는 신호로 읽혀
+     *                               지원 포기를 유발한다. 그 구간에는 아직 지원하지 않은 사람이 판단을 뒤집을
+     *                               시간도 없다. 마감 후에는 다시 공개하므로 정보가 영구히 사라지지는 않는다.
+     */
+    public record Disclosure(
+            @DefaultValue("PT5M") Duration blackoutBeforeDeadline
+    ) {
+    }
 
     /**
      * @param bucketThreshold 이 값보다 적은 지원자를 가진 버킷은 개별 노출하지 않고 '기타'로 합친다.

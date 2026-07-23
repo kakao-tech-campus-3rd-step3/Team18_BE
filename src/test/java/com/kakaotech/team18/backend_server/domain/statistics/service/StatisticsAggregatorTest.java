@@ -55,6 +55,7 @@ class StatisticsAggregatorTest {
                 new StatisticsProperties.Masking(5, 10),
                 new StatisticsProperties.Department(3, 10),
                 new StatisticsProperties.AdmissionYear(1990),
+                new StatisticsProperties.Disclosure(Duration.ofMinutes(5)),
                 new StatisticsProperties.Precompute(true, 1, Duration.ofHours(2), Duration.ofMinutes(5))
         );
     }

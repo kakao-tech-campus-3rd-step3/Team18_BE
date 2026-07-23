@@ -21,8 +21,8 @@ public record StatisticsResponseDto(
         @Schema(description = "통계 대상 지원폼 ID", example = "12")
         Long clubApplyFormId,
 
-        @Schema(description = "누적 지원자 수", example = "214")
-        long totalApplicants,
+        @Schema(description = "누적 지원자 수. 마감 직전 비공개 구간에서는 생략된다.", example = "214")
+        Long totalApplicants,
 
         @Schema(description = "모집 종료 후 확정된 스냅샷이면 true, 진행 중 집계본이면 false", example = "false")
         boolean snapshot,
@@ -30,8 +30,12 @@ public record StatisticsResponseDto(
         @Schema(description = "집계가 수행된 시각", example = "2026-03-14T23:59:30+09:00")
         OffsetDateTime calculatedAt,
 
-        @Schema(description = "dimension별 집계 결과. 최소 공개 기준에 미달하면 빈 배열이다.")
-        List<DimensionResult> results
+        @Schema(description = "dimension별 집계 결과. 최소 공개 기준에 미달하거나 마감 직전 비공개 구간이면 빈 배열이다.")
+        List<DimensionResult> results,
+
+        @Schema(description = "응답 전체에 대한 안내. 없으면 생략된다.",
+                example = "마감 직전에는 지원 현황을 공개하지 않습니다. 마감 후 최종 결과가 공개됩니다.")
+        String notice
 ) {
 
     @Schema(description = "단일 dimension의 집계 결과")

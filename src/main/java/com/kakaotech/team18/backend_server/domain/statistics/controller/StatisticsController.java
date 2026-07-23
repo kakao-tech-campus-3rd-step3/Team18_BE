@@ -45,6 +45,8 @@ public class StatisticsController {
                     - `dimensions`를 생략하면 모든 항목을 반환합니다.
                     - 소수 버킷은 재식별 방지를 위해 '기타'로 병합되거나 비공개 처리됩니다.
                     - 누적 지원자 수가 최소 공개 기준에 미달하면 `results`가 빈 배열로 나갑니다.
+                    - **마감 직전 5분 동안은 지원 현황을 공개하지 않습니다.** 이 구간에는 `totalApplicants`가
+                      생략되고 `results`가 빈 배열이며 `notice`에 사유가 담깁니다. 마감 후에는 다시 공개됩니다.
                     - 응답에는 지원자를 식별할 수 있는 값(이름·이메일·전화번호·6자리 학번)이 포함되지 않습니다.
                     """
     )
@@ -95,6 +97,22 @@ public class StatisticsController {
                                           ]
                                         }
                                       ]
+                                    }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "마감 직전 비공개 구간",
+                    content = @Content(
+                            schema = @Schema(implementation = StatisticsResponseDto.class),
+                            examples = @ExampleObject(name = "마감 5분 전", value = """
+                                    {
+                                      "clubApplyFormId": 12,
+                                      "snapshot": false,
+                                      "calculatedAt": "2026-03-14T23:56:00+09:00",
+                                      "results": [],
+                                      "notice": "마감 직전에는 지원 현황을 공개하지 않습니다. 마감 후 최종 결과가 공개됩니다."
                                     }
                                     """)
                     )

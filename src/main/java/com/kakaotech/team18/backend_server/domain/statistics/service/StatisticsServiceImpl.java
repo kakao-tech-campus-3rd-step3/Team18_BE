@@ -11,6 +11,7 @@ import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDi
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -35,6 +36,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     /** 비율의 소수점 자릿수. 모든 dimension에서 동일하게 고정한다. */
     private static final int RATIO_SCALE = 3;
 
+    /** 마감 직전 비공개 구간에서 내보내는 안내 문구. */
+    public static final String BLACKOUT_NOTICE =
+            "마감 직전에는 지원 현황을 공개하지 않습니다. 마감 후 최종 결과가 공개됩니다.";
+
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
     private final StatisticsMasker masker;
@@ -57,6 +62,12 @@ public class StatisticsServiceImpl implements StatisticsService {
             return project(snapshot.get(), dimensions);
         }
 
+        // 마감 직전에는 아무 것도 공개하지 않는다. 집계 자체를 건너뛰므로 DB도 건드리지 않는다.
+        if (isWithinDeadlineBlackout(form)) {
+            log.debug("마감 직전 비공개 구간이라 지원 현황을 반환하지 않습니다. clubApplyFormId={}", clubApplyFormId);
+            return blackedOut(clubApplyFormId);
+        }
+
         if (!properties.precompute().enabled()) {
             return calculate(form, dimensions);
         }
@@ -65,6 +76,39 @@ public class StatisticsServiceImpl implements StatisticsService {
         return cacheStore.find(clubApplyFormId)
                 .map(cached -> project(cached, dimensions))
                 .orElseGet(() -> computeOnCacheMiss(form, dimensions));
+    }
+
+    /**
+     * 마감 직전 비공개 구간인지 판단합니다.
+     * <p>
+     * 마감이 임박한 시점의 지원자 수는 "지금 넣어도 승산이 없다"는 신호로 읽혀 지원 포기를 유발한다. 게다가 그
+     * 구간에는 판단을 뒤집을 시간도 없다. 그래서 마감 직전 일정 시간 동안만 공개를 멈추고, 마감 후에는 최종
+     * 수치를 다시 공개한다.
+     * <p>
+     * 모집 기간이 설정되지 않은 지원폼에는 적용할 기준 시각이 없으므로 그대로 공개한다.
+     */
+    private boolean isWithinDeadlineBlackout(ClubApplyForm form) {
+        LocalDateTime recruitEnd = form.getClub().getRecruitEnd();
+        if (recruitEnd == null) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime blackoutFrom =
+                recruitEnd.minus(properties.disclosure().blackoutBeforeDeadline());
+
+        // 마감 이후는 비공개 대상이 아니다. 종료된 모집의 최종 수치는 공개한다.
+        return !now.isBefore(blackoutFrom) && now.isBefore(recruitEnd);
+    }
+
+    /**
+     * 비공개 구간용 응답. 지원자 수도 분포도 담지 않는다.
+     * <p>
+     * {@code totalApplicants}만 지우면 버킷 count의 합으로 총원이 그대로 드러나므로 분포까지 함께 감춘다.
+     */
+    private StatisticsResponseDto blackedOut(Long clubApplyFormId) {
+        return new StatisticsResponseDto(
+                clubApplyFormId, null, false, OffsetDateTime.now(KST), List.of(), BLACKOUT_NOTICE);
     }
 
     /**
@@ -113,7 +157,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 cached.totalApplicants(),
                 cached.snapshot(),
                 cached.calculatedAt(),
-                filtered
+                filtered,
+                cached.notice()
         );
     }
 
@@ -143,7 +188,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                 totalApplicants,
                 false,
                 OffsetDateTime.now(KST),
-                results
+                results,
+                null
         );
     }
 

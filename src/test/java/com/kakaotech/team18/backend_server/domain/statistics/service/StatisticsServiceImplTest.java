@@ -21,6 +21,7 @@ import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDi
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +69,7 @@ class StatisticsServiceImplTest {
                 new StatisticsProperties.Masking(5, 10),
                 new StatisticsProperties.Department(5, 30),
                 new StatisticsProperties.AdmissionYear(1990),
+                new StatisticsProperties.Disclosure(Duration.ofMinutes(5)),
                 new StatisticsProperties.Precompute(
                         precomputeEnabled, 1, Duration.ofHours(2), Duration.ofMinutes(5))
         );
@@ -313,7 +315,99 @@ class StatisticsServiceImplTest {
                             StatisticsDimension.GENDER, StatisticsDimension.GENDER.getType(), null, null,
                             List.of(new StatisticsResponseDto.Bucket(
                                     "MALE", "남성", total, new BigDecimal("1.000"), null)))
-            ));
+            ), null);
+        }
+    }
+
+    @Nested
+    @DisplayName("마감 직전 비공개")
+    class DeadlineBlackout {
+
+        private Club club;
+
+        @BeforeEach
+        void setUpClub() {
+            club = mock(Club.class);
+            // 스냅샷이 있으면 마감 시각을 보기도 전에 반환하므로, 그 테스트에서는 이 스텁이 쓰이지 않는다.
+            lenient().when(form.getClub()).thenReturn(club);
+            lenient().when(snapshotReader.find(anyLong())).thenReturn(Optional.empty());
+        }
+
+        @DisplayName("마감 5분 전부터는 지원자 수와 분포를 모두 감춘다")
+        @Test
+        void hidesEverythingInsideBlackoutWindow() {
+            when(club.getRecruitEnd()).thenReturn(LocalDateTime.now().plusMinutes(3));
+
+            StatisticsResponseDto response =
+                    service.getStatistics(FORM_ID, StatisticsDimension.defaults());
+
+            assertThat(response.totalApplicants()).isNull();
+            assertThat(response.results()).isEmpty();
+            assertThat(response.notice()).isEqualTo(StatisticsServiceImpl.BLACKOUT_NOTICE);
+        }
+
+        @DisplayName("비공개 구간에서는 집계도 캐시 조회도 하지 않는다")
+        @Test
+        void touchesNothingInsideBlackoutWindow() {
+            when(club.getRecruitEnd()).thenReturn(LocalDateTime.now().plusMinutes(1));
+
+            service.getStatistics(FORM_ID, StatisticsDimension.defaults());
+
+            verify(aggregator, never()).countApplicants(anyLong());
+            verify(aggregator, never()).aggregate(any(), any());
+            verify(cacheStore, never()).find(anyLong());
+        }
+
+        @DisplayName("마감 5분보다 이전이면 평소대로 공개한다")
+        @Test
+        void disclosesBeforeBlackoutWindow() {
+            when(club.getRecruitEnd()).thenReturn(LocalDateTime.now().plusMinutes(6));
+            when(cacheStore.find(FORM_ID)).thenReturn(Optional.of(
+                    new StatisticsResponseDto(FORM_ID, 214L, false, OffsetDateTime.now(), List.of(), null)));
+
+            StatisticsResponseDto response =
+                    service.getStatistics(FORM_ID, StatisticsDimension.defaults());
+
+            assertThat(response.totalApplicants()).isEqualTo(214);
+            assertThat(response.notice()).isNull();
+        }
+
+        @DisplayName("마감 이후에는 다시 공개한다")
+        @Test
+        void disclosesAgainAfterDeadline() {
+            when(club.getRecruitEnd()).thenReturn(LocalDateTime.now().minusMinutes(1));
+            when(cacheStore.find(FORM_ID)).thenReturn(Optional.of(
+                    new StatisticsResponseDto(FORM_ID, 214L, false, OffsetDateTime.now(), List.of(), null)));
+
+            StatisticsResponseDto response =
+                    service.getStatistics(FORM_ID, StatisticsDimension.defaults());
+
+            // 비공개는 마감 직전 구간에 한정된다. 종료된 모집의 최종 수치는 공개한다.
+            assertThat(response.totalApplicants()).isEqualTo(214);
+        }
+
+        @DisplayName("모집 마감일이 없으면 비공개 구간을 적용하지 않는다")
+        @Test
+        void noBlackoutWhenDeadlineMissing() {
+            when(club.getRecruitEnd()).thenReturn(null);
+            when(cacheStore.find(FORM_ID)).thenReturn(Optional.of(
+                    new StatisticsResponseDto(FORM_ID, 214L, false, OffsetDateTime.now(), List.of(), null)));
+
+            assertThat(service.getStatistics(FORM_ID, StatisticsDimension.defaults())
+                    .totalApplicants()).isEqualTo(214);
+        }
+
+        @DisplayName("확정 스냅샷이 있으면 비공개 구간과 무관하게 스냅샷을 반환한다")
+        @Test
+        void snapshotWinsOverBlackout() {
+            when(snapshotReader.find(FORM_ID)).thenReturn(Optional.of(
+                    new StatisticsResponseDto(FORM_ID, 300L, true, OffsetDateTime.now(), List.of(), null)));
+
+            StatisticsResponseDto response =
+                    service.getStatistics(FORM_ID, StatisticsDimension.defaults());
+
+            assertThat(response.snapshot()).isTrue();
+            assertThat(response.totalApplicants()).isEqualTo(300);
         }
     }
 }

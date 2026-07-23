@@ -51,7 +51,7 @@ class StatisticsControllerTest {
     StatisticsService statisticsService;
 
     private StatisticsResponseDto sampleResponse() {
-        return new StatisticsResponseDto(FORM_ID, 214, false, OffsetDateTime.now(), List.of(
+        return new StatisticsResponseDto(FORM_ID, 214L, false, OffsetDateTime.now(), List.of(
                 new StatisticsResponseDto.DimensionResult(
                         StatisticsDimension.GENDER, StatisticsDimension.GENDER.getType(), null, null,
                         List.of(
@@ -59,7 +59,7 @@ class StatisticsControllerTest {
                                         "MALE", "남성", 121, new BigDecimal("0.565"), null),
                                 new StatisticsResponseDto.Bucket(
                                         "FEMALE", "여성", 91, new BigDecimal("0.425"), null)))
-        ));
+        ), null);
     }
 
     @DisplayName("통계 조회 성공 - 비로그인 상태에서도 200을 반환한다")

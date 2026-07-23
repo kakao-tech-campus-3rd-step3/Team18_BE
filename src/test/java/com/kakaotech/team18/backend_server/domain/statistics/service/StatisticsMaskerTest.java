@@ -30,6 +30,7 @@ class StatisticsMaskerTest {
                 new StatisticsProperties.Masking(threshold, minPublicTotal),
                 new StatisticsProperties.Department(5, 30),
                 new StatisticsProperties.AdmissionYear(1990),
+                new StatisticsProperties.Disclosure(Duration.ofMinutes(5)),
                 new StatisticsProperties.Precompute(true, 1, Duration.ofHours(2), Duration.ofMinutes(5))
         );
     }

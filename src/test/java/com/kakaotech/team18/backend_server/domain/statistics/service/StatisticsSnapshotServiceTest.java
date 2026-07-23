@@ -60,7 +60,7 @@ class StatisticsSnapshotServiceTest {
 
     /** 불합격자를 포함한, 삭제 전의 온전한 분포. */
     private StatisticsResponseDto fullDistribution() {
-        return new StatisticsResponseDto(FORM_ID, 100, false, OffsetDateTime.now(), List.of(
+        return new StatisticsResponseDto(FORM_ID, 100L, false, OffsetDateTime.now(), List.of(
                 new StatisticsResponseDto.DimensionResult(
                         StatisticsDimension.GENDER, StatisticsDimension.GENDER.getType(), null, null,
                         List.of(
@@ -68,7 +68,7 @@ class StatisticsSnapshotServiceTest {
                                         "MALE", "남성", 60, new BigDecimal("0.600"), null),
                                 new StatisticsResponseDto.Bucket(
                                         "FEMALE", "여성", 40, new BigDecimal("0.400"), null)))
-        ));
+        ), null);
     }
 
     @Nested

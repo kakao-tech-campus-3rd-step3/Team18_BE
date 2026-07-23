@@ -51,7 +51,8 @@ public class StatisticsSnapshotReader {
                     dto.totalApplicants(),
                     true,
                     dto.calculatedAt(),
-                    dto.results()));
+                    dto.results(),
+                    dto.notice()));
         } catch (Exception e) {
             // 스냅샷을 못 읽는다고 조회가 실패하면 안 된다. 다만 이 경우 남은 지원서로 다시 집계하면
             // 불합격자가 빠진 왜곡된 값이 나가므로, 반드시 확인이 필요한 상황이라 error로 남긴다.

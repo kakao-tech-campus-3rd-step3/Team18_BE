@@ -70,6 +70,7 @@ class StatisticsPrecomputeServiceTest {
                 new StatisticsProperties.Masking(5, 10),
                 new StatisticsProperties.Department(5, 30),
                 new StatisticsProperties.AdmissionYear(1990),
+                new StatisticsProperties.Disclosure(Duration.ofMinutes(5)),
                 new StatisticsProperties.Precompute(
                         enabled, publishStep, Duration.ofHours(2), Duration.ofMinutes(5))
         );
@@ -79,7 +80,7 @@ class StatisticsPrecomputeServiceTest {
 
     private void givenComputedTotal(long total) {
         when(statisticsService.calculate(any(), any())).thenReturn(
-                new StatisticsResponseDto(FORM_ID, total, false, OffsetDateTime.now(), List.of()));
+                new StatisticsResponseDto(FORM_ID, total, false, OffsetDateTime.now(), List.of(), null));
     }
 
     @Nested
@@ -229,8 +230,8 @@ class StatisticsPrecomputeServiceTest {
             when(cacheStore.findPublishedTotal(FORM_ID)).thenReturn(OptionalLong.empty());
             // 주기 사이에 지원자가 1명에서 500명으로 늘어난 상황
             when(statisticsService.calculate(any(), any())).thenReturn(
-                    new StatisticsResponseDto(FORM_ID, 1, false, OffsetDateTime.now(), List.of()),
-                    new StatisticsResponseDto(FORM_ID, 500, false, OffsetDateTime.now(), List.of()));
+                    new StatisticsResponseDto(FORM_ID, 1L, false, OffsetDateTime.now(), List.of(), null),
+                    new StatisticsResponseDto(FORM_ID, 500L, false, OffsetDateTime.now(), List.of(), null));
 
             StatisticsPrecomputeService service = newService(true, 1);
             service.precomputeAll();
