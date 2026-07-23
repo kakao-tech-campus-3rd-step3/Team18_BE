@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.DimensionAggregation;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
@@ -14,6 +15,9 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,13 +38,75 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
     private final StatisticsMasker masker;
+    private final StatisticsCacheStore cacheStore;
+    private final StatisticsProperties properties;
+
+    /** 캐시 미스 시 같은 지원폼의 집계가 동시에 여러 번 실행되지 않도록 잡는 JVM 내부 잠금. */
+    private final ConcurrentMap<Long, Object> computeLocks = new ConcurrentHashMap<>();
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
 
-        return calculate(form, dimensions);
+        if (!properties.precompute().enabled()) {
+            return calculate(form, dimensions);
+        }
+
+        // 정상 운영 상태에서는 스케줄러가 캐시를 채워 두므로 조회 경로에서 집계 쿼리가 실행되지 않는다.
+        return cacheStore.find(clubApplyFormId)
+                .map(cached -> project(cached, dimensions))
+                .orElseGet(() -> computeOnCacheMiss(form, dimensions));
+    }
+
+    /**
+     * 캐시 미스일 때 집계합니다.
+     * <p>
+     * 배포 직후나 Redis 장애처럼 캐시가 비어 있는 상황에서도 응답은 나가야 한다. 다만 이때 요청이 몰리면
+     * 동시에 같은 집계가 여러 번 실행되므로(cache stampede), <strong>지원폼 단위로 한 번만 계산되도록
+     * 묶는다.</strong> 먼저 진입한 스레드가 계산해 캐시에 넣고, 뒤따라온 스레드는 그 결과를 읽는다.
+     * <p>
+     * 이 잠금은 JVM 내부용이다. 인스턴스 간 중복까지 막는 선점 잠금은 스케줄러 경로에 있다. 캐시가 비는
+     * 상황 자체가 드물어, 여기서 인스턴스 수만큼의 집계가 한 번 더 일어나는 것은 감수한다.
+     */
+    private StatisticsResponseDto computeOnCacheMiss(ClubApplyForm form, List<StatisticsDimension> dimensions) {
+        Object lock = computeLocks.computeIfAbsent(form.getId(), id -> new Object());
+        synchronized (lock) {
+            try {
+                // 대기하는 동안 앞선 스레드가 캐시를 채웠을 수 있다.
+                Optional<StatisticsResponseDto> filled = cacheStore.find(form.getId());
+                if (filled.isPresent()) {
+                    return project(filled.get(), dimensions);
+                }
+
+                log.info("통계 캐시 미스. 조회 경로에서 집계합니다. clubApplyFormId={}", form.getId());
+                StatisticsResponseDto full = calculate(form, StatisticsDimension.defaults());
+                cacheStore.put(form.getId(), full);
+                return project(full, dimensions);
+            } finally {
+                computeLocks.remove(form.getId(), lock);
+            }
+        }
+    }
+
+    /**
+     * 캐시는 전체 dimension을 담고 있으므로, 요청된 항목만 골라 반환합니다.
+     * <p>
+     * dimension 조합마다 캐시 엔트리를 따로 두면 엔트리가 조합 수만큼 늘어나고, 그만큼 사전 계산이 채워야 할
+     * 대상도 늘어난다. 전체를 한 벌만 캐시하고 읽을 때 거르는 편이 단순하다.
+     */
+    private StatisticsResponseDto project(StatisticsResponseDto cached, List<StatisticsDimension> dimensions) {
+        List<StatisticsResponseDto.DimensionResult> filtered = cached.results().stream()
+                .filter(result -> dimensions.contains(result.dimension()))
+                .toList();
+
+        return new StatisticsResponseDto(
+                cached.clubApplyFormId(),
+                cached.totalApplicants(),
+                cached.snapshot(),
+                cached.calculatedAt(),
+                filtered
+        );
     }
 
     /**
