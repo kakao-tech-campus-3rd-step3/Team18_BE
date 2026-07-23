@@ -32,6 +32,7 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
+    private final StatisticsMasker masker;
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
@@ -50,11 +51,16 @@ public class StatisticsServiceImpl implements StatisticsService {
         long totalApplicants = aggregator.countApplicants(form.getId());
 
         List<StatisticsResponseDto.DimensionResult> results = new ArrayList<>();
-        for (StatisticsDimension dimension : dimensions) {
-            // 지원자가 없으면 버킷은 빈 배열이 된다. dimension 자체는 응답에 그대로 남겨,
-            // 클라이언트가 '아직 데이터가 없음'과 '해당 항목을 요청하지 않음'을 구분할 수 있게 한다.
-            List<RawBucket> raw = aggregator.aggregate(form, dimension);
-            results.add(toResult(dimension, raw, totalApplicants, null, null));
+
+        // 누적 지원자가 최소 공개 기준에 미달하면 속성 분포를 아예 내보내지 않는다.
+        // totalApplicants는 그대로 노출하므로, 클라이언트는 '데이터 없음'과 '기준 미달'을 구분할 수 있다.
+        if (masker.isPubliclyDisclosable(totalApplicants)) {
+            for (StatisticsDimension dimension : dimensions) {
+                results.add(buildDimension(form, dimension, totalApplicants));
+            }
+        } else {
+            log.debug("최소 공개 기준 미달로 분포 비공개. clubApplyFormId={}, totalApplicants={}",
+                    form.getId(), totalApplicants);
         }
 
         return new StatisticsResponseDto(
@@ -64,6 +70,26 @@ public class StatisticsServiceImpl implements StatisticsService {
                 OffsetDateTime.now(KST),
                 results
         );
+    }
+
+    /**
+     * 단일 dimension을 집계하고 재식별 방지 규칙을 적용합니다.
+     */
+    private StatisticsResponseDto.DimensionResult buildDimension(
+            ClubApplyForm form,
+            StatisticsDimension dimension,
+            long totalApplicants
+    ) {
+        List<RawBucket> raw = aggregator.aggregate(form, dimension);
+        List<RawBucket> masked = masker.maskSmallBuckets(raw, dimension.getType());
+
+        // 버킷이 하나만 남았다면 '전원이 같은 값'이라는 뜻이므로 dimension 자체를 비공개 처리한다.
+        if (masker.shouldWithholdDimension(masked)) {
+            return new StatisticsResponseDto.DimensionResult(
+                    dimension, dimension.getType(), null, StatisticsMasker.WITHHELD_NOTICE, List.of());
+        }
+
+        return toResult(dimension, masked, totalApplicants, null, null);
     }
 
     /**
