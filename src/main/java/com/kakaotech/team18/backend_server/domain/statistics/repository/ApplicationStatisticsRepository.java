@@ -41,6 +41,21 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             """)
     List<GenderCount> aggregateGender(@Param("clubApplyFormId") Long clubApplyFormId);
 
+    /**
+     * 지원자들의 학번 목록.
+     * <p>
+     * GROUP BY로 DB에서 바로 자르지 않는 이유는, 6자리 숫자 여부와 유효 입학연도 범위를 검증해야 하는데
+     * 그 규칙을 JPQL로 표현하면 DB 방언에 묶이기 때문이다. 학번은 서비스 내부에서만 쓰이며
+     * <strong>응답 DTO로는 절대 나가지 않는다.</strong> 지원폼 하나의 지원자 수는 수백 규모라 메모리 부담도 없다.
+     */
+    @Query("""
+            SELECT u.studentId
+            FROM Application a
+            JOIN a.user u
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            """)
+    List<String> findStudentIds(@Param("clubApplyFormId") Long clubApplyFormId);
+
     /** 성별 집계 결과 projection. */
     interface GenderCount {
 

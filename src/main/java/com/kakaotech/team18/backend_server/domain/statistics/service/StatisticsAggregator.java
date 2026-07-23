@@ -1,13 +1,20 @@
 package com.kakaotech.team18.backend_server.domain.statistics.service;
 
+import static com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsServiceImpl.KST;
+
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,6 +38,7 @@ public class StatisticsAggregator {
     public static final String UNKNOWN_LABEL = "미입력";
 
     private final ApplicationStatisticsRepository statisticsRepository;
+    private final StatisticsProperties properties;
 
     /**
      * 지원폼의 누적 지원자 수를 조회합니다.
@@ -49,8 +57,41 @@ public class StatisticsAggregator {
     public List<RawBucket> aggregate(ClubApplyForm form, StatisticsDimension dimension) {
         return switch (dimension) {
             case GENDER -> aggregateGender(form.getId());
-            case ADMISSION_YEAR, DEPARTMENT, DAILY_APPLICATIONS -> List.of();
+            case ADMISSION_YEAR -> aggregateAdmissionYear(form.getId());
+            case DEPARTMENT, DAILY_APPLICATIONS -> List.of();
         };
+    }
+
+    /**
+     * 학번에서 입학연도를 뽑아 집계합니다.
+     * <p>
+     * 버킷 key는 네 자리 연도(`2022`), 라벨은 `22학번` 형식이다. <strong>정렬은 두 자리 문자열이 아니라 네 자리
+     * 연도로 수행한다.</strong> 두 자리로 정렬하면 1999학번(`99`)이 2022학번(`22`) 뒤에 오는 역전이 생긴다.
+     */
+    private List<RawBucket> aggregateAdmissionYear(Long clubApplyFormId) {
+        int baseYear = LocalDate.now(KST).getYear();
+        int minYear = properties.admissionYear().minYear();
+
+        Map<Integer, Long> byYear = new TreeMap<>();
+        long unknownCount = 0;
+
+        for (String studentId : statisticsRepository.findStudentIds(clubApplyFormId)) {
+            Integer year = AdmissionYearBucketer.toAdmissionYear(studentId, baseYear, minYear);
+            if (year == null) {
+                unknownCount++;
+                continue;
+            }
+            byYear.merge(year, 1L, Long::sum);
+        }
+
+        List<RawBucket> buckets = new ArrayList<>();
+        byYear.forEach((year, count) ->
+                buckets.add(RawBucket.of(String.valueOf(year), AdmissionYearBucketer.toLabel(year), count)));
+
+        if (unknownCount > 0) {
+            buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
+        }
+        return buckets;
     }
 
     /**

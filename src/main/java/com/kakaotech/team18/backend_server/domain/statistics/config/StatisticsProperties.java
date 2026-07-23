@@ -18,6 +18,7 @@ public record StatisticsProperties(
 
         @DefaultValue Masking masking,
         @DefaultValue Department department,
+        @DefaultValue AdmissionYear admissionYear,
         @DefaultValue Precompute precompute
 ) {
 
@@ -38,6 +39,15 @@ public record StatisticsProperties(
      */
     public record Department(
             @DefaultValue("5") int topN
+    ) {
+    }
+
+    /**
+     * @param minYear 유효한 입학연도의 하한. 이보다 이르거나 기준 연도를 넘는 학번은 정상적인 입학연도로 볼 수
+     *                없으므로 '미입력'으로 분류한다. 오타(예: {@code 991234})가 1999학번으로 집계되는 것을 막는다.
+     */
+    public record AdmissionYear(
+            @DefaultValue("1990") int minYear
     ) {
     }
 
