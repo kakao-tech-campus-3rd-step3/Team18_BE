@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.dto.DimensionAggregation;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
@@ -80,8 +81,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             StatisticsDimension dimension,
             long totalApplicants
     ) {
-        List<RawBucket> raw = aggregator.aggregate(form, dimension);
-        List<RawBucket> masked = masker.maskSmallBuckets(raw, dimension.getType());
+        DimensionAggregation aggregation = aggregator.aggregate(form, dimension);
+        List<RawBucket> masked = masker.maskSmallBuckets(aggregation.buckets(), dimension.getType());
 
         // 버킷이 하나만 남았다면 '전원이 같은 값'이라는 뜻이므로 dimension 자체를 비공개 처리한다.
         if (masker.shouldWithholdDimension(masked)) {
@@ -89,7 +90,8 @@ public class StatisticsServiceImpl implements StatisticsService {
                     dimension, dimension.getType(), null, StatisticsMasker.WITHHELD_NOTICE, List.of());
         }
 
-        return toResult(dimension, masked, totalApplicants, null, null);
+        return toResult(dimension, masked, totalApplicants,
+                aggregation.truncated(), aggregation.notice());
     }
 
     /**

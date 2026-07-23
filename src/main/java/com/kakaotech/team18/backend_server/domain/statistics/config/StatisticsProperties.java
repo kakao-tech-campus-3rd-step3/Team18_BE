@@ -35,10 +35,13 @@ public record StatisticsProperties(
     }
 
     /**
-     * @param topN 학과는 값 종류가 많으므로 상위 N개만 노출하고 나머지는 '기타'로 합친다.
+     * @param topN           학과는 값 종류가 많으므로 상위 N개만 노출하고 나머지는 '기타'로 합친다.
+     * @param maxLabelLength 응답에 포함되는 학과 문자열의 최대 길이. 입력 단계에서도 제한하지만, 그 제한이
+     *                       생기기 전에 저장된 값이 남아 있을 수 있어 출력 시점에도 자른다.
      */
     public record Department(
-            @DefaultValue("5") int topN
+            @DefaultValue("5") int topN,
+            @DefaultValue("30") int maxLabelLength
     ) {
     }
 

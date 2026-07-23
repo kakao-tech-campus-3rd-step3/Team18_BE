@@ -56,10 +56,34 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             """)
     List<String> findStudentIds(@Param("clubApplyFormId") Long clubApplyFormId);
 
+    /**
+     * 학과 분포. 지원자가 많은 순으로 정렬해 반환하므로, 상위 N개 절단은 앞에서부터 자르면 된다.
+     * <p>
+     * 동점일 때 순서가 흔들리지 않도록 학과명을 2차 정렬 키로 둔다. 순서가 매 집계마다 달라지면 같은 데이터에도
+     * '기타'에 들어가는 학과가 바뀌어 통계가 튀어 보인다.
+     */
+    @Query("""
+            SELECT u.department AS department, count(a.id) AS count
+            FROM Application a
+            JOIN a.user u
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            GROUP BY u.department
+            ORDER BY count(a.id) DESC, u.department ASC
+            """)
+    List<DepartmentCount> aggregateDepartment(@Param("clubApplyFormId") Long clubApplyFormId);
+
     /** 성별 집계 결과 projection. */
     interface GenderCount {
 
         Gender getGender();
+
+        long getCount();
+    }
+
+    /** 학과 집계 결과 projection. */
+    interface DepartmentCount {
+
+        String getDepartment();
 
         long getCount();
     }
