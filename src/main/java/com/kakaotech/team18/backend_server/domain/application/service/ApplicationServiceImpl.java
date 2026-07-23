@@ -16,6 +16,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.application.util.DepartmentNormalizer;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
@@ -178,13 +179,20 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 .email(request.email())
                                 .name(request.name())
                                 .phoneNumber(request.phoneNumber())
-                                .department(request.department())
+                                .department(DepartmentNormalizer.normalize(request.department()))
+                                .gender(request.gender())
                                 .build();
                         return userRepository.save(newUser);
                     } catch (Exception e) {
                         log.warn("나머지 정보가 다른데, 이미 존재하는 학번으로 접수. 학번 : "+request.studentId());
                         throw new ExistingUserStudentIdException("나머지 정보가 다른데, 이미존재하는 학번으로 접수, 학번 : "+request.studentId());}
                 });
+
+        //2.1 기존 User를 재사용한 경우, 성별이 비어 있으면 이번 제출값으로 채운다.
+        //    (이 처리가 없으면 성별 필드 추가 이전에 생성된 User의 성별은 영원히 수집되지 않는다)
+        if (user.fillGenderIfAbsent(request.gender())) {
+            log.info("기존 User의 성별을 이번 지원서 제출값으로 채움. userId={}", user.getId());
+        }
 
         //3. (폼+학번)으로 지원내역이 있는지 찾기
         Optional<Application> existingApplicationOptional = applicationRepository.findByStudentIdAndClubApplyForm(request.studentId(), form);
