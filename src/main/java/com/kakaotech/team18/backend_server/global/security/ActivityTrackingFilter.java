@@ -20,8 +20,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 public class ActivityTrackingFilter extends OncePerRequestFilter {
 
-    public static final String ANONYMOUS_ID_REQUEST_ATTRIBUTE =
-            ActivityTrackingFilter.class.getName() + ".anonymousId";
+    public static final String ANONYMOUS_ID_REQUEST_ATTRIBUTE = "clubPopularity.anonymousId";
 
     static final String ANONYMOUS_COOKIE_NAME = "anonymous_id";
     private static final int ANONYMOUS_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365;
