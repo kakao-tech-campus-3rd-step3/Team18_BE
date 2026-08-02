@@ -1,6 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.clubPopularity.controller;
 
 import com.kakaotech.team18.backend_server.domain.clubPopularity.service.ClubPopularityRecordingService;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.service.ClubPopularityQueryService;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.dto.ClubPopularityResponse;
 import com.kakaotech.team18.backend_server.global.security.ActivityTrackingFilter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClubPopularityController {
 
     private final ClubPopularityRecordingService recordingService;
+    private final ClubPopularityQueryService queryService;
+
+    @Operation(summary = "실시간 인기 동아리 조회", description = "최근 조회자와 현재 활성 사용자를 기준으로 인기 동아리를 조회합니다.")
+    @GetMapping("/popular")
+    public ResponseEntity<ClubPopularityResponse> getPopularClubs() {
+        return ResponseEntity.ok(queryService.getPopularClubs());
+    }
 
     @Operation(summary = "동아리 상세 조회 기록", description = "동아리 상세 페이지 진입을 기록합니다.")
     @PostMapping("/{clubId}/views")

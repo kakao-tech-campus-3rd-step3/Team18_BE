@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.redis;
 
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
@@ -20,6 +21,15 @@ public class ClubPopularityRedisRepository {
     private static final RedisScript<Long> CONDITIONAL_REMOVE_SCRIPT = script("lua/club-popularity-remove-pending.lua");
 
     private final StringRedisTemplate redisTemplate;
+
+    public String recoveryStatus() {
+        return redisTemplate.opsForValue().get(ClubPopularityRedisKeys.RECOVERY_STATUS);
+    }
+
+    public Set<String> candidateClubIds() {
+        Set<String> members = redisTemplate.opsForSet().members(ClubPopularityRedisKeys.CANDIDATES);
+        return members == null ? Set.of() : members;
+    }
 
     public RecordResult recordView(long clubId, ClubPopularityViewerIdentity identity, long nowMillis,
             int minIntervalSeconds, int activeTtlSeconds, int recentTtlSeconds) {
