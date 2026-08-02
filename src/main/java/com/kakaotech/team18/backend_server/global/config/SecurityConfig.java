@@ -78,6 +78,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/notices", "/api/notices/*").permitAll()
                 // 동아리 정보 조회 관련 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/*").permitAll()
+                // 실시간 인기 동아리 기록 API (공개, 인증 헤더 선택)
+                .requestMatchers(HttpMethod.POST, "/api/clubs/*/views", "/api/clubs/*/heartbeat").permitAll()
                 // 지원서 양식 조회 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
                 // 동아리원 일괄 등록 양식 다운로드 API (공개)
