@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopul
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
+import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
@@ -98,6 +99,16 @@ public class ClubPopularityRedisRepository {
         Long result = redisTemplate.execute(CONDITIONAL_REMOVE_SCRIPT,
                 List.of(ClubPopularityRedisKeys.PENDING), pendingMember, Long.toString(scoreMillis));
         return result != null && result == 1L;
+    }
+
+    public void saveFailedRecord(String failureId, PendingRecord record, String reason, long retryAtMillis) {
+        redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "member", record.member());
+        redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "scoreMillis",
+                Long.toString(record.scoreMillis()));
+        redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "reason", reason);
+        redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "attempt", "1");
+        redisTemplate.expire(ClubPopularityRedisKeys.failedData(failureId), Duration.ofHours(25));
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.FAILED_RETRY, failureId, retryAtMillis);
     }
 
     private static RedisScript<Long> script(String path) {

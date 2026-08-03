@@ -6,6 +6,7 @@ public final class ClubPopularityRedisKeys {
     public static final String CANDIDATES = "club:popularity:candidates";
     public static final String RECOVERY_STATUS = "club:popularity:recovery:status";
     public static final String FLUSH_LOCK = "club:popularity:lock:flush";
+    public static final String FAILED_RETRY = "club:popularity:failed:retry";
 
     private ClubPopularityRedisKeys() {
     }
@@ -20,5 +21,9 @@ public final class ClubPopularityRedisKeys {
 
     public static String rateLimit(String apiType, long clubId, String identity) {
         return "club:popularity:rate-limit:" + apiType + ":" + clubId + ":" + identity;
+    }
+
+    public static String failedData(String failureId) {
+        return "club:popularity:failed:data:" + failureId;
     }
 }

@@ -18,6 +18,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -66,7 +67,8 @@ public class ClubPopularityPersistenceService {
             try {
                 parsed = ClubPopularityPendingKey.parse(record.member());
             } catch (IllegalArgumentException exception) {
-                log.warn("Ignoring malformed pending record: {}", record.member());
+                isolateFailure(record, exception.getMessage());
+                redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis());
                 continue;
             }
             if (!clubs.containsKey(parsed.clubId())) {
@@ -77,11 +79,17 @@ public class ClubPopularityPersistenceService {
                 continue;
             }
             Instant viewedAt = Instant.ofEpochMilli(record.scoreMillis());
-            if ("U".equals(parsed.type())) {
-                clubViewRepository.upsertUser(parsed.clubId(), Long.parseLong(parsed.value()), viewedAt);
-            } else {
-                clubViewRepository.upsertAnonymous(parsed.clubId(),
-                        Base64.getUrlDecoder().decode(parsed.value()), viewedAt);
+            try {
+                if ("U".equals(parsed.type())) {
+                    clubViewRepository.upsertUser(parsed.clubId(), Long.parseLong(parsed.value()), viewedAt);
+                } else {
+                    clubViewRepository.upsertAnonymous(parsed.clubId(),
+                            Base64.getUrlDecoder().decode(parsed.value()), viewedAt);
+                }
+            } catch (DataIntegrityViolationException exception) {
+                isolateFailure(record, exception.getMessage());
+                redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis());
+                continue;
             }
             saved++;
             if (redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis())) {
@@ -89,6 +97,13 @@ public class ClubPopularityPersistenceService {
             }
         }
         return new FlushResult(saved, removed, missing, 0, false);
+    }
+
+    private void isolateFailure(ClubPopularityRedisRepository.PendingRecord record, String reason) {
+        String failureId = UUID.randomUUID().toString();
+        redisRepository.saveFailedRecord(failureId, record, reason == null ? "invalid record" : reason,
+                System.currentTimeMillis() + 10 * 60 * 1000L);
+        log.warn("Club popularity pending record moved to failed store: {}", record.member());
     }
 
     @Transactional
