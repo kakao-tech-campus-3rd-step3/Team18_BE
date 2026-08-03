@@ -25,6 +25,7 @@ public class ClubPopularityScheduler {
         ClubPopularityPersistenceService.FlushResult result = persistenceService.flushPending(
                 properties.getFlushBatchSize());
         log.info("Club popularity pending flush completed: {}", result);
+        persistenceService.retryFailedRecords(properties.getFlushBatchSize());
     }
 
     @Scheduled(fixedDelayString = "${club-popularity.cleanup-interval-minutes:60}000")
@@ -34,6 +35,7 @@ public class ClubPopularityScheduler {
         }
         Instant cutoff = Instant.now().minusSeconds((long) properties.getRetentionHours() * 3600);
         int deleted = persistenceService.cleanupOldViews(cutoff, properties.getCleanupBatchSize());
+        persistenceService.cleanupExpiredFailures(cutoff);
         log.info("Club popularity old view cleanup completed: {} rows", deleted);
     }
 }

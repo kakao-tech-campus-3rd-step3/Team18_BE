@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.clubPopularity.service;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityPendingKey;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisKeys;
@@ -9,12 +10,12 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.Club
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.HashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -34,6 +35,7 @@ public class ClubPopularityPersistenceService {
     private final ClubViewBatchRepository clubViewRepository;
     private final ClubRepository clubRepository;
     private final StringRedisTemplate redisTemplate;
+    private final ClubPopularityProperties properties;
 
     /** 한 번에 처리할 양을 제한해 DB 잠금과 Redis 왕복을 bounded하게 유지한다. */
     @Transactional
@@ -109,6 +111,45 @@ public class ClubPopularityPersistenceService {
     @Transactional
     public int cleanupOldViews(Instant cutoff, int batchSize) {
         return clubViewRepository.deleteOlderThan(cutoff, batchSize);
+    }
+
+    @Transactional
+    public int retryFailedRecords(int limit) {
+        int processed = 0;
+        for (String failureId : redisRepository.dueFailedRecords(System.currentTimeMillis(), limit)) {
+            Map<Object, Object> data = redisRepository.failedRecord(failureId);
+            try {
+                ClubPopularityRedisRepository.PendingRecord record = new ClubPopularityRedisRepository.PendingRecord(
+                        (String) data.get("member"), Long.parseLong((String) data.get("scoreMillis")));
+                ClubPopularityPendingKey.Parsed parsed = ClubPopularityPendingKey.parse(record.member());
+                if (clubRepository.findById(parsed.clubId()).isEmpty()) {
+                    redisRepository.removeFailedRecord(failureId);
+                    continue;
+                }
+                Instant viewedAt = Instant.ofEpochMilli(record.scoreMillis());
+                if ("U".equals(parsed.type())) {
+                    clubViewRepository.upsertUser(parsed.clubId(), Long.parseLong(parsed.value()), viewedAt);
+                } else {
+                    clubViewRepository.upsertAnonymous(parsed.clubId(), Base64.getUrlDecoder().decode(parsed.value()), viewedAt);
+                }
+                redisRepository.removeFailedRecord(failureId);
+            } catch (RuntimeException exception) {
+                int attempt = Integer.parseInt(String.valueOf(data.getOrDefault("attempt", "1")));
+                if (attempt >= properties.getFailedRecordMaxAttempts()) {
+                    redisRepository.removeFailedRecord(failureId);
+                } else {
+                    int delayMinutes = properties.getFailedRecordRetryDelaysMinutes().get(attempt);
+                    redisRepository.rescheduleFailedRecord(failureId, attempt + 1,
+                            System.currentTimeMillis() + delayMinutes * 60_000L);
+                }
+            }
+            processed++;
+        }
+        return processed;
+    }
+
+    public long cleanupExpiredFailures(Instant cutoff) {
+        return redisRepository.cleanupExpiredFailures(cutoff.toEpochMilli());
     }
 
     private Map<Long, Club> loadClubs(List<ClubPopularityRedisRepository.PendingRecord> records) {

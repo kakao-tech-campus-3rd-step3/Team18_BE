@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.redis;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import java.util.ArrayList;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
@@ -109,6 +110,38 @@ public class ClubPopularityRedisRepository {
         redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "attempt", "1");
         redisTemplate.expire(ClubPopularityRedisKeys.failedData(failureId), Duration.ofHours(25));
         redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.FAILED_RETRY, failureId, retryAtMillis);
+    }
+
+    public Set<String> dueFailedRecords(long nowMillis, int limit) {
+        Set<String> ids = redisTemplate.opsForZSet().rangeByScore(ClubPopularityRedisKeys.FAILED_RETRY,
+                Double.NEGATIVE_INFINITY, nowMillis, 0, limit);
+        return ids == null ? Set.of() : ids;
+    }
+
+    public Map<Object, Object> failedRecord(String failureId) {
+        return redisTemplate.opsForHash().entries(ClubPopularityRedisKeys.failedData(failureId));
+    }
+
+    public void rescheduleFailedRecord(String failureId, int attempt, long retryAtMillis) {
+        redisTemplate.opsForHash().put(ClubPopularityRedisKeys.failedData(failureId), "attempt", Integer.toString(attempt));
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.FAILED_RETRY, failureId, retryAtMillis);
+    }
+
+    public void removeFailedRecord(String failureId) {
+        redisTemplate.delete(ClubPopularityRedisKeys.failedData(failureId));
+        redisTemplate.opsForZSet().remove(ClubPopularityRedisKeys.FAILED_RETRY, failureId);
+    }
+
+    public long cleanupExpiredFailures(long cutoffMillis) {
+        Set<String> expired = redisTemplate.opsForZSet().rangeByScore(ClubPopularityRedisKeys.FAILED_RETRY,
+                Double.NEGATIVE_INFINITY, cutoffMillis);
+        if (expired == null || expired.isEmpty()) {
+            return 0;
+        }
+        for (String failureId : expired) {
+            removeFailedRecord(failureId);
+        }
+        return expired.size();
     }
 
     private static RedisScript<Long> script(String path) {
