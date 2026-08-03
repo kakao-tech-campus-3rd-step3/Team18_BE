@@ -145,6 +145,21 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
+    @DisplayName("읽을 수 없는 JSON 요청 본문 처리 테스트")
+    void handleHttpMessageNotReadableException_test() throws Exception {
+        final String url = "/test/validation-Exception";
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+
+        mockMvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
+                .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
+                .andExpect(jsonPath("$.detail").value("요청 본문의 형식 또는 값이 올바르지 않습니다."));
+    }
+
+    @Test
     @DisplayName("처리되지 않은 일반 예외 테스트")
     void handleException_test() throws Exception {
         // given

@@ -17,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -106,6 +107,19 @@ public class GlobalExceptionHandler {
         log.warn("MethodArgumentNotValidException: {} (detail: {})",
                 errorCode.getMessage(),
                 detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(
+            final HttpMessageNotReadableException e) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = "요청 본문의 형식 또는 값이 올바르지 않습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("HttpMessageNotReadableException: {} (detail: {})",
+                errorCode.getMessage(), detail);
 
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }

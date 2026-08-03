@@ -112,15 +112,16 @@ public class ApplicationController {
         }
     }
 
-    @Operation(summary = "합/불 처리 및 메세지 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 이메일을 보냅니다.")
+    @Operation(summary = "합/불 처리 및 결과 알림 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 선택한 채널로 결과 알림을 보냅니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
+            @ApiResponse(responseCode = "400", description = "알림 채널이 비어 있거나 지원하지 않는 값인 경우"),
     })
     @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PatchMapping("/{clubId}/club-apply-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
-            @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
-            @RequestBody ApplicationApprovedRequestDto requestDto,
+            @Parameter(description = "결과 알림을 발송하는 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ApplicationApprovedRequestDto requestDto,
             @Parameter(description = "면접과 최종을 구별해주는 변수", required = true, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage
     ){
         SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
