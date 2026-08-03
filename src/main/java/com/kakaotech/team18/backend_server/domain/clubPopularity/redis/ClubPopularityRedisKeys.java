@@ -5,6 +5,7 @@ public final class ClubPopularityRedisKeys {
     public static final String PENDING = "club:popularity:pending";
     public static final String CANDIDATES = "club:popularity:candidates";
     public static final String RECOVERY_STATUS = "club:popularity:recovery:status";
+    public static final String FLUSH_LOCK = "club:popularity:lock:flush";
 
     private ClubPopularityRedisKeys() {
     }

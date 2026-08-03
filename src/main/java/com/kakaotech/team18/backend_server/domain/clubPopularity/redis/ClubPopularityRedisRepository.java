@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.redis;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
@@ -29,6 +30,20 @@ public class ClubPopularityRedisRepository {
     public Set<String> candidateClubIds() {
         Set<String> members = redisTemplate.opsForSet().members(ClubPopularityRedisKeys.CANDIDATES);
         return members == null ? Set.of() : members;
+    }
+
+    public List<PendingRecord> pendingRecords(int limit) {
+        Set<org.springframework.data.redis.core.ZSetOperations.TypedTuple<String>> tuples =
+                redisTemplate.opsForZSet().rangeWithScores(ClubPopularityRedisKeys.PENDING, 0, limit - 1);
+        List<PendingRecord> records = new ArrayList<>();
+        if (tuples != null) {
+            for (org.springframework.data.redis.core.ZSetOperations.TypedTuple<String> tuple : tuples) {
+                if (tuple.getValue() != null && tuple.getScore() != null) {
+                    records.add(new PendingRecord(tuple.getValue(), tuple.getScore().longValue()));
+                }
+            }
+        }
+        return records;
     }
 
     public RecordResult recordView(long clubId, ClubPopularityViewerIdentity identity, long nowMillis,
@@ -114,5 +129,8 @@ public class ClubPopularityRedisRepository {
     }
 
     public record ViewerCounts(int recentViewerCount, int activeViewerCount) {
+    }
+
+    public record PendingRecord(String member, long scoreMillis) {
     }
 }
