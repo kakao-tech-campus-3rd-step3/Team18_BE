@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.service;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityTimePolicy;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +25,17 @@ public class ClubPopularityQueryService {
     private final ClubPopularityProperties properties;
     private final ClubPopularityTimePolicy timePolicy;
     private final ClubPopularityRedisRepository redisRepository;
+    private final ClubPopularityMetrics metrics;
 
     public ClubPopularityResponse getPopularClubs() {
         if (!properties.isEnabled()) {
+            metrics.setEnabled(false);
+            metrics.recordApi("popular", "disabled");
             return ClubPopularityResponse.empty();
         }
         try {
             if (!READY.equals(redisRepository.recoveryStatus())) {
+                metrics.recordApi("popular", "recovering");
                 return ClubPopularityResponse.empty();
             }
 
@@ -63,8 +68,11 @@ public class ClubPopularityQueryService {
             if (!READY.equals(redisRepository.recoveryStatus())) {
                 return ClubPopularityResponse.empty();
             }
+            metrics.recordApi("popular", "success");
             return new ClubPopularityResponse(popularClubs);
         } catch (DataAccessException exception) {
+            metrics.recordRedisError("popular");
+            metrics.recordApi("popular", "redis_error");
             log.warn("Club popularity query failed: {}", exception.getMessage());
             return ClubPopularityResponse.empty();
         }

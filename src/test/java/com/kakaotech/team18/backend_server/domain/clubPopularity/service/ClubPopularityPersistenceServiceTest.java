@@ -12,6 +12,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.ClubViewBatchRepository;
 import java.util.List;
 import java.util.Set;
@@ -32,12 +33,13 @@ class ClubPopularityPersistenceServiceTest {
     @Mock StringRedisTemplate redisTemplate;
     @Mock ValueOperations<String, String> valueOperations;
     @Mock ClubPopularityProperties properties;
+    @Mock ClubPopularityMetrics metrics;
 
     private ClubPopularityPersistenceService service;
 
     @BeforeEach
     void setUp() {
-        service = new ClubPopularityPersistenceService(redisRepository, clubViewRepository, clubRepository, redisTemplate, properties);
+        service = new ClubPopularityPersistenceService(redisRepository, clubViewRepository, clubRepository, redisTemplate, properties, metrics);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         lenient().when(valueOperations.setIfAbsent(eq("club:popularity:lock:flush"), any(String.class), any()))
                 .thenReturn(true);

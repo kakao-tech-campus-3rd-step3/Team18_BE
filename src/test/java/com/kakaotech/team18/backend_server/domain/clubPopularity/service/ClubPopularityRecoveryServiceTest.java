@@ -14,6 +14,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopu
 import com.kakaotech.team18.backend_server.domain.clubPopularity.entity.ClubView;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.ClubViewRepository;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,12 +31,13 @@ class ClubPopularityRecoveryServiceTest {
     @Mock ClubViewRepository clubViewRepository;
     @Mock ClubView view;
     @Mock Club club;
+    @Mock ClubPopularityMetrics metrics;
 
     private ClubPopularityRecoveryService service;
 
     @BeforeEach
     void setUp() {
-        service = new ClubPopularityRecoveryService(new ClubPopularityProperties(), redisRepository, clubViewRepository);
+        service = new ClubPopularityRecoveryService(new ClubPopularityProperties(), redisRepository, clubViewRepository, metrics);
     }
 
     @Test

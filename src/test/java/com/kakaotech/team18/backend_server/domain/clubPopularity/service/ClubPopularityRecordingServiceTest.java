@@ -11,6 +11,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopu
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityTimePolicy;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Instant;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,6 +36,9 @@ class ClubPopularityRecordingServiceTest {
     private ClubPopularityRedisRepository redisRepository;
 
     @Mock
+    private ClubPopularityMetrics metrics;
+
+    @Mock
     private Authentication authentication;
 
     private ClubPopularityProperties properties;
@@ -43,7 +47,7 @@ class ClubPopularityRecordingServiceTest {
     @BeforeEach
     void setUp() {
         properties = new ClubPopularityProperties();
-        service = new ClubPopularityRecordingService(properties, timePolicy, viewerResolver, redisRepository);
+        service = new ClubPopularityRecordingService(properties, timePolicy, viewerResolver, redisRepository, metrics);
         lenient().when(timePolicy.currentInstant()).thenReturn(Instant.parse("2026-08-02T00:00:00Z"));
     }
 

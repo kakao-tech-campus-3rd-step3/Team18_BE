@@ -11,6 +11,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.dto.ClubPopular
 import com.kakaotech.team18.backend_server.domain.clubPopularity.dto.PopularClubResponse;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityTimePolicy;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -26,6 +27,7 @@ class ClubPopularityQueryServiceTest {
 
     @Mock ClubPopularityTimePolicy timePolicy;
     @Mock ClubPopularityRedisRepository redisRepository;
+    @Mock ClubPopularityMetrics metrics;
 
     private ClubPopularityProperties properties;
     private ClubPopularityQueryService service;
@@ -33,7 +35,7 @@ class ClubPopularityQueryServiceTest {
     @BeforeEach
     void setUp() {
         properties = new ClubPopularityProperties();
-        service = new ClubPopularityQueryService(properties, timePolicy, redisRepository);
+        service = new ClubPopularityQueryService(properties, timePolicy, redisRepository, metrics);
         lenient().when(timePolicy.currentInstant()).thenReturn(Instant.ofEpochMilli(1_700_000_000_000L));
     }
 

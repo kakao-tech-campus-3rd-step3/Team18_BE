@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.service;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityPendingKey;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisKeys;
@@ -36,6 +37,7 @@ public class ClubPopularityPersistenceService {
     private final ClubRepository clubRepository;
     private final StringRedisTemplate redisTemplate;
     private final ClubPopularityProperties properties;
+    private final ClubPopularityMetrics metrics;
 
     /** 한 번에 처리할 양을 제한해 DB 잠금과 Redis 왕복을 bounded하게 유지한다. */
     @Transactional
@@ -55,8 +57,11 @@ public class ClubPopularityPersistenceService {
 
     @Transactional
     public FlushResult flushLocked(int batchSize) {
+        io.micrometer.core.instrument.Timer.Sample timer = metrics.startDbTimer();
+        refreshQueueMetrics();
         List<ClubPopularityRedisRepository.PendingRecord> records = redisRepository.pendingRecords(batchSize);
         if (records.isEmpty()) {
+            metrics.stopDbTimer(timer);
             return new FlushResult(0, 0, 0, 0, false);
         }
 
@@ -98,7 +103,17 @@ public class ClubPopularityPersistenceService {
                 removed++;
             }
         }
+        metrics.recordDbSaved(saved);
+        metrics.recordDbMissing(missing);
+        refreshQueueMetrics();
+        metrics.stopDbTimer(timer);
         return new FlushResult(saved, removed, missing, 0, false);
+    }
+
+    private void refreshQueueMetrics() {
+        metrics.setPendingState(redisRepository.pendingCount(),
+                redisRepository.oldestPendingAgeSeconds(System.currentTimeMillis()));
+        metrics.setFailedCount(redisRepository.dueFailedRecords(System.currentTimeMillis(), Integer.MAX_VALUE).size());
     }
 
     private void isolateFailure(ClubPopularityRedisRepository.PendingRecord record, String reason) {

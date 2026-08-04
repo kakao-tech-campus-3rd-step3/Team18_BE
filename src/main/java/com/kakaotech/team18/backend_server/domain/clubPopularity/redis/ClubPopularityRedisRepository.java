@@ -54,6 +54,21 @@ public class ClubPopularityRedisRepository {
         return records;
     }
 
+    public long pendingCount() {
+        Long size = redisTemplate.opsForZSet().zCard(ClubPopularityRedisKeys.PENDING);
+        return size == null ? 0L : size;
+    }
+
+    public long oldestPendingAgeSeconds(long nowMillis) {
+        Set<org.springframework.data.redis.core.ZSetOperations.TypedTuple<String>> tuples =
+                redisTemplate.opsForZSet().rangeWithScores(ClubPopularityRedisKeys.PENDING, 0, 0);
+        if (tuples == null || tuples.isEmpty() || tuples.iterator().next().getScore() == null) {
+            return 0L;
+        }
+        long ageMillis = Math.max(0L, nowMillis - tuples.iterator().next().getScore().longValue());
+        return ageMillis / 1000L;
+    }
+
     public RecordResult recordView(long clubId, ClubPopularityViewerIdentity identity, long nowMillis,
             int minIntervalSeconds, int activeTtlSeconds, int recentTtlSeconds) {
         String member = identity.redisMember();
