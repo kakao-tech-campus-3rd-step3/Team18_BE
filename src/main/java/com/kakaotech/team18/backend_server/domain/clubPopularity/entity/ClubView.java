@@ -63,4 +63,11 @@ public class ClubView {
     public static ClubView anonymous(Club club, byte[] anonymousIdentity, Instant lastViewedAt) {
         return new ClubView(club, null, anonymousIdentity.clone(), lastViewedAt);
     }
+
+    public String redisMember() {
+        if (userId != null) {
+            return "U:" + userId;
+        }
+        return "A:" + java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(anonymousIdentity);
+    }
 }
