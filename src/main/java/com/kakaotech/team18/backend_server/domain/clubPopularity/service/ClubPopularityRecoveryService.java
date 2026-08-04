@@ -57,8 +57,13 @@ public class ClubPopularityRecoveryService {
                 redisRepository.clearRecentViewerKeys();
                 redisRepository.clearCandidates();
                 Instant cutoff = Instant.now().minusSeconds(24 * 60 * 60);
+                Instant deadline = Instant.now().plus(lockTtl);
                 long lastId = 0L;
                 while (true) {
+                    if (Instant.now().isAfter(deadline)) {
+                        log.error("Club popularity recovery exceeded configured maximum duration");
+                        return RecoveryResult.TIMEOUT;
+                    }
                     if (!redisRepository.ownsRecoveryLock(owner) || !redisRepository.refreshRecoveryLock(owner, lockTtl)) {
                         log.warn("Club popularity recovery lock ownership lost");
                         return RecoveryResult.LOCK_LOST;
@@ -99,6 +104,7 @@ public class ClubPopularityRecoveryService {
         LOCK_LOST,
         REDIS_UNAVAILABLE,
         DISABLED,
+        TIMEOUT,
         FAILED
     }
 }
