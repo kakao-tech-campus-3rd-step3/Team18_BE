@@ -11,6 +11,18 @@ k6 run \
   scripts/load-test/club-popularity.js
 ```
 
+빠른 연결 확인은 다음처럼 20초 단축 시나리오로 실행합니다.
+
+```bash
+k6 run \
+  -e BASE_URL=http://localhost:8080 \
+  -e CLUB_ID=1 \
+  -e LOAD_TEST_SHORT=true \
+  scripts/load-test/club-popularity.js
+```
+
+테스트 데이터가 없는 환경에서는 상세 조회의 `404`를 정상적인 응답으로 취급하고, 기록·heartbeat는 `204`, 인기 목록은 `200`을 기대합니다.
+
 설정값은 낮은 부하에서 시작해 단계적으로 조정합니다. 테스트 중 다음을 함께 관찰합니다.
 
 - API p50·p95·p99와 오류율

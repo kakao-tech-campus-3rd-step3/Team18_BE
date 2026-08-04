@@ -3,6 +3,8 @@ import { check, sleep } from 'k6';
 
 const baseUrl = __ENV.BASE_URL || 'http://localhost:8080';
 const clubId = __ENV.CLUB_ID || '1';
+const shortRun = __ENV.LOAD_TEST_SHORT === 'true';
+const detailResponse = http.expectedStatuses({ min: 200, max: 399 }, 404);
 
 export const options = {
   scenarios: {
@@ -10,9 +12,9 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 1,
       stages: [
-        { duration: '30s', target: 5 },
-        { duration: '60s', target: 20 },
-        { duration: '30s', target: 0 },
+        { duration: shortRun ? '5s' : '30s', target: 5 },
+        { duration: shortRun ? '10s' : '60s', target: 20 },
+        { duration: shortRun ? '5s' : '30s', target: 0 },
       ],
       gracefulRampDown: '10s',
     },
@@ -24,7 +26,7 @@ export const options = {
 };
 
 export default function () {
-  const detail = http.get(`${baseUrl}/api/clubs/${clubId}`);
+  const detail = http.get(`${baseUrl}/api/clubs/${clubId}`, { responseCallback: detailResponse });
   check(detail, { 'club detail responds': (response) => response.status < 500 });
 
   const view = http.post(`${baseUrl}/api/clubs/${clubId}/views`, null, {
