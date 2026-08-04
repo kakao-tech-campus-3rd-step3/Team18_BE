@@ -6,6 +6,10 @@ import java.util.Set;
 import java.util.Map;
 import java.util.ArrayList;
 import java.time.Duration;
+import org.springframework.data.redis.core.ScanOptions;
+import org.springframework.data.redis.core.Cursor;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.util.StreamUtils;
@@ -22,6 +26,8 @@ public class ClubPopularityRedisRepository {
     private static final RedisScript<Long> RECORD_HEARTBEAT_SCRIPT = script("lua/club-popularity-record-heartbeat.lua");
     private static final RedisScript<Long> AGGREGATE_SCRIPT = script("lua/club-popularity-aggregate.lua");
     private static final RedisScript<Long> CONDITIONAL_REMOVE_SCRIPT = script("lua/club-popularity-remove-pending.lua");
+    private static final RedisScript<Long> RELEASE_LOCK_SCRIPT = new DefaultRedisScript<>(
+            "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end", Long.class);
 
     private final StringRedisTemplate redisTemplate;
 
@@ -142,6 +148,64 @@ public class ClubPopularityRedisRepository {
             removeFailedRecord(failureId);
         }
         return expired.size();
+    }
+
+    public boolean tryAcquireRecoveryLock(String owner, Duration ttl) {
+        return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(
+                "club:popularity:lock:recovery", owner, ttl));
+    }
+
+    public boolean ownsRecoveryLock(String owner) {
+        return owner.equals(redisTemplate.opsForValue().get("club:popularity:lock:recovery"));
+    }
+
+    public boolean refreshRecoveryLock(String owner, Duration ttl) {
+        if (!ownsRecoveryLock(owner)) {
+            return false;
+        }
+        return Boolean.TRUE.equals(redisTemplate.expire("club:popularity:lock:recovery", ttl));
+    }
+
+    public void releaseRecoveryLock(String owner) {
+        redisTemplate.execute(RELEASE_LOCK_SCRIPT,
+                List.of("club:popularity:lock:recovery"), owner);
+    }
+
+    public void setRecoveryStatus(String status) {
+        redisTemplate.opsForValue().set(ClubPopularityRedisKeys.RECOVERY_STATUS, status);
+    }
+
+    public int clearRecentViewerKeys() {
+        return clearKeysByPattern("club:popularity:recent:*");
+    }
+
+    public int clearActiveViewerKeys() {
+        return clearKeysByPattern("club:popularity:active:*");
+    }
+
+    public void clearCandidates() {
+        redisTemplate.delete(ClubPopularityRedisKeys.CANDIDATES);
+    }
+
+    public void rebuildRecentViewer(long clubId, String member, long scoreMillis) {
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.recentViewers(clubId), member, scoreMillis);
+        redisTemplate.opsForSet().add(ClubPopularityRedisKeys.CANDIDATES, Long.toString(clubId));
+    }
+
+    private int clearKeysByPattern(String pattern) {
+        List<String> keys = new ArrayList<>();
+        redisTemplate.execute(connection -> {
+            try (Cursor<byte[]> cursor = connection.scan(ScanOptions.scanOptions().match(pattern).count(500).build())) {
+                while (cursor.hasNext()) {
+                    keys.add(new String(cursor.next(), StandardCharsets.UTF_8));
+                }
+            }
+            return null;
+        }, true);
+        if (!keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
+        return keys.size();
     }
 
     private static RedisScript<Long> script(String path) {

@@ -122,6 +122,34 @@ class ClubPopularityRedisRepositoryIntegrationTest {
         assertThat(redisTemplate.opsForZSet().score(ClubPopularityRedisKeys.PENDING, pending)).isEqualTo(now + 1D);
     }
 
+    @Test
+    @DisplayName("복구 초기화는 recent·active 패턴과 후보만 대상으로 하고 다른 키를 보존한다")
+    void recoveryClearsOnlyPopularityViewerKeys() {
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.recentViewers(7), "U:1", 10);
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.activeViewers(7), "U:1", 10);
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.PENDING, "v1|7|U|1", 10);
+        redisTemplate.opsForSet().add(ClubPopularityRedisKeys.CANDIDATES, "7");
+
+        assertThat(repository.clearRecentViewerKeys()).isEqualTo(1);
+        repository.clearCandidates();
+
+        assertThat(redisTemplate.hasKey(ClubPopularityRedisKeys.recentViewers(7))).isFalse();
+        assertThat(redisTemplate.hasKey(ClubPopularityRedisKeys.activeViewers(7))).isTrue();
+        assertThat(redisTemplate.opsForZSet().zCard(ClubPopularityRedisKeys.PENDING)).isEqualTo(1);
+        assertThat(redisTemplate.opsForSet().size(ClubPopularityRedisKeys.CANDIDATES)).isZero();
+    }
+
+    @Test
+    @DisplayName("복구 잠금은 소유자만 해제할 수 있다")
+    void recoveryLockIsOwnerBound() {
+        assertThat(repository.tryAcquireRecoveryLock("owner-a", java.time.Duration.ofMinutes(1))).isTrue();
+        assertThat(repository.ownsRecoveryLock("owner-b")).isFalse();
+        repository.releaseRecoveryLock("owner-b");
+        assertThat(repository.ownsRecoveryLock("owner-a")).isTrue();
+        repository.releaseRecoveryLock("owner-a");
+        assertThat(repository.ownsRecoveryLock("owner-a")).isFalse();
+    }
+
     private ClubPopularityRedisRepository.RecordResult get(Future<ClubPopularityRedisRepository.RecordResult> future) {
         try {
             return future.get();
