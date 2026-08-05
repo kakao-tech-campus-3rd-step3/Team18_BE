@@ -16,6 +16,7 @@ class ClubPopularityRedisKeysTest {
         assertThat(ClubPopularityRedisKeys.activeViewers(7)).isEqualTo("club:popularity:active:7");
         assertThat(ClubPopularityRedisKeys.PENDING).isEqualTo("club:popularity:pending");
         assertThat(ClubPopularityRedisKeys.CANDIDATES).isEqualTo("club:popularity:candidates");
+        assertThat(ClubPopularityRedisKeys.KNOWN_CLUBS).isEqualTo("club:popularity:known-clubs");
         assertThat(ClubPopularityRedisKeys.rateLimit("views", 7, "U:15"))
                 .isEqualTo("club:popularity:rate-limit:views:7:U:15");
     }

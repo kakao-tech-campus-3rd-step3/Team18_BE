@@ -15,6 +15,8 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopu
 import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.ClubViewBatchRepository;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,7 +42,7 @@ class ClubPopularityPersistenceServiceTest {
     @BeforeEach
     void setUp() {
         service = new ClubPopularityPersistenceService(redisRepository, clubViewRepository, clubRepository, redisTemplate, properties, metrics);
-        when(redisTemplate.opsForValue()).thenReturn(valueOperations);
+        lenient().when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         lenient().when(valueOperations.setIfAbsent(eq("club:popularity:lock:flush"), any(String.class), any()))
                 .thenReturn(true);
     }
@@ -72,5 +74,27 @@ class ClubPopularityPersistenceServiceTest {
 
         assertThat(result.skipped()).isTrue();
         verify(redisRepository, never()).pendingRecords(any(Integer.class));
+    }
+
+    @Test
+    void schedulesFirstFailedRetryUsingTheFirstConfiguredDelay() {
+        Club club = org.mockito.Mockito.mock(Club.class);
+        when(clubRepository.findById(7L)).thenReturn(Optional.of(club));
+        when(redisRepository.dueFailedRecords(any(Long.class), eq(1))).thenReturn(Set.of("failure-1"));
+        when(redisRepository.failedRecord("failure-1")).thenReturn(Map.of(
+                "member", "v1|7|U|15",
+                "scoreMillis", "1700000000000",
+                "attempt", "1"));
+        org.mockito.Mockito.doThrow(new RuntimeException("db down"))
+                .when(clubViewRepository).upsertUser(eq(7L), eq(15L), any());
+        when(properties.getFailedRecordMaxAttempts()).thenReturn(3);
+        when(properties.getFailedRecordRetryDelaysMinutes()).thenReturn(List.of(10, 60, 360));
+        when(properties.getFailedRecordRetentionHours()).thenReturn(25);
+
+        service.retryFailedRecords(1);
+
+        verify(redisRepository).rescheduleFailedRecord(eq("failure-1"), eq(2),
+                org.mockito.ArgumentMatchers.longThat(value -> value >= System.currentTimeMillis() + 9 * 60_000L),
+                any());
     }
 }

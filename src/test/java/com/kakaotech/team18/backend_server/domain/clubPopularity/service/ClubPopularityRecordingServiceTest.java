@@ -113,6 +113,17 @@ class ClubPopularityRecordingServiceTest {
                 .isEqualTo(ClubPopularityRecordingService.RecordingResult.RECOVERING);
     }
 
+    @Test
+    void mapsUnknownClubResultWithoutChangingTheHttpContract() {
+        ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
+        when(viewerResolver.resolve(authentication, null)).thenReturn(Optional.of(identity));
+        when(redisRepository.recordView(anyLong(), any(), anyLong(), any(Integer.class), any(Integer.class), anyLong()))
+                .thenReturn(ClubPopularityRedisRepository.RecordResult.INVALID_CLUB);
+
+        assertThat(service.recordView(999, authentication, null))
+                .isEqualTo(ClubPopularityRecordingService.RecordingResult.INVALID_CLUB);
+    }
+
     private void verifyNoResolverOrRepositoryInteraction() {
         verify(viewerResolver, never()).resolve(any(), any());
         verify(redisRepository, never()).recordView(anyLong(), any(), anyLong(), any(Integer.class),

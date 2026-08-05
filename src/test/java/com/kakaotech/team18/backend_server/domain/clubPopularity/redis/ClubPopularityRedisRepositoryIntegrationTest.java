@@ -53,6 +53,7 @@ class ClubPopularityRedisRepositoryIntegrationTest {
     void resetRedis() {
         redisTemplate.getConnectionFactory().getConnection().serverCommands().flushDb();
         redisTemplate.opsForValue().set(ClubPopularityRedisKeys.RECOVERY_STATUS, "READY");
+        repository.replaceKnownClubIds(Set.of(7L, 8L));
     }
 
     @Test
@@ -69,6 +70,20 @@ class ClubPopularityRedisRepositoryIntegrationTest {
         assertThat(redisTemplate.opsForZSet().zCard(ClubPopularityRedisKeys.activeViewers(7))).isEqualTo(1);
         assertThat(redisTemplate.opsForZSet().zCard(ClubPopularityRedisKeys.PENDING)).isEqualTo(1);
         assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "7")).isTrue();
+    }
+
+    @Test
+    @DisplayName("서버가 동기화한 동아리 목록 밖의 ID는 Redis 키를 만들지 않는다")
+    void rejectsUnknownClubWithoutCreatingKeys() {
+        ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
+
+        assertThat(repository.recordView(999, identity, 1_700_000_000_000L, 5, 180, 90_000))
+                .isEqualTo(ClubPopularityRedisRepository.RecordResult.INVALID_CLUB);
+        assertThat(repository.recordHeartbeat(999, identity, 1_700_000_000_000L, 1, 180))
+                .isEqualTo(ClubPopularityRedisRepository.RecordResult.INVALID_CLUB);
+        assertThat(redisTemplate.hasKey(ClubPopularityRedisKeys.recentViewers(999))).isFalse();
+        assertThat(redisTemplate.hasKey(ClubPopularityRedisKeys.activeViewers(999))).isFalse();
+        assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "999")).isFalse();
     }
 
     @Test

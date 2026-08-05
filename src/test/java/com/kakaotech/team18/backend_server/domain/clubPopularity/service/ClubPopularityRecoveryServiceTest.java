@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.entity.ClubView;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
@@ -31,6 +32,7 @@ class ClubPopularityRecoveryServiceTest {
 
     @Mock ClubPopularityRedisRepository redisRepository;
     @Mock ClubViewRepository clubViewRepository;
+    @Mock ClubRepository clubRepository;
     @Mock ClubView view;
     @Mock Club club;
     @Mock ClubPopularityMetrics metrics;
@@ -41,12 +43,13 @@ class ClubPopularityRecoveryServiceTest {
     void setUp() {
         ClubPopularityProperties properties = new ClubPopularityProperties();
         properties.setEnabled(true);
-        service = new ClubPopularityRecoveryService(properties, redisRepository, clubViewRepository, metrics);
+        service = new ClubPopularityRecoveryService(properties, redisRepository, clubViewRepository, clubRepository, metrics);
     }
 
     @Test
     void readyStatusSkipsRecovery() {
         when(redisRepository.recoveryStatus()).thenReturn("READY");
+        when(redisRepository.knownClubRegistryReady()).thenReturn(true);
 
         assertThat(service.recoverIfNeeded()).isEqualTo(ClubPopularityRecoveryService.RecoveryResult.ALREADY_READY);
         verify(redisRepository, never()).tryAcquireRecoveryLock(any(), any());
@@ -58,6 +61,7 @@ class ClubPopularityRecoveryServiceTest {
         when(redisRepository.tryAcquireRecoveryLock(any(), any())).thenReturn(true);
         when(redisRepository.ownsRecoveryLock(any())).thenReturn(true);
         when(redisRepository.refreshRecoveryLock(any(), any())).thenReturn(true);
+        when(clubRepository.findAllIds()).thenReturn(List.of(7L));
         List<ClubView> firstBatch = new ArrayList<>();
         for (int index = 0; index < 500; index++) {
             firstBatch.add(view);
@@ -75,7 +79,7 @@ class ClubPopularityRecoveryServiceTest {
         order.verify(redisRepository).setRecoveryStatus("RECOVERING");
         order.verify(redisRepository).clearRecentViewerKeys();
         order.verify(redisRepository).clearCandidates();
-        order.verify(redisRepository, org.mockito.Mockito.atLeastOnce()).rebuildRecentViewer(7L, "U:15", 100L);
+        order.verify(redisRepository, org.mockito.Mockito.atLeastOnce()).rebuildRecentViewer(7L, "U:15", 100L, 86_400L);
         order.verify(redisRepository).clearActiveViewerKeys();
         order.verify(redisRepository).setRecoveryStatus("READY");
         verify(redisRepository).releaseRecoveryLock(any());
