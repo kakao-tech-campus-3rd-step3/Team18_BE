@@ -16,6 +16,8 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Application
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
@@ -36,6 +38,7 @@ import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserStudentIdException;
@@ -69,6 +72,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final AnswerRepository answerRepository;
+    private final ClubRepository clubRepository;
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final FormQuestionRepository formQuestionRepository;
     private final UserRepository userRepository;
@@ -384,6 +388,11 @@ public class ApplicationServiceImpl implements ApplicationService {
                             return new ClubApplyFormNotFoundException("clubId = " + clubId);
                         }
                 );
+
+        Club club = clubRepository.findById(clubId)
+                .orElseThrow(()->new ClubNotFoundException("clubId = " + clubId));
+        Boolean isInterviewRequired = club.getIsInterviewRequired();
+
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
@@ -417,8 +426,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 Stage originalStage = a.getStage();
-                a.updateStage(Stage.FINAL);
-                a.updateStatus(Status.PENDING);
+                if(isInterviewRequired) {
+                    a.updateStage(Stage.FINAL);
+                    a.updateStatus(Status.PENDING);
+                } else {
+                    a.updateStage(Stage.RESULT);
+                    clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
+                }
                 publisher.publishEvent(new InterviewApprovedEvent(
                         applicationInfoDto,
                         a.getId(),

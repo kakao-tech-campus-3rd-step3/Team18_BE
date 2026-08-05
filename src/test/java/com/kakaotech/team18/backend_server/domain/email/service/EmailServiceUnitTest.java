@@ -7,6 +7,7 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationServiceImpl;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
@@ -78,6 +79,8 @@ class EmailServiceUnitTest {
     ClubApplyForm clubApplyForm;
     @Mock
     ClubApplyFormRepository clubApplyFormRepository;
+    @Mock
+    ClubRepository clubRepository;
 
     @Captor
     ArgumentCaptor<Map<String,Object>> modelCaptor;
@@ -180,6 +183,7 @@ class EmailServiceUnitTest {
 
         Club club1 = mock(Club.class);
         when(club1.getId()).thenReturn(77L);
+        when(club1.getIsInterviewRequired()).thenReturn(true);
         User president = User.builder()
                 .email("president@club.com")
                 .build();
@@ -194,6 +198,7 @@ class EmailServiceUnitTest {
         when(clubApplyForm.getClub()).thenReturn(club1);
         when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
         when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(77L)).thenReturn(Optional.of(club1));
 
         // 공통: stage 초기값은 INTERVIEW
         final Stage[] approvedStageRef = { Stage.INTERVIEW }; // updateStage 호출 시 바뀌게 함
@@ -290,6 +295,7 @@ class EmailServiceUnitTest {
 
         when(clubApplyForm.getClub()).thenReturn(club1);
         when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(88L)).thenReturn(Optional.of(club1));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
         when(appRejected.getStage()).thenReturn(Stage.FINAL);
@@ -361,6 +367,7 @@ class EmailServiceUnitTest {
         Club clubN = mock(Club.class);
         when(clubN.getId()).thenReturn(clubId);
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(clubN));
         when(clubApplyForm.getClub()).thenReturn(clubN);
 
         // 앱들 (모두 stage == null)
@@ -446,6 +453,7 @@ class EmailServiceUnitTest {
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(mock(Club.class)));
 
         Application appPending = mock(Application.class);
         when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
@@ -515,6 +523,7 @@ class EmailServiceUnitTest {
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(mock(Club.class)));
 
         Application appPending = mock(Application.class);
         when(appPending.getStage()).thenReturn(Stage.FINAL);
@@ -548,6 +557,7 @@ class EmailServiceUnitTest {
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
         when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubRepository.findById(clubId)).thenReturn(Optional.of(mock(Club.class)));
 
         Application appPending = mock(Application.class);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
