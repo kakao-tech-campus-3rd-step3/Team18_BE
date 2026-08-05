@@ -4,13 +4,17 @@ import java.sql.Timestamp;
 import java.sql.Connection;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @RequiredArgsConstructor
 public class ClubViewBatchRepositoryImpl implements ClubViewBatchRepository {
 
     private final JdbcTemplate jdbcTemplate;
+    private final AtomicReference<Boolean> mySqlCache = new AtomicReference<>();
 
     @Override
     public void upsertUser(long clubId, long userId, Instant lastViewedAt) {
@@ -63,8 +67,19 @@ public class ClubViewBatchRepositoryImpl implements ClubViewBatchRepository {
                 ? jdbcTemplate.query(lookupSql, (rs, rowNum) -> rs.getLong("id"), clubId, userId)
                 : jdbcTemplate.query(lookupSql, (rs, rowNum) -> rs.getLong("id"), clubId, anonymousIdentity);
         if (ids.isEmpty()) {
-            jdbcTemplate.update("INSERT INTO club_view (club_id, user_id, anonymous_identity, last_viewed_at) VALUES (?, ?, ?, ?)",
-                    clubId, userId, anonymousIdentity, Timestamp.from(lastViewedAt));
+            try {
+                jdbcTemplate.update("INSERT INTO club_view (club_id, user_id, anonymous_identity, last_viewed_at) VALUES (?, ?, ?, ?)",
+                        clubId, userId, anonymousIdentity, Timestamp.from(lastViewedAt));
+            } catch (DuplicateKeyException exception) {
+                // 다른 flush 작업이 먼저 삽입한 경우 UPDATE로 최신 시각만 반영한다.
+                ids = jdbcTemplate.query(lookupSql, (rs, rowNum) -> rs.getLong("id"), clubId,
+                        userId != null ? userId : anonymousIdentity);
+                if (ids.isEmpty()) {
+                    throw exception;
+                }
+                jdbcTemplate.update("UPDATE club_view SET last_viewed_at = CASE WHEN last_viewed_at < ? THEN ? ELSE last_viewed_at END WHERE id = ?",
+                        Timestamp.from(lastViewedAt), Timestamp.from(lastViewedAt), ids.get(0));
+            }
             return;
         }
         jdbcTemplate.update("UPDATE club_view SET last_viewed_at = CASE WHEN last_viewed_at < ? THEN ? ELSE last_viewed_at END WHERE id = ?",
@@ -72,7 +87,13 @@ public class ClubViewBatchRepositoryImpl implements ClubViewBatchRepository {
     }
 
     private boolean isMySql() {
-        return jdbcTemplate.execute((Connection connection) ->
-                connection.getMetaData().getDatabaseProductName().toLowerCase(java.util.Locale.ROOT).contains("mysql"));
+        Boolean cached = mySqlCache.get();
+        if (cached != null) {
+            return cached;
+        }
+        boolean resolved = Boolean.TRUE.equals(jdbcTemplate.execute((Connection connection) ->
+                connection.getMetaData().getDatabaseProductName().toLowerCase(Locale.ROOT).contains("mysql")));
+        mySqlCache.compareAndSet(null, resolved);
+        return resolved;
     }
 }

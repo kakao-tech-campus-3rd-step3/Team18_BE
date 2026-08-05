@@ -25,11 +25,18 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClubPopularityPersistenceService {
+
+    private static final DefaultRedisScript<Long> RELEASE_LOCK_SCRIPT = new DefaultRedisScript<>(
+            "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end",
+            Long.class);
 
     private final ClubPopularityRedisRepository redisRepository;
     @Qualifier("clubViewRepository")
@@ -51,7 +58,7 @@ public class ClubPopularityPersistenceService {
         try {
             return flushLocked(batchSize);
         } finally {
-            redisTemplate.delete(ClubPopularityRedisKeys.FLUSH_LOCK);
+            redisTemplate.execute(RELEASE_LOCK_SCRIPT, List.of(ClubPopularityRedisKeys.FLUSH_LOCK), lockValue);
         }
     }
 
@@ -66,6 +73,7 @@ public class ClubPopularityPersistenceService {
         }
 
         Map<Long, Club> clubs = loadClubs(records);
+        List<ClubPopularityRedisRepository.PendingRecord> pendingRemovals = new ArrayList<>();
         int saved = 0;
         int removed = 0;
         int missing = 0;
@@ -75,14 +83,13 @@ public class ClubPopularityPersistenceService {
                 parsed = ClubPopularityPendingKey.parse(record.member());
             } catch (IllegalArgumentException exception) {
                 isolateFailure(record, exception.getMessage());
-                redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis());
+                pendingRemovals.add(record);
                 continue;
             }
             if (!clubs.containsKey(parsed.clubId())) {
                 missing++;
-                if (redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis())) {
-                    removed++;
-                }
+                pendingRemovals.add(record);
+                removed++;
                 continue;
             }
             Instant viewedAt = Instant.ofEpochMilli(record.scoreMillis());
@@ -95,14 +102,14 @@ public class ClubPopularityPersistenceService {
                 }
             } catch (DataIntegrityViolationException exception) {
                 isolateFailure(record, exception.getMessage());
-                redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis());
+                pendingRemovals.add(record);
                 continue;
             }
             saved++;
-            if (redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis())) {
-                removed++;
-            }
+            pendingRemovals.add(record);
+            removed++;
         }
+        registerPendingRemovals(pendingRemovals);
         metrics.recordDbSaved(saved);
         metrics.recordDbMissing(missing);
         refreshQueueMetrics();
@@ -113,14 +120,15 @@ public class ClubPopularityPersistenceService {
     private void refreshQueueMetrics() {
         metrics.setPendingState(redisRepository.pendingCount(),
                 redisRepository.oldestPendingAgeSeconds(System.currentTimeMillis()));
-        metrics.setFailedCount(redisRepository.dueFailedRecords(System.currentTimeMillis(), Integer.MAX_VALUE).size());
+        metrics.setFailedCount(redisRepository.failedRecordCount(System.currentTimeMillis()));
     }
 
     private void isolateFailure(ClubPopularityRedisRepository.PendingRecord record, String reason) {
         String failureId = UUID.randomUUID().toString();
         redisRepository.saveFailedRecord(failureId, record, reason == null ? "invalid record" : reason,
-                System.currentTimeMillis() + 10 * 60 * 1000L);
-        log.warn("Club popularity pending record moved to failed store: {}", record.member());
+                System.currentTimeMillis() + 10 * 60 * 1000L,
+                java.time.Duration.ofHours(properties.getFailedRecordRetentionHours()));
+        log.warn("Club popularity pending record moved to failed store: failureId={}", failureId);
     }
 
     @Transactional
@@ -133,6 +141,11 @@ public class ClubPopularityPersistenceService {
         int processed = 0;
         for (String failureId : redisRepository.dueFailedRecords(System.currentTimeMillis(), limit)) {
             Map<Object, Object> data = redisRepository.failedRecord(failureId);
+            if (data.isEmpty()) {
+                redisRepository.removeFailedRecord(failureId);
+                processed++;
+                continue;
+            }
             try {
                 ClubPopularityRedisRepository.PendingRecord record = new ClubPopularityRedisRepository.PendingRecord(
                         (String) data.get("member"), Long.parseLong((String) data.get("scoreMillis")));
@@ -153,9 +166,16 @@ public class ClubPopularityPersistenceService {
                 if (attempt >= properties.getFailedRecordMaxAttempts()) {
                     redisRepository.removeFailedRecord(failureId);
                 } else {
-                    int delayMinutes = properties.getFailedRecordRetryDelaysMinutes().get(attempt);
+                    List<Integer> delays = properties.getFailedRecordRetryDelaysMinutes();
+                    if (attempt < 0 || attempt >= delays.size()) {
+                        redisRepository.removeFailedRecord(failureId);
+                        processed++;
+                        continue;
+                    }
+                    int delayMinutes = delays.get(attempt);
                     redisRepository.rescheduleFailedRecord(failureId, attempt + 1,
-                            System.currentTimeMillis() + delayMinutes * 60_000L);
+                            System.currentTimeMillis() + delayMinutes * 60_000L,
+                            java.time.Duration.ofHours(properties.getFailedRecordRetentionHours()));
                 }
             }
             processed++;
@@ -163,8 +183,26 @@ public class ClubPopularityPersistenceService {
         return processed;
     }
 
-    public long cleanupExpiredFailures(Instant cutoff) {
-        return redisRepository.cleanupExpiredFailures(cutoff.toEpochMilli());
+    public long cleanupExpiredFailures(Instant cutoff, int limit) {
+        return redisRepository.cleanupExpiredFailures(cutoff.toEpochMilli(), limit);
+    }
+
+    private void registerPendingRemovals(List<ClubPopularityRedisRepository.PendingRecord> records) {
+        if (records.isEmpty()) {
+            return;
+        }
+        Runnable remove = () -> records.forEach(record ->
+                redisRepository.removePendingIfUnchanged(record.member(), record.scoreMillis()));
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    remove.run();
+                }
+            });
+        } else {
+            remove.run();
+        }
     }
 
     private Map<Long, Club> loadClubs(List<ClubPopularityRedisRepository.PendingRecord> records) {

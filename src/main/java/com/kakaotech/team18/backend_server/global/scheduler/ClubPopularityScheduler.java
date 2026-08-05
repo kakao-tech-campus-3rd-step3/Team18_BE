@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -16,7 +17,7 @@ public class ClubPopularityScheduler {
     private final ClubPopularityProperties properties;
     private final ClubPopularityPersistenceService persistenceService;
 
-    @Scheduled(fixedDelayString = "${club-popularity.flush-interval-minutes:60}000")
+    @Scheduled(fixedDelayString = "${club-popularity.flush-interval-minutes:60}", timeUnit = TimeUnit.MINUTES)
     public void flushPending() {
         if (!properties.isEnabled()) {
             return;
@@ -28,14 +29,23 @@ public class ClubPopularityScheduler {
         persistenceService.retryFailedRecords(properties.getFlushBatchSize());
     }
 
-    @Scheduled(fixedDelayString = "${club-popularity.cleanup-interval-minutes:60}000")
+    @Scheduled(fixedDelayString = "${club-popularity.cleanup-interval-minutes:60}", timeUnit = TimeUnit.MINUTES)
     public void cleanupOldViews() {
         if (!properties.isEnabled()) {
             return;
         }
         Instant cutoff = Instant.now().minusSeconds((long) properties.getRetentionHours() * 3600);
-        int deleted = persistenceService.cleanupOldViews(cutoff, properties.getCleanupBatchSize());
-        persistenceService.cleanupExpiredFailures(cutoff);
+        int deleted = 0;
+        int batchSize = properties.getCleanupBatchSize();
+        int maxIterations = Math.max(1, properties.getFlushMaxRecordsPerRun() / batchSize);
+        for (int iteration = 0; iteration < maxIterations; iteration++) {
+            int batchDeleted = persistenceService.cleanupOldViews(cutoff, batchSize);
+            deleted += batchDeleted;
+            if (batchDeleted < batchSize) {
+                break;
+            }
+        }
+        persistenceService.cleanupExpiredFailures(cutoff, batchSize);
         log.info("Club popularity old view cleanup completed: {} rows", deleted);
     }
 }
