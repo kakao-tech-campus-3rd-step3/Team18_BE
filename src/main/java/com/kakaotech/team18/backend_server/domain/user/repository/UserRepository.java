@@ -1,5 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.user.repository;
 
+import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import jakarta.validation.constraints.Email;
@@ -50,4 +51,16 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.gender = :gender WHERE u.id = :id AND u.gender IS NULL")
     int updateGenderIfAbsent(@Param("id") Long id, @Param("gender") Gender gender);
+
+    /**
+     * faculty가 아직 없는 User에 한해 원자적으로 채워 넣습니다.
+     * <p>
+     * {@link #updateGenderIfAbsent}와 동일하게, WHERE 절의 {@code faculty IS NULL}이 DB 레벨에서 조건을
+     * 재확인하므로 같은 학번 동시 제출 시에도 먼저 커밋되는 한 요청만 값을 채웁니다.
+     *
+     * @return 실제로 갱신된 행 수 (0 또는 1)
+     */
+    @Modifying
+    @Query("UPDATE User u SET u.faculty = :faculty WHERE u.id = :id AND u.faculty IS NULL")
+    int updateFacultyIfAbsent(@Param("id") Long id, @Param("faculty") Faculty faculty);
 }

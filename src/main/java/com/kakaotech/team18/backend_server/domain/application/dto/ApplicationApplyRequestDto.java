@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.application.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.global.annotation.NoSpecialChar;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -34,6 +35,9 @@ public record ApplicationApplyRequestDto(
 
         @Schema(description = "성별 (선택, 통계 집계용). 프론트 전환기에는 미전송(null)을 허용하며 통계에서 '미입력' 버킷으로 집계된다.", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "MALE")
         Gender gender,
+
+        @Schema(description = "학부 (선택, 통계 집계용). 목록에 없으면 ETC. 프론트 전환기에는 미전송(null)을 허용하며 통계에서 '미입력' 버킷으로 집계된다.", requiredMode = Schema.RequiredMode.NOT_REQUIRED, example = "ENGINEERING")
+        Faculty faculty,
 
         List<AnswerDto> answers
 ) {
