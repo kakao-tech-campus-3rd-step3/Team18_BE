@@ -322,6 +322,7 @@ class ApplicationControllerTest {
           "phoneNumber":"010-0000-0000",
           "department":"컴퓨터공학과",
           "gender":"MALE",
+          "faculty":"ENGINEERING",
           "answers": [
           {"questionNum":0,"question":"q","answer":"자기소개입니다"},
           {"questionNum":1,"question":"q","answer":"여"},

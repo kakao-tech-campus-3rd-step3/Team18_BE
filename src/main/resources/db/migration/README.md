@@ -9,6 +9,7 @@ Flyway·Liquibase는 도입되어 있지 않다. 아래 파일은 **배포 시 �
 | 순서 | 파일 | 내용 |
 |---|---|---|
 | 1 | `V1__add_user_gender.sql` | `users.gender` 컬럼 추가 |
+| 2 | `V2__add_user_faculty.sql` | `users.faculty` 컬럼 추가 |
 
 실행 전 확인:
 

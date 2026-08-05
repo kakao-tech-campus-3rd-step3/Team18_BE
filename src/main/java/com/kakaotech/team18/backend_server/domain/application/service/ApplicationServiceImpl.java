@@ -180,6 +180,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                                 .phoneNumber(request.phoneNumber())
                                 .department(request.department())
                                 .gender(request.gender())
+                                .faculty(request.faculty())
                                 .build();
                         return userRepository.save(newUser);
                     } catch (Exception e) {
@@ -193,6 +194,12 @@ public class ApplicationServiceImpl implements ApplicationService {
         if (request.gender() != null && userRepository.updateGenderIfAbsent(user.getId(), request.gender()) == 1) {
             user.fillGenderIfAbsent(request.gender());
             log.info("기존 User의 성별을 이번 지원서 제출값으로 채움. userId={}", user.getId());
+        }
+
+        //2.2 학부도 동일하게, 기존 User에 비어 있으면 이번 제출값으로 원자적으로 채운다.
+        if (request.faculty() != null && userRepository.updateFacultyIfAbsent(user.getId(), request.faculty()) == 1) {
+            user.fillFacultyIfAbsent(request.faculty());
+            log.info("기존 User의 학부를 이번 지원서 제출값으로 채움. userId={}", user.getId());
         }
 
         //3. (폼+학번)으로 지원내역이 있는지 찾기
