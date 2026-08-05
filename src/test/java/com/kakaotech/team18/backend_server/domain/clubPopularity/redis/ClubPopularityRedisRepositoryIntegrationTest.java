@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -92,7 +94,7 @@ class ClubPopularityRedisRepositoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("heartbeat는 활성 사용자만 갱신하고 집계 Lua가 만료 데이터와 빈 후보를 정리한다")
+    @DisplayName("heartbeat는 활성 사용자만 갱신하고 집계 Lua는 읽기 전용으로 동작한다")
     void heartbeatAndAggregateUseSeparateScope() {
         long now = 1_700_000_000_000L;
         ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
@@ -107,7 +109,22 @@ class ClubPopularityRedisRepositoryIntegrationTest {
                 later - 86_400_000, later - 180_000);
         assertThat(counts.recentViewerCount()).isZero();
         assertThat(counts.activeViewerCount()).isZero();
-        assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "7")).isFalse();
+        assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "7")).isTrue();
+    }
+
+    @Test
+    @DisplayName("여러 후보 집계는 하나의 파이프라인으로 결과를 반환한다")
+    void aggregatesCandidatesInPipeline() {
+        long now = 1_700_000_000_000L;
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.recentViewers(7), "U:1", now);
+        redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.activeViewers(8), "U:2", now);
+        redisTemplate.opsForSet().add(ClubPopularityRedisKeys.CANDIDATES, "7", "8");
+
+        Map<Long, ClubPopularityRedisRepository.ViewerCounts> counts = repository.aggregateAll(
+                Set.of(7L, 8L), now, now - 86_400_000, now - 180_000);
+
+        assertThat(counts.get(7L).recentViewerCount()).isEqualTo(1);
+        assertThat(counts.get(8L).activeViewerCount()).isEqualTo(1);
     }
 
     @Test

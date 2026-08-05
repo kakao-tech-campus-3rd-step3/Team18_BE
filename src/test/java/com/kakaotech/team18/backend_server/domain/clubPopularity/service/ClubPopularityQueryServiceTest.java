@@ -15,6 +15,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPop
 import java.time.Instant;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,16 +44,14 @@ class ClubPopularityQueryServiceTest {
     void returnsBothBadgesAndAllPopularCandidatesWithoutSortingOrLimiting() {
         when(redisRepository.recoveryStatus()).thenReturn("READY");
         when(redisRepository.candidateClubIds()).thenReturn(new LinkedHashSet<>(List.of("20", "7")));
-        when(redisRepository.aggregate(org.mockito.ArgumentMatchers.eq(20L), org.mockito.ArgumentMatchers.anyLong(),
+        when(redisRepository.aggregateAll(org.mockito.ArgumentMatchers.anySet(), org.mockito.ArgumentMatchers.anyLong(),
                 org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyLong()))
-                .thenReturn(new ClubPopularityRedisRepository.ViewerCounts(11, 0));
-        when(redisRepository.aggregate(org.mockito.ArgumentMatchers.eq(7L), org.mockito.ArgumentMatchers.anyLong(),
-                org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyLong()))
-                .thenReturn(new ClubPopularityRedisRepository.ViewerCounts(0, 3));
+                .thenReturn(Map.of(20L, new ClubPopularityRedisRepository.ViewerCounts(11, 0),
+                        7L, new ClubPopularityRedisRepository.ViewerCounts(0, 3)));
 
         ClubPopularityResponse response = service.getPopularClubs();
 
-        assertThat(response.clubs()).containsExactly(
+        assertThat(response.clubs()).containsExactlyInAnyOrder(
                 new PopularClubResponse(20, 11, 0, true, false),
                 new PopularClubResponse(7, 0, 3, false, true));
     }
@@ -75,9 +74,9 @@ class ClubPopularityQueryServiceTest {
     void returnsEmptyIfRecoveryStartsDuringAggregation() {
         when(redisRepository.recoveryStatus()).thenReturn("READY", "RECOVERING");
         when(redisRepository.candidateClubIds()).thenReturn(java.util.Set.of("7"));
-        when(redisRepository.aggregate(org.mockito.ArgumentMatchers.eq(7L), org.mockito.ArgumentMatchers.anyLong(),
+        when(redisRepository.aggregateAll(org.mockito.ArgumentMatchers.anySet(), org.mockito.ArgumentMatchers.anyLong(),
                 org.mockito.ArgumentMatchers.anyLong(), org.mockito.ArgumentMatchers.anyLong()))
-                .thenReturn(new ClubPopularityRedisRepository.ViewerCounts(10, 3));
+                .thenReturn(Map.of(7L, new ClubPopularityRedisRepository.ViewerCounts(10, 3)));
 
         assertThat(service.getPopularClubs().clubs()).isEmpty();
     }

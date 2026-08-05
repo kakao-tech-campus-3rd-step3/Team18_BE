@@ -22,6 +22,7 @@ class ClubPopularityConfigTest {
             assertThat(properties.isEnabled()).isTrue();
             assertThat(properties.getRecentViewerThreshold()).isEqualTo(10);
             assertThat(properties.getActiveViewerThreshold()).isEqualTo(3);
+            assertThat(properties.getRecentViewerWindowHours()).isEqualTo(24);
             assertThat(properties.getFlushBatchSize()).isEqualTo(500);
             assertThat(properties.getTransientRetryDelaysSeconds()).containsExactly(1, 3, 10);
             assertThat(context.getBean(Clock.class).getZone()).isEqualTo(ZoneOffset.UTC);
@@ -60,6 +61,28 @@ class ClubPopularityConfigTest {
     void rejectsRetentionShorterThanRequired() {
         contextRunner
                 .withPropertyValues("club-popularity.retention-hours=24")
+                .run(context -> assertThat(context).hasFailed());
+    }
+
+    @Test
+    @DisplayName("flush 배치 크기가 실행 상한을 넘으면 애플리케이션 시작에 실패한다")
+    void rejectsBatchSizeBeyondRunLimit() {
+        ClubPopularityProperties properties = new ClubPopularityProperties();
+        properties.setFlushBatchSize(501);
+        properties.setFlushMaxRecordsPerRun(500);
+
+        assertThat(properties.areBatchSizesWithinRunLimit()).isFalse();
+    }
+
+    @Test
+    @DisplayName("실패 재시도 횟수와 지연 목록 크기가 다르면 애플리케이션 시작에 실패한다")
+    void rejectsIncompleteFailedRetrySchedule() {
+        contextRunner
+                .withPropertyValues(
+                        "club-popularity.failed-record-max-attempts=2",
+                        "club-popularity.failed-record-retry-delays-minutes[0]=10",
+                        "club-popularity.failed-record-retry-delays-minutes[1]=60",
+                        "club-popularity.failed-record-retry-delays-minutes[2]=360")
                 .run(context -> assertThat(context).hasFailed());
     }
 }

@@ -5,8 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
-import java.time.Duration;
 import java.time.Instant;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -60,7 +61,9 @@ class ClubViewBatchRepositoryMySqlIntegrationTest {
 
         clubViewBatchRepository.upsertUser(club.getId(), 15L, Instant.ofEpochSecond(20));
         clubViewBatchRepository.upsertUser(club.getId(), 15L, Instant.ofEpochSecond(10));
-        clubViewBatchRepository.upsertAnonymous(club.getId(), "anonymous-key".getBytes(), Instant.ofEpochSecond(30));
+        byte[] anonymous = "anonymous-key".getBytes(StandardCharsets.UTF_8);
+        clubViewBatchRepository.upsertAnonymous(club.getId(), anonymous, Instant.ofEpochSecond(30));
+        clubViewBatchRepository.upsertAnonymous(club.getId(), anonymous, Instant.ofEpochSecond(10));
 
         assertThat(clubViewRepository.findAll()).hasSize(2);
         assertThat(clubViewRepository.findAll()).filteredOn(view -> view.getUserId() != null)
@@ -70,7 +73,7 @@ class ClubViewBatchRepositoryMySqlIntegrationTest {
                 });
         assertThat(clubViewRepository.findAll()).filteredOn(view -> view.getUserId() == null)
                 .singleElement().satisfies(view -> {
-                    assertThat(view.getAnonymousIdentity()).isEqualTo("anonymous-key".getBytes());
+                    assertThat(view.getAnonymousIdentity()).isEqualTo(anonymous);
                     assertThat(view.getLastViewedAt()).isEqualTo(Instant.ofEpochSecond(30));
                 });
     }

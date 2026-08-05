@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.ArgumentMatchers.anyLong;
 
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityTimePolicy;
@@ -56,12 +57,12 @@ class ClubPopularityRecordingServiceTest {
     void recordsView() {
         ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
         when(viewerResolver.resolve(authentication, "anonymous-id")).thenReturn(Optional.of(identity));
-        when(redisRepository.recordView(any(Long.class), any(), any(Long.class), any(Integer.class), any(Integer.class),
-                any(Integer.class))).thenReturn(ClubPopularityRedisRepository.RecordResult.RECORDED);
+        when(redisRepository.recordView(anyLong(), any(), anyLong(), any(Integer.class), any(Integer.class),
+                anyLong())).thenReturn(ClubPopularityRedisRepository.RecordResult.RECORDED);
 
         assertThat(service.recordView(7, authentication, "anonymous-id"))
                 .isEqualTo(ClubPopularityRecordingService.RecordingResult.RECORDED);
-        verify(redisRepository).recordView(7, identity, 1_785_628_800_000L, 5, 180, 90_000);
+        verify(redisRepository).recordView(7, identity, 1_785_628_800_000L, 5, 180, 90_000L);
     }
 
     @Test
@@ -81,8 +82,8 @@ class ClubPopularityRecordingServiceTest {
 
         assertThat(service.recordView(7, authentication, null))
                 .isEqualTo(ClubPopularityRecordingService.RecordingResult.INVALID_IDENTITY);
-        verify(redisRepository, never()).recordView(any(Long.class), any(), any(Long.class), any(Integer.class),
-                any(Integer.class), any(Integer.class));
+        verify(redisRepository, never()).recordView(anyLong(), any(), anyLong(), any(Integer.class),
+                any(Integer.class), anyLong());
     }
 
     @Test
@@ -102,8 +103,8 @@ class ClubPopularityRecordingServiceTest {
     void mapsRedisStatuses() {
         ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
         when(viewerResolver.resolve(authentication, null)).thenReturn(Optional.of(identity));
-        when(redisRepository.recordView(any(Long.class), any(), any(Long.class), any(Integer.class), any(Integer.class),
-                any(Integer.class))).thenReturn(ClubPopularityRedisRepository.RecordResult.RATE_LIMITED,
+        when(redisRepository.recordView(anyLong(), any(), anyLong(), any(Integer.class), any(Integer.class),
+                anyLong())).thenReturn(ClubPopularityRedisRepository.RecordResult.RATE_LIMITED,
                 ClubPopularityRedisRepository.RecordResult.RECOVERING);
 
         assertThat(service.recordView(7, authentication, null))
@@ -114,8 +115,8 @@ class ClubPopularityRecordingServiceTest {
 
     private void verifyNoResolverOrRepositoryInteraction() {
         verify(viewerResolver, never()).resolve(any(), any());
-        verify(redisRepository, never()).recordView(any(Long.class), any(), any(Long.class), any(Integer.class),
-                any(Integer.class), any(Integer.class));
+        verify(redisRepository, never()).recordView(anyLong(), any(), anyLong(), any(Integer.class),
+                any(Integer.class), anyLong());
         verify(redisRepository, never()).recordHeartbeat(any(Long.class), any(), any(Long.class), any(Integer.class),
                 any(Integer.class));
     }

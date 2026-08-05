@@ -17,12 +17,14 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.Club
 import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Instant;
 import java.util.List;
+import java.util.ArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataAccessResourceFailureException;
 
 @ExtendWith(MockitoExtension.class)
 class ClubPopularityRecoveryServiceTest {
@@ -37,7 +39,9 @@ class ClubPopularityRecoveryServiceTest {
 
     @BeforeEach
     void setUp() {
-        service = new ClubPopularityRecoveryService(new ClubPopularityProperties(), redisRepository, clubViewRepository, metrics);
+        ClubPopularityProperties properties = new ClubPopularityProperties();
+        properties.setEnabled(true);
+        service = new ClubPopularityRecoveryService(properties, redisRepository, clubViewRepository, metrics);
     }
 
     @Test
@@ -54,8 +58,12 @@ class ClubPopularityRecoveryServiceTest {
         when(redisRepository.tryAcquireRecoveryLock(any(), any())).thenReturn(true);
         when(redisRepository.ownsRecoveryLock(any())).thenReturn(true);
         when(redisRepository.refreshRecoveryLock(any(), any())).thenReturn(true);
-        when(clubViewRepository.findTop500ByIdGreaterThanAndLastViewedAtAfterOrderByIdAsc(anyLong(), any()))
-                .thenAnswer(invocation -> invocation.getArgument(0, Long.class) == 0L ? List.of(view) : List.of());
+        List<ClubView> firstBatch = new ArrayList<>();
+        for (int index = 0; index < 500; index++) {
+            firstBatch.add(view);
+        }
+        when(clubViewRepository.findByIdGreaterThanAndLastViewedAtAfterOrderByIdAsc(anyLong(), any(), any()))
+                .thenAnswer(invocation -> invocation.getArgument(0, Long.class) == 0L ? firstBatch : List.of());
         when(view.getClub()).thenReturn(club);
         when(club.getId()).thenReturn(7L);
         when(view.redisMember()).thenReturn("U:15");
@@ -65,11 +73,11 @@ class ClubPopularityRecoveryServiceTest {
         assertThat(service.recoverIfNeeded()).isEqualTo(ClubPopularityRecoveryService.RecoveryResult.RECOVERED);
         InOrder order = inOrder(redisRepository);
         order.verify(redisRepository).setRecoveryStatus("RECOVERING");
-        verify(redisRepository).clearRecentViewerKeys();
-        verify(redisRepository).clearCandidates();
-        verify(redisRepository).rebuildRecentViewer(7L, "U:15", 100L);
-        verify(redisRepository).clearActiveViewerKeys();
-        verify(redisRepository).setRecoveryStatus("READY");
+        order.verify(redisRepository).clearRecentViewerKeys();
+        order.verify(redisRepository).clearCandidates();
+        order.verify(redisRepository, org.mockito.Mockito.atLeastOnce()).rebuildRecentViewer(7L, "U:15", 100L);
+        order.verify(redisRepository).clearActiveViewerKeys();
+        order.verify(redisRepository).setRecoveryStatus("READY");
         verify(redisRepository).releaseRecoveryLock(any());
     }
 
@@ -80,5 +88,19 @@ class ClubPopularityRecoveryServiceTest {
 
         assertThat(service.recoverIfNeeded()).isEqualTo(ClubPopularityRecoveryService.RecoveryResult.LOCK_NOT_ACQUIRED);
         verify(redisRepository, never()).setRecoveryStatus(any());
+    }
+
+    @Test
+    void classifiesDatabaseFailureSeparatelyFromRedisFailure() {
+        when(redisRepository.recoveryStatus()).thenReturn(null);
+        when(redisRepository.tryAcquireRecoveryLock(any(), any())).thenReturn(true);
+        when(redisRepository.ownsRecoveryLock(any())).thenReturn(true);
+        when(redisRepository.refreshRecoveryLock(any(), any())).thenReturn(true);
+        when(clubViewRepository.findByIdGreaterThanAndLastViewedAtAfterOrderByIdAsc(anyLong(), any(), any()))
+                .thenThrow(new DataAccessResourceFailureException("database down"));
+
+        assertThat(service.recoverIfNeeded()).isEqualTo(ClubPopularityRecoveryService.RecoveryResult.DB_UNAVAILABLE);
+        verify(metrics).recordDbError("recovery");
+        verify(metrics, never()).recordRedisError("recovery");
     }
 }
