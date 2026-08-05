@@ -87,6 +87,23 @@ class ClubPopularityRedisRepositoryIntegrationTest {
     }
 
     @Test
+    @DisplayName("known clubs 교체는 기존 레지스트리 공백 없이 새 기준을 적용한다")
+    void replacesKnownClubRegistryWithoutLeavingReplacementKeys() {
+        repository.replaceKnownClubIds(Set.of(8L, 9L));
+
+        assertThat(repository.knownClubRegistryReady()).isTrue();
+        assertThat(redisTemplate.opsForSet().members(ClubPopularityRedisKeys.KNOWN_CLUBS))
+                .containsExactlyInAnyOrder("8", "9");
+        assertThat(redisTemplate.keys(ClubPopularityRedisKeys.KNOWN_CLUBS + ":replacement:*")).isEmpty();
+        assertThat(repository.recordView(8, ClubPopularityViewerIdentity.user(15L),
+                1_700_000_000_000L, 5, 180, 90_000))
+                .isEqualTo(ClubPopularityRedisRepository.RecordResult.RECORDED);
+        assertThat(repository.recordView(7, ClubPopularityViewerIdentity.user(15L),
+                1_700_000_000_000L, 5, 180, 90_000))
+                .isEqualTo(ClubPopularityRedisRepository.RecordResult.INVALID_CLUB);
+    }
+
+    @Test
     @DisplayName("동시 동일 요청도 하나만 기록하고 최신 시각을 보존한다")
     void concurrentViewsRemainAtomic() throws Exception {
         ExecutorService executor = Executors.newFixedThreadPool(8);
