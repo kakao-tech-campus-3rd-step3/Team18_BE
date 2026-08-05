@@ -23,6 +23,7 @@ public class ClubPopularityMetrics {
     private final AtomicLong oldestPendingAgeSeconds = new AtomicLong();
     private final AtomicLong failedCount = new AtomicLong();
     private final AtomicLong recoveryDurationSeconds = new AtomicLong();
+    private final AtomicLong recoveryStartedAtMillis = new AtomicLong();
     private final AtomicBoolean recoveryInProgress = new AtomicBoolean();
     private final AtomicBoolean enabled = new AtomicBoolean(true);
 
@@ -72,6 +73,7 @@ public class ClubPopularityMetrics {
 
     public void setRecoveryInProgress(boolean value) {
         recoveryInProgress.set(value);
+        recoveryStartedAtMillis.set(value ? System.currentTimeMillis() : 0L);
     }
 
     public void setEnabled(boolean value) {
@@ -90,9 +92,18 @@ public class ClubPopularityMetrics {
         Gauge.builder("club.popularity.failed.count", failedCount, AtomicLong::get).register(registry);
         Gauge.builder("club.popularity.recovery.in.progress", recoveryInProgress, value -> value.get() ? 1 : 0)
                 .register(registry);
-        Gauge.builder("club.popularity.recovery.duration.seconds", recoveryDurationSeconds, AtomicLong::get)
+        Gauge.builder("club.popularity.recovery.duration.seconds", this,
+                        ignored -> currentRecoveryDurationSeconds())
                 .register(registry);
         Gauge.builder("club.popularity.enabled", enabled, value -> value.get() ? 1 : 0).register(registry);
+    }
+
+    private long currentRecoveryDurationSeconds() {
+        long startedAt = recoveryStartedAtMillis.get();
+        if (startedAt == 0L) {
+            return recoveryDurationSeconds.get();
+        }
+        return Math.max(0L, (System.currentTimeMillis() - startedAt) / 1000L);
     }
 
     @PostConstruct

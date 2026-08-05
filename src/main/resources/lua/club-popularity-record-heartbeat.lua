@@ -3,6 +3,10 @@ if status ~= 'READY' then
     return 3
 end
 
+if redis.call('SISMEMBER', KEYS[5], ARGV[5]) == 0 then
+    return 4
+end
+
 if redis.call('EXISTS', KEYS[4]) == 1 then
     return 2
 end

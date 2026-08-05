@@ -4,6 +4,8 @@ public final class ClubPopularityRedisKeys {
 
     public static final String PENDING = "club:popularity:pending";
     public static final String CANDIDATES = "club:popularity:candidates";
+    public static final String KNOWN_CLUBS = "club:popularity:known-clubs";
+    public static final String KNOWN_CLUBS_READY = "club:popularity:known-clubs:ready";
     public static final String RECOVERY_STATUS = "club:popularity:recovery:status";
     public static final String FLUSH_LOCK = "club:popularity:lock:flush";
     public static final String FAILED_RETRY = "club:popularity:failed:retry";

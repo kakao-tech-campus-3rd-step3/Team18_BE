@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopu
 import com.kakaotech.team18.backend_server.domain.clubPopularity.entity.ClubView;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.repository.ClubViewRepository;
+import com.kakaotech.team18.backend_server.domain.club.repository.ClubRepository;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.metrics.ClubPopularityMetrics;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -32,6 +34,7 @@ public class ClubPopularityRecoveryService {
     private final ClubPopularityProperties properties;
     private final ClubPopularityRedisRepository redisRepository;
     private final ClubViewRepository clubViewRepository;
+    private final ClubRepository clubRepository;
     private final ClubPopularityMetrics metrics;
 
     @Async
@@ -52,7 +55,7 @@ public class ClubPopularityRecoveryService {
         }
         long startedAt = System.currentTimeMillis();
         try {
-            if (READY.equals(redisRepository.recoveryStatus())) {
+            if (READY.equals(redisRepository.recoveryStatus()) && redisRepository.knownClubRegistryReady()) {
                 return RecoveryResult.ALREADY_READY;
             }
             String owner = UUID.randomUUID().toString();
@@ -63,6 +66,7 @@ public class ClubPopularityRecoveryService {
             metrics.setRecoveryInProgress(true);
             try {
                 redisRepository.setRecoveryStatus(RECOVERING);
+                redisRepository.replaceKnownClubIds(clubRepository.findAllIds());
                 redisRepository.clearRecentViewerKeys();
                 redisRepository.clearCandidates();
                 Instant cutoff = Instant.now().minusSeconds((long) properties.getRecentViewerWindowHours() * 60 * 60);
@@ -82,7 +86,8 @@ public class ClubPopularityRecoveryService {
                                     PageRequest.of(0, BATCH_SIZE));
                     for (ClubView view : batch) {
                         redisRepository.rebuildRecentViewer(view.getClub().getId(), view.redisMember(),
-                                view.getLastViewedAt().toEpochMilli());
+                                view.getLastViewedAt().toEpochMilli(),
+                                (long) properties.getRecentViewerWindowHours() * 60 * 60);
                         lastId = view.getId();
                     }
                     if (batch.size() < BATCH_SIZE) {
@@ -100,6 +105,12 @@ public class ClubPopularityRecoveryService {
                 metrics.setRecoveryInProgress(false);
                 redisRepository.releaseRecoveryLock(owner);
             }
+        } catch (RedisConnectionFailureException exception) {
+            metrics.recordRedisError("recovery");
+            metrics.recordRecovery("redis_error", (System.currentTimeMillis() - startedAt) / 1000);
+            metrics.setRecoveryInProgress(false);
+            log.warn("Club popularity recovery deferred because Redis is unavailable: {}", exception.getMessage());
+            return RecoveryResult.REDIS_UNAVAILABLE;
         } catch (RedisSystemException exception) {
             metrics.recordRedisError("recovery");
             metrics.recordRecovery("redis_error", (System.currentTimeMillis() - startedAt) / 1000);

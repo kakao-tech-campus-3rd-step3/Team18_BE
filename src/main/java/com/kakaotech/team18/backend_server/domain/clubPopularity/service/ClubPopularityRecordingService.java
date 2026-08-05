@@ -80,6 +80,7 @@ public class ClubPopularityRecordingService {
             case RECORDED -> RecordingResult.RECORDED;
             case RATE_LIMITED -> RecordingResult.RATE_LIMITED;
             case RECOVERING -> RecordingResult.RECOVERING;
+            case INVALID_CLUB -> RecordingResult.INVALID_CLUB;
         };
     }
 
@@ -89,6 +90,7 @@ public class ClubPopularityRecordingService {
         DISABLED,
         RECOVERING,
         REDIS_ERROR,
-        INVALID_IDENTITY
+        INVALID_IDENTITY,
+        INVALID_CLUB
     }
 }

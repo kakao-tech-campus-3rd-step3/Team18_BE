@@ -125,8 +125,9 @@ public class ClubPopularityPersistenceService {
 
     private void isolateFailure(ClubPopularityRedisRepository.PendingRecord record, String reason) {
         String failureId = UUID.randomUUID().toString();
+        int firstRetryDelayMinutes = properties.getFailedRecordRetryDelaysMinutes().get(0);
         redisRepository.saveFailedRecord(failureId, record, reason == null ? "invalid record" : reason,
-                System.currentTimeMillis() + 10 * 60 * 1000L,
+                System.currentTimeMillis() + firstRetryDelayMinutes * 60_000L,
                 java.time.Duration.ofHours(properties.getFailedRecordRetentionHours()));
         log.warn("Club popularity pending record moved to failed store: failureId={}", failureId);
     }
@@ -152,6 +153,7 @@ public class ClubPopularityPersistenceService {
                 ClubPopularityPendingKey.Parsed parsed = ClubPopularityPendingKey.parse(record.member());
                 if (clubRepository.findById(parsed.clubId()).isEmpty()) {
                     redisRepository.removeFailedRecord(failureId);
+                    processed++;
                     continue;
                 }
                 Instant viewedAt = Instant.ofEpochMilli(record.scoreMillis());
@@ -162,17 +164,18 @@ public class ClubPopularityPersistenceService {
                 }
                 redisRepository.removeFailedRecord(failureId);
             } catch (RuntimeException exception) {
-                int attempt = Integer.parseInt(String.valueOf(data.getOrDefault("attempt", "1")));
+                int attempt = parseAttempt(data.get("attempt"));
                 if (attempt >= properties.getFailedRecordMaxAttempts()) {
                     redisRepository.removeFailedRecord(failureId);
                 } else {
                     List<Integer> delays = properties.getFailedRecordRetryDelaysMinutes();
-                    if (attempt < 0 || attempt >= delays.size()) {
+                    int delayIndex = attempt - 1;
+                    if (delayIndex < 0 || delayIndex >= delays.size()) {
                         redisRepository.removeFailedRecord(failureId);
                         processed++;
                         continue;
                     }
-                    int delayMinutes = delays.get(attempt);
+                    int delayMinutes = delays.get(delayIndex);
                     redisRepository.rescheduleFailedRecord(failureId, attempt + 1,
                             System.currentTimeMillis() + delayMinutes * 60_000L,
                             java.time.Duration.ofHours(properties.getFailedRecordRetentionHours()));
@@ -181,6 +184,14 @@ public class ClubPopularityPersistenceService {
             processed++;
         }
         return processed;
+    }
+
+    private int parseAttempt(Object value) {
+        try {
+            return Integer.parseInt(String.valueOf(value == null ? "1" : value));
+        } catch (NumberFormatException exception) {
+            return properties.getFailedRecordMaxAttempts();
+        }
     }
 
     public long cleanupExpiredFailures(Instant cutoff, int limit) {

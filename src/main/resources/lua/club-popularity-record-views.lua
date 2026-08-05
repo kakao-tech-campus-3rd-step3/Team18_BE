@@ -3,11 +3,15 @@ if status ~= 'READY' then
     return 3
 end
 
+if redis.call('SISMEMBER', KEYS[7], ARGV[7]) == 0 then
+    return 4
+end
+
 if redis.call('EXISTS', KEYS[6]) == 1 then
     return 2
 end
 
-redis.call('SET', KEYS[6], '1', 'EX', ARGV[4], 'NX')
+redis.call('SET', KEYS[6], '1', 'EX', ARGV[4])
 redis.call('ZADD', KEYS[1], 'GT', ARGV[1], ARGV[2])
 redis.call('ZADD', KEYS[2], 'GT', ARGV[1], ARGV[2])
 redis.call('ZADD', KEYS[3], 'GT', ARGV[1], ARGV[3])

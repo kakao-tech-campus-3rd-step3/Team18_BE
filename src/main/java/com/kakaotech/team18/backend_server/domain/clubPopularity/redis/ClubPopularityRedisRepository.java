@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.clubPopularity.redis;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.model.ClubPopularityViewerIdentity;
 import java.util.List;
 import java.util.Set;
+import java.util.Collection;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -41,8 +42,13 @@ public class ClubPopularityRedisRepository {
         return redisTemplate.opsForValue().get(ClubPopularityRedisKeys.RECOVERY_STATUS);
     }
 
+    public boolean knownClubRegistryReady() {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(ClubPopularityRedisKeys.KNOWN_CLUBS_READY));
+    }
+
     public Set<String> candidateClubIds() {
-        Set<String> members = redisTemplate.opsForSet().members(ClubPopularityRedisKeys.CANDIDATES);
+        Set<String> members = redisTemplate.opsForSet().intersect(
+                ClubPopularityRedisKeys.CANDIDATES, ClubPopularityRedisKeys.KNOWN_CLUBS);
         return members == null ? Set.of() : members;
     }
 
@@ -86,10 +92,11 @@ public class ClubPopularityRedisRepository {
                         ClubPopularityRedisKeys.PENDING,
                         ClubPopularityRedisKeys.CANDIDATES,
                         ClubPopularityRedisKeys.RECOVERY_STATUS,
-                        ClubPopularityRedisKeys.rateLimit("views", clubId, member)),
+                        ClubPopularityRedisKeys.rateLimit("views", clubId, member),
+                        ClubPopularityRedisKeys.KNOWN_CLUBS),
                 Long.toString(nowMillis), member, pendingMember,
                 Integer.toString(minIntervalSeconds), Integer.toString(activeTtlSeconds),
-                Long.toString(recentTtlSeconds));
+                Long.toString(recentTtlSeconds), Long.toString(clubId));
         return RecordResult.from(result);
     }
 
@@ -101,7 +108,8 @@ public class ClubPopularityRedisRepository {
                         ClubPopularityRedisKeys.activeViewers(clubId),
                         ClubPopularityRedisKeys.CANDIDATES,
                         ClubPopularityRedisKeys.RECOVERY_STATUS,
-                        ClubPopularityRedisKeys.rateLimit("heartbeat", clubId, member)),
+                        ClubPopularityRedisKeys.rateLimit("heartbeat", clubId, member),
+                        ClubPopularityRedisKeys.KNOWN_CLUBS),
                 Long.toString(nowMillis), member, Integer.toString(minIntervalSeconds),
                 Integer.toString(activeTtlSeconds), Long.toString(clubId));
         return RecordResult.from(result);
@@ -253,8 +261,19 @@ public class ClubPopularityRedisRepository {
         redisTemplate.delete(ClubPopularityRedisKeys.CANDIDATES);
     }
 
-    public void rebuildRecentViewer(long clubId, String member, long scoreMillis) {
+    /** 요청 경로의 DB 조회 없이 사용할 수 있는 서버 기준 동아리 ID 목록이다. */
+    public void replaceKnownClubIds(Collection<Long> clubIds) {
+        redisTemplate.delete(ClubPopularityRedisKeys.KNOWN_CLUBS);
+        if (!clubIds.isEmpty()) {
+            redisTemplate.opsForSet().add(ClubPopularityRedisKeys.KNOWN_CLUBS,
+                    clubIds.stream().map(String::valueOf).toArray(String[]::new));
+        }
+        redisTemplate.opsForValue().set(ClubPopularityRedisKeys.KNOWN_CLUBS_READY, "1");
+    }
+
+    public void rebuildRecentViewer(long clubId, String member, long scoreMillis, long recentTtlSeconds) {
         redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.recentViewers(clubId), member, scoreMillis);
+        redisTemplate.expire(ClubPopularityRedisKeys.recentViewers(clubId), Duration.ofSeconds(recentTtlSeconds));
         redisTemplate.opsForSet().add(ClubPopularityRedisKeys.CANDIDATES, Long.toString(clubId));
     }
 
@@ -297,7 +316,8 @@ public class ClubPopularityRedisRepository {
     public enum RecordResult {
         RECORDED,
         RATE_LIMITED,
-        RECOVERING;
+        RECOVERING,
+        INVALID_CLUB;
 
         static RecordResult from(Long value) {
             if (value == null) {
@@ -307,6 +327,7 @@ public class ClubPopularityRedisRepository {
                 case 1 -> RECORDED;
                 case 2 -> RATE_LIMITED;
                 case 3 -> RECOVERING;
+                case 4 -> INVALID_CLUB;
                 default -> throw new IllegalStateException("Unknown Redis record result: " + value);
             };
         }
