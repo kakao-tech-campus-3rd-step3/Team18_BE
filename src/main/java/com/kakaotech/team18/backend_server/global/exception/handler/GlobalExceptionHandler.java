@@ -173,9 +173,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(
-            MissingServletRequestPartException e)
-    {
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
         final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
         log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);
