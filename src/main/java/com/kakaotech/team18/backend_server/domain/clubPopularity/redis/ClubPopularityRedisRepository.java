@@ -35,6 +35,15 @@ public class ClubPopularityRedisRepository {
     private static final RedisScript<Long> REFRESH_LOCK_SCRIPT = new DefaultRedisScript<>(
             "if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('PEXPIRE', KEYS[1], ARGV[2]) else return 0 end",
             Long.class);
+    private static final RedisScript<Long> REPLACE_KNOWN_CLUBS_SCRIPT = new DefaultRedisScript<>("""
+            if redis.call('EXISTS', KEYS[1]) == 1 then
+                redis.call('RENAME', KEYS[1], KEYS[2])
+            else
+                redis.call('DEL', KEYS[2])
+            end
+            redis.call('SET', KEYS[3], ARGV[1])
+            return 1
+            """, Long.class);
 
     private final StringRedisTemplate redisTemplate;
 
@@ -263,12 +272,14 @@ public class ClubPopularityRedisRepository {
 
     /** 요청 경로의 DB 조회 없이 사용할 수 있는 서버 기준 동아리 ID 목록이다. */
     public void replaceKnownClubIds(Collection<Long> clubIds) {
-        redisTemplate.delete(ClubPopularityRedisKeys.KNOWN_CLUBS);
+        String replacementKey = ClubPopularityRedisKeys.KNOWN_CLUBS + ":replacement:" + UUID.randomUUID();
         if (!clubIds.isEmpty()) {
-            redisTemplate.opsForSet().add(ClubPopularityRedisKeys.KNOWN_CLUBS,
+            redisTemplate.opsForSet().add(replacementKey,
                     clubIds.stream().map(String::valueOf).toArray(String[]::new));
         }
-        redisTemplate.opsForValue().set(ClubPopularityRedisKeys.KNOWN_CLUBS_READY, "1");
+        redisTemplate.execute(REPLACE_KNOWN_CLUBS_SCRIPT,
+                List.of(replacementKey, ClubPopularityRedisKeys.KNOWN_CLUBS,
+                        ClubPopularityRedisKeys.KNOWN_CLUBS_READY), "1");
     }
 
     public void rebuildRecentViewer(long clubId, String member, long scoreMillis, long recentTtlSeconds) {
