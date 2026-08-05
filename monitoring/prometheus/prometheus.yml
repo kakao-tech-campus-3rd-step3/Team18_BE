@@ -1,8 +1,8 @@
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
-    external_labels:
-      monitor: 'dongarium-monitor'
+  external_labels:
+    monitor: 'dongarium-monitor'
 
 rule_files:
   - /etc/prometheus/club-popularity-alerts.yml
