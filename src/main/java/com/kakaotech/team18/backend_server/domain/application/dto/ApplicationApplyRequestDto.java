@@ -1,10 +1,12 @@
 package com.kakaotech.team18.backend_server.domain.application.dto;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.global.annotation.NoSpecialChar;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import java.util.List;
@@ -30,6 +32,10 @@ public record ApplicationApplyRequestDto(
 
         @NotBlank(message = "학과는 필수입니다.")
         String department,
+
+        @Schema(description = "성별 (필수, 통계 집계용)", requiredMode = Schema.RequiredMode.REQUIRED, example = "MALE")
+        @NotNull(message = "성별은 필수입니다.")
+        Gender gender,
 
         List<AnswerDto> answers
 ) {
