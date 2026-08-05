@@ -41,4 +41,23 @@ class ClubPopularitySchedulerTest {
         verify(persistenceService).flushPending(1);
         verify(persistenceService).retryFailedRecords(2);
     }
+
+    @Test
+    void continuesWhenBatchContainsOnlyIsolatedFailures() {
+        when(properties.isEnabled()).thenReturn(true);
+        when(properties.getFlushBatchSize()).thenReturn(2);
+        when(properties.getFlushMaxRecordsPerRun()).thenReturn(4);
+        when(properties.getFlushMaxDbAttemptsPerRun()).thenReturn(2);
+        when(properties.getFlushMaxDurationMinutes()).thenReturn(1);
+        when(persistenceService.flushPending(2)).thenReturn(
+                new ClubPopularityPersistenceService.FlushResult(0, 2, 0, 2, false),
+                new ClubPopularityPersistenceService.FlushResult(0, 0, 0, 0, false));
+
+        ClubPopularityScheduler scheduler = new ClubPopularityScheduler(properties, persistenceService);
+
+        scheduler.flushPending();
+
+        verify(persistenceService, times(2)).flushPending(2);
+        verify(persistenceService).retryFailedRecords(2);
+    }
 }
