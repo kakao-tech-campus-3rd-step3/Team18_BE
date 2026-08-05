@@ -8,6 +8,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
@@ -41,21 +43,25 @@ public class ClubPopularityQueryService {
 
             Instant now = timePolicy.currentInstant();
             long nowMillis = now.toEpochMilli();
-            long recentCutoffMillis = now.minusSeconds(24 * 60 * 60).toEpochMilli();
+            long recentCutoffMillis = now.minusSeconds((long) properties.getRecentViewerWindowHours() * 60 * 60)
+                    .toEpochMilli();
             long activeCutoffMillis = now.minusSeconds(properties.getActiveTtlSeconds()).toEpochMilli();
             Set<String> candidates = redisRepository.candidateClubIds();
             List<PopularClubResponse> popularClubs = new ArrayList<>();
+            Set<Long> validCandidateIds = new LinkedHashSet<>();
 
             for (String candidate : candidates) {
-                long clubId;
                 try {
-                    clubId = Long.parseLong(candidate);
+                    validCandidateIds.add(Long.parseLong(candidate));
                 } catch (NumberFormatException exception) {
                     log.warn("Ignoring malformed club popularity candidate: {}", candidate);
-                    continue;
                 }
-                ClubPopularityRedisRepository.ViewerCounts counts = redisRepository.aggregate(
-                        clubId, nowMillis, recentCutoffMillis, activeCutoffMillis);
+            }
+            Map<Long, ClubPopularityRedisRepository.ViewerCounts> aggregated = redisRepository.aggregateAll(
+                    validCandidateIds, nowMillis, recentCutoffMillis, activeCutoffMillis);
+            for (Map.Entry<Long, ClubPopularityRedisRepository.ViewerCounts> entry : aggregated.entrySet()) {
+                long clubId = entry.getKey();
+                ClubPopularityRedisRepository.ViewerCounts counts = entry.getValue();
                 boolean recentBadge = counts.recentViewerCount() >= properties.getRecentViewerThreshold();
                 boolean activeBadge = counts.activeViewerCount() >= properties.getActiveViewerThreshold();
                 if (recentBadge || activeBadge) {
@@ -66,6 +72,7 @@ public class ClubPopularityQueryService {
 
             // 집계 중 복구로 전환되면 부분 결과를 노출하지 않는다.
             if (!READY.equals(redisRepository.recoveryStatus())) {
+                metrics.recordApi("popular", "recovering");
                 return ClubPopularityResponse.empty();
             }
             metrics.recordApi("popular", "success");

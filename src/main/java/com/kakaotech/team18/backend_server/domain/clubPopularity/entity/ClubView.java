@@ -52,7 +52,7 @@ public class ClubView {
         }
         this.club = club;
         this.userId = userId;
-        this.anonymousIdentity = anonymousIdentity;
+        this.anonymousIdentity = anonymousIdentity == null ? null : anonymousIdentity.clone();
         this.lastViewedAt = lastViewedAt;
     }
 
@@ -61,7 +61,7 @@ public class ClubView {
     }
 
     public static ClubView anonymous(Club club, byte[] anonymousIdentity, Instant lastViewedAt) {
-        return new ClubView(club, null, anonymousIdentity.clone(), lastViewedAt);
+        return new ClubView(club, null, anonymousIdentity, lastViewedAt);
     }
 
     public String redisMember() {

@@ -34,6 +34,9 @@ public class ClubPopularityProperties {
     @Min(1)
     private int activeTtlSeconds = 180;
 
+    @Min(1)
+    private int recentViewerWindowHours = 24;
+
     // Redis/DB 배치의 보관·처리 상한
     @Min(25)
     private int retentionHours = 25;

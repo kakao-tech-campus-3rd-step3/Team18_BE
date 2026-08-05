@@ -7,6 +7,7 @@ public final class ClubPopularityRedisKeys {
     public static final String RECOVERY_STATUS = "club:popularity:recovery:status";
     public static final String FLUSH_LOCK = "club:popularity:lock:flush";
     public static final String FAILED_RETRY = "club:popularity:failed:retry";
+    public static final String RECOVERY_LOCK = "club:popularity:lock:recovery";
 
     private ClubPopularityRedisKeys() {
     }

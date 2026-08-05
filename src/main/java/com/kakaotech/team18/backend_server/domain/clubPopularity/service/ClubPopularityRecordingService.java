@@ -36,9 +36,10 @@ public class ClubPopularityRecordingService {
         }
         try {
             long nowMillis = timePolicy.currentInstant().toEpochMilli();
+            long recentTtlSeconds = (long) properties.getRetentionHours() * 60 * 60;
             RecordingResult result = map(redisRepository.recordView(clubId, identity.get(), nowMillis,
                     properties.getViewMinIntervalSeconds(), properties.getActiveTtlSeconds(),
-                    (int) properties.getRetentionHours() * 60 * 60));
+                    recentTtlSeconds));
             metrics.recordApi("views", result.name().toLowerCase());
             return result;
         } catch (DataAccessException exception) {

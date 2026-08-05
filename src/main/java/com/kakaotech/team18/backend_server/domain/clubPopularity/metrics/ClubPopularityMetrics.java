@@ -36,6 +36,11 @@ public class ClubPopularityMetrics {
                 .tag("operation", operation).register(registry).increment();
     }
 
+    public void recordDbError(String operation) {
+        Counter.builder("club.popularity.db.errors")
+                .tag("operation", operation).register(registry).increment();
+    }
+
     public void recordDbSaved(long count) {
         registry.counter("club.popularity.db.saved").increment(count);
     }

@@ -9,12 +9,15 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.PageRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -31,12 +34,13 @@ public class ClubPopularityRecoveryService {
     private final ClubViewRepository clubViewRepository;
     private final ClubPopularityMetrics metrics;
 
+    @Async
     @EventListener(ApplicationReadyEvent.class)
     public void recoverOnStartup() {
         recoverIfNeeded();
     }
 
-    @Scheduled(fixedDelayString = "${club-popularity.recovery-check-interval-minutes:5}000")
+    @Scheduled(fixedDelayString = "${club-popularity.recovery-check-interval-minutes:5}", timeUnit = java.util.concurrent.TimeUnit.MINUTES)
     public void recoverOnSchedule() {
         recoverIfNeeded();
     }
@@ -61,7 +65,7 @@ public class ClubPopularityRecoveryService {
                 redisRepository.setRecoveryStatus(RECOVERING);
                 redisRepository.clearRecentViewerKeys();
                 redisRepository.clearCandidates();
-                Instant cutoff = Instant.now().minusSeconds(24 * 60 * 60);
+                Instant cutoff = Instant.now().minusSeconds((long) properties.getRecentViewerWindowHours() * 60 * 60);
                 Instant deadline = Instant.now().plus(lockTtl);
                 long lastId = 0L;
                 while (true) {
@@ -74,7 +78,8 @@ public class ClubPopularityRecoveryService {
                         return RecoveryResult.LOCK_LOST;
                     }
                     List<ClubView> batch = clubViewRepository
-                            .findTop500ByIdGreaterThanAndLastViewedAtAfterOrderByIdAsc(lastId, cutoff);
+                            .findByIdGreaterThanAndLastViewedAtAfterOrderByIdAsc(lastId, cutoff,
+                                    PageRequest.of(0, BATCH_SIZE));
                     for (ClubView view : batch) {
                         redisRepository.rebuildRecentViewer(view.getClub().getId(), view.redisMember(),
                                 view.getLastViewedAt().toEpochMilli());
@@ -95,12 +100,18 @@ public class ClubPopularityRecoveryService {
                 metrics.setRecoveryInProgress(false);
                 redisRepository.releaseRecoveryLock(owner);
             }
-        } catch (DataAccessException exception) {
+        } catch (RedisSystemException exception) {
             metrics.recordRedisError("recovery");
             metrics.recordRecovery("redis_error", (System.currentTimeMillis() - startedAt) / 1000);
             metrics.setRecoveryInProgress(false);
             log.warn("Club popularity recovery deferred because Redis is unavailable: {}", exception.getMessage());
             return RecoveryResult.REDIS_UNAVAILABLE;
+        } catch (DataAccessException exception) {
+            metrics.recordDbError("recovery");
+            metrics.recordRecovery("db_error", (System.currentTimeMillis() - startedAt) / 1000);
+            metrics.setRecoveryInProgress(false);
+            log.warn("Club popularity recovery deferred because database is unavailable: {}", exception.getMessage());
+            return RecoveryResult.DB_UNAVAILABLE;
         } catch (RuntimeException exception) {
             metrics.recordRecovery("failed", (System.currentTimeMillis() - startedAt) / 1000);
             metrics.setRecoveryInProgress(false);
@@ -115,6 +126,7 @@ public class ClubPopularityRecoveryService {
         LOCK_NOT_ACQUIRED,
         LOCK_LOST,
         REDIS_UNAVAILABLE,
+        DB_UNAVAILABLE,
         DISABLED,
         TIMEOUT,
         FAILED
