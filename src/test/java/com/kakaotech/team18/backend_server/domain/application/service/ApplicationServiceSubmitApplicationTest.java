@@ -206,7 +206,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(president));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("안녕하세요")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
@@ -274,7 +274,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(existing));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("남")),
@@ -338,7 +338,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(president));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과",
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과", null,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),

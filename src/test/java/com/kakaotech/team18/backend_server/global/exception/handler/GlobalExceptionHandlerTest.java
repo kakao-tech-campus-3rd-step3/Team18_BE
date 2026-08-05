@@ -84,6 +84,13 @@ class GlobalExceptionHandlerTest {
 
         @NotBlank(message = "이름은 비워둘 수 없습니다.")
         private String name;
+
+        // 잘못된 값이 오면 Jackson 역직렬화 단계에서 HttpMessageNotReadableException이 발생하는 enum 필드
+        private Kind kind;
+    }
+
+    enum Kind {
+        MALE, FEMALE
     }
 
     @Test
@@ -142,6 +149,44 @@ class GlobalExceptionHandlerTest {
                 .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
                 .andExpect(jsonPath("$.detail").value("name: 이름은 비워둘 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("깨진 JSON 요청 본문 → HttpMessageNotReadableException → 400 INVALID_INPUT_VALUE")
+    void handleHttpMessageNotReadable_malformedJson_test() throws Exception {
+        // given: 닫히지 않은 JSON (파싱 자체가 실패)
+        final String url = "/test/validation-Exception";
+        final String malformedJson = "{\"name\": \"홍길동\"";
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(malformedJson));
+
+        // then
+        resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
+                .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
+    }
+
+    @Test
+    @DisplayName("정의되지 않은 enum 값 → HttpMessageNotReadableException → 400 INVALID_INPUT_VALUE")
+    void handleHttpMessageNotReadable_invalidEnum_test() throws Exception {
+        // given: kind에 enum에 없는 값을 넣어 역직렬화 실패 유발
+        final String url = "/test/validation-Exception";
+        final String requestBody = "{\"name\": \"홍길동\", \"kind\": \"UNKNOWN\"}";
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+
+        // when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestBody));
+
+        // then
+        resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
+                .andExpect(jsonPath("$.error_code").value(errorCode.name()))
+                .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
     }
 
     @Test
