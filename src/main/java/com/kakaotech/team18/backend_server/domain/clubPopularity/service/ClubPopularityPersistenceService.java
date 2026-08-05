@@ -77,6 +77,7 @@ public class ClubPopularityPersistenceService {
         int saved = 0;
         int removed = 0;
         int missing = 0;
+        int isolatedFailures = 0;
         for (ClubPopularityRedisRepository.PendingRecord record : records) {
             ClubPopularityPendingKey.Parsed parsed;
             try {
@@ -84,6 +85,8 @@ public class ClubPopularityPersistenceService {
             } catch (IllegalArgumentException exception) {
                 isolateFailure(record, exception.getMessage());
                 pendingRemovals.add(record);
+                removed++;
+                isolatedFailures++;
                 continue;
             }
             if (!clubs.containsKey(parsed.clubId())) {
@@ -103,6 +106,8 @@ public class ClubPopularityPersistenceService {
             } catch (DataIntegrityViolationException exception) {
                 isolateFailure(record, exception.getMessage());
                 pendingRemovals.add(record);
+                removed++;
+                isolatedFailures++;
                 continue;
             }
             saved++;
@@ -112,9 +117,10 @@ public class ClubPopularityPersistenceService {
         registerPendingRemovals(pendingRemovals);
         metrics.recordDbSaved(saved);
         metrics.recordDbMissing(missing);
+        metrics.recordDbFailed(isolatedFailures);
         refreshQueueMetrics();
         metrics.stopDbTimer(timer);
-        return new FlushResult(saved, removed, missing, 0, false);
+        return new FlushResult(saved, removed, missing, isolatedFailures, false);
     }
 
     private void refreshQueueMetrics() {
@@ -129,7 +135,8 @@ public class ClubPopularityPersistenceService {
         redisRepository.saveFailedRecord(failureId, record, reason == null ? "invalid record" : reason,
                 System.currentTimeMillis() + firstRetryDelayMinutes * 60_000L,
                 java.time.Duration.ofHours(properties.getFailedRecordRetentionHours()));
-        log.warn("Club popularity pending record moved to failed store: failureId={}", failureId);
+        log.warn("Club popularity pending record moved to failed store: clubId={}, identifierType={}, failureId={}",
+                parseClubIdForLog(record.member()), parseIdentifierTypeForLog(record.member()), failureId);
     }
 
     @Transactional
@@ -140,6 +147,7 @@ public class ClubPopularityPersistenceService {
     @Transactional
     public int retryFailedRecords(int limit) {
         int processed = 0;
+        List<String> successfulFailureIds = new ArrayList<>();
         for (String failureId : redisRepository.dueFailedRecords(System.currentTimeMillis(), limit)) {
             Map<Object, Object> data = redisRepository.failedRecord(failureId);
             if (data.isEmpty()) {
@@ -162,7 +170,7 @@ public class ClubPopularityPersistenceService {
                 } else {
                     clubViewRepository.upsertAnonymous(parsed.clubId(), Base64.getUrlDecoder().decode(parsed.value()), viewedAt);
                 }
-                redisRepository.removeFailedRecord(failureId);
+                successfulFailureIds.add(failureId);
             } catch (RuntimeException exception) {
                 int attempt = parseAttempt(data.get("attempt"));
                 if (attempt >= properties.getFailedRecordMaxAttempts()) {
@@ -183,7 +191,41 @@ public class ClubPopularityPersistenceService {
             }
             processed++;
         }
+        registerFailedRecordRemovalsAfterCommit(successfulFailureIds);
         return processed;
+    }
+
+    private void registerFailedRecordRemovalsAfterCommit(List<String> failureIds) {
+        if (failureIds.isEmpty()) {
+            return;
+        }
+        Runnable remove = () -> failureIds.forEach(redisRepository::removeFailedRecord);
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    remove.run();
+                }
+            });
+        } else {
+            remove.run();
+        }
+    }
+
+    private long parseClubIdForLog(String member) {
+        try {
+            return ClubPopularityPendingKey.parse(member).clubId();
+        } catch (IllegalArgumentException ignored) {
+            return -1L;
+        }
+    }
+
+    private String parseIdentifierTypeForLog(String member) {
+        try {
+            return ClubPopularityPendingKey.parse(member).type();
+        } catch (IllegalArgumentException ignored) {
+            return "UNKNOWN";
+        }
     }
 
     private int parseAttempt(Object value) {
