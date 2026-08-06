@@ -9,15 +9,16 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.Forbidden
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
@@ -160,6 +161,18 @@ public class GlobalExceptionHandler {
                 errorCode.getMessage(),
                 detail);
 
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMissingRequestHeaderException(
+            final MissingRequestHeaderException e
+    ) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = "필수 헤더 '" + e.getHeaderName() + "'가 요청에 포함되지 않았습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("MissingRequestHeaderException: {} (detail: {})", errorCode.getMessage(), detail);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 

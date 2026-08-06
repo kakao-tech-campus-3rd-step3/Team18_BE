@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
@@ -25,6 +26,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         name = "notification_delivery",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uk_notification_delivery_idempotency_recipient",
+                columnNames = {"club_id", "idempotency_key", "user_id", "channel", "result_type"}
+        ),
         indexes = {
                 @Index(
                         name = "idx_notification_delivery_dispatch",
@@ -53,6 +58,9 @@ public class NotificationDelivery extends BaseEntity {
 
     @Column(name = "application_id", nullable = false)
     private Long applicationId;
+
+    @Column(name = "idempotency_key", nullable = false, length = 100)
+    private String idempotencyKey;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "channel", nullable = false, length = 20)
@@ -116,6 +124,7 @@ public class NotificationDelivery extends BaseEntity {
             Long clubId,
             Long userId,
             Long applicationId,
+            String idempotencyKey,
             NotificationChannel channel,
             NotificationResultType resultType,
             String recipientAddress,
@@ -126,6 +135,7 @@ public class NotificationDelivery extends BaseEntity {
         this.clubId = clubId;
         this.userId = userId;
         this.applicationId = applicationId;
+        this.idempotencyKey = idempotencyKey;
         this.channel = channel;
         this.resultType = resultType;
         this.status = NotificationDeliveryStatus.PENDING;
@@ -140,6 +150,7 @@ public class NotificationDelivery extends BaseEntity {
             Long clubId,
             Long userId,
             Long applicationId,
+            String idempotencyKey,
             NotificationChannel channel,
             NotificationResultType resultType,
             String recipientAddress,
@@ -151,6 +162,7 @@ public class NotificationDelivery extends BaseEntity {
                 .clubId(clubId)
                 .userId(userId)
                 .applicationId(applicationId)
+                .idempotencyKey(idempotencyKey)
                 .channel(channel)
                 .resultType(resultType)
                 .recipientAddress(recipientAddress)

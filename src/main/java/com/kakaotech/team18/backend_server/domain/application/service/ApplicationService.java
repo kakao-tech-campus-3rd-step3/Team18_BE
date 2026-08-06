@@ -16,7 +16,12 @@ public interface ApplicationService {
 
     ApplicationApplyResponseDto submitApplication(Long clubId, ApplicationApplyRequestDto request, boolean confirmOverwrite);
 
-    SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage);
+    SuccessResponseDto sendPassFailMessage(
+            Long clubId,
+            ApplicationApprovedRequestDto requestDto,
+            Stage stage,
+            String idempotencyKey
+    );
 
     SuccessResponseDto updateApplicationInterviewSchedule(Long applicationId, ApplicationFixedInterviewRequestDto requestDto);
 }

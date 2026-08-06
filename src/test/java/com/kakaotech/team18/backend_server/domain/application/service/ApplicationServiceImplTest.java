@@ -37,6 +37,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -85,6 +86,9 @@ class ApplicationServiceImplTest {
 
     @Mock
     private ApplicationEventPublisher publisher;
+
+    @Mock
+    private ResultNotificationRequestRepository resultNotificationRequestRepository;
 
     @Test
     @DisplayName("지원서 상세 조회 - 성공 (여러 지원서 중 특정 지원서 조회)")

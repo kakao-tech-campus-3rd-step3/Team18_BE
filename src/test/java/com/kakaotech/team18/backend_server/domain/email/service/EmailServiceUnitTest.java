@@ -20,6 +20,9 @@ import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEve
 import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.sender.EmailSender;
 import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRenderer;
+import com.kakaotech.team18.backend_server.domain.notification.entity.ResultNotificationRequest;
+import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationRequestStatus;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
@@ -54,6 +57,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -73,6 +77,8 @@ class EmailServiceUnitTest {
     ApplicationRepository applicationRepository;
     @Mock
     ApplicationEventPublisher publisher;
+    @Mock
+    ResultNotificationRequestRepository resultNotificationRequestRepository;
 
     @Mock
     ClubApplyForm clubApplyForm;
@@ -96,6 +102,8 @@ class EmailServiceUnitTest {
     @BeforeEach
     void setUp() {
         service = new EmailService(renderer, emailSender, from);
+        lenient().when(resultNotificationRequestRepository.findByClubIdAndIdempotencyKey(anyLong(), anyString()))
+                .thenReturn(Optional.empty());
     }
 
     private ApplicationInfoDto infoFixture() {
@@ -193,7 +201,7 @@ class EmailServiceUnitTest {
 
         when(clubApplyForm.getClub()).thenReturn(club1);
         when(appRejected.getClubApplyForm()).thenReturn(clubApplyForm);
-        when(clubApplyFormRepository.findByClubId(77L)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(77L)).thenReturn(Optional.of(clubApplyForm));
 
         // 공통: stage 초기값은 INTERVIEW
         final Stage[] approvedStageRef = { Stage.INTERVIEW }; // updateStage 호출 시 바뀌게 함
@@ -225,12 +233,19 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("면접 합격 안내 메시지");
 
         // when
-        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(77L, req, Stage.INTERVIEW);
+        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(77L, req, Stage.INTERVIEW, "interview-key");
 
         // then
         assertThat(resp).isNotNull();
 
-        verify(clubApplyFormRepository).findByClubId(77L);
+        ArgumentCaptor<ResultNotificationRequest> requestCaptor = ArgumentCaptor.forClass(
+                ResultNotificationRequest.class
+        );
+        verify(resultNotificationRequestRepository).save(requestCaptor.capture());
+        assertThat(requestCaptor.getValue().getStatus()).isEqualTo(NotificationRequestStatus.COMPLETED);
+        assertThat(requestCaptor.getValue().getSuccess()).isTrue();
+
+        verify(clubApplyFormRepository).findByClubIdForUpdate(77L);
         verify(clubApplyForm).updateInterviewMessage("면접 합격 안내 메시지");
 
         // 승격 호출 확인
@@ -289,7 +304,7 @@ class EmailServiceUnitTest {
         when(userRejected.getEmail()).thenReturn("final-rejected@ex.com");
 
         when(clubApplyForm.getClub()).thenReturn(club1);
-        when(clubApplyFormRepository.findByClubId(88L)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(88L)).thenReturn(Optional.of(clubApplyForm));
 
         when(appApproved.getStage()).thenReturn(Stage.FINAL);
         when(appRejected.getStage()).thenReturn(Stage.FINAL);
@@ -309,12 +324,12 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("최종 합격 안내 메시지");
 
         // when
-        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(88L, req, Stage.FINAL);
+        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(88L, req, Stage.FINAL, "final-key");
 
         // then
         assertThat(resp).isNotNull();
 
-        verify(clubApplyFormRepository).findByClubId(88L);
+        verify(clubApplyFormRepository).findByClubIdForUpdate(88L);
         verify(clubApplyForm).updateFinalMessage("최종 합격 안내 메시지");
 
         verify(appApproved, times(1)).updateStage(Stage.RESULT);
@@ -360,7 +375,7 @@ class EmailServiceUnitTest {
 
         Club clubN = mock(Club.class);
         when(clubN.getId()).thenReturn(clubId);
-        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
         when(clubApplyForm.getClub()).thenReturn(clubN);
 
         // 앱들 (모두 stage == null)
@@ -391,7 +406,7 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("공지 메시지");
 
         // when
-        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(clubId, req, null);
+        SuccessResponseDto resp = serviceImpl.sendPassFailMessage(clubId, req, null, "legacy-key");
 
         // then
         assertThat(resp).isNotNull();
@@ -445,7 +460,7 @@ class EmailServiceUnitTest {
                 .build();
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
-        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
 
         Application appPending = mock(Application.class);
         when(appPending.getStage()).thenReturn(Stage.INTERVIEW);
@@ -457,7 +472,7 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
 
         // when / then
-        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW))
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW, "pending-interview-key"))
                 .isInstanceOf(PendingApplicationsExistException.class);
 
         // 부수효과 없음
@@ -480,7 +495,7 @@ class EmailServiceUnitTest {
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE))
                 .thenReturn(Optional.of(president));
 
-        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
 
         Application appApprovedWithoutSchedule = mock(Application.class);
         when(appApprovedWithoutSchedule.getStage()).thenReturn(Stage.INTERVIEW);
@@ -493,7 +508,7 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
 
         // when / then
-        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW))
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.INTERVIEW, "unscheduled-key"))
                 .isInstanceOf(UnscheduledAcceptedApplicantExistsException.class);
 
         // 부수효과 없음
@@ -514,7 +529,7 @@ class EmailServiceUnitTest {
                 .build();
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
-        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
 
         Application appPending = mock(Application.class);
         when(appPending.getStage()).thenReturn(Stage.FINAL);
@@ -526,7 +541,7 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
 
         // when / then
-        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.FINAL))
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, Stage.FINAL, "pending-final-key"))
                 .isInstanceOf(PendingApplicationsExistException.class);
 
         // 부수효과 없음
@@ -547,7 +562,7 @@ class EmailServiceUnitTest {
                 .build();
         when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)).thenReturn(Optional.of(president));
 
-        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
 
         Application appPending = mock(Application.class);
         when(appPending.getStatus()).thenReturn(Status.PENDING);
@@ -558,7 +573,7 @@ class EmailServiceUnitTest {
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("message");
 
         // when / then
-        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, null))
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(clubId, req, null, "pending-legacy-key"))
                 .isInstanceOf(PendingApplicationsExistException.class);
 
         // 부수효과 없음

@@ -15,6 +15,7 @@ import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.IdempotencyKeyConflictException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
@@ -38,6 +39,7 @@ import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -293,13 +295,14 @@ class ApplicationControllerTest {
                 }
                 """;
 
-        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW)))
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
                 .willThrow(new UnscheduledAcceptedApplicantExistsException());
 
         // when
         ResultActions resultActions = mockMvc.perform(
                 patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "unscheduled-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
         );
@@ -322,11 +325,12 @@ class ApplicationControllerTest {
                 }
                 """;
 
-        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW)))
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
                 .willReturn(new SuccessResponseDto(true));
 
         mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "multiple-channel-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -336,7 +340,8 @@ class ApplicationControllerTest {
                 eq(clubId),
                 argThat(request -> request.channels().equals(
                         Set.of(NotificationChannel.EMAIL, NotificationChannel.SMS))),
-                eq(Stage.INTERVIEW)
+                eq(Stage.INTERVIEW),
+                eq("multiple-channel-key")
         );
     }
 
@@ -350,11 +355,12 @@ class ApplicationControllerTest {
                 }
                 """;
 
-        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW)))
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
                 .willReturn(new SuccessResponseDto(true));
 
         mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "default-email-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk());
@@ -362,7 +368,8 @@ class ApplicationControllerTest {
         verify(applicationService).sendPassFailMessage(
                 eq(clubId),
                 argThat(request -> request.channels().equals(Set.of(NotificationChannel.EMAIL))),
-                eq(Stage.INTERVIEW)
+                eq(Stage.INTERVIEW),
+                eq("default-email-key")
         );
     }
 
@@ -379,13 +386,14 @@ class ApplicationControllerTest {
 
         mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "empty-channel-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
                 .andExpect(jsonPath("$.detail").value("channels: 알림 채널은 하나 이상 선택해야 합니다."));
 
-        verify(applicationService, never()).sendPassFailMessage(any(), any(), any());
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
     }
 
     @Test
@@ -401,12 +409,63 @@ class ApplicationControllerTest {
 
         mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "unsupported-channel-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
 
-        verify(applicationService, never()).sendPassFailMessage(any(), any(), any());
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - Idempotency-Key 헤더가 없으면 400")
+    void sendPassFailMessage_fail_missingIdempotencyKey() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지",
+                  "channels": ["EMAIL"]
+                }
+                """;
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.detail")
+                        .value("필수 헤더 'Idempotency-Key'가 요청에 포함되지 않았습니다."));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 동일한 Idempotency-Key에 다른 요청이면 409")
+    void sendPassFailMessage_fail_idempotencyKeyConflict() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "변경된 면접 결과 공지",
+                  "channels": ["EMAIL"]
+                }
+                """;
+        given(applicationService.sendPassFailMessage(
+                eq(clubId),
+                any(),
+                eq(Stage.INTERVIEW),
+                eq("reused-key")
+        )).willThrow(new IdempotencyKeyConflictException());
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "reused-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error_code")
+                        .value(ErrorCode.IDEMPOTENCY_KEY_CONFLICT.name()));
     }
 
     @Nested
