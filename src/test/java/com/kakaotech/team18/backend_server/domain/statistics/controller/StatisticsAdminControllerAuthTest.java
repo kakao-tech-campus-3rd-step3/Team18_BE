@@ -90,4 +90,15 @@ class StatisticsAdminControllerAuthTest {
         mockMvc.perform(get("/api/club-apply-forms/{id}/statistics/admin", 12L))
                 .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    @DisplayName("존재하지 않는 지원폼 → 404 (인가 검사에서 전파)")
+    @WithMockCustomUser(memberships = {"1:CLUB_ADMIN"})
+    void getStatisticsForAdmin_missingForm_notFound() throws Exception {
+        // 99번 지원폼은 존재하지 않아 projection이 비어 있다.
+        given(clubApplyFormRepository.findClubIdByClubApplyFormId(99L)).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics/admin", 99L))
+                .andExpect(status().isNotFound());
+    }
 }

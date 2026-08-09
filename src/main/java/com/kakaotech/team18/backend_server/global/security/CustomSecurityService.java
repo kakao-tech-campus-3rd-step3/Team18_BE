@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.application.repository.Applica
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
 import java.util.Map;
 import java.util.Objects;
@@ -24,18 +25,21 @@ public class CustomSecurityService {
      * 특정 지원폼(clubApplyFormId)에 대한 접근 권한을 검사합니다.
      * <p>
      * 지원폼 ID로 소속 동아리를 조회한 뒤, 현재 사용자가 그 동아리의 CLUB_ADMIN/CLUB_EXECUTIVE인지
-     * {@link #isClubAdminOrExecutive(Long)}로 위임 검사합니다. 존재하지 않는 지원폼이면 접근을 거부합니다.
+     * {@link #isClubAdminOrExecutive(Long)}로 위임 검사합니다.
+     * <p>
+     * 존재하지 않는 지원폼이면 {@code false}(→ 403)가 아니라 {@link ClubApplyFormNotFoundException}(→ 404)을
+     * 던진다. 인가 검사가 컨트롤러·서비스보다 먼저 실행되므로, 여기서 막으면 인증된 사용자가 서비스의 404에
+     * 닿지 못하고 403을 받아 API 계약과 어긋난다. 미인증 요청은 시큐리티 필터 체인에서 먼저 401로 차단되므로
+     * 이 예외는 인증된 사용자에게만 도달한다.
      *
      * @param clubApplyFormId 검사할 지원폼의 ID
-     * @return 권한이 있으면 true, 없으면 false
+     * @return 해당 동아리의 관리자/운영진이면 true, 아니면 false
+     * @throws ClubApplyFormNotFoundException 지원폼이 존재하지 않는 경우 (404)
      */
     @Transactional(readOnly = true)
     public boolean isClubAdminOrExecutiveForApplyForm(Long clubApplyFormId) {
         Long clubId = clubApplyFormRepository.findClubIdByClubApplyFormId(clubApplyFormId)
-                .orElse(null);
-        if (clubId == null) {
-            return false;
-        }
+                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
         return isClubAdminOrExecutive(clubId);
     }
 
