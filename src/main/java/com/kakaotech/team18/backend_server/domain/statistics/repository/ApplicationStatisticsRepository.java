@@ -1,6 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.statistics.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +30,24 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             WHERE a.clubApplyForm.id = :clubApplyFormId
             """)
     long countByClubApplyFormId(@Param("clubApplyFormId") Long clubApplyFormId);
+
+    /**
+     * 성별 분포. 성별이 없는(null) 지원자도 하나의 그룹으로 반환된다.
+     */
+    @Query("""
+            SELECT u.gender AS gender, count(a.id) AS count
+            FROM Application a
+            JOIN a.user u
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            GROUP BY u.gender
+            """)
+    List<GenderCount> aggregateGender(@Param("clubApplyFormId") Long clubApplyFormId);
+
+    /** 성별 집계 결과 projection. */
+    interface GenderCount {
+
+        Gender getGender();
+
+        long getCount();
+    }
 }
