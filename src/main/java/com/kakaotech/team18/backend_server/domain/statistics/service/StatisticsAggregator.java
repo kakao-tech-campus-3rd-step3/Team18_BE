@@ -191,39 +191,44 @@ public class StatisticsAggregator {
     }
 
     /**
-     * 일자별 지원 추이를 집계합니다. 모집 기간은 소속 동아리의 모집 시작·종료일을 사용한다.
+     * 일자별 지원 추이를 집계합니다. 모집 기간은 소속 동아리의 모집 시작·종료일을 사용하고, 기준일은 오늘(KST)이다.
      */
     private List<RawBucket> aggregateDailyApplications(ClubApplyForm form) {
         Club club = form.getClub();
         return bucketDailyApplications(
                 statisticsRepository.findCreatedAtByClubApplyFormId(form.getId()),
                 club.getRecruitStart() != null ? club.getRecruitStart().toLocalDate() : null,
-                club.getRecruitEnd() != null ? club.getRecruitEnd().toLocalDate() : null);
+                club.getRecruitEnd() != null ? club.getRecruitEnd().toLocalDate() : null,
+                LocalDate.now(KST));
     }
 
     /**
      * 접수 시각 목록을 일자별 버킷으로 변환합니다.
      * <p>
      * 접수 시각({@code LocalDateTime})을 Asia/Seoul 벽시계 기준 일자로 본다. 모집 시작·종료일이 모두 주어지면
-     * 그 사이 <strong>지원자가 없는 날도 {@code count:0}으로 채운다.</strong> 모집 기간 밖(예: 마감 이후)에 접수된
-     * 건도 유실하지 않고 해당 일자 버킷으로 포함한다. 모집일이 null이면 0채움 없이 실제 접수일만 반환한다.
-     * 버킷은 일자 오름차순으로 정렬한다.
+     * 그 사이 <strong>지원자가 없는 날도 {@code count:0}으로 채운다.</strong> 단, 아직 오지 않은 미래 날짜는 채우지
+     * 않는다(0채움 종료일 = min(모집 종료일, 오늘)). 모집일이 null이면 0채움 없이 실제 접수일만 반환한다. 실제
+     * 접수 건은 유실하지 않고(기준일까지의 값이므로 항상 과거) 모두 포함하며, 버킷은 일자 오름차순으로 정렬한다.
+     * <p>
+     * 표시 구간(예: 최근 N일)은 프론트가 이 시계열을 잘라서 결정한다.
      *
      * @param createdAts   접수 시각 목록
      * @param recruitStart 모집 시작일(없으면 null)
      * @param recruitEnd   모집 종료일(없으면 null)
+     * @param today        기준일(보통 오늘). 이 날짜 이후는 0으로 채우지 않는다.
      */
     List<RawBucket> bucketDailyApplications(
-            List<LocalDateTime> createdAts, LocalDate recruitStart, LocalDate recruitEnd) {
+            List<LocalDateTime> createdAts, LocalDate recruitStart, LocalDate recruitEnd, LocalDate today) {
         Map<LocalDate, Long> countByDate = new TreeMap<>();
 
         for (LocalDateTime createdAt : createdAts) {
             countByDate.merge(createdAt.toLocalDate(), 1L, Long::sum);
         }
 
-        // 모집 기간이 온전하면 빈 날도 0으로 채운다.
-        if (recruitStart != null && recruitEnd != null && !recruitStart.isAfter(recruitEnd)) {
-            for (LocalDate day = recruitStart; !day.isAfter(recruitEnd); day = day.plusDays(1)) {
+        // 모집 기간이 온전하면 빈 날도 0으로 채우되, 아직 오지 않은 미래 날짜는 채우지 않는다.
+        if (recruitStart != null && recruitEnd != null) {
+            LocalDate fillEnd = recruitEnd.isBefore(today) ? recruitEnd : today;
+            for (LocalDate day = recruitStart; !day.isAfter(fillEnd); day = day.plusDays(1)) {
                 countByDate.putIfAbsent(day, 0L);
             }
         }

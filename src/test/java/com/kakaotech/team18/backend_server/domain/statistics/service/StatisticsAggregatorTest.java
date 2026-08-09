@@ -131,7 +131,7 @@ class StatisticsAggregatorTest {
                 LocalDateTime.of(2026, 3, 4, 10, 0));
 
         List<RawBucket> buckets = aggregator.bucketDailyApplications(
-                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 5));
+                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 5), LocalDate.of(2026, 3, 5));
 
         assertThat(buckets).extracting(RawBucket::key)
                 .containsExactly("2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05");
@@ -141,16 +141,17 @@ class StatisticsAggregatorTest {
     }
 
     @Test
-    @DisplayName("일자별 추이: 마감 이후 접수 건도 유실 없이 포함한다")
-    void bucketDailyApplications_includesAfterDeadline() {
-        List<LocalDateTime> createdAts = List.of(LocalDateTime.of(2026, 3, 5, 10, 0)); // 마감(3/2) 이후
+    @DisplayName("일자별 추이: 아직 오지 않은 미래 날짜(오늘 이후)는 0으로 채우지 않는다")
+    void bucketDailyApplications_doesNotPadFutureDays() {
+        List<LocalDateTime> createdAts = List.of(LocalDateTime.of(2026, 3, 2, 9, 0));
 
+        // 모집 종료일은 3/10이지만 오늘은 3/3 → 3/4~3/10은 채우지 않는다
         List<RawBucket> buckets = aggregator.bucketDailyApplications(
-                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 2));
+                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 10), LocalDate.of(2026, 3, 3));
 
         assertThat(buckets).extracting(RawBucket::key)
-                .containsExactly("2026-03-01", "2026-03-02", "2026-03-05");
-        assertThat(buckets).extracting(RawBucket::count).containsExactly(0L, 0L, 1L);
+                .containsExactly("2026-03-01", "2026-03-02", "2026-03-03");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(0L, 1L, 0L);
     }
 
     @Test
@@ -160,7 +161,8 @@ class StatisticsAggregatorTest {
                 LocalDateTime.of(2026, 3, 2, 9, 0),
                 LocalDateTime.of(2026, 3, 4, 10, 0));
 
-        List<RawBucket> buckets = aggregator.bucketDailyApplications(createdAts, null, null);
+        List<RawBucket> buckets = aggregator.bucketDailyApplications(
+                createdAts, null, null, LocalDate.of(2026, 3, 4));
 
         assertThat(buckets).extracting(RawBucket::key).containsExactly("2026-03-02", "2026-03-04");
         assertThat(buckets).extracting(RawBucket::count).containsExactly(1L, 1L);
