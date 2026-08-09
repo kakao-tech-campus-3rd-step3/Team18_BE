@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.global.security;
 
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
+import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomException;
@@ -17,6 +18,26 @@ import org.springframework.transaction.annotation.Transactional;
 public class CustomSecurityService {
 
     private final ApplicationRepository applicationRepository;
+    private final ClubApplyFormRepository clubApplyFormRepository;
+
+    /**
+     * 특정 지원폼(clubApplyFormId)에 대한 접근 권한을 검사합니다.
+     * <p>
+     * 지원폼 ID로 소속 동아리를 조회한 뒤, 현재 사용자가 그 동아리의 CLUB_ADMIN/CLUB_EXECUTIVE인지
+     * {@link #isClubAdminOrExecutive(Long)}로 위임 검사합니다. 존재하지 않는 지원폼이면 접근을 거부합니다.
+     *
+     * @param clubApplyFormId 검사할 지원폼의 ID
+     * @return 권한이 있으면 true, 없으면 false
+     */
+    @Transactional(readOnly = true)
+    public boolean isClubAdminOrExecutiveForApplyForm(Long clubApplyFormId) {
+        Long clubId = clubApplyFormRepository.findClubIdByClubApplyFormId(clubApplyFormId)
+                .orElse(null);
+        if (clubId == null) {
+            return false;
+        }
+        return isClubAdminOrExecutive(clubId);
+    }
 
     /**
      * 특정 지원서(applicationId)에 대한 접근 권한을 검사합니다.
