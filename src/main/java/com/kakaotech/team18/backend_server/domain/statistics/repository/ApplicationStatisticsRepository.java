@@ -84,12 +84,4 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             GROUP BY u.studentId
             """)
     List<StudentIdCount> aggregateByStudentId(@Param("clubApplyFormId") Long clubApplyFormId);
-
-    /** 학번 집계 결과 projection. */
-    interface StudentIdCount {
-
-        String getStudentId();
-
-        long getCount();
-    }
 }
