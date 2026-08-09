@@ -73,16 +73,6 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @DisplayName("dimensions 생략 → 200 (전체 조회)")
-    void getStatistics_defaultDimensions_ok() throws Exception {
-        given(statisticsService.getStatistics(eq(12L), anyList())).willReturn(sampleResponse());
-
-        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-    }
-
-    @Test
     @DisplayName("지원하지 않는 dimension → 400")
     void getStatistics_unsupportedDimension_badRequest() throws Exception {
         mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)

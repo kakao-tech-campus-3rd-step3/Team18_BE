@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
+import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import java.math.BigDecimal;
@@ -72,5 +73,24 @@ class StatisticsServiceImplTest {
         assertThat(res.totalApplicants()).isZero();
         assertThat(res.results()).hasSize(1);
         assertThat(res.results().get(0).buckets()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("시계열(DAILY_APPLICATIONS) 버킷은 비율(ratio)을 채우지 않는다")
+    void timeSeriesDimension_hasNoRatio() {
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L);
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(1L)).thenReturn(10L);
+        when(aggregator.aggregate(form, StatisticsDimension.DAILY_APPLICATIONS)).thenReturn(List.of(
+                RawBucket.of("2026-03-02", "3월 2일", 4)
+        ));
+
+        StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.DAILY_APPLICATIONS));
+
+        StatisticsResponseDto.DimensionResult daily = res.results().get(0);
+        assertThat(daily.type()).isEqualTo(DimensionType.TIME_SERIES);
+        assertThat(daily.buckets()).hasSize(1);
+        assertThat(daily.buckets().get(0).ratio()).isNull();
     }
 }
