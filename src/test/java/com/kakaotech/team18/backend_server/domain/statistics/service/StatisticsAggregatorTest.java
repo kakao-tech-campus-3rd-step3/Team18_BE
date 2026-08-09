@@ -8,8 +8,8 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
-import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.FacultyCount;
-import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.GenderCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.FacultyCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.GenderCount;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
