@@ -44,6 +44,8 @@ public class StatisticsController {
 
                     - `dimensions`를 생략하면 모든 항목을 반환합니다.
                     - 응답에는 지원자를 식별할 수 있는 값(이름·이메일·전화번호·6자리 학번)이 포함되지 않습니다.
+                    - 재식별 방지를 위해 인원이 최소 공개 기준 미만인 버킷은 `count`/`ratio`가 생략(마스킹)됩니다.
+                      버킷 자체는 남으므로, `count`가 없으면 '소수라 비공개'로 해석하면 됩니다.
                     """
     )
     @ApiResponses({
@@ -65,7 +67,7 @@ public class StatisticsController {
                                           "buckets": [
                                             { "key": "MALE", "label": "남성", "count": 121, "ratio": 0.565 },
                                             { "key": "FEMALE", "label": "여성", "count": 91, "ratio": 0.425 },
-                                            { "key": "UNKNOWN", "label": "미입력", "count": 2, "ratio": 0.010 }
+                                            { "key": "UNKNOWN", "label": "미입력" }
                                           ]
                                         },
                                         {
@@ -88,7 +90,7 @@ public class StatisticsController {
                                           "dimension": "DAILY_APPLICATIONS",
                                           "type": "TIME_SERIES",
                                           "buckets": [
-                                            { "key": "2026-03-02", "label": "3월 2일", "count": 4 }
+                                            { "key": "2026-03-02", "label": "3월 2일", "count": 12 }
                                           ]
                                         }
                                       ]

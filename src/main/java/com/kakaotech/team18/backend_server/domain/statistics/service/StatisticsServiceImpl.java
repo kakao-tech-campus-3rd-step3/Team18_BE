@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
@@ -32,13 +33,15 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
+    private final StatisticsProperties properties;
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
 
-        return calculate(form, dimensions);
+        // 공개 통계는 재식별 방지를 위해 최소 공개 기준(k) 미만 버킷을 마스킹한다.
+        return maskSmallBuckets(calculate(form, dimensions), properties.minBucketSize());
     }
 
     @Override
@@ -74,6 +77,46 @@ public class StatisticsServiceImpl implements StatisticsService {
                 OffsetDateTime.now(KST),
                 results
         );
+    }
+
+    /**
+     * 재식별 방지 최소 공개 기준(k)을 적용해, 인원이 적은 버킷의 수치를 가립니다.
+     * <p>
+     * {@code k <= 1}이면 마스킹 없이 원본을 그대로 반환한다(관리자 경로와 동일한 무마스킹). totalApplicants는
+     * 분포가 아니므로 가리지 않는다(전체 blackout은 적용하지 않는다). 모든 dimension에 동일하게 적용한다.
+     */
+    private StatisticsResponseDto maskSmallBuckets(StatisticsResponseDto res, int k) {
+        if (k <= 1) {
+            return res;
+        }
+
+        List<StatisticsResponseDto.DimensionResult> masked = res.results().stream()
+                .map(dr -> new StatisticsResponseDto.DimensionResult(
+                        dr.dimension(),
+                        dr.type(),
+                        dr.buckets().stream().map(b -> maskBucket(b, k)).toList()
+                ))
+                .toList();
+
+        return new StatisticsResponseDto(
+                res.clubApplyFormId(),
+                res.totalApplicants(),
+                res.snapshot(),
+                res.calculatedAt(),
+                masked
+        );
+    }
+
+    /**
+     * 버킷 하나를 마스킹합니다. 인원이 {@code 0 < count < k}이면 count와 ratio를 null로 가려 코호트 규모를
+     * 노출하지 않는다. count가 0인 버킷(예: 시계열 zero-fill)은 식별 대상이 없으므로 그대로 둔다.
+     */
+    private StatisticsResponseDto.Bucket maskBucket(StatisticsResponseDto.Bucket b, int k) {
+        Long count = b.count();
+        if (count != null && count > 0 && count < k) {
+            return new StatisticsResponseDto.Bucket(b.key(), b.label(), null, null);
+        }
+        return b;
     }
 
     /**

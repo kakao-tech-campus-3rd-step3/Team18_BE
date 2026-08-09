@@ -59,10 +59,10 @@ public record StatisticsResponseDto(
             @Schema(description = "화면 표시용 문자열", example = "남성")
             String label,
 
-            @Schema(description = "해당 버킷의 지원자 수", example = "121")
-            long count,
+            @Schema(description = "해당 버킷의 지원자 수. 재식별 방지 최소 공개 기준 미달로 마스킹되면 생략된다(null).", example = "121")
+            Long count,
 
-            @Schema(description = "전체 대비 비율(소수점 3자리 고정). 시계열 등 비율이 의미 없는 버킷에서는 생략된다.", example = "0.565")
+            @Schema(description = "전체 대비 비율(소수점 3자리 고정). 시계열 등 비율이 의미 없는 버킷이거나 마스킹된 버킷에서는 생략된다.", example = "0.565")
             BigDecimal ratio
     ) {
     }

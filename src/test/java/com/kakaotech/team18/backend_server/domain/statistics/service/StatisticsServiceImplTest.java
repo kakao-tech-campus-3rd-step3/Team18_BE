@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
@@ -21,9 +22,12 @@ import org.junit.jupiter.api.Test;
 @DisplayName("StatisticsServiceImpl - 통계 조회")
 class StatisticsServiceImplTest {
 
+    private static final int K = 5;
+
     private final ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
     private final StatisticsAggregator aggregator = mock(StatisticsAggregator.class);
-    private final StatisticsServiceImpl service = new StatisticsServiceImpl(clubApplyFormRepository, aggregator);
+    private final StatisticsServiceImpl service =
+            new StatisticsServiceImpl(clubApplyFormRepository, aggregator, new StatisticsProperties(K));
 
     @Test
     @DisplayName("존재하지 않는 지원폼이면 예외(404 매핑)")
@@ -122,5 +126,69 @@ class StatisticsServiceImplTest {
         assertThat(daily.type()).isEqualTo(DimensionType.TIME_SERIES);
         assertThat(daily.buckets()).hasSize(1);
         assertThat(daily.buckets().get(0).ratio()).isNull();
+    }
+
+    @Test
+    @DisplayName("공개 조회는 인원이 k 미만인 버킷의 count/ratio를 마스킹(null)하고, k 이상은 그대로 둔다")
+    void publicView_masksBucketsBelowThreshold() {
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L);
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(1L)).thenReturn(100L);
+        when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
+                RawBucket.of("MALE", "남성", 97),   // k 이상 → 노출
+                RawBucket.of("FEMALE", "여성", 3)   // 0 < count < k → 마스킹
+        ));
+
+        StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
+
+        List<StatisticsResponseDto.Bucket> buckets = res.results().get(0).buckets();
+        // 버킷 자체는 남기되(요청 항목 존재 신호 유지) 소수 버킷의 수치만 가린다.
+        assertThat(buckets).hasSize(2);
+        StatisticsResponseDto.Bucket male = buckets.get(0);
+        StatisticsResponseDto.Bucket female = buckets.get(1);
+
+        assertThat(male.count()).isEqualTo(97L);
+        assertThat(male.ratio()).isEqualTo(new BigDecimal("0.970"));
+
+        assertThat(female.key()).isEqualTo("FEMALE");
+        assertThat(female.label()).isEqualTo("여성");
+        assertThat(female.count()).isNull();
+        assertThat(female.ratio()).isNull();
+    }
+
+    @Test
+    @DisplayName("count가 0인 버킷(시계열 zero-fill 등)은 식별 대상이 없어 마스킹하지 않는다")
+    void publicView_doesNotMaskZeroCountBuckets() {
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L);
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(1L)).thenReturn(10L);
+        when(aggregator.aggregate(form, StatisticsDimension.DAILY_APPLICATIONS)).thenReturn(List.of(
+                RawBucket.of("2026-03-02", "3월 2일", 0)
+        ));
+
+        StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.DAILY_APPLICATIONS));
+
+        assertThat(res.results().get(0).buckets().get(0).count()).isZero();
+    }
+
+    @Test
+    @DisplayName("관리자 조회는 k와 무관하게 소수 버킷도 마스킹하지 않는다")
+    void adminView_doesNotMaskSmallBuckets() {
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L);
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(1L)).thenReturn(100L);
+        when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
+                RawBucket.of("MALE", "남성", 97),
+                RawBucket.of("FEMALE", "여성", 3)
+        ));
+
+        StatisticsResponseDto res = service.getStatisticsForAdmin(1L, List.of(StatisticsDimension.GENDER));
+
+        assertThat(res.results().get(0).buckets())
+                .extracting(StatisticsResponseDto.Bucket::count)
+                .containsExactly(97L, 3L);
     }
 }

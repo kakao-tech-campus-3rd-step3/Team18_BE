@@ -57,7 +57,7 @@ class StatisticsAdminControllerUnitTest {
                 12L, 200L, false, OffsetDateTime.now(),
                 List.of(new DimensionResult(
                         StatisticsDimension.GENDER, DimensionType.CATEGORICAL,
-                        List.of(new Bucket("MALE", "남성", 121, new BigDecimal("0.605")))
+                        List.of(new Bucket("MALE", "남성", 121L, new BigDecimal("0.605")))
                 ))
         );
     }
