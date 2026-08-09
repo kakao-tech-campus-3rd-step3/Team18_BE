@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.FacultyCount;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.GenderCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
@@ -88,6 +89,18 @@ class ApplicationStatisticsRepositoryIntegrationTest {
                 .containsEntry(Faculty.NATURAL_SCIENCES, 1L)
                 .containsEntry(Faculty.ETC, 1L)
                 .containsEntry(null, 1L);
+    }
+
+    @Test
+    @DisplayName("학번 집계: 학번별로 묶어 해당 지원폼 지원자만 반환한다")
+    void aggregateByStudentId_groupsByStudentId() {
+        Map<String, Long> counts = new HashMap<>();
+        for (StudentIdCount row : repository.aggregateByStudentId(form.getId())) {
+            counts.put(row.getStudentId(), row.getCount());
+        }
+
+        assertThat(counts).containsOnlyKeys("230001", "230002", "230003", "230004", "230005");
+        assertThat(counts.values()).containsOnly(1L);
     }
 
     private ClubApplyForm persistForm(String clubName) {
