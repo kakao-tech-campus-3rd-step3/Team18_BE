@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.entity;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnsupportedStatisticsDimensionException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -35,7 +36,7 @@ public enum StatisticsDimension {
             throw new UnsupportedStatisticsDimensionException("dimension 값이 비어 있습니다.");
         }
         try {
-            return StatisticsDimension.valueOf(raw.trim().toUpperCase());
+            return StatisticsDimension.valueOf(raw.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new UnsupportedStatisticsDimensionException(
                     "지원하지 않는 dimension: " + raw + " (사용 가능: " + Arrays.toString(values()) + ")");
