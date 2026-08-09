@@ -13,6 +13,8 @@ import com.kakaotech.team18.backend_server.domain.statistics.repository.GenderCo
 import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -118,5 +120,49 @@ class StatisticsAggregatorTest {
         assertThat(buckets.get(0).label()).isEqualTo("그 이전");
         assertThat(buckets.get(1).label()).isEqualTo("22학번");
         assertThat(buckets.get(3).label()).isEqualTo("미입력");
+    }
+
+    @Test
+    @DisplayName("일자별 추이: 모집 기간 중 지원자 없는 날도 count 0으로 채우고 일자 오름차순 정렬")
+    void bucketDailyApplications_zeroFillWithinRecruitPeriod() {
+        List<LocalDateTime> createdAts = List.of(
+                LocalDateTime.of(2026, 3, 2, 9, 0),
+                LocalDateTime.of(2026, 3, 2, 15, 0),
+                LocalDateTime.of(2026, 3, 4, 10, 0));
+
+        List<RawBucket> buckets = aggregator.bucketDailyApplications(
+                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 5));
+
+        assertThat(buckets).extracting(RawBucket::key)
+                .containsExactly("2026-03-01", "2026-03-02", "2026-03-03", "2026-03-04", "2026-03-05");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(0L, 2L, 0L, 1L, 0L);
+        assertThat(buckets.get(0).label()).isEqualTo("3월 1일");
+        assertThat(buckets.get(1).label()).isEqualTo("3월 2일");
+    }
+
+    @Test
+    @DisplayName("일자별 추이: 마감 이후 접수 건도 유실 없이 포함한다")
+    void bucketDailyApplications_includesAfterDeadline() {
+        List<LocalDateTime> createdAts = List.of(LocalDateTime.of(2026, 3, 5, 10, 0)); // 마감(3/2) 이후
+
+        List<RawBucket> buckets = aggregator.bucketDailyApplications(
+                createdAts, LocalDate.of(2026, 3, 1), LocalDate.of(2026, 3, 2));
+
+        assertThat(buckets).extracting(RawBucket::key)
+                .containsExactly("2026-03-01", "2026-03-02", "2026-03-05");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(0L, 0L, 1L);
+    }
+
+    @Test
+    @DisplayName("일자별 추이: 모집일이 null이면 0채움 없이 실제 접수일만 반환")
+    void bucketDailyApplications_nullRecruitPeriod_noZeroFill() {
+        List<LocalDateTime> createdAts = List.of(
+                LocalDateTime.of(2026, 3, 2, 9, 0),
+                LocalDateTime.of(2026, 3, 4, 10, 0));
+
+        List<RawBucket> buckets = aggregator.bucketDailyApplications(createdAts, null, null);
+
+        assertThat(buckets).extracting(RawBucket::key).containsExactly("2026-03-02", "2026-03-04");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(1L, 1L);
     }
 }

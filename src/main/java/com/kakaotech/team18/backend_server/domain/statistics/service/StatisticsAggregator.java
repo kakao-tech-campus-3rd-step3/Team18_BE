@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import static com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsServiceImpl.KST;
 
+import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
@@ -12,6 +13,8 @@ import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentI
 import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -74,7 +77,7 @@ public class StatisticsAggregator {
             case GENDER -> aggregateGender(form.getId());
             case FACULTY -> aggregateFaculty(form.getId());
             case ADMISSION_YEAR -> aggregateAdmissionYear(form.getId());
-            case DAILY_APPLICATIONS -> List.of();
+            case DAILY_APPLICATIONS -> aggregateDailyApplications(form);
         };
     }
 
@@ -185,5 +188,54 @@ public class StatisticsAggregator {
             buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
         }
         return buckets;
+    }
+
+    /**
+     * 일자별 지원 추이를 집계합니다. 모집 기간은 소속 동아리의 모집 시작·종료일을 사용한다.
+     */
+    private List<RawBucket> aggregateDailyApplications(ClubApplyForm form) {
+        Club club = form.getClub();
+        return bucketDailyApplications(
+                statisticsRepository.findCreatedAtByClubApplyFormId(form.getId()),
+                club.getRecruitStart() != null ? club.getRecruitStart().toLocalDate() : null,
+                club.getRecruitEnd() != null ? club.getRecruitEnd().toLocalDate() : null);
+    }
+
+    /**
+     * 접수 시각 목록을 일자별 버킷으로 변환합니다.
+     * <p>
+     * 접수 시각({@code LocalDateTime})을 Asia/Seoul 벽시계 기준 일자로 본다. 모집 시작·종료일이 모두 주어지면
+     * 그 사이 <strong>지원자가 없는 날도 {@code count:0}으로 채운다.</strong> 모집 기간 밖(예: 마감 이후)에 접수된
+     * 건도 유실하지 않고 해당 일자 버킷으로 포함한다. 모집일이 null이면 0채움 없이 실제 접수일만 반환한다.
+     * 버킷은 일자 오름차순으로 정렬한다.
+     *
+     * @param createdAts   접수 시각 목록
+     * @param recruitStart 모집 시작일(없으면 null)
+     * @param recruitEnd   모집 종료일(없으면 null)
+     */
+    List<RawBucket> bucketDailyApplications(
+            List<LocalDateTime> createdAts, LocalDate recruitStart, LocalDate recruitEnd) {
+        Map<LocalDate, Long> countByDate = new TreeMap<>();
+
+        for (LocalDateTime createdAt : createdAts) {
+            countByDate.merge(createdAt.toLocalDate(), 1L, Long::sum);
+        }
+
+        // 모집 기간이 온전하면 빈 날도 0으로 채운다.
+        if (recruitStart != null && recruitEnd != null && !recruitStart.isAfter(recruitEnd)) {
+            for (LocalDate day = recruitStart; !day.isAfter(recruitEnd); day = day.plusDays(1)) {
+                countByDate.putIfAbsent(day, 0L);
+            }
+        }
+
+        List<RawBucket> buckets = new ArrayList<>();
+        countByDate.forEach((date, count) ->
+                buckets.add(RawBucket.of(date.toString(), dailyLabel(date), count)));
+        return buckets;
+    }
+
+    /** 일자를 '3월 2일' 형식 라벨로 변환합니다. */
+    private static String dailyLabel(LocalDate date) {
+        return date.getMonthValue() + "월 " + date.getDayOfMonth() + "일";
     }
 }
