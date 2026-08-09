@@ -20,13 +20,15 @@ public final class AdmissionYearBucketer {
      * <p>
      * 두 자리 연도의 세기는 기준 연도로 판단한다. 기준 연도의 뒤 두 자리보다 크면 현재 세기에 존재할 수 없는
      * 연도이므로 이전 세기로 해석한다. (기준 2026년 → {@code 22} → 2022, {@code 99} → 1999)
+     * <p>
+     * 오래된 연도도 실제 옛 학번이므로 그대로 반환한다(버킷 묶음은 호출부가 판단). 6자리 숫자가 아닌 값
+     * (비지원서 경로로 만들어졌거나 7자리 이상 등)만 미입력으로 보고 {@code null}을 반환한다.
      *
      * @param studentId 학번
      * @param baseYear  기준 연도 (보통 오늘 날짜의 연도)
-     * @param minYear   유효한 입학연도의 하한
-     * @return 4자리 입학연도. 6자리 숫자가 아니거나 유효 범위를 벗어나면 null
+     * @return 4자리 입학연도. 6자리 숫자가 아니면 null
      */
-    public static Integer toAdmissionYear(String studentId, int baseYear, int minYear) {
+    public static Integer toAdmissionYear(String studentId, int baseYear) {
         if (studentId == null || !STUDENT_ID.matcher(studentId).matches()) {
             return null;
         }
@@ -35,12 +37,7 @@ public final class AdmissionYearBucketer {
         int baseTwoDigit = baseYear % 100;
         int century = (baseYear / 100) * 100;
 
-        int year = (twoDigit <= baseTwoDigit) ? century + twoDigit : century - 100 + twoDigit;
-
-        if (year < minYear || year > baseYear) {
-            return null;
-        }
-        return year;
+        return (twoDigit <= baseTwoDigit) ? century + twoDigit : century - 100 + twoDigit;
     }
 
     /**

@@ -10,7 +10,7 @@ import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDi
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.FacultyCount;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.GenderCount;
-import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.StudentIdCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import java.util.List;
@@ -99,21 +99,24 @@ class StatisticsAggregatorTest {
     }
 
     @Test
-    @DisplayName("입학연도는 4자리 연도 오름차순, 6자리 아님/범위 밖 학번은 '미입력'으로 마지막에 둔다")
-    void bucketAdmissionYears_ordersByYearUnknownLast() {
-        // baseYear=2026, minYear=2016 (lookback 10)
+    @DisplayName("최근 연도는 개별, 오래된 연도는 '그 이전'으로 묶고, 6자리 아님만 '미입력'으로 둔다")
+    void bucketAdmissionYears_olderGroupedUnknownLast() {
+        // baseYear=2026, RECENT_YEARS=6 → 개별 하한 2020, 그보다 오래되면 '그 이전'
         StudentIdCount y23a = studentIdCount("230001", 1);
         StudentIdCount y23b = studentIdCount("230002", 1);
         StudentIdCount y22 = studentIdCount("220001", 1);
-        StudentIdCount invalid = studentIdCount("abc", 1);   // 6자리 숫자 아님 → 미입력
-        StudentIdCount tooOld = studentIdCount("120001", 1); // 2012, 하한(2016) 밖 → 미입력
+        StudentIdCount old2018 = studentIdCount("180001", 1); // 2018 < 2020 → 그 이전
+        StudentIdCount old2010 = studentIdCount("100001", 1); // 2010 < 2020 → 그 이전
+        StudentIdCount invalid = studentIdCount("abc", 1);    // 6자리 숫자 아님 → 미입력
 
         List<RawBucket> buckets = aggregator.bucketAdmissionYears(
-                List.of(y23a, y23b, y22, invalid, tooOld), 2026);
+                List.of(y23a, y23b, y22, old2018, old2010, invalid), 2026);
 
-        assertThat(buckets).extracting(RawBucket::key).containsExactly("2022", "2023", "UNKNOWN");
-        assertThat(buckets).extracting(RawBucket::count).containsExactly(1L, 2L, 2L);
-        assertThat(buckets.get(0).label()).isEqualTo("22학번");
-        assertThat(buckets.get(2).label()).isEqualTo("미입력");
+        // 순서: 그 이전 → 개별 연도 오름차순 → 미입력
+        assertThat(buckets).extracting(RawBucket::key).containsExactly("OLDER", "2022", "2023", "UNKNOWN");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(2L, 1L, 2L, 1L);
+        assertThat(buckets.get(0).label()).isEqualTo("그 이전");
+        assertThat(buckets.get(1).label()).isEqualTo("22학번");
+        assertThat(buckets.get(3).label()).isEqualTo("미입력");
     }
 }

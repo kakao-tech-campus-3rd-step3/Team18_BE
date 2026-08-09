@@ -6,6 +6,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
@@ -38,11 +39,17 @@ public class StatisticsAggregator {
     /** 값이 없는 버킷의 표시 문자열. */
     public static final String UNKNOWN_LABEL = "미입력";
 
+    /** 개별 연도로 나누기엔 오래된 입학연도를 하나로 묶는 버킷의 코드값. */
+    public static final String OLDER_KEY = "OLDER";
+
+    /** 오래된 입학연도 묶음 버킷의 표시 문자열. */
+    public static final String OLDER_LABEL = "그 이전";
+
     /**
-     * 유효 입학연도 하한을 기준 연도로부터 몇 년 전까지 볼지. 이보다 오래된 학번(또는 오타)은 '미입력'으로 분류한다.
-     * (설정값화는 후속 단계에서 StatisticsProperties 도입 시 진행)
+     * 입학연도를 개별 버킷으로 보여줄 최근 구간(년). 기준 연도로부터 이만큼 이전까지는 연도별로 나누고,
+     * 그보다 오래된 입학연도는 '그 이전'으로 묶는다. (설정값화는 후속 StatisticsProperties 도입 시)
      */
-    static final int ADMISSION_YEAR_LOOKBACK = 10;
+    static final int ADMISSION_YEAR_RECENT_YEARS = 6;
 
     private final ApplicationStatisticsRepository statisticsRepository;
 
@@ -143,29 +150,35 @@ public class StatisticsAggregator {
      * 학번 집계 결과를 입학연도 버킷으로 변환합니다.
      * <p>
      * 기준 연도(baseYear)를 인자로 받아 테스트에서 시점을 고정할 수 있게 한다({@code RecruitStatusCalculator}
-     * 패턴). 6자리 숫자가 아니거나 유효 범위를 벗어난 학번은 '미입력'으로 모은다. 버킷은 두 자리 문자열이 아니라
-     * <strong>네 자리 연도</strong> 기준으로 오름차순 정렬하고, '미입력'은 항상 마지막에 둔다.
+     * 패턴). 최근 {@link #ADMISSION_YEAR_RECENT_YEARS}년(기준 연도 - N 이상)은 연도별 개별 버킷으로,
+     * 그보다 오래된 입학연도는 '그 이전'({@link #OLDER_KEY}) 하나로 묶는다. 6자리 숫자가 아닌 학번만
+     * '미입력'으로 분류한다. 버킷 순서는 [그 이전 → 개별 연도 오름차순 → 미입력]이다.
      */
-    List<RawBucket> bucketAdmissionYears(
-            List<ApplicationStatisticsRepository.StudentIdCount> rows, int baseYear) {
-        int minYear = baseYear - ADMISSION_YEAR_LOOKBACK;
+    List<RawBucket> bucketAdmissionYears(List<StudentIdCount> rows, int baseYear) {
+        int oldestIndividualYear = baseYear - ADMISSION_YEAR_RECENT_YEARS;
 
         Map<Integer, Long> countByYear = new TreeMap<>();
+        long olderCount = 0;
         long unknownCount = 0;
 
-        for (ApplicationStatisticsRepository.StudentIdCount row : rows) {
-            Integer year = AdmissionYearBucketer.toAdmissionYear(row.getStudentId(), baseYear, minYear);
+        for (StudentIdCount row : rows) {
+            Integer year = AdmissionYearBucketer.toAdmissionYear(row.getStudentId(), baseYear);
             if (year == null) {
                 unknownCount += row.getCount();
-                continue;
+            } else if (year < oldestIndividualYear) {
+                olderCount += row.getCount();
+            } else {
+                countByYear.merge(year, row.getCount(), Long::sum);
             }
-            countByYear.merge(year, row.getCount(), Long::sum);
         }
 
         List<RawBucket> buckets = new ArrayList<>();
+        // '그 이전'은 가장 과거이므로 개별 연도들보다 앞에 둔다.
+        if (olderCount > 0) {
+            buckets.add(RawBucket.of(OLDER_KEY, OLDER_LABEL, olderCount));
+        }
         countByYear.forEach((year, count) ->
                 buckets.add(RawBucket.of(String.valueOf(year), AdmissionYearBucketer.toLabel(year), count)));
-
         if (unknownCount > 0) {
             buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
         }

@@ -9,39 +9,36 @@ import org.junit.jupiter.api.Test;
 class AdmissionYearBucketerTest {
 
     private static final int BASE_YEAR = 2026;
-    private static final int MIN_YEAR = 2016;
 
     @Test
     @DisplayName("앞 2자리를 4자리 입학연도로 변환한다 (22 → 2022)")
     void twoDigitToFourDigit() {
-        assertThat(AdmissionYearBucketer.toAdmissionYear("220001", BASE_YEAR, MIN_YEAR)).isEqualTo(2022);
-        assertThat(AdmissionYearBucketer.toAdmissionYear("260001", BASE_YEAR, MIN_YEAR)).isEqualTo(2026);
+        assertThat(AdmissionYearBucketer.toAdmissionYear("220001", BASE_YEAR)).isEqualTo(2022);
+        assertThat(AdmissionYearBucketer.toAdmissionYear("260001", BASE_YEAR)).isEqualTo(2026);
     }
 
     @Test
     @DisplayName("기준 연도 뒤 두 자리보다 크면 이전 세기로 해석한다 (99 → 1999)")
     void previousCenturyWhenAboveBase() {
-        // 기준 2000년 하한이면 1999도 유효 범위 안
-        assertThat(AdmissionYearBucketer.toAdmissionYear("990001", 2026, 1990)).isEqualTo(1999);
+        assertThat(AdmissionYearBucketer.toAdmissionYear("990001", BASE_YEAR)).isEqualTo(1999);
+        assertThat(AdmissionYearBucketer.toAdmissionYear("000001", BASE_YEAR)).isEqualTo(2000);
     }
 
     @Test
-    @DisplayName("기준 연도보다 미래이거나 하한보다 과거면 null (유효 범위 밖)")
-    void outOfRangeIsNull() {
-        // 27 → 2027, 기준 2026보다 미래 → null
-        assertThat(AdmissionYearBucketer.toAdmissionYear("270001", BASE_YEAR, MIN_YEAR)).isNull();
-        // 12 → 2012, 하한 2016보다 과거 → null
-        assertThat(AdmissionYearBucketer.toAdmissionYear("120001", BASE_YEAR, MIN_YEAR)).isNull();
+    @DisplayName("오래된 연도도 미입력이 아니라 실제 연도를 반환한다 (묶음 판단은 호출부)")
+    void oldYearsAreReturned() {
+        assertThat(AdmissionYearBucketer.toAdmissionYear("100001", BASE_YEAR)).isEqualTo(2010);
+        assertThat(AdmissionYearBucketer.toAdmissionYear("050001", BASE_YEAR)).isEqualTo(2005);
     }
 
     @Test
-    @DisplayName("6자리 숫자가 아니면 null (비지원서 경로 학번 등)")
+    @DisplayName("6자리 숫자가 아니면 null (7자리 이상·비지원서 경로 학번 등)")
     void nonSixDigitIsNull() {
-        assertThat(AdmissionYearBucketer.toAdmissionYear(null, BASE_YEAR, MIN_YEAR)).isNull();
-        assertThat(AdmissionYearBucketer.toAdmissionYear("", BASE_YEAR, MIN_YEAR)).isNull();
-        assertThat(AdmissionYearBucketer.toAdmissionYear("2201", BASE_YEAR, MIN_YEAR)).isNull();      // 4자리
-        assertThat(AdmissionYearBucketer.toAdmissionYear("2200011", BASE_YEAR, MIN_YEAR)).isNull();   // 7자리
-        assertThat(AdmissionYearBucketer.toAdmissionYear("22000a", BASE_YEAR, MIN_YEAR)).isNull();    // 숫자 아님
+        assertThat(AdmissionYearBucketer.toAdmissionYear(null, BASE_YEAR)).isNull();
+        assertThat(AdmissionYearBucketer.toAdmissionYear("", BASE_YEAR)).isNull();
+        assertThat(AdmissionYearBucketer.toAdmissionYear("2201", BASE_YEAR)).isNull();      // 4자리
+        assertThat(AdmissionYearBucketer.toAdmissionYear("2200011", BASE_YEAR)).isNull();   // 7자리
+        assertThat(AdmissionYearBucketer.toAdmissionYear("22000a", BASE_YEAR)).isNull();    // 숫자 아님
     }
 
     @Test
