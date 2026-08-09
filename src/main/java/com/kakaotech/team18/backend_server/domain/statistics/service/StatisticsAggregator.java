@@ -1,14 +1,20 @@
 package com.kakaotech.team18.backend_server.domain.statistics.service;
 
+import static com.kakaotech.team18.backend_server.domain.statistics.service.StatisticsServiceImpl.KST;
+
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -32,6 +38,12 @@ public class StatisticsAggregator {
     /** 값이 없는 버킷의 표시 문자열. */
     public static final String UNKNOWN_LABEL = "미입력";
 
+    /**
+     * 유효 입학연도 하한을 기준 연도로부터 몇 년 전까지 볼지. 이보다 오래된 학번(또는 오타)은 '미입력'으로 분류한다.
+     * (설정값화는 후속 단계에서 StatisticsProperties 도입 시 진행)
+     */
+    static final int ADMISSION_YEAR_LOOKBACK = 10;
+
     private final ApplicationStatisticsRepository statisticsRepository;
 
     /**
@@ -52,7 +64,8 @@ public class StatisticsAggregator {
         return switch (dimension) {
             case GENDER -> aggregateGender(form.getId());
             case FACULTY -> aggregateFaculty(form.getId());
-            case ADMISSION_YEAR, DAILY_APPLICATIONS -> List.of();
+            case ADMISSION_YEAR -> aggregateAdmissionYear(form.getId());
+            case DAILY_APPLICATIONS -> List.of();
         };
     }
 
@@ -110,6 +123,48 @@ public class StatisticsAggregator {
         }
 
         buckets.sort(Comparator.comparingInt(b -> Faculty.valueOf(b.key()).ordinal()));
+
+        if (unknownCount > 0) {
+            buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
+        }
+        return buckets;
+    }
+
+    /**
+     * 입학연도 분포를 집계합니다. 기준 연도는 현재 연도(KST)를 사용한다.
+     */
+    private List<RawBucket> aggregateAdmissionYear(Long clubApplyFormId) {
+        return bucketAdmissionYears(
+                statisticsRepository.aggregateByStudentId(clubApplyFormId),
+                Year.now(KST).getValue());
+    }
+
+    /**
+     * 학번 집계 결과를 입학연도 버킷으로 변환합니다.
+     * <p>
+     * 기준 연도(baseYear)를 인자로 받아 테스트에서 시점을 고정할 수 있게 한다({@code RecruitStatusCalculator}
+     * 패턴). 6자리 숫자가 아니거나 유효 범위를 벗어난 학번은 '미입력'으로 모은다. 버킷은 두 자리 문자열이 아니라
+     * <strong>네 자리 연도</strong> 기준으로 오름차순 정렬하고, '미입력'은 항상 마지막에 둔다.
+     */
+    List<RawBucket> bucketAdmissionYears(
+            List<ApplicationStatisticsRepository.StudentIdCount> rows, int baseYear) {
+        int minYear = baseYear - ADMISSION_YEAR_LOOKBACK;
+
+        Map<Integer, Long> countByYear = new TreeMap<>();
+        long unknownCount = 0;
+
+        for (ApplicationStatisticsRepository.StudentIdCount row : rows) {
+            Integer year = AdmissionYearBucketer.toAdmissionYear(row.getStudentId(), baseYear, minYear);
+            if (year == null) {
+                unknownCount += row.getCount();
+                continue;
+            }
+            countByYear.merge(year, row.getCount(), Long::sum);
+        }
+
+        List<RawBucket> buckets = new ArrayList<>();
+        countByYear.forEach((year, count) ->
+                buckets.add(RawBucket.of(String.valueOf(year), AdmissionYearBucketer.toLabel(year), count)));
 
         if (unknownCount > 0) {
             buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
