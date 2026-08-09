@@ -100,6 +100,12 @@ class ApplicationStatisticsRepositoryIntegrationTest {
         assertThat(counts.values()).containsOnly(1L);
     }
 
+    @Test
+    @DisplayName("접수 시각 조회: 해당 지원폼의 지원서 접수 시각만 반환한다")
+    void findCreatedAt_onlyThisForm() {
+        assertThat(repository.findCreatedAtByClubApplyFormId(form.getId())).hasSize(5);
+    }
+
     private ClubApplyForm persistForm(String clubName) {
         Club club = Club.builder()
                 .name(clubName)

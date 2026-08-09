@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.statistics.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -66,4 +67,17 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             GROUP BY u.studentId
             """)
     List<StudentIdCount> aggregateByStudentId(@Param("clubApplyFormId") Long clubApplyFormId);
+
+    /**
+     * 지원폼에 접수된 지원서들의 접수 시각 목록.
+     * <p>
+     * 일자 집계는 시간대(Asia/Seoul) 기준이라 DB의 날짜 함수 대신 접수 시각을 그대로 받아 애플리케이션에서
+     * 일자로 버킷팅한다. {@code createdAt}은 {@code BaseEntity}의 {@code @CreatedDate}로 항상 채워진다.
+     */
+    @Query("""
+            SELECT a.createdAt
+            FROM Application a
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            """)
+    List<LocalDateTime> findCreatedAtByClubApplyFormId(@Param("clubApplyFormId") Long clubApplyFormId);
 }
