@@ -72,7 +72,7 @@ public class StatisticsController {
                                           "dimension": "ADMISSION_YEAR",
                                           "type": "ORDINAL",
                                           "buckets": [
-                                            { "key": "2022", "label": "22학번", "count": 58, "ratio": 0.271 }
+                                            { "key": "22", "label": "22학번", "count": 58, "ratio": 0.271 }
                                           ]
                                         },
                                         {

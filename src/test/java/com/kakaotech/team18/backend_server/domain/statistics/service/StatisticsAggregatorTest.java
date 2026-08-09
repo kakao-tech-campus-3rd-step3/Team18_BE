@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDi
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.FacultyCount;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository.GenderCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import java.util.List;
@@ -36,6 +37,13 @@ class StatisticsAggregatorTest {
         when(fc.getFaculty()).thenReturn(faculty);
         when(fc.getCount()).thenReturn(count);
         return fc;
+    }
+
+    private StudentIdCount studentIdCount(String studentId, long count) {
+        StudentIdCount sc = mock(StudentIdCount.class);
+        when(sc.getStudentId()).thenReturn(studentId);
+        when(sc.getCount()).thenReturn(count);
+        return sc;
     }
 
     private ClubApplyForm form(long id) {
@@ -87,6 +95,28 @@ class StatisticsAggregatorTest {
         assertThat(buckets).extracting(RawBucket::count)
                 .containsExactly(74L, 37L, 20L, 3L);
         assertThat(buckets.get(2).label()).isEqualTo("기타");
+        assertThat(buckets.get(3).label()).isEqualTo("미입력");
+    }
+
+    @Test
+    @DisplayName("최근 연도는 개별, 오래된 연도는 '그 이전'으로 묶고, 6자리 아님만 '미입력'으로 둔다")
+    void bucketAdmissionYears_olderGroupedUnknownLast() {
+        // baseYear=2026, RECENT_YEARS=6 → 개별 하한 2020, 그보다 오래되면 '그 이전'
+        StudentIdCount y23a = studentIdCount("230001", 1);
+        StudentIdCount y23b = studentIdCount("230002", 1);
+        StudentIdCount y22 = studentIdCount("220001", 1);
+        StudentIdCount old2018 = studentIdCount("180001", 1); // 2018 < 2020 → 그 이전
+        StudentIdCount old2010 = studentIdCount("100001", 1); // 2010 < 2020 → 그 이전
+        StudentIdCount invalid = studentIdCount("abc", 1);    // 6자리 숫자 아님 → 미입력
+
+        List<RawBucket> buckets = aggregator.bucketAdmissionYears(
+                List.of(y23a, y23b, y22, old2018, old2010, invalid), 2026);
+
+        // 순서: 그 이전 → 개별 연도 오름차순 → 미입력. key는 두 자리 학번.
+        assertThat(buckets).extracting(RawBucket::key).containsExactly("OLDER", "22", "23", "UNKNOWN");
+        assertThat(buckets).extracting(RawBucket::count).containsExactly(2L, 1L, 2L, 1L);
+        assertThat(buckets.get(0).label()).isEqualTo("그 이전");
+        assertThat(buckets.get(1).label()).isEqualTo("22학번");
         assertThat(buckets.get(3).label()).isEqualTo("미입력");
     }
 }

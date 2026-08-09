@@ -71,4 +71,17 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
 
         long getCount();
     }
+
+    /**
+     * 학번별 지원자 수. 입학연도로의 변환·버킷팅은 세기 판정이 필요해 애플리케이션에서 수행하므로,
+     * 여기서는 학번 그대로 그룹핑해 반환한다.
+     */
+    @Query("""
+            SELECT u.studentId AS studentId, count(a.id) AS count
+            FROM Application a
+            JOIN a.user u
+            WHERE a.clubApplyForm.id = :clubApplyFormId
+            GROUP BY u.studentId
+            """)
+    List<StudentIdCount> aggregateByStudentId(@Param("clubApplyFormId") Long clubApplyFormId);
 }

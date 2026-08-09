@@ -90,6 +90,18 @@ class ApplicationStatisticsRepositoryIntegrationTest {
                 .containsEntry(null, 1L);
     }
 
+    @Test
+    @DisplayName("학번 집계: 학번별로 묶어 해당 지원폼 지원자만 반환한다")
+    void aggregateByStudentId_groupsByStudentId() {
+        Map<String, Long> counts = new HashMap<>();
+        for (StudentIdCount row : repository.aggregateByStudentId(form.getId())) {
+            counts.put(row.getStudentId(), row.getCount());
+        }
+
+        assertThat(counts).containsOnlyKeys("230001", "230002", "230003", "230004", "230005");
+        assertThat(counts.values()).containsOnly(1L);
+    }
+
     private ClubApplyForm persistForm(String clubName) {
         Club club = Club.builder()
                 .name(clubName)
