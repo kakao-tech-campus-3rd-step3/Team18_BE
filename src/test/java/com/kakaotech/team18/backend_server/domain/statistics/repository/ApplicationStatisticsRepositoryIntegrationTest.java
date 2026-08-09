@@ -26,7 +26,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
  */
 @DataJpaTest
 @DisplayName("ApplicationStatisticsRepository - 집계 쿼리")
-class ApplicationStatisticsRepositoryTest {
+class ApplicationStatisticsRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
