@@ -1,6 +1,5 @@
 package com.kakaotech.team18.backend_server.domain.statistics.controller;
 
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -31,6 +30,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+/**
+ * 컨트롤러 슬라이스 단위 테스트. 보안은 {@link TestSecurityConfig}로 대체하고 서비스는 목킹한다.
+ * 실제 {@code SecurityConfig}의 공개(permitAll) 규칙 검증은 {@code StatisticsControllerAuthTest}가 담당한다.
+ */
 @WebMvcTest(
         controllers = StatisticsController.class,
         excludeFilters = {
@@ -39,8 +42,8 @@ import org.springframework.test.web.servlet.MockMvc;
         }
 )
 @Import(TestSecurityConfig.class)
-@DisplayName("StatisticsController - 통계 조회 API")
-class StatisticsControllerTest {
+@DisplayName("StatisticsController 단위 테스트")
+class StatisticsControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -59,9 +62,10 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @DisplayName("유효한 dimension 요청 → 200과 통계 응답")
-    void getStatistics_ok() throws Exception {
-        given(statisticsService.getStatistics(eq(12L), anyList())).willReturn(sampleResponse());
+    @DisplayName("요청한 dimension이 서비스에 그대로 전달되고 응답이 직렬화된다")
+    void getStatistics_passesRequestedDimensions() throws Exception {
+        given(statisticsService.getStatistics(eq(12L), eq(List.of(StatisticsDimension.GENDER))))
+                .willReturn(sampleResponse());
 
         mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
                         .param("dimensions", "GENDER")
@@ -70,6 +74,18 @@ class StatisticsControllerTest {
                 .andExpect(jsonPath("$.clubApplyFormId").value(12))
                 .andExpect(jsonPath("$.results[0].dimension").value("GENDER"))
                 .andExpect(jsonPath("$.results[0].buckets[0].key").value("MALE"));
+    }
+
+    @Test
+    @DisplayName("dimensions 생략 시 전체(defaults)로 서비스를 호출한다")
+    void getStatistics_defaultsWhenOmitted() throws Exception {
+        given(statisticsService.getStatistics(eq(12L), eq(StatisticsDimension.defaults())))
+                .willReturn(sampleResponse());
+
+        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.clubApplyFormId").value(12));
     }
 
     @Test
