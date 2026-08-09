@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
+import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
 import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -50,7 +51,8 @@ public class StatisticsAggregator {
     public List<RawBucket> aggregate(ClubApplyForm form, StatisticsDimension dimension) {
         return switch (dimension) {
             case GENDER -> aggregateGender(form.getId());
-            case ADMISSION_YEAR, FACULTY, DAILY_APPLICATIONS -> List.of();
+            case FACULTY -> aggregateFaculty(form.getId());
+            case ADMISSION_YEAR, DAILY_APPLICATIONS -> List.of();
         };
     }
 
@@ -77,6 +79,37 @@ public class StatisticsAggregator {
         }
 
         buckets.sort(Comparator.comparingInt(b -> Gender.valueOf(b.key()).ordinal()));
+
+        if (unknownCount > 0) {
+            buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
+        }
+        return buckets;
+    }
+
+    /**
+     * 학부 분포를 집계합니다.
+     * <p>
+     * 학부가 null인 지원자(비지원 경로로 생성됐거나 미입력)는 '미입력' 버킷으로 모은다. 목록에 없는 학부는
+     * 이미 {@code Faculty.ETC}(기타)로 수집되어 있어 정상 버킷으로 나온다. 버킷은 Enum 선언 순서를 따르고,
+     * '미입력'은 항상 마지막에 둔다.
+     */
+    private List<RawBucket> aggregateFaculty(Long clubApplyFormId) {
+        List<ApplicationStatisticsRepository.FacultyCount> counts =
+                statisticsRepository.aggregateFaculty(clubApplyFormId);
+
+        List<RawBucket> buckets = new ArrayList<>();
+        long unknownCount = 0;
+
+        for (ApplicationStatisticsRepository.FacultyCount row : counts) {
+            Faculty faculty = row.getFaculty();
+            if (faculty == null) {
+                unknownCount += row.getCount();
+                continue;
+            }
+            buckets.add(RawBucket.of(faculty.name(), faculty.getLabel(), row.getCount()));
+        }
+
+        buckets.sort(Comparator.comparingInt(b -> Faculty.valueOf(b.key()).ordinal()));
 
         if (unknownCount > 0) {
             buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
