@@ -44,12 +44,6 @@ public record StatisticsResponseDto(
             @Schema(description = "데이터 성격. 표현 방식은 프론트엔드가 정한다.", example = "CATEGORICAL")
             DimensionType type,
 
-            @Schema(description = "상위 N개로 잘렸으면 true. 잘리지 않았으면 응답에서 생략된다.", example = "true")
-            Boolean truncated,
-
-            @Schema(description = "표기 파편화 등 해석 시 주의사항. 없으면 생략된다.")
-            String notice,
-
             @Schema(description = "집계 버킷")
             List<Bucket> buckets
     ) {
@@ -69,10 +63,7 @@ public record StatisticsResponseDto(
             long count,
 
             @Schema(description = "전체 대비 비율(소수점 3자리 고정). 시계열 등 비율이 의미 없는 버킷에서는 생략된다.", example = "0.565")
-            BigDecimal ratio,
-
-            @Schema(description = "'기타' 버킷에 병합된 원래 값의 종류 수. 그 외 버킷에서는 생략된다.", example = "23")
-            Integer distinctValues
+            BigDecimal ratio
     ) {
     }
 }

@@ -54,7 +54,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             // 지원자가 없으면 버킷은 빈 배열이 된다. dimension 자체는 응답에 그대로 남겨,
             // 클라이언트가 '아직 데이터가 없음'과 '해당 항목을 요청하지 않음'을 구분할 수 있게 한다.
             List<RawBucket> raw = aggregator.aggregate(form, dimension);
-            results.add(toResult(dimension, raw, totalApplicants, null, null));
+            results.add(toResult(dimension, raw, totalApplicants));
         }
 
         return new StatisticsResponseDto(
@@ -74,9 +74,7 @@ public class StatisticsServiceImpl implements StatisticsService {
     private StatisticsResponseDto.DimensionResult toResult(
             StatisticsDimension dimension,
             List<RawBucket> raw,
-            long totalApplicants,
-            Boolean truncated,
-            String notice
+            long totalApplicants
     ) {
         boolean withRatio = dimension.getType() != DimensionType.TIME_SERIES;
 
@@ -85,16 +83,13 @@ public class StatisticsServiceImpl implements StatisticsService {
                         b.key(),
                         b.label(),
                         b.count(),
-                        withRatio ? ratio(b.count(), totalApplicants) : null,
-                        b.distinctValues()
+                        withRatio ? ratio(b.count(), totalApplicants) : null
                 ))
                 .toList();
 
         return new StatisticsResponseDto.DimensionResult(
                 dimension,
                 dimension.getType(),
-                truncated,
-                notice,
                 buckets
         );
     }
