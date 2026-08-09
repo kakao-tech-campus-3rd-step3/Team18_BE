@@ -41,6 +41,16 @@ public class StatisticsServiceImpl implements StatisticsService {
         return calculate(form, dimensions);
     }
 
+    @Override
+    public StatisticsResponseDto getStatisticsForAdmin(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
+        ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
+                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
+
+        // 관리자용은 마스킹 없이 원본을 그대로 반환한다. 공개 경로(getStatistics)에 이후 마스킹이 붙어도
+        // 이 경로는 calculate() 원본만 사용하므로 영향받지 않는다.
+        return calculate(form, dimensions);
+    }
+
     /**
      * 지원폼의 통계를 실제로 집계합니다.
      * <p>

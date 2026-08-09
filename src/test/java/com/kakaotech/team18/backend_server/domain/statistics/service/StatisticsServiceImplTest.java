@@ -76,6 +76,36 @@ class StatisticsServiceImplTest {
     }
 
     @Test
+    @DisplayName("관리자 조회도 존재하지 않는 지원폼이면 예외(404 매핑)")
+    void admin_notFound_throws() {
+        when(clubApplyFormRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.getStatisticsForAdmin(99L, List.of(StatisticsDimension.GENDER)))
+                .isInstanceOf(ClubApplyFormNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("관리자 조회는 마스킹 없이 집계기 원본 수치를 그대로 반환한다")
+    void admin_returnsRawAggregatedValues() {
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L);
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(1L)).thenReturn(3L);
+        // 소수 버킷(재식별 위험)이 공개 경로에서는 마스킹 대상이 될 수 있으나 관리자 경로는 원본을 노출한다.
+        when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
+                RawBucket.of("MALE", "남성", 2),
+                RawBucket.of("FEMALE", "여성", 1)
+        ));
+
+        StatisticsResponseDto res = service.getStatisticsForAdmin(1L, List.of(StatisticsDimension.GENDER));
+
+        assertThat(res.totalApplicants()).isEqualTo(3L);
+        assertThat(res.results().get(0).buckets())
+                .extracting(StatisticsResponseDto.Bucket::count)
+                .containsExactly(2L, 1L);
+    }
+
+    @Test
     @DisplayName("시계열(DAILY_APPLICATIONS) 버킷은 비율(ratio)을 채우지 않는다")
     void timeSeriesDimension_hasNoRatio() {
         ClubApplyForm form = mock(ClubApplyForm.class);
