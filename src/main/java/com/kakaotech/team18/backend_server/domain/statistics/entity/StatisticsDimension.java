@@ -47,4 +47,18 @@ public enum StatisticsDimension {
     public static List<StatisticsDimension> defaults() {
         return List.of(values());
     }
+
+    /**
+     * 쿼리 파라미터 문자열 목록을 dimension 목록으로 해석합니다. 비어 있으면 전체({@link #defaults()})를,
+     * 지정돼 있으면 각 값을 {@link #from(String)}으로 변환해 중복을 제거한 목록을 반환합니다.
+     */
+    public static List<StatisticsDimension> resolve(List<String> raw) {
+        if (raw == null || raw.isEmpty()) {
+            return defaults();
+        }
+        return raw.stream()
+                .map(StatisticsDimension::from)
+                .distinct()
+                .toList();
+    }
 }
