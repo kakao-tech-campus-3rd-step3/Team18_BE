@@ -6,6 +6,8 @@ import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApply
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.ApplicationStatisticsRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.FacultyCount;
+import com.kakaotech.team18.backend_server.domain.statistics.repository.GenderCount;
 import com.kakaotech.team18.backend_server.domain.statistics.repository.StudentIdCount;
 import com.kakaotech.team18.backend_server.domain.statistics.util.AdmissionYearBucketer;
 import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
@@ -83,13 +85,13 @@ public class StatisticsAggregator {
      * 순서를 따르고, '미입력'은 항상 마지막에 둔다.
      */
     private List<RawBucket> aggregateGender(Long clubApplyFormId) {
-        List<ApplicationStatisticsRepository.GenderCount> counts =
+        List<GenderCount> counts =
                 statisticsRepository.aggregateGender(clubApplyFormId);
 
         List<RawBucket> buckets = new ArrayList<>();
         long unknownCount = 0;
 
-        for (ApplicationStatisticsRepository.GenderCount row : counts) {
+        for (GenderCount row : counts) {
             Gender gender = row.getGender();
             if (gender == null) {
                 unknownCount += row.getCount();
@@ -114,13 +116,13 @@ public class StatisticsAggregator {
      * '미입력'은 항상 마지막에 둔다.
      */
     private List<RawBucket> aggregateFaculty(Long clubApplyFormId) {
-        List<ApplicationStatisticsRepository.FacultyCount> counts =
+        List<FacultyCount> counts =
                 statisticsRepository.aggregateFaculty(clubApplyFormId);
 
         List<RawBucket> buckets = new ArrayList<>();
         long unknownCount = 0;
 
-        for (ApplicationStatisticsRepository.FacultyCount row : counts) {
+        for (FacultyCount row : counts) {
             Faculty faculty = row.getFaculty();
             if (faculty == null) {
                 unknownCount += row.getCount();

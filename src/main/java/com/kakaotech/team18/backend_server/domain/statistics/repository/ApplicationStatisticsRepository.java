@@ -1,8 +1,6 @@
 package com.kakaotech.team18.backend_server.domain.statistics.repository;
 
 import com.kakaotech.team18.backend_server.domain.application.entity.Application;
-import com.kakaotech.team18.backend_server.domain.user.entity.Faculty;
-import com.kakaotech.team18.backend_server.domain.user.entity.Gender;
 import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
@@ -44,14 +42,6 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             """)
     List<GenderCount> aggregateGender(@Param("clubApplyFormId") Long clubApplyFormId);
 
-    /** 성별 집계 결과 projection. */
-    interface GenderCount {
-
-        Gender getGender();
-
-        long getCount();
-    }
-
     /**
      * 학부 분포. 학부가 없는(null) 지원자도 하나의 그룹으로 반환된다.
      */
@@ -63,14 +53,6 @@ public interface ApplicationStatisticsRepository extends Repository<Application,
             GROUP BY u.faculty
             """)
     List<FacultyCount> aggregateFaculty(@Param("clubApplyFormId") Long clubApplyFormId);
-
-    /** 학부 집계 결과 projection. */
-    interface FacultyCount {
-
-        Faculty getFaculty();
-
-        long getCount();
-    }
 
     /**
      * 학번별 지원자 수. 입학연도로의 변환·버킷팅은 세기 판정이 필요해 애플리케이션에서 수행하므로,
