@@ -42,6 +42,13 @@ class AdmissionYearBucketerTest {
     }
 
     @Test
+    @DisplayName("버킷 코드값(key)은 네 자리가 아닌 두 자리 학번 (2022 → 22)")
+    void key() {
+        assertThat(AdmissionYearBucketer.toKey(2022)).isEqualTo("22");
+        assertThat(AdmissionYearBucketer.toKey(2009)).isEqualTo("09");
+    }
+
+    @Test
     @DisplayName("라벨은 학년이 아닌 '22학번' 형식")
     void label() {
         assertThat(AdmissionYearBucketer.toLabel(2022)).isEqualTo("22학번");

@@ -112,8 +112,8 @@ class StatisticsAggregatorTest {
         List<RawBucket> buckets = aggregator.bucketAdmissionYears(
                 List.of(y23a, y23b, y22, old2018, old2010, invalid), 2026);
 
-        // 순서: 그 이전 → 개별 연도 오름차순 → 미입력
-        assertThat(buckets).extracting(RawBucket::key).containsExactly("OLDER", "2022", "2023", "UNKNOWN");
+        // 순서: 그 이전 → 개별 연도 오름차순 → 미입력. key는 두 자리 학번.
+        assertThat(buckets).extracting(RawBucket::key).containsExactly("OLDER", "22", "23", "UNKNOWN");
         assertThat(buckets).extracting(RawBucket::count).containsExactly(2L, 1L, 2L, 1L);
         assertThat(buckets.get(0).label()).isEqualTo("그 이전");
         assertThat(buckets.get(1).label()).isEqualTo("22학번");

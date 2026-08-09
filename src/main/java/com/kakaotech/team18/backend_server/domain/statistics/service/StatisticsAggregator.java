@@ -178,7 +178,7 @@ public class StatisticsAggregator {
             buckets.add(RawBucket.of(OLDER_KEY, OLDER_LABEL, olderCount));
         }
         countByYear.forEach((year, count) ->
-                buckets.add(RawBucket.of(String.valueOf(year), AdmissionYearBucketer.toLabel(year), count)));
+                buckets.add(RawBucket.of(AdmissionYearBucketer.toKey(year), AdmissionYearBucketer.toLabel(year), count)));
         if (unknownCount > 0) {
             buckets.add(RawBucket.of(UNKNOWN_KEY, UNKNOWN_LABEL, unknownCount));
         }

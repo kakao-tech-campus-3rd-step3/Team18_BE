@@ -41,6 +41,18 @@ public final class AdmissionYearBucketer {
     }
 
     /**
+     * 입학연도를 버킷 코드값(두 자리 학번)으로 변환합니다.
+     * <p>
+     * 개별 연도 버킷은 최근 구간에 한정되어 세기 혼동이 없으므로 두 자리로 내보낸다. (내부 정렬은 네 자리 연도 기준)
+     *
+     * @param year 4자리 입학연도
+     * @return {@code 22} 형식의 두 자리 코드값
+     */
+    public static String toKey(int year) {
+        return String.format("%02d", year % 100);
+    }
+
+    /**
      * 입학연도를 화면 표시용 라벨로 변환합니다.
      * <p>
      * 학년이 아니라 학번으로 표기한다. 휴학·편입 때문에 입학연도와 학년은 일치하지 않는다.
@@ -49,6 +61,6 @@ public final class AdmissionYearBucketer {
      * @return {@code 22학번} 형식의 라벨
      */
     public static String toLabel(int year) {
-        return String.format("%02d학번", year % 100);
+        return toKey(year) + "학번";
     }
 }
