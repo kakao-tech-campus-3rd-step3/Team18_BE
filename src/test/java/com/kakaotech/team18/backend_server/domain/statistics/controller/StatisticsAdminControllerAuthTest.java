@@ -49,7 +49,7 @@ class StatisticsAdminControllerAuthTest {
         // 12번 지원폼은 1번 동아리 소속이라고 가정한다.
         given(clubApplyFormRepository.findClubIdByClubApplyFormId(12L)).willReturn(Optional.of(1L));
         given(statisticsService.getStatisticsForAdmin(any(), any()))
-                .willReturn(new StatisticsResponseDto(12L, 0L, false, OffsetDateTime.now(), List.of()));
+                .willReturn(new StatisticsResponseDto(12L, 0L, false, false, OffsetDateTime.now(), List.of()));
     }
 
     @Test

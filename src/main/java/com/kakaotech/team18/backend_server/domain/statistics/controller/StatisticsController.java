@@ -44,6 +44,9 @@ public class StatisticsController {
 
                     - `dimensions`를 생략하면 모든 항목을 반환합니다.
                     - 응답에는 지원자를 식별할 수 있는 값(이름·이메일·전화번호·6자리 학번)이 포함되지 않습니다.
+                    - 재식별 방지를 위해 **전체 지원자 수가 최소 공개 기준 미만이면** 분포를 비공개합니다.
+                      이때 `masked=true`, `results=[]`로 내려갑니다. 이는 다음과 구분됩니다:
+                      `masked=true`(소수라 비공개) vs 버킷 `count:0`(실제 0명) vs `미입력` 버킷(값 미기입).
                     """
     )
     @ApiResponses({
@@ -52,11 +55,13 @@ public class StatisticsController {
                     description = "조회 성공",
                     content = @Content(
                             schema = @Schema(implementation = StatisticsResponseDto.class),
-                            examples = @ExampleObject(name = "모집 진행 중", value = """
+                            examples = {
+                                    @ExampleObject(name = "모집 진행 중", value = """
                                     {
                                       "clubApplyFormId": 12,
                                       "totalApplicants": 214,
                                       "snapshot": false,
+                                      "masked": false,
                                       "calculatedAt": "2026-03-14T23:59:30+09:00",
                                       "results": [
                                         {
@@ -88,12 +93,23 @@ public class StatisticsController {
                                           "dimension": "DAILY_APPLICATIONS",
                                           "type": "TIME_SERIES",
                                           "buckets": [
-                                            { "key": "2026-03-02", "label": "3월 2일", "count": 4 }
+                                            { "key": "2026-03-02", "label": "3월 2일", "count": 12 }
                                           ]
                                         }
                                       ]
                                     }
+                                    """),
+                                    @ExampleObject(name = "최소 공개 기준 미달(비공개)", value = """
+                                    {
+                                      "clubApplyFormId": 12,
+                                      "totalApplicants": 2,
+                                      "snapshot": false,
+                                      "masked": true,
+                                      "calculatedAt": "2026-03-14T23:59:30+09:00",
+                                      "results": []
+                                    }
                                     """)
+                            }
                     )
             ),
             @ApiResponse(responseCode = "400", description = "지원하지 않는 dimension", content = @Content),

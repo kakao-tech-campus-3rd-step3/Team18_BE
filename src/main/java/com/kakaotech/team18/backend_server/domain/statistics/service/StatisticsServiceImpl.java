@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
@@ -16,12 +17,15 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+// 최소 공개 기준 판정(지원자 수)과 dimension 집계가 같은 스냅샷을 보도록 반복 읽기로 고정한다.
+// 운영 MySQL(InnoDB)은 기본이 REPEATABLE_READ지만, DB 기본값에 의존하지 않고 요구사항을 명시한다.
+@Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
 public class StatisticsServiceImpl implements StatisticsService {
 
     /** 모든 일자·시각 집계의 기준 시간대. */
@@ -32,13 +36,22 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
+    private final StatisticsProperties properties;
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
 
-        return calculate(form, dimensions);
+        // 공개 통계는 재식별 방지를 위해 전체 지원자 수가 최소 공개 기준 미만이면 분포를 비공개(masked)한다.
+        // 기준은 전체 지원자 수에만 걸리고 개별 버킷에는 걸지 않는다(그래야 버킷 간 뺄셈 역산 문제가 없다).
+        // 지원자 수를 한 번만 읽어 기준 판정과 집계가 같은 값을 쓰도록 calculate에 그대로 넘긴다.
+        long totalApplicants = aggregator.countApplicants(form.getId());
+        if (totalApplicants < properties.minTotalApplicants()) {
+            return maskedResponse(form.getId(), totalApplicants);
+        }
+
+        return calculate(form, dimensions, totalApplicants);
     }
 
     @Override
@@ -57,8 +70,15 @@ public class StatisticsServiceImpl implements StatisticsService {
      * 조회 경로와 스케줄러 사전 계산 경로가 같은 결과를 내도록 이 메서드를 공유한다.
      */
     public StatisticsResponseDto calculate(ClubApplyForm form, List<StatisticsDimension> dimensions) {
-        long totalApplicants = aggregator.countApplicants(form.getId());
+        return calculate(form, dimensions, aggregator.countApplicants(form.getId()));
+    }
 
+    /**
+     * 이미 읽어둔 전체 지원자 수로 통계를 집계합니다.
+     * <p>
+     * 호출부가 최소 공개 기준 판정에 쓴 값과 동일한 지원자 수를 넘겨, 판정과 집계가 같은 스냅샷을 쓰도록 한다.
+     */
+    public StatisticsResponseDto calculate(ClubApplyForm form, List<StatisticsDimension> dimensions, long totalApplicants) {
         List<StatisticsResponseDto.DimensionResult> results = new ArrayList<>();
         for (StatisticsDimension dimension : dimensions) {
             // 지원자가 없으면 버킷은 빈 배열이 된다. dimension 자체는 응답에 그대로 남겨,
@@ -71,8 +91,26 @@ public class StatisticsServiceImpl implements StatisticsService {
                 form.getId(),
                 totalApplicants,
                 false,
+                false,
                 OffsetDateTime.now(KST),
                 results
+        );
+    }
+
+    /**
+     * 최소 공개 기준 미달로 분포를 비공개 처리한 응답을 만듭니다.
+     * <p>
+     * {@code masked=true}와 빈 results로, '지원자가 적어 비공개'임을 '지원자 0명'(results가 있고 버킷 count가 0)과
+     * 구분해 알린다. totalApplicants는 분포가 아니므로 그대로 노출한다.
+     */
+    private StatisticsResponseDto maskedResponse(Long clubApplyFormId, long totalApplicants) {
+        return new StatisticsResponseDto(
+                clubApplyFormId,
+                totalApplicants,
+                false,
+                true,
+                OffsetDateTime.now(KST),
+                List.of()
         );
     }
 
