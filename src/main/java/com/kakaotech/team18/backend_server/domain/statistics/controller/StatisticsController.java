@@ -124,26 +124,11 @@ public class StatisticsController {
                     example = "GENDER,FACULTY")
             @RequestParam(name = "dimensions", required = false) List<String> dimensions
     ) {
-        List<StatisticsDimension> requested = resolveDimensions(dimensions);
+        // 관리자 컨트롤러와 동일하게 dimension 파싱은 StatisticsDimension.resolve()로 일원화한다.
+        List<StatisticsDimension> requested = StatisticsDimension.resolve(dimensions);
 
         log.info("지원자 통계 조회 clubApplyFormId={}, dimensions={}", clubApplyFormId, requested);
 
         return ResponseEntity.ok(statisticsService.getStatistics(clubApplyFormId, requested));
-    }
-
-    /**
-     * 쿼리 파라미터를 dimension 목록으로 변환합니다. 지정하지 않으면 전체를 조회합니다.
-     * <p>
-     * 문자열을 직접 파싱하는 이유는, 정의되지 않은 값이 들어왔을 때 사용 가능한 목록까지 담은 400을 돌려주기
-     * 위해서다. 컨트롤러 파라미터를 Enum으로 바로 바인딩하면 어떤 값이 왜 틀렸는지 알기 어렵다.
-     */
-    private List<StatisticsDimension> resolveDimensions(List<String> raw) {
-        if (raw == null || raw.isEmpty()) {
-            return StatisticsDimension.defaults();
-        }
-        return raw.stream()
-                .map(StatisticsDimension::from)
-                .distinct()
-                .toList();
     }
 }
