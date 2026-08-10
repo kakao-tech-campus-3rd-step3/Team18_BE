@@ -38,7 +38,7 @@ class StatisticsControllerAuthTest {
     @DisplayName("통계 조회는 비로그인 상태에서도 200 (permitAll)")
     void getStatistics_isPublic() throws Exception {
         given(statisticsService.getStatistics(any(), any()))
-                .willReturn(new StatisticsResponseDto(12L, 0L, false, OffsetDateTime.now(), List.of()));
+                .willReturn(new StatisticsResponseDto(12L, 0L, false, false, OffsetDateTime.now(), List.of()));
 
         mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L))
                 .andExpect(status().isOk());

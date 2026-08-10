@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
 import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionType;
@@ -32,11 +33,19 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
+    private final StatisticsProperties properties;
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
+
+        // 공개 통계는 재식별 방지를 위해 전체 지원자 수가 최소 공개 기준 미만이면 분포를 비공개(masked)한다.
+        // 기준은 전체 지원자 수에만 걸리고 개별 버킷에는 걸지 않는다(그래야 버킷 간 뺄셈 역산 문제가 없다).
+        long totalApplicants = aggregator.countApplicants(form.getId());
+        if (totalApplicants < properties.minTotalApplicants()) {
+            return maskedResponse(form.getId(), totalApplicants);
+        }
 
         return calculate(form, dimensions);
     }
@@ -71,8 +80,26 @@ public class StatisticsServiceImpl implements StatisticsService {
                 form.getId(),
                 totalApplicants,
                 false,
+                false,
                 OffsetDateTime.now(KST),
                 results
+        );
+    }
+
+    /**
+     * 최소 공개 기준 미달로 분포를 비공개 처리한 응답을 만듭니다.
+     * <p>
+     * {@code masked=true}와 빈 results로, '지원자가 적어 비공개'임을 '지원자 0명'(results가 있고 버킷 count가 0)과
+     * 구분해 알린다. totalApplicants는 분포가 아니므로 그대로 노출한다.
+     */
+    private StatisticsResponseDto maskedResponse(Long clubApplyFormId, long totalApplicants) {
+        return new StatisticsResponseDto(
+                clubApplyFormId,
+                totalApplicants,
+                false,
+                true,
+                OffsetDateTime.now(KST),
+                List.of()
         );
     }
 
