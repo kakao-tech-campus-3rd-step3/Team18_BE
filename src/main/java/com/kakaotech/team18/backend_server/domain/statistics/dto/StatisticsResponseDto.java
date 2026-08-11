@@ -33,7 +33,11 @@ public record StatisticsResponseDto(
                 example = "false")
         boolean masked,
 
-        @Schema(description = "집계가 수행된 시각", example = "2026-03-14T23:59:30+09:00")
+        @Schema(description = """
+                이 통계 스냅샷이 산출된 시각(KST). 공개 통계는 캐시되므로 조회 시각이 아니라 캐시된 스냅샷의
+                계산 시각이며, 최대 캐시 TTL만큼 과거일 수 있다. 클라이언트는 이 값으로 '언제 기준' 데이터인지
+                신선도를 표시한다.""",
+                example = "2026-03-14T23:59:30+09:00")
         OffsetDateTime calculatedAt,
 
         @Schema(description = "dimension별 집계 결과. 최소 공개 기준에 미달(masked=true)하면 빈 배열이다.")

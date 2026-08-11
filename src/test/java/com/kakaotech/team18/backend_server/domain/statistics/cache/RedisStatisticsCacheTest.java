@@ -35,7 +35,7 @@ class RedisStatisticsCacheTest {
     private final ObjectMapper objectMapper = new ObjectMapper()
             .findAndRegisterModules()
             .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    private final StatisticsProperties properties = new StatisticsProperties(3, 60);
+    private final StatisticsProperties properties = new StatisticsProperties(3, 1800);
     private final RedisStatisticsCache cache = new RedisStatisticsCache(redisTemplate, objectMapper, properties);
 
     private StatisticsResponseDto sample() {
@@ -56,7 +56,7 @@ class RedisStatisticsCacheTest {
 
         ArgumentCaptor<String> jsonCaptor = ArgumentCaptor.forClass(String.class);
         org.mockito.Mockito.verify(valueOps)
-                .set(eq("statistics:v1:12"), jsonCaptor.capture(), eq(Duration.ofSeconds(60)));
+                .set(eq("statistics:v1:12"), jsonCaptor.capture(), eq(Duration.ofSeconds(1800)));
 
         when(valueOps.get("statistics:v1:12")).thenReturn(jsonCaptor.getValue());
         Optional<StatisticsResponseDto> found = cache.find(12L);
