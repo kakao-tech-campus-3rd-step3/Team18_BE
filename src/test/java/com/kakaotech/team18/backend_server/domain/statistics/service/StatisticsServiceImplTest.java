@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -10,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.cache.StatisticsCache;
 import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
@@ -17,7 +20,9 @@ import com.kakaotech.team18.backend_server.domain.statistics.entity.DimensionTyp
 import com.kakaotech.team18.backend_server.domain.statistics.entity.StatisticsDimension;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,8 +35,20 @@ class StatisticsServiceImplTest {
 
     private final ClubApplyFormRepository clubApplyFormRepository = mock(ClubApplyFormRepository.class);
     private final StatisticsAggregator aggregator = mock(StatisticsAggregator.class);
-    private final StatisticsServiceImpl service =
-            new StatisticsServiceImpl(clubApplyFormRepository, aggregator, new StatisticsProperties(MIN_TOTAL));
+    private final StatisticsCache cache = mock(StatisticsCache.class);
+    private final StatisticsServiceImpl service = new StatisticsServiceImpl(
+            clubApplyFormRepository, aggregator, new StatisticsProperties(MIN_TOTAL, 60), cache);
+
+    /**
+     * 공개 cache-aside 경로가 캐시 미스로 전체(all-dimension)를 계산하도록 캐시를 비우고, 지정한 dimension 외에는
+     * 빈 집계로 채운다(미스 시 calculate가 모든 dimension을 순회하므로).
+     */
+    private void cacheMissWithAggregates(ClubApplyForm form, Map<StatisticsDimension, List<RawBucket>> byDimension) {
+        when(cache.find(anyLong())).thenReturn(Optional.empty());
+        for (StatisticsDimension dimension : StatisticsDimension.values()) {
+            when(aggregator.aggregate(form, dimension)).thenReturn(byDimension.getOrDefault(dimension, List.of()));
+        }
+    }
 
     @Test
     @DisplayName("존재하지 않는 지원폼이면 예외(404 매핑)")
@@ -43,29 +60,59 @@ class StatisticsServiceImplTest {
     }
 
     @Test
-    @DisplayName("집계기가 준 버킷을 응답으로 조립하고 비율을 소수점 3자리로 채운다")
-    void assemblesBucketsWithRatio() {
+    @DisplayName("캐시 미스면 집계기가 준 버킷을 응답으로 조립하고 비율을 채운 뒤 캐시에 저장한다")
+    void cacheMiss_assemblesBucketsWithRatioAndCaches() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(200L);
-        when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
+        cacheMissWithAggregates(form, Map.of(StatisticsDimension.GENDER, List.of(
                 RawBucket.of("MALE", "남성", 121),
                 RawBucket.of("FEMALE", "여성", 79)
-        ));
+        )));
 
         StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
 
         assertThat(res.clubApplyFormId()).isEqualTo(1L);
         assertThat(res.totalApplicants()).isEqualTo(200L);
-        assertThat(res.snapshot()).isFalse();
         assertThat(res.masked()).isFalse();
-        assertThat(res.results()).hasSize(1);
+        assertThat(res.results()).hasSize(1); // 요청한 GENDER만 걸러짐
 
         StatisticsResponseDto.DimensionResult gender = res.results().get(0);
         assertThat(gender.dimension()).isEqualTo(StatisticsDimension.GENDER);
-        assertThat(gender.buckets()).extracting(b -> b.ratio())
+        assertThat(gender.buckets()).extracting(StatisticsResponseDto.Bucket::ratio)
                 .containsExactly(new BigDecimal("0.605"), new BigDecimal("0.395"));
+
+        // 계산 결과는 전체 dimension으로 캐시된다.
+        verify(cache).put(eq(1L), any(StatisticsResponseDto.class));
+    }
+
+    @Test
+    @DisplayName("캐시 히트면 재계산 없이 캐시 결과에서 요청 dimension만 걸러 반환한다")
+    void cacheHit_servesFromCacheWithoutRecompute() {
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(mock(ClubApplyForm.class)));
+        StatisticsResponseDto cached = new StatisticsResponseDto(
+                1L, 200L, false, false, OffsetDateTime.now(),
+                List.of(
+                        new StatisticsResponseDto.DimensionResult(
+                                StatisticsDimension.GENDER, DimensionType.CATEGORICAL,
+                                List.of(new StatisticsResponseDto.Bucket("MALE", "남성", 121L, new BigDecimal("0.605")))),
+                        new StatisticsResponseDto.DimensionResult(
+                                StatisticsDimension.FACULTY, DimensionType.CATEGORICAL,
+                                List.of(new StatisticsResponseDto.Bucket("ENGINEERING", "공과대학", 74L, new BigDecimal("0.346"))))
+                ));
+        when(cache.find(1L)).thenReturn(Optional.of(cached));
+
+        StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
+
+        // 캐시 히트면 집계·카운트 쿼리를 전혀 호출하지 않고, 캐시를 다시 쓰지도 않는다.
+        verify(aggregator, never()).aggregate(any(), any());
+        verify(aggregator, never()).countApplicants(anyLong());
+        verify(cache, never()).put(any(), any());
+
+        assertThat(res.masked()).isFalse();
+        assertThat(res.results()).hasSize(1);
+        assertThat(res.results().get(0).dimension()).isEqualTo(StatisticsDimension.GENDER);
     }
 
     @Test
@@ -75,14 +122,13 @@ class StatisticsServiceImplTest {
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(2L); // < MIN_TOTAL(3)
+        cacheMissWithAggregates(form, Map.of());
 
         StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
 
         assertThat(res.masked()).isTrue();
         assertThat(res.results()).isEmpty();
         assertThat(res.totalApplicants()).isEqualTo(2L); // 분포가 아니므로 전체 수는 노출
-        // 비공개면 dimension 집계까지 갈 필요가 없다.
-        verify(aggregator, never()).aggregate(any(), any());
     }
 
     @Test
@@ -92,10 +138,10 @@ class StatisticsServiceImplTest {
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(3L); // == MIN_TOTAL(3) → 공개
-        when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
+        cacheMissWithAggregates(form, Map.of(StatisticsDimension.GENDER, List.of(
                 RawBucket.of("MALE", "남성", 2),
                 RawBucket.of("FEMALE", "여성", 1)
-        ));
+        )));
 
         StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
 
@@ -115,8 +161,8 @@ class StatisticsServiceImplTest {
     }
 
     @Test
-    @DisplayName("관리자 조회는 최소 공개 기준 미만이어도 비공개하지 않고 원본을 그대로 반환한다")
-    void admin_returnsRawEvenBelowMinTotal() {
+    @DisplayName("관리자 조회는 캐시를 거치지 않고, 최소 공개 기준 미만이어도 비공개하지 않는다")
+    void admin_bypassesCacheAndReturnsRawEvenBelowMinTotal() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
@@ -133,6 +179,9 @@ class StatisticsServiceImplTest {
         assertThat(res.results().get(0).buckets())
                 .extracting(StatisticsResponseDto.Bucket::count)
                 .containsExactly(1L, 1L);
+        // 관리자 경로는 캐시를 조회하지도 저장하지도 않는다.
+        verify(cache, never()).find(anyLong());
+        verify(cache, never()).put(any(), any());
     }
 
     @Test
@@ -142,9 +191,9 @@ class StatisticsServiceImplTest {
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(10L);
-        when(aggregator.aggregate(form, StatisticsDimension.DAILY_APPLICATIONS)).thenReturn(List.of(
+        cacheMissWithAggregates(form, Map.of(StatisticsDimension.DAILY_APPLICATIONS, List.of(
                 RawBucket.of("2026-03-02", "3월 2일", 4)
-        ));
+        )));
 
         StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.DAILY_APPLICATIONS));
 
@@ -161,9 +210,9 @@ class StatisticsServiceImplTest {
         when(form.getId()).thenReturn(1L);
         when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(10L); // >= MIN_TOTAL → 공개
-        when(aggregator.aggregate(form, StatisticsDimension.DAILY_APPLICATIONS)).thenReturn(List.of(
+        cacheMissWithAggregates(form, Map.of(StatisticsDimension.DAILY_APPLICATIONS, List.of(
                 RawBucket.of("2026-03-02", "3월 2일", 0)
-        ));
+        )));
 
         StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.DAILY_APPLICATIONS));
 

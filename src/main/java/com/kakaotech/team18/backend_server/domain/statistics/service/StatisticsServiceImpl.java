@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.statistics.service;
 
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.statistics.cache.StatisticsCache;
 import com.kakaotech.team18.backend_server.domain.statistics.config.StatisticsProperties;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.RawBucket;
 import com.kakaotech.team18.backend_server.domain.statistics.dto.StatisticsResponseDto;
@@ -14,6 +15,10 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,21 +42,30 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final ClubApplyFormRepository clubApplyFormRepository;
     private final StatisticsAggregator aggregator;
     private final StatisticsProperties properties;
+    private final StatisticsCache cache;
 
     @Override
     public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
         ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
                 .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
 
-        // 공개 통계는 재식별 방지를 위해 전체 지원자 수가 최소 공개 기준 미만이면 분포를 비공개(masked)한다.
+        // 공개 통계는 폼별 전체 결과를 Redis에 TTL 캐시한다(스케줄러 없이 요청 시점에만 채우는 cache-aside).
+        // 캐시에는 마스킹하지 않은 전체 dimension 결과를 담고, 마스킹·subset은 serve 시점에 적용한다.
+        // 캐시 장애 시 find는 빈 값을 주므로 자연히 실시간 계산으로 폴백한다.
+        StatisticsResponseDto full = cache.find(clubApplyFormId).orElseGet(() -> {
+            StatisticsResponseDto computed = calculate(form, StatisticsDimension.defaults());
+            cache.put(clubApplyFormId, computed);
+            return computed;
+        });
+
+        // 재식별 방지: 전체 지원자 수가 최소 공개 기준 미만이면 분포를 비공개(masked)한다.
         // 기준은 전체 지원자 수에만 걸리고 개별 버킷에는 걸지 않는다(그래야 버킷 간 뺄셈 역산 문제가 없다).
-        // 지원자 수를 한 번만 읽어 기준 판정과 집계가 같은 값을 쓰도록 calculate에 그대로 넘긴다.
-        long totalApplicants = aggregator.countApplicants(form.getId());
-        if (totalApplicants < properties.minTotalApplicants()) {
-            return maskedResponse(form.getId(), totalApplicants);
+        // 판정과 응답이 같은 캐시 스냅샷의 totalApplicants를 쓰므로 서로 어긋나지 않는다.
+        if (full.totalApplicants() < properties.minTotalApplicants()) {
+            return maskedResponse(clubApplyFormId, full.totalApplicants());
         }
 
-        return calculate(form, dimensions, totalApplicants);
+        return filterDimensions(full, dimensions);
     }
 
     @Override
@@ -67,18 +81,12 @@ public class StatisticsServiceImpl implements StatisticsService {
     /**
      * 지원폼의 통계를 실제로 집계합니다.
      * <p>
-     * 조회 경로와 스케줄러 사전 계산 경로가 같은 결과를 내도록 이 메서드를 공유한다.
+     * 공개 캐시 채움 경로와 관리자 실시간 경로가 같은 결과를 내도록 이 메서드를 공유한다. 지원자 수를 한 번만
+     * 읽어 전체 수와 비율이 같은 스냅샷을 쓰도록 한다(클래스의 REPEATABLE_READ와 함께 집계 간 일관성 보장).
      */
     public StatisticsResponseDto calculate(ClubApplyForm form, List<StatisticsDimension> dimensions) {
-        return calculate(form, dimensions, aggregator.countApplicants(form.getId()));
-    }
+        long totalApplicants = aggregator.countApplicants(form.getId());
 
-    /**
-     * 이미 읽어둔 전체 지원자 수로 통계를 집계합니다.
-     * <p>
-     * 호출부가 최소 공개 기준 판정에 쓴 값과 동일한 지원자 수를 넘겨, 판정과 집계가 같은 스냅샷을 쓰도록 한다.
-     */
-    public StatisticsResponseDto calculate(ClubApplyForm form, List<StatisticsDimension> dimensions, long totalApplicants) {
         List<StatisticsResponseDto.DimensionResult> results = new ArrayList<>();
         for (StatisticsDimension dimension : dimensions) {
             // 지원자가 없으면 버킷은 빈 배열이 된다. dimension 자체는 응답에 그대로 남겨,
@@ -94,6 +102,31 @@ public class StatisticsServiceImpl implements StatisticsService {
                 false,
                 OffsetDateTime.now(KST),
                 results
+        );
+    }
+
+    /**
+     * 캐시된 전체 결과에서 요청한 dimension만 골라 응답을 만듭니다.
+     * <p>
+     * 캐시에는 항상 전체 dimension 결과가 들어 있으므로, subset 요청은 재계산 없이 여기서 걸러낸다.
+     * 순서는 요청한 dimension 순서를 따른다. totalApplicants·calculatedAt 등 나머지는 캐시 값 그대로 유지한다.
+     */
+    private StatisticsResponseDto filterDimensions(StatisticsResponseDto full, List<StatisticsDimension> dimensions) {
+        Map<StatisticsDimension, StatisticsResponseDto.DimensionResult> byDimension = full.results().stream()
+                .collect(Collectors.toMap(StatisticsResponseDto.DimensionResult::dimension, Function.identity()));
+
+        List<StatisticsResponseDto.DimensionResult> selected = dimensions.stream()
+                .map(byDimension::get)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return new StatisticsResponseDto(
+                full.clubApplyFormId(),
+                full.totalApplicants(),
+                full.snapshot(),
+                full.masked(),
+                full.calculatedAt(),
+                selected
         );
     }
 
