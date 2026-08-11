@@ -132,6 +132,25 @@ class StatisticsServiceImplTest {
     }
 
     @Test
+    @DisplayName("공개 조회: 캐시 히트인데 기준 미만이면 비공개하되 calculatedAt은 캐시 스냅샷 시각을 유지한다")
+    void publicView_cacheHitBelowMinTotal_maskedButKeepsSnapshotTime() {
+        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(mock(ClubApplyForm.class)));
+        OffsetDateTime snapshotTime = OffsetDateTime.parse("2026-03-14T23:59:30+09:00");
+        StatisticsResponseDto cached = new StatisticsResponseDto(
+                1L, 2L, false, false, snapshotTime, // total 2 < MIN_TOTAL(3)
+                List.of(new StatisticsResponseDto.DimensionResult(
+                        StatisticsDimension.GENDER, DimensionType.CATEGORICAL,
+                        List.of(new StatisticsResponseDto.Bucket("MALE", "남성", 2L, new BigDecimal("1.000"))))));
+        when(cache.find(1L)).thenReturn(Optional.of(cached));
+
+        StatisticsResponseDto res = service.getStatistics(1L, List.of(StatisticsDimension.GENDER));
+
+        assertThat(res.masked()).isTrue();
+        assertThat(res.results()).isEmpty();
+        assertThat(res.calculatedAt()).isEqualTo(snapshotTime); // 조회 시각이 아니라 스냅샷 산출 시각
+    }
+
+    @Test
     @DisplayName("공개 조회: 전체 지원자가 기준 이상이면 masked=false로 정상 노출한다(경계값)")
     void publicView_atMinTotal_notMasked() {
         ClubApplyForm form = mock(ClubApplyForm.class);

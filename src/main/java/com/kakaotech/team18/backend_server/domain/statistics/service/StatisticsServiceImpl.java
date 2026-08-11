@@ -62,7 +62,9 @@ public class StatisticsServiceImpl implements StatisticsService {
         // 기준은 전체 지원자 수에만 걸리고 개별 버킷에는 걸지 않는다(그래야 버킷 간 뺄셈 역산 문제가 없다).
         // 판정과 응답이 같은 캐시 스냅샷의 totalApplicants를 쓰므로 서로 어긋나지 않는다.
         if (full.totalApplicants() < properties.minTotalApplicants()) {
-            return maskedResponse(clubApplyFormId, full.totalApplicants());
+            // 마스킹 응답의 총원·산출 시각 모두 같은 캐시 스냅샷에서 가져와, calculatedAt이 조회 시각이 아니라
+            // 스냅샷 산출 시각으로 일관되게 한다(캐시 히트 시에도 신선도 표기가 정확).
+            return maskedResponse(clubApplyFormId, full.totalApplicants(), full.calculatedAt());
         }
 
         return filterDimensions(full, dimensions);
@@ -136,13 +138,14 @@ public class StatisticsServiceImpl implements StatisticsService {
      * {@code masked=true}와 빈 results로, '지원자가 적어 비공개'임을 '지원자 0명'(results가 있고 버킷 count가 0)과
      * 구분해 알린다. totalApplicants는 분포가 아니므로 그대로 노출한다.
      */
-    private StatisticsResponseDto maskedResponse(Long clubApplyFormId, long totalApplicants) {
+    private StatisticsResponseDto maskedResponse(Long clubApplyFormId, long totalApplicants,
+                                                 OffsetDateTime calculatedAt) {
         return new StatisticsResponseDto(
                 clubApplyFormId,
                 totalApplicants,
                 false,
                 true,
-                OffsetDateTime.now(KST),
+                calculatedAt,
                 List.of()
         );
     }
