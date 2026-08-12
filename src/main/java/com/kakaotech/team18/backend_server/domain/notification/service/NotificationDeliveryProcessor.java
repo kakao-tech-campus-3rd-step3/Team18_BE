@@ -62,7 +62,9 @@ public class NotificationDeliveryProcessor {
             switch (exception.getDisposition()) {
                 case RETRYABLE -> stateService.reschedule(
                             deliveryId,
-                            now().plus(FIRST_RETRY_DELAY),
+                            exception.getRetryAt() == null
+                                    ? now().plus(FIRST_RETRY_DELAY)
+                                    : exception.getRetryAt(),
                             exception.getErrorCode(),
                             exception.getMessage()
                     );

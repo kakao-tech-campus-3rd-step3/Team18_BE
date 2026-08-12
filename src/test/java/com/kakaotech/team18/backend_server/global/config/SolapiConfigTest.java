@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
+import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,8 @@ class SolapiConfigTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withUserConfiguration(SolapiConfig.class)
-            .withBean(SmsMessagePolicy.class, SmsMessagePolicy::new);
+            .withBean(SmsMessagePolicy.class, SmsMessagePolicy::new)
+            .withBean(SolapiSendQuota.class, () -> () -> { });
 
     @Test
     void doesNotCreateSolapiBeansWhenDisabled() {

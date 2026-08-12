@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.domain.notification.sender;
 import com.kakaotech.team18.backend_server.domain.notification.dto.NotificationMessage;
 import com.kakaotech.team18.backend_server.domain.notification.dto.NotificationSendResult;
 import com.kakaotech.team18.backend_server.domain.notification.exception.NotificationSendException;
+import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiQuotaExceededException;
+import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
 import com.kakaotech.team18.backend_server.domain.notification.sms.InvalidSmsMessageException;
 import com.kakaotech.team18.backend_server.domain.notification.sms.PreparedSmsMessage;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
@@ -18,6 +20,7 @@ public class SmsNotificationSender implements NotificationSender {
 
     private final SolapiMessageClient solapiMessageClient;
     private final SmsMessagePolicy messagePolicy;
+    private final SolapiSendQuota sendQuota;
 
     @Override
     public NotificationChannel channel() {
@@ -31,6 +34,7 @@ public class SmsNotificationSender implements NotificationSender {
                     message.recipientAddress(),
                     message.body()
             );
+            sendQuota.reserve();
             SolapiSendResponse response = solapiMessageClient.send(new SolapiSmsRequest(
                     prepared.recipient(),
                     prepared.text(),
@@ -41,6 +45,13 @@ public class SmsNotificationSender implements NotificationSender {
                     response.groupId(),
                     response.messageId(),
                     response.statusCode()
+            );
+        } catch (SolapiQuotaExceededException exception) {
+            throw NotificationSendException.retryableAt(
+                    "SOLAPI_HOURLY_QUOTA_EXCEEDED",
+                    exception.getMessage(),
+                    exception.getRetryAt(),
+                    exception
             );
         } catch (InvalidSmsMessageException exception) {
             throw NotificationSendException.permanent(

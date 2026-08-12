@@ -92,6 +92,29 @@ class NotificationDeliveryProcessorTest {
     }
 
     @Test
+    void usesExplicitRetryTimeForQuotaFailure() {
+        NotificationMessage message = message();
+        LocalDateTime nextHour = LocalDateTime.of(2026, 8, 12, 13, 0);
+        when(stateService.claim(1L, ATTEMPTED_AT)).thenReturn(Optional.of(message));
+        when(senderRegistry.get(NotificationChannel.EMAIL)).thenReturn(sender);
+        when(sender.send(message)).thenThrow(NotificationSendException.retryableAt(
+                "SOLAPI_HOURLY_QUOTA_EXCEEDED",
+                "quota exceeded",
+                nextHour,
+                new RuntimeException()
+        ));
+
+        processor.process(1L);
+
+        verify(stateService).reschedule(
+                1L,
+                nextHour,
+                "SOLAPI_HOURLY_QUOTA_EXCEEDED",
+                "quota exceeded"
+        );
+    }
+
+    @Test
     void permanentlyFailsNonRetryableFailure() {
         NotificationMessage message = message();
         when(stateService.claim(1L, ATTEMPTED_AT)).thenReturn(Optional.of(message));

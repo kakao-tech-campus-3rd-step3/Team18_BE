@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMess
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSdkMessageClient;
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
 import com.kakaotech.team18.backend_server.domain.notification.sender.SmsNotificationSender;
+import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.SolapiClient;
 import com.solapi.sdk.message.service.DefaultMessageService;
@@ -37,8 +38,9 @@ public class SolapiConfig {
     @Bean
     public NotificationSender smsNotificationSender(
             SolapiMessageClient messageClient,
-            SmsMessagePolicy messagePolicy
+            SmsMessagePolicy messagePolicy,
+            SolapiSendQuota sendQuota
     ) {
-        return new SmsNotificationSender(messageClient, messagePolicy);
+        return new SmsNotificationSender(messageClient, messagePolicy, sendQuota);
     }
 }
