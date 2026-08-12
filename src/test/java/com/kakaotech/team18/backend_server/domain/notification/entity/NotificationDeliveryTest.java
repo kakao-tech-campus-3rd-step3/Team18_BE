@@ -108,6 +108,29 @@ class NotificationDeliveryTest {
     }
 
     @Test
+    @DisplayName("최종 실패는 개발자 알림 완료 시각을 한 번만 기록한다")
+    void markFailureAlertedOnce() {
+        NotificationDelivery delivery = createDelivery();
+        LocalDateTime alertedAt = CREATED_AT.plusMinutes(2);
+        delivery.markPermanentlyFailed("INVALID_RECIPIENT", "invalid phone number", CREATED_AT);
+
+        delivery.markFailureAlerted(alertedAt);
+
+        assertThat(delivery.getFailureAlertedAt()).isEqualTo(alertedAt);
+        assertThatThrownBy(() -> delivery.markFailureAlerted(alertedAt.plusMinutes(1)))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
+    @DisplayName("진행 중인 작업은 실패 알림 완료로 표시할 수 없다")
+    void cannotAlertNonFailure() {
+        NotificationDelivery delivery = createDelivery();
+
+        assertThatThrownBy(() -> delivery.markFailureAlerted(CREATED_AT))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     @DisplayName("이메일은 별도 접수 상태 없이 SENDING에서 SENT로 완료할 수 있다")
     void emailCanBeSentWithoutAccepted() {
         NotificationDelivery delivery = NotificationDelivery.pending(

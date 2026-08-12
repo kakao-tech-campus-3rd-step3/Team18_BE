@@ -14,7 +14,7 @@ public enum NotificationDeliveryStatus {
     /** SOLAPI가 문자 요청을 접수했지만 단말 수신 결과는 아직 확인되지 않은 상태 */
     ACCEPTED,
 
-    /** 이메일 서버 수락 또는 SOLAPI 성공 웹훅으로 발송 성공이 확인된 종료 상태 */
+    /** 이메일 서버 수락 또는 SOLAPI 상태 조회로 발송 성공이 확인된 종료 상태 */
     SENT,
 
     /** SOLAPI 접수 후 통신사 결과에서 발송 실패가 확인된 종료 상태 */

@@ -1,6 +1,7 @@
 package com.kakaotech.team18.backend_server.domain.notification.repository;
 
 import com.kakaotech.team18.backend_server.domain.notification.entity.NotificationDelivery;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import java.time.LocalDateTime;
@@ -46,4 +47,18 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
             order by delivery.id
             """)
     List<Long> findDueAcceptedDeliveryIds(@Param("now") LocalDateTime now, Pageable pageable);
+
+    @Query("""
+            select delivery.id
+            from NotificationDelivery delivery
+            where delivery.status in :statuses
+              and delivery.failureAlertedAt is null
+            order by delivery.id
+            """)
+    List<Long> findUnalertedFailureIds(
+            @Param("statuses") List<NotificationDeliveryStatus> statuses,
+            Pageable pageable
+    );
+
+    long countByStatus(NotificationDeliveryStatus status);
 }

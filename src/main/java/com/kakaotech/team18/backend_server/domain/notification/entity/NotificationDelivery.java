@@ -35,6 +35,10 @@ import lombok.NoArgsConstructor;
                         name = "idx_notification_delivery_dispatch",
                         columnList = "status,next_attempt_at,notification_delivery_id"
                 ),
+                @Index(
+                        name = "idx_notification_delivery_failure_alert",
+                        columnList = "status,failure_alerted_at,notification_delivery_id"
+                ),
                 @Index(name = "idx_notification_delivery_club_created", columnList = "club_id,created_at"),
                 @Index(name = "idx_notification_delivery_created", columnList = "created_at")
         }
@@ -106,6 +110,9 @@ public class NotificationDelivery extends BaseEntity {
 
     @Column(name = "unknown_at")
     private LocalDateTime unknownAt;
+
+    @Column(name = "failure_alerted_at")
+    private LocalDateTime failureAlertedAt;
 
     @Column(name = "provider_group_id", length = 100)
     private String providerGroupId;
@@ -260,6 +267,18 @@ public class NotificationDelivery extends BaseEntity {
         providerErrorCode = errorCode;
         lastErrorMessage = errorMessage;
         this.failedAt = failedAt;
+    }
+
+    public void markFailureAlerted(LocalDateTime alertedAt) {
+        if (status != NotificationDeliveryStatus.FAILED
+                && status != NotificationDeliveryStatus.UNKNOWN
+                && status != NotificationDeliveryStatus.PERMANENTLY_FAILED) {
+            throw new IllegalStateException("최종 실패 상태가 아닌 알림을 보고 처리할 수 없습니다: " + status);
+        }
+        if (failureAlertedAt != null) {
+            throw new IllegalStateException("이미 보고된 알림입니다: " + id);
+        }
+        failureAlertedAt = alertedAt;
     }
 
     private void clearError() {

@@ -143,6 +143,30 @@ class NotificationDeliveryRepositoryTest {
                 .containsExactly(due.getId());
     }
 
+    @Test
+    @DisplayName("아직 개발자에게 보고하지 않은 최종 실패만 조회한다")
+    void findUnalertedFailures() {
+        LocalDateTime now = LocalDateTime.of(2026, 8, 12, 13, 0);
+        NotificationDelivery failure = createDeliveryWithKey("failed", 40L, now);
+        failure.markPermanentlyFailed("INVALID_RECIPIENT", "invalid", now);
+        NotificationDelivery alerted = createDeliveryWithKey("alerted", 41L, now);
+        alerted.markPermanentlyFailed("INVALID_RECIPIENT", "invalid", now);
+        alerted.markFailureAlerted(now);
+        NotificationDelivery pending = createDeliveryWithKey("pending", 42L, now);
+        repository.saveAllAndFlush(java.util.List.of(failure, alerted, pending));
+
+        assertThat(repository.findUnalertedFailureIds(
+                java.util.List.of(
+                        NotificationDeliveryStatus.FAILED,
+                        NotificationDeliveryStatus.UNKNOWN,
+                        NotificationDeliveryStatus.PERMANENTLY_FAILED
+                ),
+                PageRequest.of(0, 10)
+        )).containsExactly(failure.getId());
+        assertThat(repository.countByStatus(NotificationDeliveryStatus.PERMANENTLY_FAILED))
+                .isEqualTo(2);
+    }
+
     private NotificationDelivery createDelivery(Long applicationId, LocalDateTime nextAttemptAt) {
         return NotificationDelivery.pending(
                 1L,

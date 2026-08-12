@@ -180,11 +180,40 @@ public class NotificationDeliveryStateService {
         return true;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Optional<FailureAlert> claimFailureAlert(Long deliveryId, LocalDateTime alertedAt) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (!isFinalFailure(delivery.getStatus()) || delivery.getFailureAlertedAt() != null) {
+            return Optional.empty();
+        }
+        delivery.markFailureAlerted(alertedAt);
+        return Optional.of(new FailureAlert(
+                delivery.getId(),
+                delivery.getChannel(),
+                delivery.getStatus(),
+                delivery.getProviderErrorCode()
+        ));
+    }
+
     public record AcceptedDelivery(
             Long deliveryId,
             String providerMessageId,
             LocalDateTime acceptedAt
     ) {
+    }
+
+    public record FailureAlert(
+            Long deliveryId,
+            NotificationChannel channel,
+            NotificationDeliveryStatus status,
+            String errorCode
+    ) {
+    }
+
+    private boolean isFinalFailure(NotificationDeliveryStatus status) {
+        return status == NotificationDeliveryStatus.FAILED
+                || status == NotificationDeliveryStatus.UNKNOWN
+                || status == NotificationDeliveryStatus.PERMANENTLY_FAILED;
     }
 
     private NotificationDelivery findForUpdate(Long deliveryId) {
