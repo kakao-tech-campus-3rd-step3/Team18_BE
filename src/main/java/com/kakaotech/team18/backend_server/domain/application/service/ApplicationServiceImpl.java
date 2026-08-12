@@ -33,6 +33,8 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuesti
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.notification.entity.ResultNotificationRequest;
 import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.ResultNotificationDeliveryService;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.domain.notification.util.NotificationRequestFingerprintGenerator;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
@@ -82,6 +84,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ApplicationEventPublisher publisher;
     private final ClubMemberRepository clubMemberRepository;
     private final ResultNotificationRequestRepository resultNotificationRequestRepository;
+    private final ResultNotificationDeliveryService resultNotificationDeliveryService;
     private static final int MAX_READ_LIMIT = 100;
 
     @Override
@@ -437,6 +440,14 @@ public class ApplicationServiceImpl implements ApplicationService {
                 throw new UnscheduledAcceptedApplicantExistsException();
             }
 
+            resultNotificationDeliveryService.createPendingDeliveries(
+                    clubId,
+                    idempotencyKey,
+                    stage,
+                    requestDto.message(),
+                    requestDto.channels(),
+                    apps
+            );
             form.updateInterviewMessage(requestDto.message());
 
             for(Application a : approved) {
@@ -444,18 +455,22 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Stage originalStage = a.getStage();
                 a.updateStage(Stage.FINAL);
                 a.updateStatus(Status.PENDING);
-                publisher.publishEvent(new InterviewApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        originalStage,
-                        safeInterviewAt(a)
-                ));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new InterviewApprovedEvent(
+                            applicationInfoDto,
+                            a.getId(),
+                            a.getUser().getEmail(),
+                            requestDto.message(),
+                            originalStage,
+                            safeInterviewAt(a)
+                    ));
+                }
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
+                }
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 applicationRepository.delete(a);
             }
@@ -469,7 +484,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (hasPending) {
                 throw new PendingApplicationsExistException();
             }
-            form.updateFinalMessage(requestDto.message());
             List<Application> approved = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
@@ -478,22 +492,37 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
+
+            resultNotificationDeliveryService.createPendingDeliveries(
+                    clubId,
+                    idempotencyKey,
+                    stage,
+                    requestDto.message(),
+                    requestDto.channels(),
+                    apps
+            );
+            form.updateFinalMessage(requestDto.message());
+
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 Stage originalStage = a.getStage();
                 a.updateStage(Stage.RESULT);
                 clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
 
-                publisher.publishEvent(new FinalApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        originalStage));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalApprovedEvent(
+                            applicationInfoDto,
+                            a.getId(),
+                            a.getUser().getEmail(),
+                            requestDto.message(),
+                            originalStage));
+                }
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                }
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 a.updateStage(Stage.RESULT);
             }
@@ -519,16 +548,20 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
-                publisher.publishEvent(new FinalApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        a.getStage()));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalApprovedEvent(
+                            applicationInfoDto,
+                            a.getId(),
+                            a.getUser().getEmail(),
+                            requestDto.message(),
+                            a.getStage()));
+                }
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                }
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 applicationRepository.delete(a);
             }

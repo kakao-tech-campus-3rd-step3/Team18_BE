@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
 import com.kakaotech.team18.backend_server.domain.notification.entity.ResultNotificationRequest;
 import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.ResultNotificationDeliveryService;
 import com.kakaotech.team18.backend_server.domain.notification.util.NotificationRequestFingerprintGenerator;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -56,6 +57,8 @@ class ApplicationServiceIdempotencyTest {
     private ClubMemberRepository clubMemberRepository;
     @Mock
     private ResultNotificationRequestRepository resultNotificationRequestRepository;
+    @Mock
+    private ResultNotificationDeliveryService resultNotificationDeliveryService;
 
     @Test
     @DisplayName("동일한 멱등성 키와 동일한 요청은 기존 성공 결과를 반환한다")

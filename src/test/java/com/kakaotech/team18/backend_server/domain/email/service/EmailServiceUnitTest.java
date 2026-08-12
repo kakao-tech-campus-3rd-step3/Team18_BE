@@ -22,6 +22,8 @@ import com.kakaotech.team18.backend_server.domain.email.sender.EmailSender;
 import com.kakaotech.team18.backend_server.domain.email.template.EmailTemplateRenderer;
 import com.kakaotech.team18.backend_server.domain.notification.entity.ResultNotificationRequest;
 import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.ResultNotificationDeliveryService;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationRequestStatus;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -38,6 +40,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationEventPublisher;
@@ -46,6 +49,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -57,6 +61,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -79,6 +84,8 @@ class EmailServiceUnitTest {
     ApplicationEventPublisher publisher;
     @Mock
     ResultNotificationRequestRepository resultNotificationRequestRepository;
+    @Mock
+    ResultNotificationDeliveryService resultNotificationDeliveryService;
 
     @Mock
     ClubApplyForm clubApplyForm;
@@ -244,6 +251,18 @@ class EmailServiceUnitTest {
         verify(resultNotificationRequestRepository).save(requestCaptor.capture());
         assertThat(requestCaptor.getValue().getStatus()).isEqualTo(NotificationRequestStatus.COMPLETED);
         assertThat(requestCaptor.getValue().getSuccess()).isTrue();
+
+        InOrder processingOrder = inOrder(resultNotificationDeliveryService, clubApplyForm, appApproved);
+        processingOrder.verify(resultNotificationDeliveryService).createPendingDeliveries(
+                77L,
+                "interview-key",
+                Stage.INTERVIEW,
+                "면접 합격 안내 메시지",
+                Set.of(NotificationChannel.EMAIL),
+                List.of(appApproved, appRejected)
+        );
+        processingOrder.verify(clubApplyForm).updateInterviewMessage("면접 합격 안내 메시지");
+        processingOrder.verify(appApproved).updateStage(Stage.FINAL);
 
         verify(clubApplyFormRepository).findByClubIdForUpdate(77L);
         verify(clubApplyForm).updateInterviewMessage("면접 합격 안내 메시지");
@@ -582,5 +601,108 @@ class EmailServiceUnitTest {
         verify(clubMemberRepository, never()).clearApplicationByApplicationId(anyLong());
         verify(clubApplyForm, never()).updateInterviewMessage(anyString());
         verify(clubApplyForm, never()).updateFinalMessage(anyString());
+    }
+
+    @Test
+    @DisplayName("발송 작업 저장 실패 시 지원서 상태와 메시지를 변경하지 않는다")
+    void deliveryPersistenceFailurePreventsStateChanges() {
+        Long clubId = 103L;
+        User president = User.builder().email("president@club.com").build();
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(
+                clubId,
+                Role.CLUB_ADMIN,
+                ActiveStatus.ACTIVE
+        )).thenReturn(Optional.of(president));
+
+        Application approved = mock(Application.class);
+        when(approved.getStage()).thenReturn(Stage.FINAL);
+        when(approved.getStatus()).thenReturn(Status.APPROVED);
+        List<Application> applications = List.of(approved);
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.FINAL))
+                .thenReturn(applications);
+        doThrow(new RuntimeException("delivery persistence failed"))
+                .when(resultNotificationDeliveryService)
+                .createPendingDeliveries(
+                        eq(clubId),
+                        eq("persistence-failure-key"),
+                        eq(Stage.FINAL),
+                        eq("결과 안내"),
+                        eq(Set.of(NotificationChannel.EMAIL)),
+                        eq(applications)
+                );
+
+        ApplicationApprovedRequestDto request = new ApplicationApprovedRequestDto("결과 안내");
+
+        assertThatThrownBy(() -> serviceImpl.sendPassFailMessage(
+                clubId,
+                request,
+                Stage.FINAL,
+                "persistence-failure-key"
+        )).isInstanceOf(RuntimeException.class)
+                .hasMessage("delivery persistence failed");
+
+        verify(clubApplyForm, never()).updateFinalMessage(anyString());
+        verify(approved, never()).updateStage(any());
+        verify(publisher, never()).publishEvent(any());
+        verify(clubMemberRepository, never()).updateRoleByApplicationId(anyLong(), any(), any());
+    }
+
+    @Test
+    @DisplayName("SMS만 선택하면 발송 작업은 생성하지만 이메일 이벤트는 발행하지 않는다")
+    void smsOnlyDoesNotPublishEmailEvent() {
+        Long clubId = 104L;
+        User president = User.builder().email("president@club.com").build();
+        when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
+        when(clubMemberRepository.findUserByClubIdAndRoleAndStatus(
+                clubId,
+                Role.CLUB_ADMIN,
+                ActiveStatus.ACTIVE
+        )).thenReturn(Optional.of(president));
+
+        Club club = mock(Club.class);
+        when(club.getId()).thenReturn(clubId);
+        when(club.getName()).thenReturn("문자 테스트 동아리");
+        when(clubApplyForm.getClub()).thenReturn(club);
+
+        User applicant = mock(User.class);
+        when(applicant.getName()).thenReturn("문자지원자");
+        when(applicant.getEmail()).thenReturn("sms-only@example.com");
+        when(applicant.getPhoneNumber()).thenReturn("010-1111-2222");
+
+        Application rejected = mock(Application.class);
+        when(rejected.getId()).thenReturn(401L);
+        when(rejected.getStage()).thenReturn(Stage.FINAL);
+        when(rejected.getStatus()).thenReturn(Status.REJECTED);
+        when(rejected.getUser()).thenReturn(applicant);
+        when(rejected.getClubApplyForm()).thenReturn(clubApplyForm);
+        List<Application> applications = List.of(rejected);
+        when(applicationRepository.findAllByClubIdAndRoleAndStage(clubId, Role.APPLICANT, Stage.FINAL))
+                .thenReturn(applications);
+
+        ApplicationApprovedRequestDto request = new ApplicationApprovedRequestDto(
+                "문자 결과 안내",
+                Set.of(NotificationChannel.SMS)
+        );
+
+        SuccessResponseDto response = serviceImpl.sendPassFailMessage(
+                clubId,
+                request,
+                Stage.FINAL,
+                "sms-only-key"
+        );
+
+        assertThat(response.success()).isTrue();
+        verify(resultNotificationDeliveryService).createPendingDeliveries(
+                clubId,
+                "sms-only-key",
+                Stage.FINAL,
+                "문자 결과 안내",
+                Set.of(NotificationChannel.SMS),
+                applications
+        );
+        verify(publisher, never()).publishEvent(any());
+        verify(clubMemberRepository).clearApplicationByApplicationId(401L);
+        verify(rejected).updateStage(Stage.RESULT);
     }
 }
