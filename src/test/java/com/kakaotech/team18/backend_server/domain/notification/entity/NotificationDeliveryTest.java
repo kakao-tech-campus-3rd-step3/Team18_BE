@@ -33,7 +33,7 @@ class NotificationDeliveryTest {
         LocalDateTime sentAt = CREATED_AT.plusMinutes(3);
 
         delivery.startSending(attemptedAt);
-        delivery.markAccepted("group-id", "message-id", "2000", acceptedAt);
+        delivery.markAccepted("group-id", "message-id", "2000", acceptedAt, acceptedAt);
         delivery.markSent("4000", sentAt);
 
         assertThat(delivery.getStatus()).isEqualTo(NotificationDeliveryStatus.SENT);
@@ -67,7 +67,13 @@ class NotificationDeliveryTest {
         LocalDateTime failedAt = CREATED_AT.plusMinutes(3);
 
         delivery.startSending(CREATED_AT.plusMinutes(1));
-        delivery.markAccepted("group-id", "message-id", "2000", CREATED_AT.plusMinutes(2));
+        delivery.markAccepted(
+                "group-id",
+                "message-id",
+                "2000",
+                CREATED_AT.plusMinutes(2),
+                CREATED_AT.plusMinutes(2)
+        );
         delivery.markFailed("5000", "CARRIER_REJECTED", "carrier rejected", failedAt);
 
         assertThat(delivery.getStatus()).isEqualTo(NotificationDeliveryStatus.FAILED);

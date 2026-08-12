@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.solapi.sdk.message.dto.response.MultipleDetailMessageSentResponse;
+import com.solapi.sdk.message.dto.request.MessageListRequest;
+import com.solapi.sdk.message.dto.response.MessageListResponse;
 import com.solapi.sdk.message.exception.SolapiInvalidApiKeyException;
 import com.solapi.sdk.message.exception.SolapiMessageNotReceivedException;
 import com.solapi.sdk.message.exception.SolapiUnknownException;
@@ -16,6 +18,7 @@ import com.solapi.sdk.message.model.Message;
 import com.solapi.sdk.message.model.group.GroupInfo;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -142,6 +145,51 @@ class SolapiSdkMessageClientTest {
                     assertThat(exception.getErrorCode())
                             .isEqualTo("SOLAPI_INCOMPLETE_RESPONSE");
                 });
+    }
+
+    @Test
+    void looksUpCompletedMessageByProviderMessageId() throws Exception {
+        Message message = new Message();
+        message.setMessageId("message-id");
+        message.setStatus("COMPLETE");
+        message.setStatusCode("2000");
+        MessageListResponse response = new MessageListResponse();
+        response.setMessageList(Map.of("message-id", message));
+        when(messageService.getMessageList(any(MessageListRequest.class))).thenReturn(response);
+
+        SolapiStatusResponse status = client.getStatus("message-id");
+
+        ArgumentCaptor<MessageListRequest> captor = ArgumentCaptor.forClass(MessageListRequest.class);
+        verify(messageService).getMessageList(captor.capture());
+        assertThat(captor.getValue().getMessageId()).isEqualTo("message-id");
+        assertThat(captor.getValue().getLimit()).isEqualTo(1);
+        assertThat(status).isEqualTo(new SolapiStatusResponse(
+                SolapiMessageStatus.SENT,
+                "2000"
+        ));
+    }
+
+    @Test
+    void mapsFailedAndMissingProviderMessages() throws Exception {
+        Message failed = new Message();
+        failed.setMessageId("failed-id");
+        failed.setStatus("FAILED");
+        failed.setStatusCode("4000");
+        MessageListResponse failedResponse = new MessageListResponse();
+        failedResponse.setMessageList(Map.of("failed-id", failed));
+        MessageListResponse emptyResponse = new MessageListResponse();
+        emptyResponse.setMessageList(Map.of());
+        when(messageService.getMessageList(any(MessageListRequest.class)))
+                .thenReturn(failedResponse, emptyResponse);
+
+        assertThat(client.getStatus("failed-id")).isEqualTo(new SolapiStatusResponse(
+                SolapiMessageStatus.FAILED,
+                "4000"
+        ));
+        assertThat(client.getStatus("missing-id")).isEqualTo(new SolapiStatusResponse(
+                SolapiMessageStatus.NOT_FOUND,
+                null
+        ));
     }
 
     private MultipleDetailMessageSentResponse mockAcceptedResponse() {

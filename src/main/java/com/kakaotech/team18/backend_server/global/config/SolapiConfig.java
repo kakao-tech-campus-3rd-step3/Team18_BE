@@ -5,6 +5,9 @@ import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSdkM
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
 import com.kakaotech.team18.backend_server.domain.notification.sender.SmsNotificationSender;
 import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
+import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
+import com.kakaotech.team18.backend_server.domain.notification.service.SolapiStatusSyncScheduler;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.SolapiClient;
 import com.solapi.sdk.message.service.DefaultMessageService;
@@ -12,6 +15,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SolapiProperties.class)
@@ -42,5 +46,24 @@ public class SolapiConfig {
             SolapiSendQuota sendQuota
     ) {
         return new SmsNotificationSender(messageClient, messagePolicy, sendQuota);
+    }
+
+    @Bean
+    public SolapiStatusSyncScheduler solapiStatusSyncScheduler(
+            NotificationDeliveryRepository repository,
+            NotificationDeliveryStateService stateService,
+            SolapiMessageClient messageClient,
+            @Value("${notification.status.batch-size:50}") int batchSize,
+            @Value("${notification.status.check-interval-seconds:60}") long checkIntervalSeconds,
+            @Value("${notification.status.max-accepted-age-hours:24}") long maxAcceptedAgeHours
+    ) {
+        return new SolapiStatusSyncScheduler(
+                repository,
+                stateService,
+                messageClient,
+                batchSize,
+                checkIntervalSeconds,
+                maxAcceptedAgeHours
+        );
     }
 }

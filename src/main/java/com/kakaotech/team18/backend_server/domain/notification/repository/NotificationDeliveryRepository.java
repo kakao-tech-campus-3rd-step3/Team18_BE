@@ -37,4 +37,13 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
             @Param("cutoff") LocalDateTime cutoff,
             Pageable pageable
     );
+
+    @Query("""
+            select delivery.id
+            from NotificationDelivery delivery
+            where delivery.status = com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus.ACCEPTED
+              and delivery.nextAttemptAt <= :now
+            order by delivery.id
+            """)
+    List<Long> findDueAcceptedDeliveryIds(@Param("now") LocalDateTime now, Pageable pageable);
 }

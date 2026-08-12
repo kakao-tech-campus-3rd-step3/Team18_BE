@@ -1,6 +1,8 @@
 package com.kakaotech.team18.backend_server.domain.notification.solapi;
 
 import com.solapi.sdk.message.dto.response.MultipleDetailMessageSentResponse;
+import com.solapi.sdk.message.dto.request.MessageListRequest;
+import com.solapi.sdk.message.dto.response.MessageListResponse;
 import com.solapi.sdk.message.exception.SolapiApiKeyException;
 import com.solapi.sdk.message.exception.SolapiBadRequestException;
 import com.solapi.sdk.message.exception.SolapiEmptyResponseException;
@@ -39,6 +41,35 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         try {
             MultipleDetailMessageSentResponse response = messageService.send(message);
             return toResponse(response);
+        } catch (Exception exception) {
+            throw mapException(exception);
+        }
+    }
+
+    @Override
+    public SolapiStatusResponse getStatus(String messageId) {
+        MessageListRequest request = new MessageListRequest();
+        request.setMessageId(messageId);
+        request.setLimit(1);
+        try {
+            MessageListResponse response = messageService.getMessageList(request);
+            if (response == null || response.getMessageList() == null
+                    || response.getMessageList().isEmpty()) {
+                return new SolapiStatusResponse(SolapiMessageStatus.NOT_FOUND, null);
+            }
+            Message message = response.getMessageList().values().stream()
+                    .filter(candidate -> messageId.equals(candidate.getMessageId()))
+                    .findFirst()
+                    .orElseGet(() -> response.getMessageList().values().iterator().next());
+            String status = message.getStatus() == null
+                    ? ""
+                    : message.getStatus().trim().toUpperCase();
+            SolapiMessageStatus mapped = switch (status) {
+                case "COMPLETE" -> SolapiMessageStatus.SENT;
+                case "FAILED" -> SolapiMessageStatus.FAILED;
+                default -> SolapiMessageStatus.PENDING;
+            };
+            return new SolapiStatusResponse(mapped, message.getStatusCode());
         } catch (Exception exception) {
             throw mapException(exception);
         }

@@ -127,6 +127,22 @@ class NotificationDeliveryRepositoryTest {
                 .containsExactly(stale.getId());
     }
 
+    @Test
+    @DisplayName("상태 확인 시각이 지난 ACCEPTED 작업만 조회한다")
+    void findDueAcceptedDeliveries() {
+        LocalDateTime now = LocalDateTime.of(2026, 8, 12, 13, 0);
+        NotificationDelivery due = createDeliveryWithKey("accepted-due", 30L, now.minusMinutes(1));
+        due.startSending(now.minusMinutes(2));
+        due.markAccepted("group-1", "message-1", "2000", now.minusMinutes(2), now.minusMinutes(1));
+        NotificationDelivery future = createDeliveryWithKey("accepted-future", 31L, now.minusMinutes(1));
+        future.startSending(now.minusMinutes(2));
+        future.markAccepted("group-2", "message-2", "2000", now.minusMinutes(2), now.plusMinutes(1));
+        repository.saveAllAndFlush(java.util.List.of(due, future));
+
+        assertThat(repository.findDueAcceptedDeliveryIds(now, PageRequest.of(0, 10)))
+                .containsExactly(due.getId());
+    }
+
     private NotificationDelivery createDelivery(Long applicationId, LocalDateTime nextAttemptAt) {
         return NotificationDelivery.pending(
                 1L,

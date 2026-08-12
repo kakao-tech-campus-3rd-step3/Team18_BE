@@ -198,7 +198,8 @@ public class NotificationDelivery extends BaseEntity {
             String groupId,
             String messageId,
             String statusCode,
-            LocalDateTime acceptedAt
+            LocalDateTime acceptedAt,
+            LocalDateTime nextStatusCheckAt
     ) {
         requireStatus(NotificationDeliveryStatus.SENDING);
         status = NotificationDeliveryStatus.ACCEPTED;
@@ -206,6 +207,7 @@ public class NotificationDelivery extends BaseEntity {
         providerMessageId = messageId;
         providerStatusCode = statusCode;
         this.acceptedAt = acceptedAt;
+        this.nextAttemptAt = nextStatusCheckAt;
         clearError();
     }
 
@@ -232,11 +234,24 @@ public class NotificationDelivery extends BaseEntity {
     }
 
     public void markUnknown(String errorCode, String errorMessage, LocalDateTime unknownAt) {
-        requireStatus(NotificationDeliveryStatus.SENDING);
+        requireOneOf(NotificationDeliveryStatus.SENDING, NotificationDeliveryStatus.ACCEPTED);
         status = NotificationDeliveryStatus.UNKNOWN;
         providerErrorCode = errorCode;
         lastErrorMessage = errorMessage;
         this.unknownAt = unknownAt;
+    }
+
+    public void rescheduleStatusCheck(
+            LocalDateTime nextStatusCheckAt,
+            String statusCode,
+            String errorCode,
+            String errorMessage
+    ) {
+        requireStatus(NotificationDeliveryStatus.ACCEPTED);
+        this.nextAttemptAt = nextStatusCheckAt;
+        this.providerStatusCode = statusCode;
+        this.providerErrorCode = errorCode;
+        this.lastErrorMessage = errorMessage;
     }
 
     public void markPermanentlyFailed(String errorCode, String errorMessage, LocalDateTime failedAt) {

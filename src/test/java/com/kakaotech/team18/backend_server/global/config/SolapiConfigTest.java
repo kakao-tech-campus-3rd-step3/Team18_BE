@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
 import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
+import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.junit.jupiter.api.Test;
@@ -15,7 +17,11 @@ class SolapiConfigTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withUserConfiguration(SolapiConfig.class)
             .withBean(SmsMessagePolicy.class, SmsMessagePolicy::new)
-            .withBean(SolapiSendQuota.class, () -> () -> { });
+            .withBean(SolapiSendQuota.class, () -> () -> { })
+            .withBean(NotificationDeliveryRepository.class,
+                    () -> org.mockito.Mockito.mock(NotificationDeliveryRepository.class))
+            .withBean(NotificationDeliveryStateService.class,
+                    () -> org.mockito.Mockito.mock(NotificationDeliveryStateService.class));
 
     @Test
     void doesNotCreateSolapiBeansWhenDisabled() {

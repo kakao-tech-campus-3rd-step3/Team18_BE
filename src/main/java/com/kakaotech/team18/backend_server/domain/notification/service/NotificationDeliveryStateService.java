@@ -6,6 +6,8 @@ import com.kakaotech.team18.backend_server.domain.notification.entity.Notificati
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageStatus;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiStatusResponse;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,7 @@ public class NotificationDeliveryStateService {
                     result.providerGroupId(),
                     result.providerMessageId(),
                     result.providerStatusCode(),
+                    completedAt,
                     completedAt
             );
         }
@@ -99,6 +102,89 @@ public class NotificationDeliveryStateService {
                 unknownAt
         );
         return true;
+    }
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public Optional<AcceptedDelivery> findAccepted(Long deliveryId) {
+        return notificationDeliveryRepository.findById(deliveryId)
+                .filter(delivery -> delivery.getStatus() == NotificationDeliveryStatus.ACCEPTED)
+                .map(delivery -> new AcceptedDelivery(
+                        delivery.getId(),
+                        delivery.getProviderMessageId(),
+                        delivery.getAcceptedAt()
+                ));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean applyProviderStatus(
+            Long deliveryId,
+            SolapiStatusResponse response,
+            LocalDateTime checkedAt,
+            LocalDateTime nextCheckAt
+    ) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (delivery.getStatus() != NotificationDeliveryStatus.ACCEPTED) {
+            return false;
+        }
+        if (response.status() == SolapiMessageStatus.SENT) {
+            delivery.markSent(response.providerStatusCode(), checkedAt);
+        } else if (response.status() == SolapiMessageStatus.FAILED) {
+            delivery.markFailed(
+                    response.providerStatusCode(),
+                    "SOLAPI_DELIVERY_FAILED",
+                    "통신사 최종 발송에 실패했습니다.",
+                    checkedAt
+            );
+        } else {
+            delivery.rescheduleStatusCheck(
+                    nextCheckAt,
+                    response.providerStatusCode(),
+                    null,
+                    null
+            );
+        }
+        return true;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean recordStatusCheckFailure(
+            Long deliveryId,
+            LocalDateTime nextCheckAt,
+            String errorCode,
+            String errorMessage
+    ) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (delivery.getStatus() != NotificationDeliveryStatus.ACCEPTED) {
+            return false;
+        }
+        delivery.rescheduleStatusCheck(
+                nextCheckAt,
+                delivery.getProviderStatusCode(),
+                errorCode,
+                errorMessage
+        );
+        return true;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean markAcceptedUnknown(Long deliveryId, LocalDateTime unknownAt) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (delivery.getStatus() != NotificationDeliveryStatus.ACCEPTED) {
+            return false;
+        }
+        delivery.markUnknown(
+                "SOLAPI_STATUS_TIMEOUT",
+                "SOLAPI 접수 후 최종 발송 결과를 제한 시간 안에 확인하지 못했습니다.",
+                unknownAt
+        );
+        return true;
+    }
+
+    public record AcceptedDelivery(
+            Long deliveryId,
+            String providerMessageId,
+            LocalDateTime acceptedAt
+    ) {
     }
 
     private NotificationDelivery findForUpdate(Long deliveryId) {
