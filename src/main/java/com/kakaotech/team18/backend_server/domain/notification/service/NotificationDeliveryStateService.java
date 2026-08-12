@@ -81,6 +81,26 @@ public class NotificationDeliveryStateService {
         findForUpdate(deliveryId).markUnknown(errorCode, errorMessage, unknownAt);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean markStaleSendingUnknown(
+            Long deliveryId,
+            LocalDateTime cutoff,
+            LocalDateTime unknownAt
+    ) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (delivery.getStatus() != NotificationDeliveryStatus.SENDING
+                || delivery.getLastAttemptAt() == null
+                || delivery.getLastAttemptAt().isAfter(cutoff)) {
+            return false;
+        }
+        delivery.markUnknown(
+                "DISPATCH_INTERRUPTED",
+                "발송 처리 도중 서버가 중단되어 외부 접수 여부를 확인할 수 없습니다.",
+                unknownAt
+        );
+        return true;
+    }
+
     private NotificationDelivery findForUpdate(Long deliveryId) {
         return notificationDeliveryRepository.findByIdForUpdate(deliveryId)
                 .orElseThrow(() -> new IllegalArgumentException("알림 발송 작업을 찾을 수 없습니다: " + deliveryId));

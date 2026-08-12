@@ -6,7 +6,6 @@ import com.kakaotech.team18.backend_server.domain.notification.exception.Notific
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
 import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSenderRegistry;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -17,27 +16,29 @@ import org.springframework.stereotype.Service;
 public class NotificationDeliveryProcessor {
 
     private static final ZoneId SERVICE_ZONE = ZoneId.of("Asia/Seoul");
-    private static final Duration FIRST_RETRY_DELAY = Duration.ofMinutes(1);
-
     private final NotificationDeliveryStateService stateService;
     private final NotificationSenderRegistry senderRegistry;
+    private final NotificationRetryPolicy retryPolicy;
     private final Clock clock;
 
     @Autowired
     public NotificationDeliveryProcessor(
             NotificationDeliveryStateService stateService,
-            NotificationSenderRegistry senderRegistry
+            NotificationSenderRegistry senderRegistry,
+            NotificationRetryPolicy retryPolicy
     ) {
-        this(stateService, senderRegistry, Clock.system(SERVICE_ZONE));
+        this(stateService, senderRegistry, retryPolicy, Clock.system(SERVICE_ZONE));
     }
 
     NotificationDeliveryProcessor(
             NotificationDeliveryStateService stateService,
             NotificationSenderRegistry senderRegistry,
+            NotificationRetryPolicy retryPolicy,
             Clock clock
     ) {
         this.stateService = stateService;
         this.senderRegistry = senderRegistry;
+        this.retryPolicy = retryPolicy;
         this.clock = clock;
     }
 
@@ -59,24 +60,18 @@ public class NotificationDeliveryProcessor {
             NotificationSendResult result = sender.send(message);
             stateService.complete(deliveryId, result, now());
         } catch (NotificationSendException exception) {
+            LocalDateTime failedAt = now();
             switch (exception.getDisposition()) {
-                case RETRYABLE -> stateService.reschedule(
-                            deliveryId,
-                            exception.getRetryAt() == null
-                                    ? now().plus(FIRST_RETRY_DELAY)
-                                    : exception.getRetryAt(),
-                            exception.getErrorCode(),
-                            exception.getMessage()
-                    );
+                case RETRYABLE -> handleRetryable(deliveryId, message, exception, failedAt);
                 case UNKNOWN -> stateService.markUnknown(
                         deliveryId,
-                        now(),
+                        failedAt,
                         exception.getErrorCode(),
                         exception.getMessage()
                 );
                 case PERMANENT -> stateService.failPermanently(
                         deliveryId,
-                        now(),
+                        failedAt,
                         exception.getErrorCode(),
                         exception.getMessage()
                 );
@@ -89,6 +84,32 @@ public class NotificationDeliveryProcessor {
                     safeMessage(exception)
             );
         }
+    }
+
+    private void handleRetryable(
+            Long deliveryId,
+            NotificationMessage message,
+            NotificationSendException exception,
+            LocalDateTime failedAt
+    ) {
+        if (retryPolicy.exhausted(message.attemptCount(), exception.getErrorCode())) {
+            stateService.failPermanently(
+                    deliveryId,
+                    failedAt,
+                    exception.getErrorCode(),
+                    "최대 재시도 횟수에 도달했습니다: " + exception.getMessage()
+            );
+            return;
+        }
+        LocalDateTime retryAt = exception.getRetryAt() == null
+                ? retryPolicy.nextRetryAt(failedAt, message.attemptCount())
+                : exception.getRetryAt();
+        stateService.reschedule(
+                deliveryId,
+                retryAt,
+                exception.getErrorCode(),
+                exception.getMessage()
+        );
     }
 
     private LocalDateTime now() {

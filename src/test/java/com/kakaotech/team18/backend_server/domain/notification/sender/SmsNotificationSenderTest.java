@@ -114,7 +114,8 @@ class SmsNotificationSenderTest {
                 recipient,
                 null,
                 null,
-                body
+                body,
+                1
         );
     }
 }

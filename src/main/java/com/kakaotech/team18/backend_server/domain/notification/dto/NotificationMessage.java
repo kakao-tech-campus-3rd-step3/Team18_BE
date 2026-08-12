@@ -9,7 +9,8 @@ public record NotificationMessage(
         String recipientAddress,
         String replyToAddress,
         String subject,
-        String body
+        String body,
+        int attemptCount
 ) {
     public static NotificationMessage from(NotificationDelivery delivery) {
         return new NotificationMessage(
@@ -18,7 +19,8 @@ public record NotificationMessage(
                 delivery.getRecipientAddress(),
                 delivery.getReplyToAddress(),
                 delivery.getMessageSubject(),
-                delivery.getMessageBody()
+                delivery.getMessageBody(),
+                delivery.getAttemptCount()
         );
     }
 }

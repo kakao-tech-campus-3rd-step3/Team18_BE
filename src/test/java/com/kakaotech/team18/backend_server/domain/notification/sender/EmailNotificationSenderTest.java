@@ -117,7 +117,8 @@ class EmailNotificationSenderTest {
                 "applicant@example.com",
                 "president@example.com",
                 "결과 안내",
-                "합격을 축하드립니다."
+                "합격을 축하드립니다.",
+                1
         );
     }
 }

@@ -36,6 +36,8 @@ class NotificationDeliveryProcessorTest {
     private NotificationSenderRegistry senderRegistry;
     @Mock
     private NotificationSender sender;
+    @Mock
+    private NotificationRetryPolicy retryPolicy;
 
     private NotificationDeliveryProcessor processor;
 
@@ -44,11 +46,14 @@ class NotificationDeliveryProcessorTest {
         processor = new NotificationDeliveryProcessor(
                 stateService,
                 senderRegistry,
+                retryPolicy,
                 Clock.fixed(NOW, SEOUL)
         );
         lenient().when(stateService.findChannel(1L))
                 .thenReturn(Optional.of(NotificationChannel.EMAIL));
         lenient().when(senderRegistry.supports(NotificationChannel.EMAIL)).thenReturn(true);
+        lenient().when(retryPolicy.nextRetryAt(ATTEMPTED_AT, 1))
+                .thenReturn(ATTEMPTED_AT.plusMinutes(1));
     }
 
     @Test
@@ -111,6 +116,34 @@ class NotificationDeliveryProcessorTest {
                 nextHour,
                 "SOLAPI_HOURLY_QUOTA_EXCEEDED",
                 "quota exceeded"
+        );
+    }
+
+    @Test
+    void permanentlyFailsWhenRetryAttemptsAreExhausted() {
+        NotificationMessage message = message();
+        when(stateService.claim(1L, ATTEMPTED_AT)).thenReturn(Optional.of(message));
+        when(senderRegistry.get(NotificationChannel.EMAIL)).thenReturn(sender);
+        when(sender.send(message)).thenThrow(NotificationSendException.retryable(
+                "EMAIL_TEMPORARY_FAILURE",
+                "still failing",
+                new RuntimeException()
+        ));
+        when(retryPolicy.exhausted(1, "EMAIL_TEMPORARY_FAILURE")).thenReturn(true);
+
+        processor.process(1L);
+
+        verify(stateService).failPermanently(
+                1L,
+                ATTEMPTED_AT,
+                "EMAIL_TEMPORARY_FAILURE",
+                "최대 재시도 횟수에 도달했습니다: still failing"
+        );
+        verify(stateService, never()).reschedule(
+                org.mockito.ArgumentMatchers.anyLong(),
+                org.mockito.ArgumentMatchers.any(),
+                org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.anyString()
         );
     }
 
@@ -190,7 +223,8 @@ class NotificationDeliveryProcessorTest {
                 "applicant@example.com",
                 "president@example.com",
                 "결과 안내",
-                "합격을 축하드립니다."
+                "합격을 축하드립니다.",
+                1
         );
     }
 }
