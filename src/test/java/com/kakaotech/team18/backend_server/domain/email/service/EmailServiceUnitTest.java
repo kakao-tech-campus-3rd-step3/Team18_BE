@@ -223,7 +223,6 @@ class EmailServiceUnitTest {
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("면접 합격 안내 메시지");
         NotificationDelivery emailDelivery = mock(NotificationDelivery.class);
-        when(emailDelivery.getChannel()).thenReturn(NotificationChannel.EMAIL);
         when(emailDelivery.getId()).thenReturn(1001L);
         when(resultNotificationDeliveryService.createPendingDeliveries(
                 77L,
@@ -308,7 +307,6 @@ class EmailServiceUnitTest {
 
         ApplicationApprovedRequestDto req = new ApplicationApprovedRequestDto("최종 합격 안내 메시지");
         NotificationDelivery emailDelivery = mock(NotificationDelivery.class);
-        when(emailDelivery.getChannel()).thenReturn(NotificationChannel.EMAIL);
         when(emailDelivery.getId()).thenReturn(1002L);
         when(resultNotificationDeliveryService.createPendingDeliveries(
                 88L,
@@ -613,8 +611,8 @@ class EmailServiceUnitTest {
     }
 
     @Test
-    @DisplayName("SMS만 선택하면 발송 작업은 생성하지만 이메일 이벤트는 발행하지 않는다")
-    void smsOnlyDoesNotPublishEmailEvent() {
+    @DisplayName("SMS만 선택하면 SMS 발송 작업 이벤트를 발행한다")
+    void smsOnlyPublishesDeliveryDispatchEvent() {
         Long clubId = 104L;
         User president = User.builder().email("president@club.com").build();
         when(clubApplyFormRepository.findByClubIdForUpdate(clubId)).thenReturn(Optional.of(clubApplyForm));
@@ -636,6 +634,17 @@ class EmailServiceUnitTest {
                 "문자 결과 안내",
                 Set.of(NotificationChannel.SMS)
         );
+        NotificationDelivery smsDelivery = mock(NotificationDelivery.class);
+        when(smsDelivery.getId()).thenReturn(2001L);
+        when(resultNotificationDeliveryService.createPendingDeliveries(
+                clubId,
+                "sms-only-key",
+                Stage.FINAL,
+                "문자 결과 안내",
+                "president@club.com",
+                Set.of(NotificationChannel.SMS),
+                applications
+        )).thenReturn(List.of(smsDelivery));
 
         SuccessResponseDto response = serviceImpl.sendPassFailMessage(
                 clubId,
@@ -654,7 +663,10 @@ class EmailServiceUnitTest {
                 Set.of(NotificationChannel.SMS),
                 applications
         );
-        verify(publisher, never()).publishEvent(any());
+        verify(publisher).publishEvent(eventCaptor.capture());
+        ResultNotificationDispatchRequestedEvent event =
+                (ResultNotificationDispatchRequestedEvent) eventCaptor.getValue();
+        assertThat(event.deliveryIds()).containsExactly(2001L);
         verify(clubMemberRepository).clearApplicationByApplicationId(401L);
         verify(rejected).updateStage(Stage.RESULT);
     }

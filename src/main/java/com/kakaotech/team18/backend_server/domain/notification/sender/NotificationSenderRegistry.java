@@ -30,4 +30,8 @@ public class NotificationSenderRegistry {
         }
         return sender;
     }
+
+    public boolean supports(NotificationChannel channel) {
+        return senders.containsKey(channel);
+    }
 }

@@ -5,6 +5,7 @@ import com.kakaotech.team18.backend_server.domain.notification.dto.NotificationS
 import com.kakaotech.team18.backend_server.domain.notification.entity.NotificationDelivery;
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationDeliveryStateService {
 
     private final NotificationDeliveryRepository notificationDeliveryRepository;
+
+    @Transactional(readOnly = true, propagation = Propagation.REQUIRES_NEW)
+    public Optional<NotificationChannel> findChannel(Long deliveryId) {
+        return notificationDeliveryRepository.findById(deliveryId)
+                .map(NotificationDelivery::getChannel);
+    }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Optional<NotificationMessage> claim(Long deliveryId, LocalDateTime attemptedAt) {

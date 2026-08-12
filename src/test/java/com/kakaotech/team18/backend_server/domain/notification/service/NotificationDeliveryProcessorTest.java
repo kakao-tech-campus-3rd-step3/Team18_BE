@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.notification.service;
 
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +46,9 @@ class NotificationDeliveryProcessorTest {
                 senderRegistry,
                 Clock.fixed(NOW, SEOUL)
         );
+        lenient().when(stateService.findChannel(1L))
+                .thenReturn(Optional.of(NotificationChannel.EMAIL));
+        lenient().when(senderRegistry.supports(NotificationChannel.EMAIL)).thenReturn(true);
     }
 
     @Test
@@ -142,6 +146,18 @@ class NotificationDeliveryProcessorTest {
         processor.process(1L);
 
         verify(senderRegistry, never()).get(org.mockito.ArgumentMatchers.any());
+    }
+
+    @Test
+    void leavesDeliveryPendingWhenChannelSenderIsDisabled() {
+        when(senderRegistry.supports(NotificationChannel.EMAIL)).thenReturn(false);
+
+        processor.process(1L);
+
+        verify(stateService, never()).claim(
+                org.mockito.ArgumentMatchers.anyLong(),
+                org.mockito.ArgumentMatchers.any()
+        );
     }
 
     private NotificationMessage message() {

@@ -42,6 +42,11 @@ public class NotificationDeliveryProcessor {
     }
 
     public void process(Long deliveryId) {
+        if (stateService.findChannel(deliveryId)
+                .filter(senderRegistry::supports)
+                .isEmpty()) {
+            return;
+        }
         LocalDateTime attemptedAt = now();
         Optional<NotificationMessage> claimed = stateService.claim(deliveryId, attemptedAt);
         if (claimed.isEmpty()) {

@@ -449,7 +449,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     requestDto.channels(),
                     apps
             );
-            publishEmailDispatchEvent(deliveries);
+            publishDispatchEvent(deliveries);
             form.updateInterviewMessage(requestDto.message());
 
             for(Application a : approved) {
@@ -488,7 +488,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     requestDto.channels(),
                     apps
             );
-            publishEmailDispatchEvent(deliveries);
+            publishDispatchEvent(deliveries);
             form.updateFinalMessage(requestDto.message());
 
             for(Application a : approved) {
@@ -545,13 +545,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     //helper methods
 
-    private void publishEmailDispatchEvent(List<NotificationDelivery> deliveries) {
-        List<Long> emailDeliveryIds = deliveries.stream()
-                .filter(delivery -> delivery.getChannel() == NotificationChannel.EMAIL)
+    private void publishDispatchEvent(List<NotificationDelivery> deliveries) {
+        List<Long> deliveryIds = deliveries.stream()
                 .map(NotificationDelivery::getId)
                 .toList();
-        if (!emailDeliveryIds.isEmpty()) {
-            publisher.publishEvent(new ResultNotificationDispatchRequestedEvent(emailDeliveryIds));
+        if (!deliveryIds.isEmpty()) {
+            publisher.publishEvent(new ResultNotificationDispatchRequestedEvent(deliveryIds));
         }
     }
 

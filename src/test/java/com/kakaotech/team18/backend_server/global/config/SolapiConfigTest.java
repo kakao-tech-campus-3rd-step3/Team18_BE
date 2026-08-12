@@ -3,6 +3,8 @@ package com.kakaotech.team18.backend_server.global.config;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
+import com.kakaotech.team18.backend_server.domain.notification.sender.NotificationSender;
+import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -10,7 +12,8 @@ import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 class SolapiConfigTest {
 
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-            .withUserConfiguration(SolapiConfig.class);
+            .withUserConfiguration(SolapiConfig.class)
+            .withBean(SmsMessagePolicy.class, SmsMessagePolicy::new);
 
     @Test
     void doesNotCreateSolapiBeansWhenDisabled() {
@@ -19,6 +22,7 @@ class SolapiConfigTest {
                 .run(context -> {
                     assertThat(context).doesNotHaveBean(DefaultMessageService.class);
                     assertThat(context).doesNotHaveBean(SolapiMessageClient.class);
+                    assertThat(context).doesNotHaveBean(NotificationSender.class);
                 });
     }
 
@@ -35,6 +39,7 @@ class SolapiConfigTest {
                     assertThat(context).hasNotFailed();
                     assertThat(context).hasSingleBean(DefaultMessageService.class);
                     assertThat(context).hasSingleBean(SolapiMessageClient.class);
+                    assertThat(context).hasSingleBean(NotificationSender.class);
                 });
     }
 

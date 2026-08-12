@@ -1,0 +1,98 @@
+package com.kakaotech.team18.backend_server.domain.notification.sender;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.kakaotech.team18.backend_server.domain.notification.dto.NotificationMessage;
+import com.kakaotech.team18.backend_server.domain.notification.dto.NotificationSendResult;
+import com.kakaotech.team18.backend_server.domain.notification.exception.NotificationSendException;
+import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiClientException;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSendResponse;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSmsRequest;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+@ExtendWith(MockitoExtension.class)
+class SmsNotificationSenderTest {
+
+    @Mock
+    private SolapiMessageClient messageClient;
+
+    private SmsNotificationSender sender;
+
+    @BeforeEach
+    void setUp() {
+        sender = new SmsNotificationSender(messageClient, new SmsMessagePolicy());
+    }
+
+    @Test
+    void acceptsNormalizedSmsThroughSolapi() {
+        SolapiSmsRequest request = new SolapiSmsRequest(
+                "01012345678",
+                "합격을 축하드립니다.",
+                null,
+                "10"
+        );
+        when(messageClient.send(request)).thenReturn(new SolapiSendResponse(
+                "group-id",
+                "message-id",
+                "2000"
+        ));
+
+        NotificationSendResult result = sender.send(message("010-1234-5678", "합격을 축하드립니다."));
+
+        verify(messageClient).send(request);
+        assertThat(result.outcome()).isEqualTo(NotificationSendResult.Outcome.ACCEPTED);
+        assertThat(result.providerGroupId()).isEqualTo("group-id");
+        assertThat(result.providerMessageId()).isEqualTo("message-id");
+    }
+
+    @Test
+    void doesNotCallSolapiForInvalidRecipient() {
+        assertThatThrownBy(() -> sender.send(message("02-123-4567", "결과 안내")))
+                .isInstanceOfSatisfying(NotificationSendException.class, exception -> {
+                    assertThat(exception.getDisposition())
+                            .isEqualTo(NotificationSendException.FailureDisposition.PERMANENT);
+                    assertThat(exception.getErrorCode()).isEqualTo("SMS_RECIPIENT_INVALID");
+                });
+    }
+
+    @Test
+    void mapsAmbiguousSolapiResultToUnknown() {
+        SolapiSmsRequest request = new SolapiSmsRequest(
+                "01012345678",
+                "결과 안내",
+                null,
+                "10"
+        );
+        when(messageClient.send(request)).thenThrow(SolapiClientException.unknown(
+                "SOLAPI_AMBIGUOUS_RESPONSE",
+                "response unknown",
+                null
+        ));
+
+        assertThatThrownBy(() -> sender.send(message("01012345678", "결과 안내")))
+                .isInstanceOfSatisfying(NotificationSendException.class, exception ->
+                        assertThat(exception.getDisposition())
+                                .isEqualTo(NotificationSendException.FailureDisposition.UNKNOWN));
+    }
+
+    private NotificationMessage message(String recipient, String body) {
+        return new NotificationMessage(
+                10L,
+                NotificationChannel.SMS,
+                recipient,
+                null,
+                null,
+                body
+        );
+    }
+}

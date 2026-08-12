@@ -29,6 +29,9 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         message.setFrom(senderNumber);
         message.setTo(request.recipient());
         message.setText(request.text());
+        if (request.subject() != null && !request.subject().isBlank()) {
+            message.setSubject(request.subject());
+        }
         if (request.clientReference() != null && !request.clientReference().isBlank()) {
             message.setCustomFields(Map.of("notificationDeliveryId", request.clientReference()));
         }

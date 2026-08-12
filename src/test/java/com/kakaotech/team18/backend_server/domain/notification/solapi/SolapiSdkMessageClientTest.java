@@ -44,6 +44,7 @@ class SolapiSdkMessageClientTest {
         SolapiSendResponse response = client.send(new SolapiSmsRequest(
                 "01098765432",
                 "결과 안내 메시지",
+                null,
                 "delivery-100"
         ));
 
@@ -157,6 +158,6 @@ class SolapiSdkMessageClientTest {
     }
 
     private SolapiSmsRequest request() {
-        return new SolapiSmsRequest("01098765432", "결과 안내 메시지", "delivery-100");
+        return new SolapiSmsRequest("01098765432", "결과 안내 메시지", null, "delivery-100");
     }
 }
