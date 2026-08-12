@@ -77,6 +77,9 @@ public class NotificationDelivery extends BaseEntity {
     @Column(name = "recipient_address", nullable = false, length = 320)
     private String recipientAddress;
 
+    @Column(name = "reply_to_address", length = 320)
+    private String replyToAddress;
+
     @Column(name = "message_subject", length = 255)
     private String messageSubject;
 
@@ -128,6 +131,7 @@ public class NotificationDelivery extends BaseEntity {
             NotificationChannel channel,
             NotificationResultType resultType,
             String recipientAddress,
+            String replyToAddress,
             String messageSubject,
             String messageBody,
             LocalDateTime nextAttemptAt
@@ -140,6 +144,7 @@ public class NotificationDelivery extends BaseEntity {
         this.resultType = resultType;
         this.status = NotificationDeliveryStatus.PENDING;
         this.recipientAddress = recipientAddress;
+        this.replyToAddress = replyToAddress;
         this.messageSubject = messageSubject;
         this.messageBody = messageBody;
         this.attemptCount = 0;
@@ -154,6 +159,7 @@ public class NotificationDelivery extends BaseEntity {
             NotificationChannel channel,
             NotificationResultType resultType,
             String recipientAddress,
+            String replyToAddress,
             String messageSubject,
             String messageBody,
             LocalDateTime nextAttemptAt
@@ -166,6 +172,7 @@ public class NotificationDelivery extends BaseEntity {
                 .channel(channel)
                 .resultType(resultType)
                 .recipientAddress(recipientAddress)
+                .replyToAddress(replyToAddress)
                 .messageSubject(messageSubject)
                 .messageBody(messageBody)
                 .nextAttemptAt(nextAttemptAt)

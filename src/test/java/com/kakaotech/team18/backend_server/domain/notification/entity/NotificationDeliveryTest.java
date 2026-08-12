@@ -112,6 +112,7 @@ class NotificationDeliveryTest {
                 NotificationChannel.EMAIL,
                 NotificationResultType.FINAL_APPROVED,
                 "applicant@example.com",
+                "president@example.com",
                 "최종 합격 안내",
                 "최종 합격을 축하드립니다.",
                 CREATED_AT
@@ -149,6 +150,7 @@ class NotificationDeliveryTest {
                 NotificationChannel.SMS,
                 NotificationResultType.INTERVIEW_APPROVED,
                 "01012345678",
+                null,
                 null,
                 "면접 합격 안내",
                 CREATED_AT

@@ -86,6 +86,7 @@ class ResultNotificationDeliveryServiceTest {
                 "announcement-key",
                 Stage.INTERVIEW,
                 "면접 장소는 학생회관입니다.",
+                "president@example.com",
                 Set.of(NotificationChannel.EMAIL, NotificationChannel.SMS),
                 List.of(approved, rejected)
         );
@@ -115,6 +116,10 @@ class ResultNotificationDeliveryServiceTest {
                 .extracting(NotificationDelivery::getRecipientAddress)
                 .containsExactlyInAnyOrder("approved@example.com", "rejected@example.com");
         assertThat(deliveries)
+                .filteredOn(delivery -> delivery.getChannel() == NotificationChannel.EMAIL)
+                .extracting(NotificationDelivery::getReplyToAddress)
+                .containsOnly("president@example.com");
+        assertThat(deliveries)
                 .filteredOn(delivery -> delivery.getChannel() == NotificationChannel.SMS)
                 .extracting(NotificationDelivery::getRecipientAddress)
                 .containsExactlyInAnyOrder("010-1111-2222", "010-3333-4444");
@@ -139,6 +144,7 @@ class ResultNotificationDeliveryServiceTest {
                 "over-limit-key",
                 Stage.FINAL,
                 "결과 안내",
+                "president@example.com",
                 Set.of(NotificationChannel.SMS),
                 applications
         )).isInstanceOf(NotificationSmsLimitExceededException.class);

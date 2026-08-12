@@ -1,12 +1,9 @@
 package com.kakaotech.team18.backend_server.domain.email.eventListener;
 
-import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.email.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +17,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class ApplicationNotificationListener {
 
-    private final ApplicationRepository applicationRepository;
     private final EmailService emailService;
 
     @Async
@@ -32,35 +28,23 @@ public class ApplicationNotificationListener {
         log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
     }
 
+    /** stage가 없는 기존 내부 호출 호환용이며, 신규 결과 발표 API는 DB 발송 작업을 사용합니다. */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onInterviewApproved(InterviewApprovedEvent event) {
-        ApplicationInfoDto info = event.info();
-        emailService.sendInterviewApprovedResultToApplicant(info,  event.message(), event.interviewSchedule());
-        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
-    }
-
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onInterviewRejected(InterviewRejectedEvent event) {
-        ApplicationInfoDto info = event.info();
-        emailService.sendInterviewRejectedResultToApplicant(info);
-        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
-    }
-
-    @Async
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onFinalApproved(FinalApprovedEvent event) {
+    public void onLegacyFinalApproved(FinalApprovedEvent event) {
         ApplicationInfoDto info = event.info();
         emailService.sendFinalApprovedResultToApplicant(info, event.message());
-        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
+        log.info("Legacy result email sent successfully: clubName={} userName={}",
+                info.clubName(), info.userName());
     }
 
+    /** stage가 없는 기존 내부 호출 호환용이며, 신규 결과 발표 API는 DB 발송 작업을 사용합니다. */
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void onFinalRejected(FinalRejectedEvent event) {
+    public void onLegacyFinalRejected(FinalRejectedEvent event) {
         ApplicationInfoDto info = event.info();
         emailService.sendFinalRejectedResultToApplicant(info);
-        log.info("Email sent successfully: clubName={} userName={}", info.clubName(), info.userName());
+        log.info("Legacy result email sent successfully: clubName={} userName={}",
+                info.clubName(), info.userName());
     }
 }

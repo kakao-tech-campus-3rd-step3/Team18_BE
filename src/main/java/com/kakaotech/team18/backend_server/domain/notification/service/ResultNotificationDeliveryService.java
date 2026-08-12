@@ -53,6 +53,7 @@ public class ResultNotificationDeliveryService {
             String idempotencyKey,
             Stage stage,
             String customMessage,
+            String replyToAddress,
             Set<NotificationChannel> channels,
             List<Application> applications
     ) {
@@ -82,6 +83,7 @@ public class ResultNotificationDeliveryService {
                         channel,
                         resultType,
                         resolveRecipient(channel, application),
+                        channel == NotificationChannel.EMAIL ? replyToAddress : null,
                         channel == NotificationChannel.EMAIL
                                 ? "[동아리 지원] " + clubName + " - " + applicantName
                                 : null,

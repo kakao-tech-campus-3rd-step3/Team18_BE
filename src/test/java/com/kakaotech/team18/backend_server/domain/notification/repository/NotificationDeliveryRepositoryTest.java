@@ -44,6 +44,7 @@ class NotificationDeliveryRepositoryTest {
                 NotificationResultType.FINAL_REJECTED,
                 "01012345678",
                 null,
+                null,
                 "최종 결과 안내",
                 nextAttemptAt
         );
@@ -108,6 +109,7 @@ class NotificationDeliveryRepositoryTest {
                 NotificationChannel.SMS,
                 NotificationResultType.FINAL_REJECTED,
                 "01012345678",
+                null,
                 null,
                 "최종 결과 안내",
                 nextAttemptAt
