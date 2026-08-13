@@ -67,6 +67,13 @@ class SolapiUsageQuotaServiceTest {
                         NotificationQuotaPeriod.DAY,
                         NotificationQuotaPeriod.MONTH
                 );
+        assertThat(captor.getAllValues())
+                .extracting(NotificationQuotaBucket::getBucketStartedAt)
+                .containsExactly(
+                        LocalDateTime.of(2026, 8, 12, 13, 0),
+                        LocalDateTime.of(2026, 8, 12, 0, 0),
+                        LocalDateTime.of(2026, 8, 1, 0, 0)
+                );
         assertThat(captor.getAllValues()).allSatisfy(bucket -> {
             assertThat(bucket.getRequestCount()).isEqualTo(1);
             assertThat(bucket.getLmsCount()).isEqualTo(1);

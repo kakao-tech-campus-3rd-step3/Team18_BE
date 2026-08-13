@@ -18,6 +18,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -122,6 +126,65 @@ class NotificationDeliveryFlowIntegrationTest {
         NotificationDelivery sent = repository.findById(delivery.getId()).orElseThrow();
         assertThat(sent.getStatus()).isEqualTo(NotificationDeliveryStatus.SENT);
         assertThat(sent.getSentAt()).isEqualTo(now.plusSeconds(1));
+    }
+
+    @Test
+    @DisplayName("두 실행자가 같은 PENDING 작업을 동시에 처리해도 Sender는 한 번만 호출된다")
+    void concurrentProcessorsSendOnlyOnce() throws Exception {
+        LocalDateTime now = LocalDateTime.now(CLOCK);
+        NotificationDelivery delivery = repository.save(NotificationDelivery.pending(
+                1L, 2L, 5L, "concurrent-key", NotificationChannel.EMAIL,
+                NotificationResultType.FINAL_APPROVED, "applicant@example.com",
+                "president@example.com", "결과 안내", "합격을 축하드립니다.", now
+        ));
+        AtomicInteger calls = new AtomicInteger();
+        NotificationSender sender = new NotificationSender() {
+            @Override
+            public NotificationChannel channel() {
+                return NotificationChannel.EMAIL;
+            }
+
+            @Override
+            public NotificationSendResult send(NotificationMessage message) {
+                calls.incrementAndGet();
+                return NotificationSendResult.sent("SMTP_ACCEPTED");
+            }
+        };
+        NotificationDeliveryProcessor processor = new NotificationDeliveryProcessor(
+                stateService,
+                new NotificationSenderRegistry(List.of(sender)),
+                new NotificationRetryPolicy(5, 60, 3_600),
+                CLOCK
+        );
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService executor = Executors.newFixedThreadPool(2);
+        try {
+            Future<?> first = executor.submit(() -> processAfterStart(processor, delivery.getId(), start));
+            Future<?> second = executor.submit(() -> processAfterStart(processor, delivery.getId(), start));
+            start.countDown();
+            first.get();
+            second.get();
+        } finally {
+            executor.shutdownNow();
+        }
+
+        assertThat(calls).hasValue(1);
+        assertThat(repository.findById(delivery.getId()).orElseThrow().getStatus())
+                .isEqualTo(NotificationDeliveryStatus.SENT);
+    }
+
+    private void processAfterStart(
+            NotificationDeliveryProcessor processor,
+            Long deliveryId,
+            CountDownLatch start
+    ) {
+        try {
+            start.await();
+            processor.process(deliveryId);
+        } catch (InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException(exception);
+        }
     }
 
     private NotificationSender acceptedSmsSender(AtomicInteger calls) {
