@@ -17,7 +17,7 @@ class SolapiConfigTest {
     private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
             .withUserConfiguration(SolapiConfig.class)
             .withBean(SmsMessagePolicy.class, SmsMessagePolicy::new)
-            .withBean(SolapiSendQuota.class, () -> () -> { })
+            .withBean(SolapiSendQuota.class, () -> message -> { })
             .withBean(NotificationDeliveryRepository.class,
                     () -> org.mockito.Mockito.mock(NotificationDeliveryRepository.class))
             .withBean(NotificationDeliveryStateService.class,

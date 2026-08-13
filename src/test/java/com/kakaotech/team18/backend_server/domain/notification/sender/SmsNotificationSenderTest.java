@@ -55,7 +55,7 @@ class SmsNotificationSenderTest {
         NotificationSendResult result = sender.send(message("010-1234-5678", "합격을 축하드립니다."));
 
         verify(messageClient).send(request);
-        verify(sendQuota).reserve();
+        verify(sendQuota).reserve(org.mockito.ArgumentMatchers.any());
         assertThat(result.outcome()).isEqualTo(NotificationSendResult.Outcome.ACCEPTED);
         assertThat(result.providerGroupId()).isEqualTo("group-id");
         assertThat(result.providerMessageId()).isEqualTo("message-id");
@@ -94,8 +94,12 @@ class SmsNotificationSenderTest {
     @Test
     void reschedulesAtNextHourWithoutCallingSolapiWhenQuotaIsFull() {
         java.time.LocalDateTime retryAt = java.time.LocalDateTime.of(2026, 8, 12, 14, 0);
-        org.mockito.Mockito.doThrow(new SolapiQuotaExceededException(retryAt))
-                .when(sendQuota).reserve();
+        org.mockito.Mockito.doThrow(new SolapiQuotaExceededException(
+                        "SOLAPI_HOURLY_QUOTA_EXCEEDED",
+                        "hourly quota exceeded",
+                        retryAt
+                ))
+                .when(sendQuota).reserve(org.mockito.ArgumentMatchers.any());
 
         assertThatThrownBy(() -> sender.send(message("01012345678", "결과 안내")))
                 .isInstanceOfSatisfying(NotificationSendException.class, exception -> {

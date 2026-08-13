@@ -34,7 +34,7 @@ public class SmsNotificationSender implements NotificationSender {
                     message.recipientAddress(),
                     message.body()
             );
-            sendQuota.reserve();
+            sendQuota.reserve(prepared);
             SolapiSendResponse response = solapiMessageClient.send(new SolapiSmsRequest(
                     prepared.recipient(),
                     prepared.text(),
@@ -48,7 +48,7 @@ public class SmsNotificationSender implements NotificationSender {
             );
         } catch (SolapiQuotaExceededException exception) {
             throw NotificationSendException.retryableAt(
-                    "SOLAPI_HOURLY_QUOTA_EXCEEDED",
+                    exception.getErrorCode(),
                     exception.getMessage(),
                     exception.getRetryAt(),
                     exception

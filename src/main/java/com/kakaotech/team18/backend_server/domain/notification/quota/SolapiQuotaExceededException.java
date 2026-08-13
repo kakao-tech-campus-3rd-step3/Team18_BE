@@ -7,9 +7,11 @@ import lombok.Getter;
 public class SolapiQuotaExceededException extends RuntimeException {
 
     private final LocalDateTime retryAt;
+    private final String errorCode;
 
-    public SolapiQuotaExceededException(LocalDateTime retryAt) {
-        super("시간당 SOLAPI 호출 한도에 도달했습니다.");
+    public SolapiQuotaExceededException(String errorCode, String message, LocalDateTime retryAt) {
+        super(message);
+        this.errorCode = errorCode;
         this.retryAt = retryAt;
     }
 }

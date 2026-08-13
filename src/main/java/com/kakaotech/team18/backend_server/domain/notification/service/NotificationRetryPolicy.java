@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationRetryPolicy {
 
-    private static final String QUOTA_ERROR_CODE = "SOLAPI_HOURLY_QUOTA_EXCEEDED";
+    private static final String QUOTA_ERROR_SUFFIX = "_QUOTA_EXCEEDED";
 
     private final int maxAttempts;
     private final long initialDelaySeconds;
@@ -27,7 +27,8 @@ public class NotificationRetryPolicy {
     }
 
     public boolean exhausted(int attemptCount, String errorCode) {
-        return !QUOTA_ERROR_CODE.equals(errorCode) && attemptCount >= maxAttempts;
+        return (errorCode == null || !errorCode.endsWith(QUOTA_ERROR_SUFFIX))
+                && attemptCount >= maxAttempts;
     }
 
     public LocalDateTime nextRetryAt(LocalDateTime failedAt, int attemptCount) {
