@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.notification.sms;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
 class SmsMessagePolicyTest {
@@ -45,5 +46,25 @@ class SmsMessagePolicyTest {
         assertThatThrownBy(() -> policy.prepare("01012345678", "가".repeat(1_001)))
                 .isInstanceOfSatisfying(InvalidSmsMessageException.class, exception ->
                         assertThat(exception.getErrorCode()).isEqualTo("SMS_MESSAGE_TOO_LONG"));
+    }
+
+    @Test
+    void rejectsCharactersThatCannotBeEncodedAsEucKr() {
+        assertThatThrownBy(() -> policy.prepare("01012345678", "합격입니다 🎉"))
+                .isInstanceOfSatisfying(InvalidSmsMessageException.class, exception ->
+                        assertThat(exception.getErrorCode()).isEqualTo("SMS_UNSUPPORTED_CHARACTER"));
+    }
+
+    @Test
+    void calculatesConfiguredEstimatedCostByActualType() {
+        SmsMessagePolicy pricedPolicy = new SmsMessagePolicy(
+                new BigDecimal("20.0"),
+                new BigDecimal("50.0")
+        );
+
+        assertThat(pricedPolicy.prepare("01012345678", "가".repeat(45)).estimatedCost())
+                .isEqualByComparingTo("20.0");
+        assertThat(pricedPolicy.prepare("01012345678", "가".repeat(46)).estimatedCost())
+                .isEqualByComparingTo("50.0");
     }
 }

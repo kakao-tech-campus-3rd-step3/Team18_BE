@@ -3,6 +3,7 @@ package com.kakaotech.team18.backend_server.domain.application.dto;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.Set;
 
 import static com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel.EMAIL;
@@ -10,6 +11,7 @@ import static com.kakaotech.team18.backend_server.domain.notification.type.Notif
 @Schema(description = "지원 결과 처리 및 알림 전송 요청 데이터")
 public record ApplicationApprovedRequestDto(
         @Schema(description = "합격자에게 추가로 전달할 안내 메시지", example = "자세한 일정은 추후 안내드리겠습니다.")
+        @Size(max = 800, message = "추가 안내 메시지는 800자를 초과할 수 없습니다.")
         String message,
 
         @Schema(

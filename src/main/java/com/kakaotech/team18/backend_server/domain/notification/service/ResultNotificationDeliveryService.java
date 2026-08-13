@@ -5,13 +5,13 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.notification.entity.NotificationDelivery;
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
+import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationResultType;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NotificationSmsLimitExceededException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -23,19 +23,26 @@ import org.springframework.stereotype.Service;
 public class ResultNotificationDeliveryService {
 
     private static final ZoneId SERVICE_ZONE = ZoneId.of("Asia/Seoul");
-    private static final DateTimeFormatter INTERVIEW_SCHEDULE_FORMAT =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
     private final NotificationDeliveryRepository notificationDeliveryRepository;
+    private final ResultNotificationTemplate notificationTemplate;
+    private final SmsMessagePolicy smsMessagePolicy;
     private final int maxSmsPerRequest;
     private final Clock clock;
 
     @Autowired
     public ResultNotificationDeliveryService(
             NotificationDeliveryRepository notificationDeliveryRepository,
+            ResultNotificationTemplate notificationTemplate,
+            SmsMessagePolicy smsMessagePolicy,
             @Value("${notification.result.max-sms-per-request:50}") int maxSmsPerRequest
     ) {
-        this(notificationDeliveryRepository, maxSmsPerRequest, Clock.system(SERVICE_ZONE));
+        this(
+                notificationDeliveryRepository,
+                notificationTemplate,
+                smsMessagePolicy,
+                maxSmsPerRequest,
+                Clock.system(SERVICE_ZONE)
+        );
     }
 
     ResultNotificationDeliveryService(
@@ -43,7 +50,25 @@ public class ResultNotificationDeliveryService {
             int maxSmsPerRequest,
             Clock clock
     ) {
+        this(
+                notificationDeliveryRepository,
+                new ResultNotificationTemplate(),
+                new SmsMessagePolicy(),
+                maxSmsPerRequest,
+                clock
+        );
+    }
+
+    ResultNotificationDeliveryService(
+            NotificationDeliveryRepository notificationDeliveryRepository,
+            ResultNotificationTemplate notificationTemplate,
+            SmsMessagePolicy smsMessagePolicy,
+            int maxSmsPerRequest,
+            Clock clock
+    ) {
         this.notificationDeliveryRepository = notificationDeliveryRepository;
+        this.notificationTemplate = notificationTemplate;
+        this.smsMessagePolicy = smsMessagePolicy;
         this.maxSmsPerRequest = maxSmsPerRequest;
         this.clock = clock;
     }
@@ -66,7 +91,7 @@ public class ResultNotificationDeliveryService {
             NotificationResultType resultType = resolveResultType(stage, application.getStatus());
             String clubName = application.getClubApplyForm().getClub().getName();
             String applicantName = application.getUser().getName();
-            String messageBody = createMessageBody(
+            String messageBody = notificationTemplate.render(
                     resultType,
                     clubName,
                     applicantName,
@@ -75,6 +100,10 @@ public class ResultNotificationDeliveryService {
             );
 
             for (NotificationChannel channel : channels) {
+                String recipient = resolveRecipient(channel, application);
+                if (channel == NotificationChannel.SMS) {
+                    smsMessagePolicy.prepare(recipient, messageBody);
+                }
                 deliveries.add(NotificationDelivery.pending(
                         clubId,
                         application.getUser().getId(),
@@ -82,7 +111,7 @@ public class ResultNotificationDeliveryService {
                         idempotencyKey,
                         channel,
                         resultType,
-                        resolveRecipient(channel, application),
+                        recipient,
                         channel == NotificationChannel.EMAIL ? replyToAddress : null,
                         channel == NotificationChannel.EMAIL
                                 ? "[동아리 지원] " + clubName + " - " + applicantName
@@ -125,38 +154,4 @@ public class ResultNotificationDeliveryService {
         };
     }
 
-    private String createMessageBody(
-            NotificationResultType resultType,
-            String clubName,
-            String applicantName,
-            String customMessage,
-            Application application
-    ) {
-        String greeting = "[" + clubName + "] " + applicantName + "님, ";
-        return switch (resultType) {
-            case INTERVIEW_APPROVED -> greeting
-                    + "면접 합격을 축하드립니다.\n"
-                    + "면접 일정: " + interviewSchedule(application) + "\n"
-                    + safeCustomMessage(customMessage);
-            case INTERVIEW_REJECTED -> greeting
-                    + "지원해 주셔서 감사합니다. 심사 결과 이번 면접에서는 함께하지 못하게 되었습니다.";
-            case FINAL_APPROVED -> greeting
-                    + "최종 합격을 축하드립니다.\n"
-                    + safeCustomMessage(customMessage);
-            case FINAL_REJECTED -> greeting
-                    + "지원해 주셔서 감사합니다. 심사 결과 이번 모집에서는 함께하지 못하게 되었습니다.";
-        };
-    }
-
-    private String interviewSchedule(Application application) {
-        if (application.getInterviewDate() == null || application.getInterviewTime() == null) {
-            return "추후 안내";
-        }
-        return LocalDateTime.of(application.getInterviewDate(), application.getInterviewTime())
-                .format(INTERVIEW_SCHEDULE_FORMAT);
-    }
-
-    private String safeCustomMessage(String customMessage) {
-        return customMessage == null ? "" : customMessage;
-    }
 }

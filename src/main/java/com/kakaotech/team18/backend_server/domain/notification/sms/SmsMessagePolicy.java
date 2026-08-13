@@ -1,5 +1,13 @@
 package com.kakaotech.team18.backend_server.domain.notification.sms;
 
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CodingErrorAction;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -9,6 +17,26 @@ public class SmsMessagePolicy {
     static final int LMS_MAX_BYTES = 2_000;
     private static final String LMS_SUBJECT = "동아리 지원 결과 안내";
     private static final String KOREAN_MOBILE_PATTERN = "01[016789][0-9]{7,8}";
+    private static final Charset CARRIER_CHARSET = Charset.forName("EUC-KR");
+
+    private final BigDecimal smsEstimatedCost;
+    private final BigDecimal lmsEstimatedCost;
+
+    public SmsMessagePolicy() {
+        this(BigDecimal.ZERO, BigDecimal.ZERO);
+    }
+
+    @Autowired
+    public SmsMessagePolicy(
+            @Value("${notification.sms.estimated-cost.sms:0}") BigDecimal smsEstimatedCost,
+            @Value("${notification.sms.estimated-cost.lms:0}") BigDecimal lmsEstimatedCost
+    ) {
+        if (smsEstimatedCost.signum() < 0 || lmsEstimatedCost.signum() < 0) {
+            throw new IllegalArgumentException("문자 예상 단가는 0 이상이어야 합니다.");
+        }
+        this.smsEstimatedCost = smsEstimatedCost;
+        this.lmsEstimatedCost = lmsEstimatedCost;
+    }
 
     public PreparedSmsMessage prepare(String rawRecipient, String text) {
         String recipient = normalizeRecipient(rawRecipient);
@@ -30,7 +58,8 @@ public class SmsMessagePolicy {
                 text,
                 type == SmsMessageType.LMS ? LMS_SUBJECT : null,
                 byteLength,
-                type
+                type,
+                type == SmsMessageType.SMS ? smsEstimatedCost : lmsEstimatedCost
         );
     }
 
@@ -60,10 +89,18 @@ public class SmsMessagePolicy {
         }
     }
 
-    /** SOLAPI 안내 기준인 영문 1바이트, 한글 등 비 ASCII 문자 2바이트로 계산합니다. */
     private int calculateCarrierBytes(String text) {
-        return text.codePoints()
-                .map(codePoint -> codePoint <= 0x7F ? 1 : 2)
-                .sum();
+        try {
+            ByteBuffer encoded = CARRIER_CHARSET.newEncoder()
+                    .onMalformedInput(CodingErrorAction.REPORT)
+                    .onUnmappableCharacter(CodingErrorAction.REPORT)
+                    .encode(CharBuffer.wrap(text));
+            return encoded.remaining();
+        } catch (CharacterCodingException exception) {
+            throw new InvalidSmsMessageException(
+                    "SMS_UNSUPPORTED_CHARACTER",
+                    "문자 본문에 EUC-KR로 전송할 수 없는 문자가 포함되어 있습니다."
+            );
+        }
     }
 }
