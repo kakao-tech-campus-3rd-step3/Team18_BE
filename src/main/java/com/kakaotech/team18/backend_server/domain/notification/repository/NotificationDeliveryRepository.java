@@ -18,6 +18,12 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
     @Query("select delivery from NotificationDelivery delivery where delivery.id = :id")
     Optional<NotificationDelivery> findByIdForUpdate(@Param("id") Long id);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select delivery from NotificationDelivery delivery where delivery.providerMessageId = :messageId")
+    Optional<NotificationDelivery> findByProviderMessageIdForUpdate(
+            @Param("messageId") String messageId
+    );
+
     @Query("""
             select delivery.id
             from NotificationDelivery delivery

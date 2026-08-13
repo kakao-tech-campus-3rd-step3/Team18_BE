@@ -97,6 +97,33 @@ class NotificationDeliveryFlowIntegrationTest {
         assertThat(calls).hasValue(1);
     }
 
+    @Test
+    @DisplayName("동일한 SOLAPI 성공 웹훅을 여러 번 받아도 SENT 상태를 멱등하게 유지한다")
+    void applyDuplicateSuccessfulWebhookIdempotently() {
+        LocalDateTime now = LocalDateTime.now(CLOCK);
+        NotificationDelivery delivery = repository.save(NotificationDelivery.pending(
+                1L, 2L, 4L, "webhook-key", NotificationChannel.SMS,
+                NotificationResultType.FINAL_APPROVED, "01012345678", null, null,
+                "최종 합격을 축하드립니다.", now
+        ));
+        NotificationDeliveryStateService stateService = this.stateService;
+        stateService.claim(delivery.getId(), now);
+        stateService.complete(
+                delivery.getId(),
+                NotificationSendResult.accepted("group-2", "message-webhook", "2000"),
+                now
+        );
+
+        assertThat(stateService.applyWebhookReport("message-webhook", "4000", now.plusSeconds(1)))
+                .isTrue();
+        assertThat(stateService.applyWebhookReport("message-webhook", "4000", now.plusSeconds(2)))
+                .isTrue();
+
+        NotificationDelivery sent = repository.findById(delivery.getId()).orElseThrow();
+        assertThat(sent.getStatus()).isEqualTo(NotificationDeliveryStatus.SENT);
+        assertThat(sent.getSentAt()).isEqualTo(now.plusSeconds(1));
+    }
+
     private NotificationSender acceptedSmsSender(AtomicInteger calls) {
         return new NotificationSender() {
             @Override

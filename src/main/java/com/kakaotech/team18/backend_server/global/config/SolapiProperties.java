@@ -9,6 +9,7 @@ public class SolapiProperties {
     private String apiKey;
     private String apiSecret;
     private String senderNumber;
+    private String webhookSecret;
 
     public boolean isEnabled() {
         return enabled;
@@ -42,10 +43,19 @@ public class SolapiProperties {
         this.senderNumber = senderNumber;
     }
 
+    public String getWebhookSecret() {
+        return webhookSecret;
+    }
+
+    public void setWebhookSecret(String webhookSecret) {
+        this.webhookSecret = webhookSecret;
+    }
+
     public void validateEnabledConfiguration() {
         requireText(apiKey, "SOLAPI_API_KEY");
         requireText(apiSecret, "SOLAPI_API_SECRET");
         requireText(senderNumber, "SOLAPI_SENDER_NUMBER");
+        requireText(webhookSecret, "SOLAPI_WEBHOOK_SECRET");
         if (!senderNumber.matches("[0-9]{8,11}")) {
             throw new IllegalStateException(
                     "SOLAPI_SENDER_NUMBER는 하이픈 없이 8~11자리 숫자여야 합니다."

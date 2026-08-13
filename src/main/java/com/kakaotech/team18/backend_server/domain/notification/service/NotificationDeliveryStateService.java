@@ -195,6 +195,40 @@ public class NotificationDeliveryStateService {
         ));
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean applyWebhookReport(
+            String providerMessageId,
+            String statusCode,
+            LocalDateTime processedAt
+    ) {
+        Optional<NotificationDelivery> found = notificationDeliveryRepository
+                .findByProviderMessageIdForUpdate(providerMessageId);
+        if (found.isEmpty()) {
+            return false;
+        }
+        NotificationDelivery delivery = found.get();
+        if (isSameFinalStatus(delivery.getStatus(), statusCode)) {
+            return true;
+        }
+        if (delivery.getStatus() != NotificationDeliveryStatus.ACCEPTED) {
+            return false;
+        }
+        if ("4000".equals(statusCode)) {
+            delivery.markSent(statusCode, processedAt);
+            return true;
+        }
+        if (statusCode != null && statusCode.startsWith("5")) {
+            delivery.markFailed(
+                    statusCode,
+                    "SOLAPI_DELIVERY_FAILED",
+                    "SOLAPI 웹훅에서 통신사 최종 발송 실패가 확인되었습니다.",
+                    processedAt
+            );
+            return true;
+        }
+        return false;
+    }
+
     public record AcceptedDelivery(
             Long deliveryId,
             String providerMessageId,
@@ -214,6 +248,13 @@ public class NotificationDeliveryStateService {
         return status == NotificationDeliveryStatus.FAILED
                 || status == NotificationDeliveryStatus.UNKNOWN
                 || status == NotificationDeliveryStatus.PERMANENTLY_FAILED;
+    }
+
+    private boolean isSameFinalStatus(NotificationDeliveryStatus status, String statusCode) {
+        return status == NotificationDeliveryStatus.SENT && "4000".equals(statusCode)
+                || status == NotificationDeliveryStatus.FAILED
+                && statusCode != null
+                && statusCode.startsWith("5");
     }
 
     private NotificationDelivery findForUpdate(Long deliveryId) {

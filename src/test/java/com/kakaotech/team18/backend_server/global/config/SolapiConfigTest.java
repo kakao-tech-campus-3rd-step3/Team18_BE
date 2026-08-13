@@ -41,7 +41,8 @@ class SolapiConfigTest {
                         "solapi.enabled=true",
                         "solapi.api-key=test-api-key",
                         "solapi.api-secret=test-api-secret",
-                        "solapi.sender-number=01012345678"
+                        "solapi.sender-number=01012345678",
+                        "solapi.webhook-secret=test-webhook-secret"
                 )
                 .run(context -> {
                     assertThat(context).hasNotFailed();
@@ -58,7 +59,8 @@ class SolapiConfigTest {
                         "solapi.enabled=true",
                         "solapi.api-key=test-api-key",
                         "solapi.api-secret=",
-                        "solapi.sender-number=01012345678"
+                        "solapi.sender-number=01012345678",
+                        "solapi.webhook-secret=test-webhook-secret"
                 )
                 .run(context -> assertThat(context.getStartupFailure())
                         .hasRootCauseInstanceOf(IllegalStateException.class)
@@ -73,7 +75,8 @@ class SolapiConfigTest {
                         "solapi.enabled=true",
                         "solapi.api-key=test-api-key",
                         "solapi.api-secret=test-api-secret",
-                        "solapi.sender-number=010-1234-5678"
+                        "solapi.sender-number=010-1234-5678",
+                        "solapi.webhook-secret=test-webhook-secret"
                 )
                 .run(context -> assertThat(context.getStartupFailure())
                         .hasRootCauseInstanceOf(IllegalStateException.class)

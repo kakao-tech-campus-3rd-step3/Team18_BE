@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.notification.repository.Notifi
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiStatusSyncScheduler;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
+import com.kakaotech.team18.backend_server.domain.notification.webhook.SolapiWebhookSecretVerifier;
 import com.solapi.sdk.SolapiClient;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,6 +38,11 @@ public class SolapiConfig {
             SolapiProperties properties
     ) {
         return new SolapiSdkMessageClient(messageService, properties.getSenderNumber());
+    }
+
+    @Bean
+    public SolapiWebhookSecretVerifier solapiWebhookSecretVerifier(SolapiProperties properties) {
+        return new SolapiWebhookSecretVerifier(properties.getWebhookSecret());
     }
 
     @Bean
