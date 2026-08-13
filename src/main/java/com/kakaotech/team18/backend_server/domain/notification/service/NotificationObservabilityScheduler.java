@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.notification.service;
 
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService.FailureAlert;
+import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService.LongPendingAlert;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -39,6 +40,7 @@ public class NotificationObservabilityScheduler {
     private final NotificationDeliveryRepository repository;
     private final NotificationDeliveryStateService stateService;
     private final int failureAlertBatchSize;
+    private final long longPendingAgeMinutes;
     private final Clock clock;
     private final Map<NotificationDeliveryStatus, AtomicLong> statusGauges;
 
@@ -49,9 +51,19 @@ public class NotificationObservabilityScheduler {
             MeterRegistry meterRegistry,
             @org.springframework.beans.factory.annotation.Value(
                     "${notification.monitoring.failure-alert-batch-size:100}"
-            ) int failureAlertBatchSize
+            ) int failureAlertBatchSize,
+            @org.springframework.beans.factory.annotation.Value(
+                    "${notification.monitoring.long-pending-age-minutes:60}"
+            ) long longPendingAgeMinutes
     ) {
-        this(repository, stateService, meterRegistry, failureAlertBatchSize, Clock.system(SERVICE_ZONE));
+        this(
+                repository,
+                stateService,
+                meterRegistry,
+                failureAlertBatchSize,
+                longPendingAgeMinutes,
+                Clock.system(SERVICE_ZONE)
+        );
     }
 
     NotificationObservabilityScheduler(
@@ -59,14 +71,16 @@ public class NotificationObservabilityScheduler {
             NotificationDeliveryStateService stateService,
             MeterRegistry meterRegistry,
             int failureAlertBatchSize,
+            long longPendingAgeMinutes,
             Clock clock
     ) {
-        if (failureAlertBatchSize <= 0) {
-            throw new IllegalArgumentException("실패 알림 배치 크기는 1 이상이어야 합니다.");
+        if (failureAlertBatchSize <= 0 || longPendingAgeMinutes <= 0) {
+            throw new IllegalArgumentException("알림 모니터링 설정값은 1 이상이어야 합니다.");
         }
         this.repository = repository;
         this.stateService = stateService;
         this.failureAlertBatchSize = failureAlertBatchSize;
+        this.longPendingAgeMinutes = longPendingAgeMinutes;
         this.clock = clock;
         this.statusGauges = registerStatusGauges(meterRegistry);
     }
@@ -75,6 +89,35 @@ public class NotificationObservabilityScheduler {
     public void monitor() {
         refreshStatusMetrics();
         alertNewFailures();
+        alertLongPending();
+    }
+
+    private void alertLongPending() {
+        LocalDateTime now = LocalDateTime.now(clock);
+        List<LongPendingAlert> pendingAlerts = new ArrayList<>();
+        for (Long deliveryId : repository.findUnalertedLongPendingIds(
+                now.minusMinutes(longPendingAgeMinutes),
+                PageRequest.of(0, failureAlertBatchSize)
+        )) {
+            stateService.claimLongPendingAlert(deliveryId, now).ifPresent(pendingAlerts::add);
+        }
+        if (pendingAlerts.isEmpty()) {
+            return;
+        }
+        String references = pendingAlerts.stream()
+                .map(alert -> "%d:%s:attempts=%d:error=%s".formatted(
+                        alert.deliveryId(),
+                        alert.channel(),
+                        alert.attemptCount(),
+                        safeErrorCode(alert.errorCode())
+                ))
+                .toList()
+                .toString();
+        log.error(
+                "Long-pending result notifications detected: count={} references={}",
+                pendingAlerts.size(),
+                references
+        );
     }
 
     private void refreshStatusMetrics() {

@@ -209,6 +209,22 @@ class NotificationDeliveryRepositoryTest {
         assertThat(summary.unknown()).isEqualTo(1);
     }
 
+    @Test
+    @DisplayName("생성된 지 오래됐고 아직 보고하지 않은 PENDING 작업만 조회한다")
+    void findUnalertedLongPendingDeliveries() {
+        LocalDateTime now = LocalDateTime.now();
+        NotificationDelivery oldPending = createDeliveryWithKey("old-pending", 61L, now);
+        NotificationDelivery alerted = createDeliveryWithKey("alerted-pending", 62L, now);
+        alerted.markPendingAlerted(now);
+        repository.saveAllAndFlush(java.util.List.of(oldPending, alerted));
+        entityManager.clear();
+
+        assertThat(repository.findUnalertedLongPendingIds(
+                now.plusMinutes(1),
+                PageRequest.of(0, 10)
+        )).containsExactly(oldPending.getId());
+    }
+
     private NotificationDelivery createDelivery(Long applicationId, LocalDateTime nextAttemptAt) {
         return NotificationDelivery.pending(
                 1L,

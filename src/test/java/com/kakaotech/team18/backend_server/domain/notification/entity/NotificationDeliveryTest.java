@@ -131,6 +131,18 @@ class NotificationDeliveryTest {
     }
 
     @Test
+    @DisplayName("PENDING 작업은 장기 대기 알림 완료 시각을 한 번만 기록한다")
+    void markPendingAlertedOnce() {
+        NotificationDelivery delivery = createDelivery();
+
+        delivery.markPendingAlerted(CREATED_AT);
+
+        assertThat(delivery.getPendingAlertedAt()).isEqualTo(CREATED_AT);
+        assertThatThrownBy(() -> delivery.markPendingAlerted(CREATED_AT.plusMinutes(1)))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     @DisplayName("이메일은 별도 접수 상태 없이 SENDING에서 SENT로 완료할 수 있다")
     void emailCanBeSentWithoutAccepted() {
         NotificationDelivery delivery = NotificationDelivery.pending(

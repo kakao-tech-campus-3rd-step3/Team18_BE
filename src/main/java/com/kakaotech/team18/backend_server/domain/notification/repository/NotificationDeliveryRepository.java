@@ -67,4 +67,17 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
     );
 
     long countByStatus(NotificationDeliveryStatus status);
+
+    @Query("""
+            select delivery.id
+            from NotificationDelivery delivery
+            where delivery.status = com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus.PENDING
+              and delivery.createdAt <= :cutoff
+              and delivery.pendingAlertedAt is null
+            order by delivery.id
+            """)
+    List<Long> findUnalertedLongPendingIds(
+            @Param("cutoff") LocalDateTime cutoff,
+            Pageable pageable
+    );
 }

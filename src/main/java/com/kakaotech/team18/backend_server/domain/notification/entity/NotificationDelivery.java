@@ -39,6 +39,10 @@ import lombok.NoArgsConstructor;
                         name = "idx_notification_delivery_failure_alert",
                         columnList = "status,failure_alerted_at,notification_delivery_id"
                 ),
+                @Index(
+                        name = "idx_notification_delivery_pending_alert",
+                        columnList = "status,pending_alerted_at,created_at,notification_delivery_id"
+                ),
                 @Index(name = "idx_notification_delivery_club_created", columnList = "club_id,created_at"),
                 @Index(name = "idx_notification_delivery_created", columnList = "created_at")
         }
@@ -113,6 +117,9 @@ public class NotificationDelivery extends BaseEntity {
 
     @Column(name = "failure_alerted_at")
     private LocalDateTime failureAlertedAt;
+
+    @Column(name = "pending_alerted_at")
+    private LocalDateTime pendingAlertedAt;
 
     @Column(name = "provider_group_id", length = 100)
     private String providerGroupId;
@@ -279,6 +286,14 @@ public class NotificationDelivery extends BaseEntity {
             throw new IllegalStateException("이미 보고된 알림입니다: " + id);
         }
         failureAlertedAt = alertedAt;
+    }
+
+    public void markPendingAlerted(LocalDateTime alertedAt) {
+        requireStatus(NotificationDeliveryStatus.PENDING);
+        if (pendingAlertedAt != null) {
+            throw new IllegalStateException("이미 장기 대기 보고된 알림입니다: " + id);
+        }
+        pendingAlertedAt = alertedAt;
     }
 
     private void clearError() {

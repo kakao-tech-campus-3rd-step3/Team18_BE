@@ -196,6 +196,22 @@ public class NotificationDeliveryStateService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public Optional<LongPendingAlert> claimLongPendingAlert(Long deliveryId, LocalDateTime alertedAt) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (delivery.getStatus() != NotificationDeliveryStatus.PENDING
+                || delivery.getPendingAlertedAt() != null) {
+            return Optional.empty();
+        }
+        delivery.markPendingAlerted(alertedAt);
+        return Optional.of(new LongPendingAlert(
+                delivery.getId(),
+                delivery.getChannel(),
+                delivery.getAttemptCount(),
+                delivery.getProviderErrorCode()
+        ));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public boolean applyWebhookReport(
             String providerMessageId,
             String statusCode,
@@ -240,6 +256,14 @@ public class NotificationDeliveryStateService {
             Long deliveryId,
             NotificationChannel channel,
             NotificationDeliveryStatus status,
+            String errorCode
+    ) {
+    }
+
+    public record LongPendingAlert(
+            Long deliveryId,
+            NotificationChannel channel,
+            int attemptCount,
             String errorCode
     ) {
     }

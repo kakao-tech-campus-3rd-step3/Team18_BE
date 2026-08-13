@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.notification.service;
 
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService.FailureAlert;
+import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService.LongPendingAlert;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
@@ -53,6 +54,7 @@ class NotificationObservabilitySchedulerTest {
                 stateService,
                 meterRegistry,
                 10,
+                60,
                 clock
         );
 
@@ -81,8 +83,37 @@ class NotificationObservabilitySchedulerTest {
                         stateService,
                         meterRegistry,
                         0,
+                        60,
                         clock
                 )
         ).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("기준 시간을 넘긴 PENDING 작업을 한 번 보고 처리한다")
+    void claimLongPendingAlerts() {
+        given(repository.countByStatus(any())).willReturn(0L);
+        given(repository.findUnalertedFailureIds(any(), any(Pageable.class))).willReturn(List.of());
+        given(repository.findUnalertedLongPendingIds(any(), any(Pageable.class)))
+                .willReturn(List.of(21L));
+        given(stateService.claimLongPendingAlert(eq(21L), any())).willReturn(Optional.of(
+                new LongPendingAlert(21L, NotificationChannel.SMS, 2, "SOLAPI_DAILY_QUOTA_EXCEEDED")
+        ));
+        NotificationObservabilityScheduler scheduler = new NotificationObservabilityScheduler(
+                repository,
+                stateService,
+                meterRegistry,
+                10,
+                60,
+                clock
+        );
+
+        scheduler.monitor();
+
+        verify(repository).findUnalertedLongPendingIds(
+                eq(java.time.LocalDateTime.of(2026, 8, 12, 12, 0)),
+                any(Pageable.class)
+        );
+        verify(stateService).claimLongPendingAlert(eq(21L), any());
     }
 }
