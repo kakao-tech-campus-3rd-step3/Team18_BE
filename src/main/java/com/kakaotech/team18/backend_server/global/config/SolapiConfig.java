@@ -10,6 +10,7 @@ import com.kakaotech.team18.backend_server.domain.notification.service.Notificat
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiStatusSyncScheduler;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.kakaotech.team18.backend_server.domain.notification.webhook.SolapiWebhookSecretVerifier;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiRecipientAllowlist;
 import com.solapi.sdk.SolapiClient;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -49,9 +50,18 @@ public class SolapiConfig {
     public NotificationSender smsNotificationSender(
             SolapiMessageClient messageClient,
             SmsMessagePolicy messagePolicy,
-            SolapiSendQuota sendQuota
+            SolapiSendQuota sendQuota,
+            SolapiRecipientAllowlist recipientAllowlist
     ) {
-        return new SmsNotificationSender(messageClient, messagePolicy, sendQuota);
+        return new SmsNotificationSender(messageClient, messagePolicy, sendQuota, recipientAllowlist);
+    }
+
+    @Bean
+    public SolapiRecipientAllowlist solapiRecipientAllowlist(
+            @Value("${solapi.recipient-allowlist-enabled:true}") boolean enabled,
+            @Value("${solapi.recipient-allowlist:}") String recipients
+    ) {
+        return new SolapiRecipientAllowlist(enabled, recipients);
     }
 
     @Bean

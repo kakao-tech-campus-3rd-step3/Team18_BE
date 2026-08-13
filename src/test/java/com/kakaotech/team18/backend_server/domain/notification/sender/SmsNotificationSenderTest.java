@@ -16,6 +16,7 @@ import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiClie
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSendResponse;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSmsRequest;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiRecipientAllowlist;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,26 @@ class SmsNotificationSenderTest {
                             .isEqualTo(NotificationSendException.FailureDisposition.PERMANENT);
                     assertThat(exception.getErrorCode()).isEqualTo("SMS_RECIPIENT_INVALID");
                 });
+    }
+
+    @Test
+    void blocksRecipientOutsideEnvironmentAllowlistBeforeQuotaAndApiCall() {
+        sender = new SmsNotificationSender(
+                messageClient,
+                new SmsMessagePolicy(),
+                sendQuota,
+                new SolapiRecipientAllowlist(true, "01099998888")
+        );
+
+        assertThatThrownBy(() -> sender.send(message("01012345678", "결과 안내")))
+                .isInstanceOfSatisfying(NotificationSendException.class, exception -> {
+                    assertThat(exception.getDisposition())
+                            .isEqualTo(NotificationSendException.FailureDisposition.PERMANENT);
+                    assertThat(exception.getErrorCode()).isEqualTo("SMS_RECIPIENT_NOT_ALLOWED");
+                });
+
+        verify(sendQuota, never()).reserve(org.mockito.ArgumentMatchers.any());
+        verify(messageClient, never()).send(org.mockito.ArgumentMatchers.any());
     }
 
     @Test

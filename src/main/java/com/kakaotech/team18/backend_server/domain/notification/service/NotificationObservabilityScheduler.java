@@ -25,8 +25,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(
         prefix = "notification.monitoring",
         name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
+        havingValue = "true"
 )
 public class NotificationObservabilityScheduler {
 

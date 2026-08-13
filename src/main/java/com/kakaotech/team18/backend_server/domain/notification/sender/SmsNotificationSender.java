@@ -12,15 +12,35 @@ import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiClie
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiMessageClient;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSendResponse;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiSmsRequest;
+import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiRecipientAllowlist;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class SmsNotificationSender implements NotificationSender {
 
     private final SolapiMessageClient solapiMessageClient;
     private final SmsMessagePolicy messagePolicy;
     private final SolapiSendQuota sendQuota;
+    private final SolapiRecipientAllowlist recipientAllowlist;
+
+    public SmsNotificationSender(
+            SolapiMessageClient solapiMessageClient,
+            SmsMessagePolicy messagePolicy,
+            SolapiSendQuota sendQuota
+    ) {
+        this(solapiMessageClient, messagePolicy, sendQuota, SolapiRecipientAllowlist.allowAll());
+    }
+
+    public SmsNotificationSender(
+            SolapiMessageClient solapiMessageClient,
+            SmsMessagePolicy messagePolicy,
+            SolapiSendQuota sendQuota,
+            SolapiRecipientAllowlist recipientAllowlist
+    ) {
+        this.solapiMessageClient = solapiMessageClient;
+        this.messagePolicy = messagePolicy;
+        this.sendQuota = sendQuota;
+        this.recipientAllowlist = recipientAllowlist;
+    }
 
     @Override
     public NotificationChannel channel() {
@@ -34,6 +54,7 @@ public class SmsNotificationSender implements NotificationSender {
                     message.recipientAddress(),
                     message.body()
             );
+            recipientAllowlist.validate(prepared.recipient());
             sendQuota.reserve(prepared);
             SolapiSendResponse response = solapiMessageClient.send(new SolapiSmsRequest(
                     prepared.recipient(),

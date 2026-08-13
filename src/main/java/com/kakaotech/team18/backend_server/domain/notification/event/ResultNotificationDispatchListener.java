@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.notification.service.Notificat
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -11,6 +12,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@ConditionalOnProperty(
+        prefix = "notification.dispatch",
+        name = "enabled",
+        havingValue = "true"
+)
 public class ResultNotificationDispatchListener {
 
     private final NotificationDeliveryProcessor processor;

@@ -17,8 +17,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(
         prefix = "notification.dispatch",
         name = "enabled",
-        havingValue = "true",
-        matchIfMissing = true
+        havingValue = "true"
 )
 public class NotificationDispatchScheduler {
 
