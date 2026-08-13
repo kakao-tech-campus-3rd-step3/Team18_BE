@@ -167,6 +167,48 @@ class NotificationDeliveryRepositoryTest {
                 .isEqualTo(2);
     }
 
+    @Test
+    @DisplayName("동아리의 결과 발표 요청별 발송 상태 건수를 집계한다")
+    void summarizeDeliveriesByResultRequest() {
+        LocalDateTime now = LocalDateTime.of(2026, 8, 13, 13, 0);
+        ResultNotificationRequest request = ResultNotificationRequest.processing(
+                1L,
+                "summary-key",
+                "a".repeat(64),
+                com.kakaotech.team18.backend_server.domain.application.entity.Stage.FINAL
+        );
+        request.complete(true);
+        requestRepository.saveAndFlush(request);
+
+        NotificationDelivery pending = createDeliveryWithKey("summary-key", 51L, now);
+        NotificationDelivery accepted = createDeliveryWithKey("summary-key", 52L, now);
+        accepted.startSending(now);
+        accepted.markAccepted("group-52", "message-52", "2000", now, now);
+        NotificationDelivery sent = createDeliveryWithKey("summary-key", 53L, now);
+        sent.startSending(now);
+        sent.markSent("SMTP_ACCEPTED", now);
+        NotificationDelivery failed = createDeliveryWithKey("summary-key", 54L, now);
+        failed.startSending(now);
+        failed.markAccepted("group-54", "message-54", "2000", now, now);
+        failed.markFailed("5000", "CARRIER_FAILED", "failed", now);
+        NotificationDelivery unknown = createDeliveryWithKey("summary-key", 55L, now);
+        unknown.startSending(now);
+        unknown.markUnknown("TIMEOUT", "unknown", now);
+        repository.saveAllAndFlush(java.util.List.of(pending, accepted, sent, failed, unknown));
+        entityManager.clear();
+
+        com.kakaotech.team18.backend_server.domain.notification.dto.ResultNotificationRequestSummary summary =
+                requestRepository.findSummariesByClubId(1L, PageRequest.of(0, 10)).getFirst();
+
+        assertThat(summary.requestId()).isEqualTo(request.getId());
+        assertThat(summary.total()).isEqualTo(5);
+        assertThat(summary.pending()).isEqualTo(1);
+        assertThat(summary.accepted()).isEqualTo(1);
+        assertThat(summary.sent()).isEqualTo(1);
+        assertThat(summary.failed()).isEqualTo(1);
+        assertThat(summary.unknown()).isEqualTo(1);
+    }
+
     private NotificationDelivery createDelivery(Long applicationId, LocalDateTime nextAttemptAt) {
         return NotificationDelivery.pending(
                 1L,
