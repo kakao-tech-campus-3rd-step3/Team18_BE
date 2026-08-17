@@ -14,6 +14,8 @@ import com.solapi.sdk.message.model.Message;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
+import com.solapi.sdk.message.model.Balance;
 
 public class SolapiSdkMessageClient implements SolapiMessageClient {
 
@@ -70,6 +72,26 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
                 default -> SolapiMessageStatus.PENDING;
             };
             return new SolapiStatusResponse(mapped, message.getStatusCode());
+        } catch (Exception exception) {
+            throw mapException(exception);
+        }
+    }
+
+    @Override
+    public SolapiBalanceResponse getBalance() {
+        try {
+            Balance balance = messageService.getBalance();
+            if (balance == null) {
+                throw SolapiClientException.unknown(
+                        "SOLAPI_EMPTY_BALANCE_RESPONSE",
+                        "SOLAPI에서 빈 잔액 응답을 반환했습니다.",
+                        null
+                );
+            }
+            return new SolapiBalanceResponse(
+                    decimal(balance.getBalance()),
+                    decimal(balance.getPoint())
+            );
         } catch (Exception exception) {
             throw mapException(exception);
         }
@@ -177,5 +199,9 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
 
     private String safeMessage(String message, String fallback) {
         return message == null || message.isBlank() ? fallback : message;
+    }
+
+    private BigDecimal decimal(Float value) {
+        return value == null ? BigDecimal.ZERO : BigDecimal.valueOf(value.doubleValue());
     }
 }

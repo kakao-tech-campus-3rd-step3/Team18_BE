@@ -5,4 +5,6 @@ public interface SolapiMessageClient {
     SolapiSendResponse send(SolapiSmsRequest request);
 
     SolapiStatusResponse getStatus(String messageId);
+
+    SolapiBalanceResponse getBalance();
 }

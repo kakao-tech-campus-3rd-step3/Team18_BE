@@ -15,6 +15,7 @@ import com.solapi.sdk.message.exception.SolapiMessageNotReceivedException;
 import com.solapi.sdk.message.exception.SolapiUnknownException;
 import com.solapi.sdk.message.model.FailedMessage;
 import com.solapi.sdk.message.model.Message;
+import com.solapi.sdk.message.model.Balance;
 import com.solapi.sdk.message.model.group.GroupInfo;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import java.util.List;
@@ -190,6 +191,32 @@ class SolapiSdkMessageClientTest {
                 SolapiMessageStatus.NOT_FOUND,
                 null
         ));
+    }
+
+    @Test
+    void readsBalanceAndPointAsAvailableAmount() {
+        Balance balance = new Balance();
+        balance.setBalance(1200.5F);
+        balance.setPoint(300.25F);
+        when(messageService.getBalance()).thenReturn(balance);
+
+        SolapiBalanceResponse response = client.getBalance();
+
+        assertThat(response.balance()).isEqualByComparingTo("1200.5");
+        assertThat(response.point()).isEqualByComparingTo("300.25");
+        assertThat(response.availableAmount()).isEqualByComparingTo("1500.75");
+    }
+
+    @Test
+    void treatsEmptyBalanceResponseAsUnknown() {
+        when(messageService.getBalance()).thenReturn(null);
+
+        assertThatThrownBy(client::getBalance)
+                .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
+                    assertThat(exception.getFailureType())
+                            .isEqualTo(SolapiClientException.FailureType.UNKNOWN);
+                    assertThat(exception.getErrorCode()).isEqualTo("SOLAPI_EMPTY_BALANCE_RESPONSE");
+                });
     }
 
     private MultipleDetailMessageSentResponse mockAcceptedResponse() {

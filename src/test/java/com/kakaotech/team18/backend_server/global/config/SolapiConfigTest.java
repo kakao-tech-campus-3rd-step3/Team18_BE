@@ -7,6 +7,7 @@ import com.kakaotech.team18.backend_server.domain.notification.sender.Notificati
 import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQuota;
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
+import com.kakaotech.team18.backend_server.domain.notification.service.SolapiBalanceMonitor;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.junit.jupiter.api.Test;
@@ -82,5 +83,20 @@ class SolapiConfigTest {
                         .hasRootCauseInstanceOf(IllegalStateException.class)
                         .rootCause()
                         .hasMessageContaining("하이픈 없이"));
+    }
+
+    @Test
+    void createsBalanceMonitorOnlyWhenExplicitlyEnabled() {
+        contextRunner
+                .withPropertyValues(
+                        "solapi.enabled=true",
+                        "solapi.api-key=test-api-key",
+                        "solapi.api-secret=test-api-secret",
+                        "solapi.sender-number=01012345678",
+                        "solapi.webhook-secret=test-webhook-secret",
+                        "notification.solapi-balance.enabled=true",
+                        "notification.solapi-balance.low-threshold=1000"
+                )
+                .run(context -> assertThat(context).hasSingleBean(SolapiBalanceMonitor.class));
     }
 }

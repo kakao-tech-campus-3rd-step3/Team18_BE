@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQ
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiStatusSyncScheduler;
+import com.kakaotech.team18.backend_server.domain.notification.service.SolapiBalanceMonitor;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.kakaotech.team18.backend_server.domain.notification.webhook.SolapiWebhookSecretVerifier;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiRecipientAllowlist;
@@ -18,6 +19,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
+import java.math.BigDecimal;
 
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(SolapiProperties.class)
@@ -81,5 +83,18 @@ public class SolapiConfig {
                 checkIntervalSeconds,
                 maxAcceptedAgeHours
         );
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            prefix = "notification.solapi-balance",
+            name = "enabled",
+            havingValue = "true"
+    )
+    public SolapiBalanceMonitor solapiBalanceMonitor(
+            SolapiMessageClient messageClient,
+            @Value("${notification.solapi-balance.low-threshold:5000}") BigDecimal lowThreshold
+    ) {
+        return new SolapiBalanceMonitor(messageClient, lowThreshold);
     }
 }
