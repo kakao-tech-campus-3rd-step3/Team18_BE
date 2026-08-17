@@ -43,6 +43,10 @@ import lombok.NoArgsConstructor;
                         name = "idx_notification_delivery_pending_alert",
                         columnList = "status,pending_alerted_at,created_at,notification_delivery_id"
                 ),
+                @Index(
+                        name = "idx_notification_delivery_retention",
+                        columnList = "status,redacted_at,created_at,notification_delivery_id"
+                ),
                 @Index(name = "idx_notification_delivery_club_created", columnList = "club_id,created_at"),
                 @Index(name = "idx_notification_delivery_created", columnList = "created_at")
         }
@@ -120,6 +124,9 @@ public class NotificationDelivery extends BaseEntity {
 
     @Column(name = "pending_alerted_at")
     private LocalDateTime pendingAlertedAt;
+
+    @Column(name = "redacted_at")
+    private LocalDateTime redactedAt;
 
     @Column(name = "provider_group_id", length = 100)
     private String providerGroupId;
@@ -296,9 +303,31 @@ public class NotificationDelivery extends BaseEntity {
         pendingAlertedAt = alertedAt;
     }
 
+    public void redactSensitiveData(LocalDateTime redactedAt) {
+        if (!isTerminalStatus()) {
+            throw new IllegalStateException("종료되지 않은 알림의 민감정보를 비식별화할 수 없습니다: " + status);
+        }
+        if (this.redactedAt != null) {
+            throw new IllegalStateException("이미 민감정보가 비식별화된 알림입니다: " + id);
+        }
+        recipientAddress = "[REDACTED]";
+        replyToAddress = null;
+        messageSubject = null;
+        messageBody = "[REDACTED]";
+        lastErrorMessage = null;
+        this.redactedAt = redactedAt;
+    }
+
     private void clearError() {
         providerErrorCode = null;
         lastErrorMessage = null;
+    }
+
+    private boolean isTerminalStatus() {
+        return status == NotificationDeliveryStatus.SENT
+                || status == NotificationDeliveryStatus.FAILED
+                || status == NotificationDeliveryStatus.UNKNOWN
+                || status == NotificationDeliveryStatus.PERMANENTLY_FAILED;
     }
 
     private void requireStatus(NotificationDeliveryStatus expected) {

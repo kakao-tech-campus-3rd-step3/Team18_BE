@@ -245,6 +245,16 @@ public class NotificationDeliveryStateService {
         return false;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean redactSensitiveData(Long deliveryId, LocalDateTime redactedAt) {
+        NotificationDelivery delivery = findForUpdate(deliveryId);
+        if (!isTerminal(delivery.getStatus()) || delivery.getRedactedAt() != null) {
+            return false;
+        }
+        delivery.redactSensitiveData(redactedAt);
+        return true;
+    }
+
     public record AcceptedDelivery(
             Long deliveryId,
             String providerMessageId,
@@ -272,6 +282,10 @@ public class NotificationDeliveryStateService {
         return status == NotificationDeliveryStatus.FAILED
                 || status == NotificationDeliveryStatus.UNKNOWN
                 || status == NotificationDeliveryStatus.PERMANENTLY_FAILED;
+    }
+
+    private boolean isTerminal(NotificationDeliveryStatus status) {
+        return status == NotificationDeliveryStatus.SENT || isFinalFailure(status);
     }
 
     private boolean isSameFinalStatus(NotificationDeliveryStatus status, String statusCode) {

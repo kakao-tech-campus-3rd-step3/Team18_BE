@@ -225,6 +225,33 @@ class NotificationDeliveryRepositoryTest {
         )).containsExactly(oldPending.getId());
     }
 
+    @Test
+    @DisplayName("보관 기준을 지난 종료 작업 중 아직 비식별화하지 않은 작업만 조회한다")
+    void findRetentionTargets() {
+        LocalDateTime now = LocalDateTime.now();
+        NotificationDelivery target = createDeliveryWithKey("retention-target", 71L, now);
+        target.startSending(now);
+        target.markSent("SMTP_ACCEPTED", now);
+        NotificationDelivery redacted = createDeliveryWithKey("retention-redacted", 72L, now);
+        redacted.startSending(now);
+        redacted.markSent("SMTP_ACCEPTED", now);
+        redacted.redactSensitiveData(now);
+        NotificationDelivery pending = createDeliveryWithKey("retention-pending", 73L, now);
+        repository.saveAllAndFlush(java.util.List.of(target, redacted, pending));
+        entityManager.clear();
+
+        assertThat(repository.findRetentionTargetIds(
+                java.util.List.of(
+                        NotificationDeliveryStatus.SENT,
+                        NotificationDeliveryStatus.FAILED,
+                        NotificationDeliveryStatus.UNKNOWN,
+                        NotificationDeliveryStatus.PERMANENTLY_FAILED
+                ),
+                now.plusMinutes(1),
+                PageRequest.of(0, 10)
+        )).containsExactly(target.getId());
+    }
+
     private NotificationDelivery createDelivery(Long applicationId, LocalDateTime nextAttemptAt) {
         return NotificationDelivery.pending(
                 1L,

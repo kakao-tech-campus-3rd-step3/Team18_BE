@@ -80,4 +80,18 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
             @Param("cutoff") LocalDateTime cutoff,
             Pageable pageable
     );
+
+    @Query("""
+            select delivery.id
+            from NotificationDelivery delivery
+            where delivery.status in :statuses
+              and delivery.createdAt <= :cutoff
+              and delivery.redactedAt is null
+            order by delivery.id
+            """)
+    List<Long> findRetentionTargetIds(
+            @Param("statuses") List<NotificationDeliveryStatus> statuses,
+            @Param("cutoff") LocalDateTime cutoff,
+            Pageable pageable
+    );
 }

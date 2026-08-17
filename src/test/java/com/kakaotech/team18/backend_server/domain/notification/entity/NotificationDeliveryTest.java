@@ -143,6 +143,32 @@ class NotificationDeliveryTest {
     }
 
     @Test
+    @DisplayName("종료된 알림은 수신자와 메시지 민감정보를 비식별화한다")
+    void redactTerminalDeliverySensitiveData() {
+        NotificationDelivery delivery = createDelivery();
+        delivery.startSending(CREATED_AT);
+        delivery.markSent("4000", CREATED_AT.plusMinutes(1));
+
+        delivery.redactSensitiveData(CREATED_AT.plusDays(90));
+
+        assertThat(delivery.getRecipientAddress()).isEqualTo("[REDACTED]");
+        assertThat(delivery.getMessageBody()).isEqualTo("[REDACTED]");
+        assertThat(delivery.getMessageSubject()).isNull();
+        assertThat(delivery.getReplyToAddress()).isNull();
+        assertThat(delivery.getRedactedAt()).isEqualTo(CREATED_AT.plusDays(90));
+        assertThat(delivery.getProviderStatusCode()).isEqualTo("4000");
+    }
+
+    @Test
+    @DisplayName("발송이 끝나지 않은 알림은 비식별화하지 않는다")
+    void cannotRedactPendingDelivery() {
+        NotificationDelivery delivery = createDelivery();
+
+        assertThatThrownBy(() -> delivery.redactSensitiveData(CREATED_AT))
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     @DisplayName("이메일은 별도 접수 상태 없이 SENDING에서 SENT로 완료할 수 있다")
     void emailCanBeSentWithoutAccepted() {
         NotificationDelivery delivery = NotificationDelivery.pending(

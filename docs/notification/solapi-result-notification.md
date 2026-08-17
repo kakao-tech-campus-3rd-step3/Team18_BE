@@ -125,6 +125,10 @@ GET /api/clubs/{clubId}/result-notifications?limit=20
 | `NOTIFICATION_MONITORING_LONG_PENDING_AGE_MINUTES` | 60 | 장기 PENDING 경고 기준 |
 | `SOLAPI_RECIPIENT_ALLOWLIST_ENABLED` | true | 허용 번호 외 실제 문자 발송 차단 |
 | `SOLAPI_RECIPIENT_ALLOWLIST` | 빈 값 | 쉼표로 구분한 테스트 수신번호 목록 |
+| `NOTIFICATION_RETENTION_ENABLED` | false | 종료 알림의 민감정보 보관기간 비식별화 활성화 |
+| `NOTIFICATION_RETENTION_DAYS` | 90 | 민감정보 보관 일수. 팀 합의값으로 변경 |
+| `NOTIFICATION_RETENTION_BATCH_SIZE` | 100 | 한 번에 비식별화할 발송 작업 수 |
+| `NOTIFICATION_RETENTION_SCHEDULER_DELAY_MS` | 86400000 | 비식별화 스케줄러 실행 간격 |
 
 허용 목록 보호가 활성화된 상태에서 목록이 비어 있으면 모든 문자 발송이 차단된다. 개발·스테이징에서는 테스트 번호를 넣고, 전체 운영 발송은 팀 합의 후 `SOLAPI_RECIPIENT_ALLOWLIST_ENABLED=false`로 명시한다.
 
@@ -148,6 +152,7 @@ GET /api/clubs/{clubId}/result-notifications?limit=20
 5. `docs/database/migrations/20260812_add_notification_failure_alert.sql`
 6. `docs/database/migrations/20260813_expand_notification_quota_periods.sql`
 7. `docs/database/migrations/20260813_add_notification_pending_alert.sql`
+8. `docs/database/migrations/20260817_add_notification_redaction.sql`
 
 운영 적용 전 스냅샷이나 백업을 확보하고 스테이징과 같은 MySQL 버전에서 먼저 실행한다.
 
@@ -184,7 +189,16 @@ GET /api/clubs/{clubId}/result-notifications?limit=20
 - [ ] SOLAPI 콘솔에 운영 웹훅을 등록하고 테스트 전송을 확인했다.
 - [ ] 실제 개발자 번호 단건 발송으로 groupId/messageId/웹훅을 확인했다.
 
-보관 기간은 팀 정책이 정해지기 전 임의 삭제가 데이터 감사와 장애 대응을 훼손할 수 있어 자동 삭제를 활성화하지 않았다. 기간이 확정되면 별도 데이터 정리 작업으로 추가한다.
+보관 기간이 확정되기 전에는 `NOTIFICATION_RETENTION_ENABLED=false`를 유지한다. 합의 후 `NOTIFICATION_RETENTION_DAYS`를 설정하고 스테이징에서 대상 건수를 확인한 뒤 활성화한다.
+
+비식별화는 `SENT`, `FAILED`, `UNKNOWN`, `PERMANENTLY_FAILED` 상태 중 보관기간을 지난 작업에만 적용한다. 수신 전화번호/이메일, 회신 주소, 제목, 본문, 마지막 오류 메시지를 제거하며 다음 감사·장애 대응 정보는 유지한다.
+
+- 내부 발송 ID, 동아리/사용자/지원서 ID
+- 채널, 결과 유형, 최종 상태와 처리 시각
+- SOLAPI `groupId`, `messageId`, 상태·오류 코드
+- 시도 횟수와 생성·수정 시각
+
+진행 중인 `PENDING`, `SENDING`, `ACCEPTED` 작업은 비식별화하지 않으며, 한 번 처리된 작업은 `redacted_at`으로 중복 처리를 막는다.
 
 ## 10. 참고자료
 
