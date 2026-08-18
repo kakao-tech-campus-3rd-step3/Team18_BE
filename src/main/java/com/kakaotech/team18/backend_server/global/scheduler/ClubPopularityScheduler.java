@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.global.scheduler;
 
 import com.kakaotech.team18.backend_server.domain.clubPopularity.config.ClubPopularityProperties;
 import com.kakaotech.team18.backend_server.domain.clubPopularity.service.ClubPopularityPersistenceService;
+import com.kakaotech.team18.backend_server.domain.clubPopularity.redis.ClubPopularityRedisRepository;
 import java.time.Instant;
 import java.time.Duration;
 import java.util.List;
@@ -19,10 +20,11 @@ public class ClubPopularityScheduler {
 
     private final ClubPopularityProperties properties;
     private final ClubPopularityPersistenceService persistenceService;
+    private final ClubPopularityRedisRepository redisRepository;
 
     @Scheduled(fixedDelayString = "${club-popularity.flush-interval-minutes:60}", timeUnit = TimeUnit.MINUTES)
     public void flushPending() {
-        if (!properties.isEnabled()) {
+        if (!properties.isEnabled() || !"READY".equals(redisRepository.recoveryStatus())) {
             return;
         }
         log.info("Starting club popularity pending flush");
