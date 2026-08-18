@@ -126,8 +126,8 @@ class ClubPopularityRedisRepositoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("heartbeat는 활성 사용자만 갱신하고 집계 Lua는 읽기 전용으로 동작한다")
-    void heartbeatAndAggregateUseSeparateScope() {
+    @DisplayName("집계는 만료된 조회자와 빈 후보를 함께 정리한다")
+    void aggregatePrunesExpiredViewersAndEmptyCandidates() {
         long now = 1_700_000_000_000L;
         ClubPopularityViewerIdentity identity = ClubPopularityViewerIdentity.user(15L);
 
@@ -141,7 +141,8 @@ class ClubPopularityRedisRepositoryIntegrationTest {
                 later - 86_400_000, later - 180_000);
         assertThat(counts.recentViewerCount()).isZero();
         assertThat(counts.activeViewerCount()).isZero();
-        assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "7")).isTrue();
+        assertThat(redisTemplate.opsForSet().isMember(ClubPopularityRedisKeys.CANDIDATES, "7")).isFalse();
+        assertThat(redisTemplate.hasKey(ClubPopularityRedisKeys.activeViewers(7))).isFalse();
     }
 
     @Test
