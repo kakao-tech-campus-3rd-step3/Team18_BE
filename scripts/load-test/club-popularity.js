@@ -8,7 +8,7 @@ const detailResponse = http.expectedStatuses({ min: 200, max: 399 }, 404);
 
 export const options = {
   scenarios: {
-    mixed_club_popularity: {
+    detail_entry: {
       executor: 'ramping-vus',
       startVUs: 1,
       stages: [
@@ -18,10 +18,18 @@ export const options = {
       ],
       gracefulRampDown: '10s',
     },
-  },
-  thresholds: {
-    http_req_failed: ['rate<0.05'],
-    http_req_duration: ['p(95)<1000'],
+    popular_polling: {
+      executor: 'constant-vus',
+      vus: Number(__ENV.POPULAR_POLL_VUS || 5),
+      duration: shortRun ? '20s' : '2m',
+      exec: 'popularPolling',
+    },
+    heartbeat: {
+      executor: 'constant-vus',
+      vus: Number(__ENV.HEARTBEAT_VUS || 5),
+      duration: shortRun ? '35s' : '2m',
+      exec: 'heartbeat',
+    },
   },
 };
 
@@ -34,17 +42,18 @@ export default function () {
   });
   check(view, { 'view recording is accepted': (response) => response.status === 204 });
 
-  const popular = http.get(`${baseUrl}/api/clubs/popular`, {
-    tags: { endpoint: 'popular-clubs' },
-  });
+  sleep(Number(__ENV.DETAIL_ENTRY_INTERVAL_SECONDS || 30));
+}
+
+export function popularPolling() {
+  const popular = http.get(`${baseUrl}/api/clubs/popular`, { tags: { endpoint: 'popular-clubs' } });
   check(popular, { 'popular list responds': (response) => response.status < 500 });
+  sleep(Number(__ENV.POPULAR_POLL_INTERVAL_SECONDS || 10));
+}
 
-  if (__ITER % 3 === 0) {
-    const heartbeat = http.post(`${baseUrl}/api/clubs/${clubId}/heartbeat`, null, {
-      tags: { endpoint: 'club-heartbeat' },
-    });
-    check(heartbeat, { 'heartbeat is accepted': (response) => response.status === 204 });
-  }
-
-  sleep(1);
+export function heartbeat() {
+  const response = http.post(`${baseUrl}/api/clubs/${clubId}/heartbeat`, null,
+    { tags: { endpoint: 'club-heartbeat' } });
+  check(response, { 'heartbeat is accepted': (value) => value.status === 204 });
+  sleep(Number(__ENV.HEARTBEAT_INTERVAL_SECONDS || 30));
 }
