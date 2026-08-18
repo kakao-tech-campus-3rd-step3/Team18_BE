@@ -60,12 +60,15 @@ public class SmsNotificationSender implements NotificationSender {
                     prepared.recipient(),
                     prepared.text(),
                     prepared.subject(),
-                    String.valueOf(message.deliveryId())
+                    String.valueOf(message.deliveryId()),
+                    message.idempotencyKey()
             ));
             return NotificationSendResult.accepted(
                     response.groupId(),
                     response.messageId(),
-                    response.statusCode()
+                    response.statusCode(),
+                    prepared.type(),
+                    prepared.estimatedCost()
             );
         } catch (SolapiQuotaExceededException exception) {
             throw NotificationSendException.retryableAt(

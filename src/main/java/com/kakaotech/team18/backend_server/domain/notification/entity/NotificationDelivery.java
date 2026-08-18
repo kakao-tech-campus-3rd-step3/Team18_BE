@@ -4,6 +4,7 @@ import com.kakaotech.team18.backend_server.domain.BaseEntity;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus;
 import com.kakaotech.team18.backend_server.domain.notification.type.NotificationResultType;
+import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -16,6 +17,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -137,6 +139,13 @@ public class NotificationDelivery extends BaseEntity {
     @Column(name = "provider_status_code", length = 40)
     private String providerStatusCode;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "message_type", length = 20)
+    private SmsMessageType messageType;
+
+    @Column(name = "estimated_cost", precision = 14, scale = 4)
+    private BigDecimal estimatedCost;
+
     @Column(name = "provider_error_code", length = 100)
     private String providerErrorCode;
 
@@ -219,6 +228,8 @@ public class NotificationDelivery extends BaseEntity {
             String groupId,
             String messageId,
             String statusCode,
+            SmsMessageType messageType,
+            BigDecimal estimatedCost,
             LocalDateTime acceptedAt,
             LocalDateTime nextStatusCheckAt
     ) {
@@ -227,9 +238,29 @@ public class NotificationDelivery extends BaseEntity {
         providerGroupId = groupId;
         providerMessageId = messageId;
         providerStatusCode = statusCode;
+        this.messageType = messageType;
+        this.estimatedCost = estimatedCost;
         this.acceptedAt = acceptedAt;
         this.nextAttemptAt = nextStatusCheckAt;
         clearError();
+    }
+
+    public void markAccepted(
+            String groupId,
+            String messageId,
+            String statusCode,
+            LocalDateTime acceptedAt,
+            LocalDateTime nextStatusCheckAt
+    ) {
+        markAccepted(
+                groupId,
+                messageId,
+                statusCode,
+                null,
+                BigDecimal.ZERO,
+                acceptedAt,
+                nextStatusCheckAt
+        );
     }
 
     public void markSent(String statusCode, LocalDateTime sentAt) {

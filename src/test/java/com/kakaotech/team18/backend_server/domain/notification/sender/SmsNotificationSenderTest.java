@@ -60,6 +60,9 @@ class SmsNotificationSenderTest {
         assertThat(result.outcome()).isEqualTo(NotificationSendResult.Outcome.ACCEPTED);
         assertThat(result.providerGroupId()).isEqualTo("group-id");
         assertThat(result.providerMessageId()).isEqualTo("message-id");
+        assertThat(result.messageType())
+                .isEqualTo(com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.SMS);
+        assertThat(result.estimatedCost()).isEqualByComparingTo("0");
     }
 
     @Test

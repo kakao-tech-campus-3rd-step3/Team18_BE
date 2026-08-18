@@ -37,7 +37,9 @@ SMS를 선택한 한 번의 결과 발표 요청은 기본 50명까지 허용한
 GET /api/clubs/{clubId}/result-notifications?limit=20
 ```
 
-해당 동아리 관리자 또는 운영진만 접근할 수 있으며 전체·대기·접수·성공·실패·미확정 건수만 반환한다. 수신자 주소와 본문은 반환하지 않는다.
+해당 동아리 관리자 또는 운영진만 접근할 수 있으며 전체·대기·접수·성공·실패·미확정 건수와 SMS/LMS 건수, 설정 단가 기준 예상 비용 합계를 반환한다. 수신자 주소와 본문은 반환하지 않는다.
+
+SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 발표 `idempotencyKey`를 전달한다. 웹훅 또는 SOLAPI 콘솔의 메시지 정보와 내부 작업을 연결할 때 사용하며, 수신번호나 본문은 customFields에 넣지 않는다.
 
 ## 3. 발송 상태
 
@@ -156,6 +158,7 @@ GET /api/clubs/{clubId}/result-notifications?limit=20
 6. `docs/database/migrations/20260813_expand_notification_quota_periods.sql`
 7. `docs/database/migrations/20260813_add_notification_pending_alert.sql`
 8. `docs/database/migrations/20260817_add_notification_redaction.sql`
+9. `docs/database/migrations/20260818_add_notification_message_cost.sql`
 
 운영 적용 전 스냅샷이나 백업을 확보하고 스테이징과 같은 MySQL 버전에서 먼저 실행한다.
 
@@ -201,6 +204,7 @@ GET /api/clubs/{clubId}/result-notifications?limit=20
 - 내부 발송 ID, 동아리/사용자/지원서 ID
 - 채널, 결과 유형, 최종 상태와 처리 시각
 - SOLAPI `groupId`, `messageId`, 상태·오류 코드
+- SMS/LMS 유형과 발송 당시 설정 단가 기준 예상 비용
 - 시도 횟수와 생성·수정 시각
 
 진행 중인 `PENDING`, `SENDING`, `ACCEPTED` 작업은 비식별화하지 않으며, 한 번 처리된 작업은 `redacted_at`으로 중복 처리를 막는다.

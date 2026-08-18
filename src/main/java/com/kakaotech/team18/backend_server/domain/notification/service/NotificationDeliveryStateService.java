@@ -48,6 +48,8 @@ public class NotificationDeliveryStateService {
                     result.providerGroupId(),
                     result.providerMessageId(),
                     result.providerStatusCode(),
+                    result.messageType(),
+                    result.estimatedCost(),
                     completedAt,
                     completedAt
             );

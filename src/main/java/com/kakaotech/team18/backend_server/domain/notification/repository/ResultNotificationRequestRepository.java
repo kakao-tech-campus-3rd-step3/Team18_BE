@@ -37,7 +37,14 @@ public interface ResultNotificationRequestRepository extends JpaRepository<Resul
                 ) then 1L else 0L end),
                 sum(case when delivery.status =
                     com.kakaotech.team18.backend_server.domain.notification.type.NotificationDeliveryStatus.UNKNOWN
-                    then 1L else 0L end)
+                    then 1L else 0L end),
+                sum(case when delivery.messageType =
+                    com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.SMS
+                    then 1L else 0L end),
+                sum(case when delivery.messageType =
+                    com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.LMS
+                    then 1L else 0L end),
+                coalesce(sum(delivery.estimatedCost), 0BD)
             )
             from ResultNotificationRequest request
             left join NotificationDelivery delivery

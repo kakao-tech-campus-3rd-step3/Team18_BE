@@ -4,6 +4,16 @@ public record SolapiSmsRequest(
         String recipient,
         String text,
         String subject,
-        String clientReference
+        String clientReference,
+        String idempotencyKey
 ) {
+
+    public SolapiSmsRequest(
+            String recipient,
+            String text,
+            String subject,
+            String clientReference
+    ) {
+        this(recipient, text, subject, clientReference, null);
+    }
 }

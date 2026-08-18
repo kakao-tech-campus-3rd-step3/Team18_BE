@@ -49,7 +49,8 @@ class SolapiSdkMessageClientTest {
                 "01098765432",
                 "결과 안내 메시지",
                 null,
-                "delivery-100"
+                "delivery-100",
+                "idempotency-key-100"
         ));
 
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
@@ -59,7 +60,8 @@ class SolapiSdkMessageClientTest {
         assertThat(sent.getTo()).isEqualTo("01098765432");
         assertThat(sent.getText()).isEqualTo("결과 안내 메시지");
         assertThat(sent.getCustomFields())
-                .containsEntry("notificationDeliveryId", "delivery-100");
+                .containsEntry("notificationDeliveryId", "delivery-100")
+                .containsEntry("idempotencyKey", "idempotency-key-100");
         assertThat(response).isEqualTo(new SolapiSendResponse(
                 "group-id",
                 "message-id",

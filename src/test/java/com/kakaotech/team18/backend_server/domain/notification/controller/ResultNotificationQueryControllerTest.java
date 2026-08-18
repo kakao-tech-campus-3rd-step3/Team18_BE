@@ -46,7 +46,10 @@ class ResultNotificationQueryControllerTest {
                                 1L,
                                 2L,
                                 1L,
-                                0L
+                                0L,
+                                1L,
+                                1L,
+                                new java.math.BigDecimal("70")
                         )
                 ))
         );
@@ -59,6 +62,9 @@ class ResultNotificationQueryControllerTest {
                 .andExpect(jsonPath("$.requests[0].accepted").value(1))
                 .andExpect(jsonPath("$.requests[0].sent").value(2))
                 .andExpect(jsonPath("$.requests[0].failed").value(1))
+                .andExpect(jsonPath("$.requests[0].sms").value(1))
+                .andExpect(jsonPath("$.requests[0].lms").value(1))
+                .andExpect(jsonPath("$.requests[0].estimatedCost").value(70))
                 .andExpect(jsonPath("$.requests[0].recipientAddress").doesNotExist())
                 .andExpect(jsonPath("$.requests[0].messageBody").doesNotExist());
 

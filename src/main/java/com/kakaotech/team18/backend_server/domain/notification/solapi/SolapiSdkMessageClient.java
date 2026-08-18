@@ -14,6 +14,7 @@ import com.solapi.sdk.message.model.Message;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import java.math.BigDecimal;
 import com.solapi.sdk.message.model.Balance;
 
@@ -36,8 +37,15 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         if (request.subject() != null && !request.subject().isBlank()) {
             message.setSubject(request.subject());
         }
+        Map<String, String> customFields = new HashMap<>();
         if (request.clientReference() != null && !request.clientReference().isBlank()) {
-            message.setCustomFields(Map.of("notificationDeliveryId", request.clientReference()));
+            customFields.put("notificationDeliveryId", request.clientReference());
+        }
+        if (request.idempotencyKey() != null && !request.idempotencyKey().isBlank()) {
+            customFields.put("idempotencyKey", request.idempotencyKey());
+        }
+        if (!customFields.isEmpty()) {
+            message.setCustomFields(Map.copyOf(customFields));
         }
 
         try {

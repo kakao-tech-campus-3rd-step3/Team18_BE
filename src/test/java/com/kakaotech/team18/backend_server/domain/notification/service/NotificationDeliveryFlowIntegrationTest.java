@@ -87,6 +87,9 @@ class NotificationDeliveryFlowIntegrationTest {
         assertThat(calls).hasValue(1);
         assertThat(accepted.getStatus()).isEqualTo(NotificationDeliveryStatus.ACCEPTED);
         assertThat(accepted.getProviderMessageId()).isEqualTo("message-1");
+        assertThat(accepted.getMessageType())
+                .isEqualTo(com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.SMS);
+        assertThat(accepted.getEstimatedCost()).isEqualByComparingTo("20");
 
         stateService.applyProviderStatus(
                 delivery.getId(),
@@ -197,7 +200,13 @@ class NotificationDeliveryFlowIntegrationTest {
             @Override
             public NotificationSendResult send(NotificationMessage message) {
                 calls.incrementAndGet();
-                return NotificationSendResult.accepted("group-1", "message-1", "PENDING");
+                return NotificationSendResult.accepted(
+                        "group-1",
+                        "message-1",
+                        "PENDING",
+                        com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.SMS,
+                        new java.math.BigDecimal("20")
+                );
             }
         };
     }

@@ -183,13 +183,21 @@ class NotificationDeliveryRepositoryTest {
         NotificationDelivery pending = createDeliveryWithKey("summary-key", 51L, now);
         NotificationDelivery accepted = createDeliveryWithKey("summary-key", 52L, now);
         accepted.startSending(now);
-        accepted.markAccepted("group-52", "message-52", "2000", now, now);
+        accepted.markAccepted(
+                "group-52", "message-52", "2000",
+                com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.SMS,
+                new java.math.BigDecimal("20"), now, now
+        );
         NotificationDelivery sent = createDeliveryWithKey("summary-key", 53L, now);
         sent.startSending(now);
         sent.markSent("SMTP_ACCEPTED", now);
         NotificationDelivery failed = createDeliveryWithKey("summary-key", 54L, now);
         failed.startSending(now);
-        failed.markAccepted("group-54", "message-54", "2000", now, now);
+        failed.markAccepted(
+                "group-54", "message-54", "2000",
+                com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessageType.LMS,
+                new java.math.BigDecimal("50"), now, now
+        );
         failed.markFailed("5000", "CARRIER_FAILED", "failed", now);
         NotificationDelivery unknown = createDeliveryWithKey("summary-key", 55L, now);
         unknown.startSending(now);
@@ -207,6 +215,9 @@ class NotificationDeliveryRepositoryTest {
         assertThat(summary.sent()).isEqualTo(1);
         assertThat(summary.failed()).isEqualTo(1);
         assertThat(summary.unknown()).isEqualTo(1);
+        assertThat(summary.sms()).isEqualTo(1);
+        assertThat(summary.lms()).isEqualTo(1);
+        assertThat(summary.estimatedCost()).isEqualByComparingTo("70");
     }
 
     @Test
