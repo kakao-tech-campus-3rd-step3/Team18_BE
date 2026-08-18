@@ -17,6 +17,7 @@ import com.solapi.sdk.message.exception.SolapiUnknownException;
 import com.solapi.sdk.message.model.FailedMessage;
 import com.solapi.sdk.message.model.Message;
 import com.solapi.sdk.message.model.Balance;
+import com.solapi.sdk.message.model.Quota;
 import com.solapi.sdk.message.model.group.GroupInfo;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import java.util.List;
@@ -225,6 +226,30 @@ class SolapiSdkMessageClientTest {
                     assertThat(exception.getFailureType())
                             .isEqualTo(SolapiClientException.FailureType.UNKNOWN);
                     assertThat(exception.getErrorCode()).isEqualTo("SOLAPI_EMPTY_BALANCE_RESPONSE");
+                });
+    }
+
+    @Test
+    void readsAccountDailyQuota() {
+        Quota quota = new Quota();
+        quota.setQuota(500);
+        quota.setAutoAdjustment(true);
+        when(messageService.getQuota()).thenReturn(quota);
+
+        assertThat(client.getAccountQuota())
+                .isEqualTo(new SolapiAccountQuotaResponse(500, true));
+    }
+
+    @Test
+    void treatsMissingAccountQuotaAsUnknown() {
+        Quota quota = new Quota();
+        when(messageService.getQuota()).thenReturn(quota);
+
+        assertThatThrownBy(client::getAccountQuota)
+                .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
+                    assertThat(exception.getFailureType())
+                            .isEqualTo(SolapiClientException.FailureType.UNKNOWN);
+                    assertThat(exception.getErrorCode()).isEqualTo("SOLAPI_EMPTY_QUOTA_RESPONSE");
                 });
     }
 

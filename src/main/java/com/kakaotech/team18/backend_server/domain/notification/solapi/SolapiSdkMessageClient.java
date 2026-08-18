@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.math.BigDecimal;
 import com.solapi.sdk.message.model.Balance;
+import com.solapi.sdk.message.model.Quota;
 
 public class SolapiSdkMessageClient implements SolapiMessageClient {
 
@@ -102,6 +103,26 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
             return new SolapiBalanceResponse(
                     decimal(balance.getBalance()),
                     decimal(balance.getPoint())
+            );
+        } catch (Exception exception) {
+            throw mapException(exception);
+        }
+    }
+
+    @Override
+    public SolapiAccountQuotaResponse getAccountQuota() {
+        try {
+            Quota quota = messageService.getQuota();
+            if (quota == null || quota.getQuota() == null || quota.getQuota() <= 0) {
+                throw SolapiClientException.unknown(
+                        "SOLAPI_EMPTY_QUOTA_RESPONSE",
+                        "SOLAPI에서 유효한 발송 한도 응답을 반환하지 않았습니다.",
+                        null
+                );
+            }
+            return new SolapiAccountQuotaResponse(
+                    quota.getQuota(),
+                    Boolean.TRUE.equals(quota.getAutoAdjustment())
             );
         } catch (Exception exception) {
             throw mapException(exception);

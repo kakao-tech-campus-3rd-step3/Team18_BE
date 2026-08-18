@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.notification.repository.Notifi
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiStatusSyncScheduler;
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiBalanceMonitor;
+import com.kakaotech.team18.backend_server.domain.notification.service.SolapiAccountQuotaMonitor;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.kakaotech.team18.backend_server.domain.notification.webhook.SolapiWebhookSecretVerifier;
 import com.kakaotech.team18.backend_server.domain.notification.solapi.SolapiRecipientAllowlist;
@@ -96,5 +97,18 @@ public class SolapiConfig {
             @Value("${notification.solapi-balance.low-threshold:5000}") BigDecimal lowThreshold
     ) {
         return new SolapiBalanceMonitor(messageClient, lowThreshold);
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            prefix = "notification.solapi-quota-monitor",
+            name = "enabled",
+            havingValue = "true"
+    )
+    public SolapiAccountQuotaMonitor solapiAccountQuotaMonitor(
+            SolapiMessageClient messageClient,
+            @Value("${notification.result.max-solapi-calls-per-day:50}") int dailyLimit
+    ) {
+        return new SolapiAccountQuotaMonitor(messageClient, dailyLimit);
     }
 }

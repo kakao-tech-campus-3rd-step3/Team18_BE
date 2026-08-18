@@ -8,6 +8,7 @@ import com.kakaotech.team18.backend_server.domain.notification.quota.SolapiSendQ
 import com.kakaotech.team18.backend_server.domain.notification.repository.NotificationDeliveryRepository;
 import com.kakaotech.team18.backend_server.domain.notification.service.NotificationDeliveryStateService;
 import com.kakaotech.team18.backend_server.domain.notification.service.SolapiBalanceMonitor;
+import com.kakaotech.team18.backend_server.domain.notification.service.SolapiAccountQuotaMonitor;
 import com.kakaotech.team18.backend_server.domain.notification.sms.SmsMessagePolicy;
 import com.solapi.sdk.message.service.DefaultMessageService;
 import org.junit.jupiter.api.Test;
@@ -98,5 +99,21 @@ class SolapiConfigTest {
                         "notification.solapi-balance.low-threshold=1000"
                 )
                 .run(context -> assertThat(context).hasSingleBean(SolapiBalanceMonitor.class));
+    }
+
+    @Test
+    void createsAccountQuotaMonitorOnlyWhenExplicitlyEnabled() {
+        contextRunner
+                .withPropertyValues(
+                        "solapi.enabled=true",
+                        "solapi.api-key=test-api-key",
+                        "solapi.api-secret=test-api-secret",
+                        "solapi.sender-number=01012345678",
+                        "solapi.webhook-secret=test-webhook-secret",
+                        "notification.solapi-quota-monitor.enabled=true",
+                        "notification.result.max-solapi-calls-per-day=100"
+                )
+                .run(context -> assertThat(context)
+                        .hasSingleBean(SolapiAccountQuotaMonitor.class));
     }
 }

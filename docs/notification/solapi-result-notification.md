@@ -74,8 +74,9 @@ SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 
 - [ ] 한글 본문이 90바이트를 넘으면 LMS로 발송되어 단가가 달라질 수 있음을 확인했다.
 - [ ] 예상 최대 비용을 `시간당 호출 한도 × LMS 단가` 기준으로 계산했다.
 - [ ] 애플리케이션 잔액 경고 기준과 SOLAPI 콘솔의 잔액 부족 알림을 함께 설정했다.
+- [ ] 애플리케이션 일일 호출 한도가 SOLAPI 계정의 승인 일일 발송 한도를 넘지 않는지 확인했다.
 
-애플리케이션은 요청당 SMS 수, 공유 DB 기준 시간·일·월 호출 수, 설정 단가 기준 월 예상비용을 제한한다. 70%·90%·100% 도달은 기간별 한 번만 개발자에게 알린다. 선택적으로 SDK 잔액 조회를 활성화해 잔액+포인트가 기준 미만이면 경고할 수 있다. 실제 청구액과 잔액은 SOLAPI 정책이 기준이므로 콘솔 알림도 함께 설정한다.
+애플리케이션은 요청당 SMS 수, 공유 DB 기준 시간·일·월 호출 수, 설정 단가 기준 월 예상비용을 제한한다. 70%·90%·100% 도달은 기간별 한 번만 개발자에게 알린다. 선택적으로 SDK 잔액 조회와 계정 일일 한도 조회를 활성화할 수 있다. 계정 한도 감시는 애플리케이션 일일 호출 한도가 SOLAPI 승인 한도보다 크면 경고한다. 실제 청구액과 잔액은 SOLAPI 정책이 기준이므로 콘솔 알림도 함께 설정한다.
 
 ### 메시지
 
@@ -134,6 +135,8 @@ SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 
 | `NOTIFICATION_SOLAPI_BALANCE_ENABLED` | false | SOLAPI 잔액 부족 주기 조회 활성화 |
 | `NOTIFICATION_SOLAPI_BALANCE_LOW_THRESHOLD` | 5000 | 잔액+포인트 부족 경고 기준 |
 | `NOTIFICATION_SOLAPI_BALANCE_SCHEDULER_DELAY_MS` | 3600000 | SOLAPI 잔액 조회 주기 |
+| `NOTIFICATION_SOLAPI_QUOTA_MONITOR_ENABLED` | false | 애플리케이션 일일 제한과 SOLAPI 승인 일일 한도 비교 활성화 |
+| `NOTIFICATION_SOLAPI_QUOTA_MONITOR_SCHEDULER_DELAY_MS` | 3600000 | SOLAPI 계정 한도 조회 주기 |
 
 허용 목록 보호가 활성화된 상태에서 목록이 비어 있으면 모든 문자 발송이 차단된다. 개발·스테이징에서는 테스트 번호를 넣고, 전체 운영 발송은 팀 합의 후 `SOLAPI_RECIPIENT_ALLOWLIST_ENABLED=false`로 명시한다.
 
@@ -187,6 +190,8 @@ SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 
 
 잔액 모니터링을 활성화하면 부족 상태 진입 시 한 번만 `ERROR`로 알리고, 기준 이상으로 회복된 뒤 다시 부족해질 때 재알림한다. 조회 오류도 정상 조회가 회복되기 전까지 한 번만 알린다. 여러 서버 인스턴스에서는 인스턴스별 한 번씩 알림이 발생할 수 있으므로 Discord 알림 수를 고려한다.
 
+계정 한도 모니터링도 설정 불일치 상태 진입 시 한 번만 `ERROR`로 알린다. 이 경고는 설정 오류 감지용이며 발송 자체를 추가로 차단하지 않으므로, `NOTIFICATION_RESULT_MAX_SOLAPI_CALLS_PER_DAY`는 반드시 SOLAPI 콘솔의 승인 일일 한도 이하로 설정한다.
+
 긴급 중단 시 `SOLAPI_ENABLED=false`로 재배포하면 신규 SOLAPI 호출을 막을 수 있다. 모든 비동기 발송도 멈춰야 한다면 `NOTIFICATION_DISPATCH_ENABLED=false`를 함께 사용한다. 이미 SOLAPI가 접수한 문자는 설정 변경으로 취소되지 않는다.
 
 ## 9. 운영 전 반드시 확정할 외부 항목
@@ -215,3 +220,4 @@ SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 
 - [SOLAPI Java 발송 예제](https://solapi.com/developers/sdk/java-sendingexample)
 - [SOLAPI 공식 Kotlin/Java SDK](https://github.com/solapi/solapi-kotlin)
 - [SOLAPI 웹훅 API](https://solapi.com/developers/api/webhook)
+- [SOLAPI 발송 한도 조회 API](https://solapi.com/developers/api/quota-getQuota)

@@ -7,4 +7,6 @@ public interface SolapiMessageClient {
     SolapiStatusResponse getStatus(String messageId);
 
     SolapiBalanceResponse getBalance();
+
+    SolapiAccountQuotaResponse getAccountQuota();
 }
