@@ -2,6 +2,7 @@ package com.kakaotech.team18.backend_server.domain.notification.solapi;
 
 import com.solapi.sdk.message.dto.response.MultipleDetailMessageSentResponse;
 import com.solapi.sdk.message.dto.request.MessageListRequest;
+import com.solapi.sdk.message.dto.request.SendRequestConfig;
 import com.solapi.sdk.message.dto.response.MessageListResponse;
 import com.solapi.sdk.message.exception.SolapiApiKeyException;
 import com.solapi.sdk.message.exception.SolapiBadRequestException;
@@ -49,7 +50,9 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         }
 
         try {
-            MultipleDetailMessageSentResponse response = messageService.send(message);
+            SendRequestConfig config = new SendRequestConfig();
+            config.setAllowDuplicates(false);
+            MultipleDetailMessageSentResponse response = messageService.send(message, config);
             return toResponse(response);
         } catch (Exception exception) {
             throw mapException(exception);

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.solapi.sdk.message.dto.response.MultipleDetailMessageSentResponse;
 import com.solapi.sdk.message.dto.request.MessageListRequest;
+import com.solapi.sdk.message.dto.request.SendRequestConfig;
 import com.solapi.sdk.message.dto.response.MessageListResponse;
 import com.solapi.sdk.message.exception.SolapiInvalidApiKeyException;
 import com.solapi.sdk.message.exception.SolapiMessageNotReceivedException;
@@ -43,7 +44,8 @@ class SolapiSdkMessageClientTest {
     @Test
     void sendsSmsAndMapsAcceptanceIdentifiers() throws Exception {
         MultipleDetailMessageSentResponse sdkResponse = mockAcceptedResponse();
-        when(messageService.send(any(Message.class))).thenReturn(sdkResponse);
+        when(messageService.send(any(Message.class), any(SendRequestConfig.class)))
+                .thenReturn(sdkResponse);
 
         SolapiSendResponse response = client.send(new SolapiSmsRequest(
                 "01098765432",
@@ -54,7 +56,9 @@ class SolapiSdkMessageClientTest {
         ));
 
         ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
-        verify(messageService).send(messageCaptor.capture());
+        ArgumentCaptor<SendRequestConfig> configCaptor =
+                ArgumentCaptor.forClass(SendRequestConfig.class);
+        verify(messageService).send(messageCaptor.capture(), configCaptor.capture());
         Message sent = messageCaptor.getValue();
         assertThat(sent.getFrom()).isEqualTo("01012345678");
         assertThat(sent.getTo()).isEqualTo("01098765432");
@@ -62,6 +66,7 @@ class SolapiSdkMessageClientTest {
         assertThat(sent.getCustomFields())
                 .containsEntry("notificationDeliveryId", "delivery-100")
                 .containsEntry("idempotencyKey", "idempotency-key-100");
+        assertThat(configCaptor.getValue().getAllowDuplicates()).isFalse();
         assertThat(response).isEqualTo(new SolapiSendResponse(
                 "group-id",
                 "message-id",
@@ -76,7 +81,8 @@ class SolapiSdkMessageClientTest {
         failure.setStatusCode("InvalidReceiver");
         failure.setStatusMessage("invalid receiver");
         response.setFailedMessageList(List.of(failure));
-        when(messageService.send(any(Message.class))).thenReturn(response);
+        when(messageService.send(any(Message.class), any(SendRequestConfig.class)))
+                .thenReturn(response);
 
         assertThatThrownBy(() -> client.send(request()))
                 .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
@@ -90,7 +96,7 @@ class SolapiSdkMessageClientTest {
     void mapsInvalidApiKeyWithoutExposingCredential() throws Exception {
         doAnswer(invocation -> {
             throw new SolapiInvalidApiKeyException("invalid key");
-        }).when(messageService).send(any(Message.class));
+        }).when(messageService).send(any(Message.class), any(SendRequestConfig.class));
 
         assertThatThrownBy(() -> client.send(request()))
                 .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
@@ -106,7 +112,7 @@ class SolapiSdkMessageClientTest {
     void mapsUnknownSdkResponseToUnknownFailure() throws Exception {
         doAnswer(invocation -> {
             throw new SolapiUnknownException("network response unknown");
-        }).when(messageService).send(any(Message.class));
+        }).when(messageService).send(any(Message.class), any(SendRequestConfig.class));
 
         assertThatThrownBy(() -> client.send(request()))
                 .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
@@ -121,7 +127,7 @@ class SolapiSdkMessageClientTest {
     void treatsMessageNotReceivedWithoutFailureDetailAsUnknown() throws Exception {
         doAnswer(invocation -> {
             throw new SolapiMessageNotReceivedException("response was not received");
-        }).when(messageService).send(any(Message.class));
+        }).when(messageService).send(any(Message.class), any(SendRequestConfig.class));
 
         assertThatThrownBy(() -> client.send(request()))
                 .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
@@ -139,7 +145,8 @@ class SolapiSdkMessageClientTest {
         groupInfo.setGroupId("group-id");
         response.setGroupInfo(groupInfo);
         response.setMessageList(List.of(new MultipleDetailMessageSentResponse.MessageList()));
-        when(messageService.send(any(Message.class))).thenReturn(response);
+        when(messageService.send(any(Message.class), any(SendRequestConfig.class)))
+                .thenReturn(response);
 
         assertThatThrownBy(() -> client.send(request()))
                 .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
