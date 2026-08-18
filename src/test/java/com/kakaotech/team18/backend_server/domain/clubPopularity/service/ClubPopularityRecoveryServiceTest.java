@@ -50,8 +50,10 @@ class ClubPopularityRecoveryServiceTest {
     void readyStatusSkipsRecovery() {
         when(redisRepository.recoveryStatus()).thenReturn("READY");
         when(redisRepository.knownClubRegistryReady()).thenReturn(true);
+        when(clubRepository.findAllIds()).thenReturn(List.of(7L, 8L));
 
         assertThat(service.recoverIfNeeded()).isEqualTo(ClubPopularityRecoveryService.RecoveryResult.ALREADY_READY);
+        verify(redisRepository).replaceKnownClubIds(List.of(7L, 8L));
         verify(redisRepository, never()).tryAcquireRecoveryLock(any(), any());
     }
 

@@ -56,6 +56,7 @@ public class ClubPopularityRecoveryService {
         long startedAt = System.currentTimeMillis();
         try {
             if (READY.equals(redisRepository.recoveryStatus()) && redisRepository.knownClubRegistryReady()) {
+                redisRepository.replaceKnownClubIds(clubRepository.findAllIds());
                 return RecoveryResult.ALREADY_READY;
             }
             String owner = UUID.randomUUID().toString();
