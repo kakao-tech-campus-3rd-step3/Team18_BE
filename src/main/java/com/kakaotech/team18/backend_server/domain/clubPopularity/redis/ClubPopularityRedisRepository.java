@@ -44,6 +44,7 @@ public class ClubPopularityRedisRepository {
             redis.call('SET', KEYS[3], ARGV[1])
             return 1
             """, Long.class);
+    private static final Duration REPLACEMENT_KEY_TTL = Duration.ofMinutes(5);
 
     private final StringRedisTemplate redisTemplate;
 
@@ -273,13 +274,28 @@ public class ClubPopularityRedisRepository {
     /** 요청 경로의 DB 조회 없이 사용할 수 있는 서버 기준 동아리 ID 목록이다. */
     public void replaceKnownClubIds(Collection<Long> clubIds) {
         String replacementKey = ClubPopularityRedisKeys.KNOWN_CLUBS + ":replacement:" + UUID.randomUUID();
-        if (!clubIds.isEmpty()) {
-            redisTemplate.opsForSet().add(replacementKey,
-                    clubIds.stream().map(String::valueOf).toArray(String[]::new));
+        try {
+            if (!clubIds.isEmpty()) {
+                redisTemplate.opsForSet().add(replacementKey,
+                        clubIds.stream().map(String::valueOf).toArray(String[]::new));
+                // Lua 교체 전에 통신이 끊겨도 임시 키가 영구히 남지 않도록 한다.
+                redisTemplate.expire(replacementKey, REPLACEMENT_KEY_TTL);
+            }
+            redisTemplate.execute(REPLACE_KNOWN_CLUBS_SCRIPT,
+                    List.of(replacementKey, ClubPopularityRedisKeys.KNOWN_CLUBS,
+                            ClubPopularityRedisKeys.KNOWN_CLUBS_READY), "1");
+        } catch (RuntimeException exception) {
+            cleanupReplacementKey(replacementKey, exception);
+            throw exception;
         }
-        redisTemplate.execute(REPLACE_KNOWN_CLUBS_SCRIPT,
-                List.of(replacementKey, ClubPopularityRedisKeys.KNOWN_CLUBS,
-                        ClubPopularityRedisKeys.KNOWN_CLUBS_READY), "1");
+    }
+
+    private void cleanupReplacementKey(String replacementKey, RuntimeException originalException) {
+        try {
+            redisTemplate.delete(replacementKey);
+        } catch (RuntimeException cleanupException) {
+            originalException.addSuppressed(cleanupException);
+        }
     }
 
     public void rebuildRecentViewer(long clubId, String member, long scoreMillis, long recentTtlSeconds) {
