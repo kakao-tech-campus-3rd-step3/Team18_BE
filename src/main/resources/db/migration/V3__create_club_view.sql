@@ -12,6 +12,8 @@ CREATE TABLE club_view (
     PRIMARY KEY (id),
     CONSTRAINT uk_club_view_user UNIQUE (club_id, user_id),
     CONSTRAINT uk_club_view_anonymous UNIQUE (club_id, anonymous_identity),
+    CONSTRAINT chk_club_view_identity
+        CHECK ((user_id IS NULL) <> (anonymous_identity IS NULL)),
     CONSTRAINT fk_club_view_club
         FOREIGN KEY (club_id) REFERENCES club (club_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
