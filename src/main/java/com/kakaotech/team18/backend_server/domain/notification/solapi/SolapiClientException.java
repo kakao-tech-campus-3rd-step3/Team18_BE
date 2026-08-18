@@ -6,6 +6,7 @@ import lombok.Getter;
 public class SolapiClientException extends RuntimeException {
 
     public enum FailureType {
+        RETRYABLE,
         PERMANENT,
         UNKNOWN
     }
@@ -26,6 +27,10 @@ public class SolapiClientException extends RuntimeException {
 
     public static SolapiClientException permanent(String errorCode, String message, Throwable cause) {
         return new SolapiClientException(errorCode, message, FailureType.PERMANENT, cause);
+    }
+
+    public static SolapiClientException retryable(String errorCode, String message, Throwable cause) {
+        return new SolapiClientException(errorCode, message, FailureType.RETRYABLE, cause);
     }
 
     public static SolapiClientException unknown(String errorCode, String message, Throwable cause) {

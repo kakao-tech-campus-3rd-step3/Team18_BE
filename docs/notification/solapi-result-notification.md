@@ -55,6 +55,8 @@ SOLAPI 발송의 `customFields`에는 내부 `notificationDeliveryId`와 결과 
 
 `UNKNOWN`은 중복 문자 위험이 있으므로 자동으로 `PENDING`으로 돌리지 않는다.
 
+SOLAPI가 `TooManyRequests`로 요청을 명시적으로 거부한 경우에만 지수 백오프로 재시도한다. SDK가 HTTP 상태를 보존하지 않는 5xx, 타임아웃, 빈 응답은 접수 여부를 확정할 수 없으므로 `UNKNOWN`으로 종료하고 자동 재발송하지 않는다.
+
 ## 4. 개발·배포 전 체크리스트
 
 ### SOLAPI 계정

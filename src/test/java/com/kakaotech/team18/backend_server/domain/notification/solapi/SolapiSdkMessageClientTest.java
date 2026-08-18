@@ -125,6 +125,23 @@ class SolapiSdkMessageClientTest {
     }
 
     @Test
+    void mapsExplicitTooManyRequestsRejectionToRetryableFailure() throws Exception {
+        doAnswer(invocation -> {
+            throw new SolapiUnknownException(
+                    "{\"errorCode\" : \"TooManyRequests\",\"message\":\"rate limited\"}"
+            );
+        }).when(messageService).send(any(Message.class), any(SendRequestConfig.class));
+
+        assertThatThrownBy(() -> client.send(request()))
+                .isInstanceOfSatisfying(SolapiClientException.class, exception -> {
+                    assertThat(exception.getFailureType())
+                            .isEqualTo(SolapiClientException.FailureType.RETRYABLE);
+                    assertThat(exception.getErrorCode()).isEqualTo("SOLAPI_TOO_MANY_REQUESTS");
+                    assertThat(exception.getMessage()).doesNotContain("rate limited");
+                });
+    }
+
+    @Test
     void treatsMessageNotReceivedWithoutFailureDetailAsUnknown() throws Exception {
         doAnswer(invocation -> {
             throw new SolapiMessageNotReceivedException("response was not received");

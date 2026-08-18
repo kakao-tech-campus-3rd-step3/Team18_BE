@@ -17,10 +17,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.math.BigDecimal;
+import java.util.regex.Pattern;
 import com.solapi.sdk.message.model.Balance;
 import com.solapi.sdk.message.model.Quota;
 
 public class SolapiSdkMessageClient implements SolapiMessageClient {
+
+    private static final Pattern TOO_MANY_REQUESTS = Pattern.compile(
+            "\\\"errorCode\\\"\\s*:\\s*\\\"TooManyRequests\\\""
+    );
 
     private final DefaultMessageService messageService;
     private final String senderNumber;
@@ -208,6 +213,13 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         }
         if (exception instanceof SolapiEmptyResponseException
                 || exception instanceof SolapiUnknownException) {
+            if (isTooManyRequests(exception)) {
+                return SolapiClientException.retryable(
+                        "SOLAPI_TOO_MANY_REQUESTS",
+                        "SOLAPI API 호출 한도를 초과했습니다.",
+                        exception
+                );
+            }
             return SolapiClientException.unknown(
                     "SOLAPI_AMBIGUOUS_RESPONSE",
                     safeMessage(exception.getMessage(), "SOLAPI 발송 결과를 확인할 수 없습니다."),
@@ -219,6 +231,11 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
                 safeMessage(exception.getMessage(), "SOLAPI 호출 중 알 수 없는 오류가 발생했습니다."),
                 exception
         );
+    }
+
+    private boolean isTooManyRequests(Exception exception) {
+        return exception.getMessage() != null
+                && TOO_MANY_REQUESTS.matcher(exception.getMessage()).find();
     }
 
     private FailedMessage firstFailure(List<FailedMessage> failures) {

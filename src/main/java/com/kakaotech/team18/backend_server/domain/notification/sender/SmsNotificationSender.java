@@ -84,6 +84,13 @@ public class SmsNotificationSender implements NotificationSender {
                     exception
             );
         } catch (SolapiClientException exception) {
+            if (exception.getFailureType() == SolapiClientException.FailureType.RETRYABLE) {
+                throw NotificationSendException.retryable(
+                        exception.getErrorCode(),
+                        exception.getMessage(),
+                        exception
+                );
+            }
             if (exception.getFailureType() == SolapiClientException.FailureType.UNKNOWN) {
                 throw NotificationSendException.unknown(
                         exception.getErrorCode(),

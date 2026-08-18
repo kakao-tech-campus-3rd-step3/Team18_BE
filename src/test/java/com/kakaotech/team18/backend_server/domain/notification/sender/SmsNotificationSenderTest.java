@@ -116,6 +116,28 @@ class SmsNotificationSenderTest {
     }
 
     @Test
+    void mapsExplicitSolapiRejectionToRetryable() {
+        SolapiSmsRequest request = new SolapiSmsRequest(
+                "01012345678",
+                "결과 안내",
+                null,
+                "10"
+        );
+        when(messageClient.send(request)).thenThrow(SolapiClientException.retryable(
+                "SOLAPI_TOO_MANY_REQUESTS",
+                "rate limited",
+                null
+        ));
+
+        assertThatThrownBy(() -> sender.send(message("01012345678", "결과 안내")))
+                .isInstanceOfSatisfying(NotificationSendException.class, exception -> {
+                    assertThat(exception.getDisposition())
+                            .isEqualTo(NotificationSendException.FailureDisposition.RETRYABLE);
+                    assertThat(exception.getErrorCode()).isEqualTo("SOLAPI_TOO_MANY_REQUESTS");
+                });
+    }
+
+    @Test
     void reschedulesAtNextHourWithoutCallingSolapiWhenQuotaIsFull() {
         java.time.LocalDateTime retryAt = java.time.LocalDateTime.of(2026, 8, 12, 14, 0);
         org.mockito.Mockito.doThrow(new SolapiQuotaExceededException(
