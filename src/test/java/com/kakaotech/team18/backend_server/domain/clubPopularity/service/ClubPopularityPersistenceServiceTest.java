@@ -73,7 +73,8 @@ class ClubPopularityPersistenceServiceTest {
         assertThat(result.saved()).isEqualTo(1);
         assertThat(result.missingClubs()).isEqualTo(1);
         assertThat(result.removed()).isEqualTo(2);
-        verify(clubViewRepository).upsertUser(eq(7L), eq(15L), any());
+        verify(clubViewRepository).upsertAll(org.mockito.ArgumentMatchers.argThat(records ->
+                records.size() == 1 && records.get(0).clubId() == 7L && records.get(0).userId() == 15L));
     }
 
     @Test
@@ -110,7 +111,7 @@ class ClubPopularityPersistenceServiceTest {
                 new ClubPopularityRedisRepository.PendingRecord("v1|7|U|15", 1_700_000_000_000L)));
         when(clubRepository.findAllById(any())).thenReturn(List.of(club));
         org.mockito.Mockito.doThrow(new DataIntegrityViolationException("duplicate"))
-                .when(clubViewRepository).upsertUser(eq(7L), eq(15L), any());
+                .when(clubViewRepository).upsertAll(any());
         when(properties.getFailedRecordRetryDelaysMinutes()).thenReturn(List.of(10));
         when(properties.getFailedRecordRetentionHours()).thenReturn(24);
 
@@ -118,7 +119,7 @@ class ClubPopularityPersistenceServiceTest {
 
         assertThat(result.removed()).isEqualTo(1);
         assertThat(result.isolatedFailures()).isEqualTo(1);
-        verify(redisRepository).saveFailedRecord(any(), any(), eq("duplicate"), any(Long.class), any());
+        verify(redisRepository).saveFailedRecord(any(), any(), eq("database integrity violation"), any(Long.class), any());
     }
 
     @Test

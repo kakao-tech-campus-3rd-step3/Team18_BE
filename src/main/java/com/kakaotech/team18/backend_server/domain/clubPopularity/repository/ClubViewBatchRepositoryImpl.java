@@ -9,12 +9,47 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 
 @RequiredArgsConstructor
 public class ClubViewBatchRepositoryImpl implements ClubViewBatchRepository {
 
     private final JdbcTemplate jdbcTemplate;
     private final AtomicReference<Boolean> mySqlCache = new AtomicReference<>();
+
+    @Override
+    public void upsertAll(List<Upsert> records) {
+        if (records.isEmpty()) return;
+        if (!isMySql()) {
+            records.forEach(record -> {
+                if (record.userId() != null) upsertUser(record.clubId(), record.userId(), record.lastViewedAt());
+                else upsertAnonymous(record.clubId(), record.anonymousIdentity(), record.lastViewedAt());
+            });
+            return;
+        }
+        batchUpsert(records.stream().filter(record -> record.userId() != null).toList(), true);
+        batchUpsert(records.stream().filter(record -> record.userId() == null).toList(), false);
+    }
+
+    private void batchUpsert(List<Upsert> records, boolean user) {
+        if (records.isEmpty()) return;
+        String sql = user ? """
+                INSERT INTO club_view (club_id, user_id, anonymous_identity, last_viewed_at) VALUES (?, ?, NULL, ?)
+                ON DUPLICATE KEY UPDATE last_viewed_at = GREATEST(last_viewed_at, VALUES(last_viewed_at))
+                """ : """
+                INSERT INTO club_view (club_id, user_id, anonymous_identity, last_viewed_at) VALUES (?, NULL, ?, ?)
+                ON DUPLICATE KEY UPDATE last_viewed_at = GREATEST(last_viewed_at, VALUES(last_viewed_at))
+                """;
+        jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
+            public void setValues(java.sql.PreparedStatement statement, int index) throws java.sql.SQLException {
+                Upsert record = records.get(index);
+                statement.setLong(1, record.clubId());
+                if (user) statement.setLong(2, record.userId()); else statement.setBytes(2, record.anonymousIdentity());
+                statement.setTimestamp(3, Timestamp.from(record.lastViewedAt()));
+            }
+            public int getBatchSize() { return records.size(); }
+        });
+    }
 
     @Override
     public void upsertUser(long clubId, long userId, Instant lastViewedAt) {

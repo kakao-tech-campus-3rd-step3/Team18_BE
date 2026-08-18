@@ -79,6 +79,7 @@ public class ClubPopularityPersistenceService {
         int removed = 0;
         int missing = 0;
         int isolatedFailures = 0;
+        List<PersistableRecord> persistable = new ArrayList<>();
         for (ClubPopularityRedisRepository.PendingRecord record : records) {
             ClubPopularityPendingKey.Parsed parsed;
             try {
@@ -96,25 +97,29 @@ public class ClubPopularityPersistenceService {
                 removed++;
                 continue;
             }
-            Instant viewedAt = Instant.ofEpochMilli(record.scoreMillis());
             try {
-                if ("U".equals(parsed.type())) {
-                    clubViewRepository.upsertUser(parsed.clubId(), Long.parseLong(parsed.value()), viewedAt);
-                } else {
-                    clubViewRepository.upsertAnonymous(parsed.clubId(),
-                            Base64.getUrlDecoder().decode(parsed.value()), viewedAt);
-                }
-            } catch (DataIntegrityViolationException exception) {
+                ClubViewBatchRepository.Upsert upsert = "U".equals(parsed.type())
+                        ? ClubViewBatchRepository.Upsert.user(parsed.clubId(), Long.parseLong(parsed.value()),
+                                Instant.ofEpochMilli(record.scoreMillis()))
+                        : ClubViewBatchRepository.Upsert.anonymous(parsed.clubId(),
+                                Base64.getUrlDecoder().decode(parsed.value()), Instant.ofEpochMilli(record.scoreMillis()));
+                persistable.add(new PersistableRecord(record, upsert));
+            } catch (IllegalArgumentException exception) {
                 isolateFailure(record, exception.getMessage());
                 pendingRemovals.add(record);
                 removed++;
                 isolatedFailures++;
-                continue;
             }
-            saved++;
-            pendingRemovals.add(record);
-            removed++;
         }
+        List<PersistableRecord> failed = isolateInvalidBatch(persistable);
+        for (PersistableRecord record : failed) {
+            isolateFailure(record.pending(), "database integrity violation");
+            pendingRemovals.add(record.pending());
+        }
+        saved = persistable.size() - failed.size();
+        isolatedFailures += failed.size();
+        removed += persistable.size();
+        persistable.forEach(record -> pendingRemovals.add(record.pending()));
         registerPendingRemovals(pendingRemovals);
         metrics.recordDbSaved(saved);
         metrics.recordDbMissing(missing);
@@ -122,6 +127,21 @@ public class ClubPopularityPersistenceService {
         refreshQueueMetrics();
         metrics.stopDbTimer(timer);
         return new FlushResult(saved, removed, missing, isolatedFailures, false);
+    }
+
+    private List<PersistableRecord> isolateInvalidBatch(List<PersistableRecord> records) {
+        if (records.isEmpty()) return List.of();
+        try {
+            clubViewRepository.upsertAll(records.stream().map(PersistableRecord::upsert).toList());
+            return List.of();
+        } catch (DataIntegrityViolationException exception) {
+            if (records.size() == 1) return records;
+            int middle = records.size() / 2;
+            List<PersistableRecord> failed = new ArrayList<>();
+            failed.addAll(isolateInvalidBatch(records.subList(0, middle)));
+            failed.addAll(isolateInvalidBatch(records.subList(middle, records.size())));
+            return failed;
+        }
     }
 
     private void refreshQueueMetrics() {
@@ -287,5 +307,9 @@ public class ClubPopularityPersistenceService {
         public static FlushResult lockSkipped() {
             return new FlushResult(0, 0, 0, 0, true);
         }
+    }
+
+    private record PersistableRecord(ClubPopularityRedisRepository.PendingRecord pending,
+                                     ClubViewBatchRepository.Upsert upsert) {
     }
 }
