@@ -192,7 +192,7 @@ public class ClubPopularityRedisRepository {
                 "member", record.member(),
                 "scoreMillis", Long.toString(record.scoreMillis()),
                 "reason", reason,
-                "attempt", "1"));
+                "attempt", "0"));
         redisTemplate.expire(ClubPopularityRedisKeys.failedData(failureId), retention);
         redisTemplate.opsForZSet().add(ClubPopularityRedisKeys.FAILED_RETRY, failureId, retryAtMillis);
     }

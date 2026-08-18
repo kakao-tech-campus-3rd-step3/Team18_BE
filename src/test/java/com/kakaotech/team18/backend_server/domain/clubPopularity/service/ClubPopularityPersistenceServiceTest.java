@@ -129,7 +129,7 @@ class ClubPopularityPersistenceServiceTest {
         when(redisRepository.failedRecord("failure-1")).thenReturn(Map.of(
                 "member", "v1|7|U|15",
                 "scoreMillis", "1700000000000",
-                "attempt", "1"));
+                "attempt", "0"));
 
         TransactionSynchronizationManager.initSynchronization();
         service.retryFailedRecords(1);
@@ -149,10 +149,11 @@ class ClubPopularityPersistenceServiceTest {
         when(redisRepository.failedRecord("failure-1")).thenReturn(Map.of(
                 "member", "v1|7|U|15",
                 "scoreMillis", "1700000000000",
-                "attempt", "1"));
+                "attempt", "0"));
         org.mockito.Mockito.doThrow(new RuntimeException("db down"))
                 .when(clubViewRepository).upsertUser(eq(7L), eq(15L), any());
         when(properties.getFailedRecordMaxAttempts()).thenReturn(3);
+        when(properties.getRetryJitterPercent()).thenReturn(0);
         when(properties.getFailedRecordRetryDelaysMinutes()).thenReturn(List.of(10, 60, 360));
         when(properties.getFailedRecordRetentionHours()).thenReturn(25);
 
@@ -160,9 +161,9 @@ class ClubPopularityPersistenceServiceTest {
         service.retryFailedRecords(1);
         long after = System.currentTimeMillis();
 
-        verify(redisRepository).rescheduleFailedRecord(eq("failure-1"), eq(2),
+        verify(redisRepository).rescheduleFailedRecord(eq("failure-1"), eq(1),
                 org.mockito.ArgumentMatchers.longThat(value ->
-                        value >= before + 10 * 60_000L && value <= after + 10 * 60_000L),
+                        value >= before + 60 * 60_000L && value <= after + 60 * 60_000L),
                 any());
     }
 }
