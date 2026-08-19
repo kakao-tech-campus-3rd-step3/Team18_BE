@@ -45,9 +45,11 @@ public class StatisticsServiceImpl implements StatisticsService {
     private final StatisticsCache cache;
 
     @Override
-    public StatisticsResponseDto getStatistics(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
-        ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
-                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
+    public StatisticsResponseDto getStatistics(Long clubId, List<StatisticsDimension> dimensions) {
+        // 동아리:지원폼 = 1:1. clubId로 지원폼을 찾고, 캐시·집계는 지원폼 단위(form.getId())로 수행한다.
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId = " + clubId));
+        Long clubApplyFormId = form.getId();
 
         // 공개 통계는 폼별 전체 결과를 Redis에 TTL 캐시한다(스케줄러 없이 요청 시점에만 채우는 cache-aside).
         // 캐시에는 마스킹하지 않은 전체 dimension 결과를 담고, 마스킹·subset은 serve 시점에 적용한다.
@@ -71,9 +73,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     @Override
-    public StatisticsResponseDto getStatisticsForAdmin(Long clubApplyFormId, List<StatisticsDimension> dimensions) {
-        ClubApplyForm form = clubApplyFormRepository.findById(clubApplyFormId)
-                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubApplyFormId = " + clubApplyFormId));
+    public StatisticsResponseDto getStatisticsForAdmin(Long clubId, List<StatisticsDimension> dimensions) {
+        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
+                .orElseThrow(() -> new ClubApplyFormNotFoundException("clubId = " + clubId));
 
         // 관리자용은 마스킹 없이 원본을 그대로 반환한다. 공개 경로(getStatistics)에 이후 마스킹이 붙어도
         // 이 경로는 calculate() 원본만 사용하므로 영향받지 않는다.

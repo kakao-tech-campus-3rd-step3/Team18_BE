@@ -23,23 +23,23 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 지원자 통계 관리자 API.
  * <p>
- * 지원자를 직접 관리하는 동아리 관리자(CLUB_ADMIN/CLUB_EXECUTIVE)만 접근할 수 있으며, 공개 통계와 달리
- * 재식별 방지 마스킹·최소 공개 기준·마감 blackout을 적용하지 않고 원본 수치를 실시간으로 반환한다.
+ * 동아리(clubId) 단위로 조회한다. 지원자를 직접 관리하는 동아리 관리자(CLUB_ADMIN/CLUB_EXECUTIVE)만 접근할 수
+ * 있으며, 공개 통계와 달리 재식별 방지 마스킹·최소 공개 기준을 적용하지 않고 원본 수치를 실시간으로 반환한다.
  * <p>
- * 경로가 {@code /statistics/admin}이라 공개 permitAll 매처({@code GET /api/club-apply-forms/*&#47;statistics},
+ * 경로가 {@code /statistics/admin}이라 공개 permitAll 매처({@code GET /api/clubs/*&#47;statistics},
  * 세그먼트 하나만 매치)에 걸리지 않고 인증 대상으로 떨어진다. 세부 인가는 {@link PreAuthorize}로 검사한다.
  */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/club-apply-forms/{clubApplyFormId}")
+@RequestMapping("/api/clubs/{clubId}")
 @Tag(name = "Statistics Admin", description = "지원자 통계 관리자 API")
 public class StatisticsAdminController {
 
     private final StatisticsService statisticsService;
 
     @Operation(
-            summary = "지원폼 단위 지원자 통계 조회 (관리자)",
+            summary = "동아리 단위 지원자 통계 조회 (관리자)",
             description = """
                     지원폼에 접수된 지원자의 성별·학번·학부 분포와 일자별 지원 추이를 마스킹 없이 반환합니다.
                     해당 동아리의 관리자(CLUB_ADMIN/CLUB_EXECUTIVE)만 조회할 수 있습니다.
@@ -53,13 +53,13 @@ public class StatisticsAdminController {
             @ApiResponse(responseCode = "400", description = "지원하지 않는 dimension", content = @Content),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
             @ApiResponse(responseCode = "403", description = "해당 동아리 관리자 권한 없음", content = @Content),
-            @ApiResponse(responseCode = "404", description = "지원폼을 찾을 수 없음", content = @Content)
+            @ApiResponse(responseCode = "404", description = "해당 동아리의 지원폼을 찾을 수 없음", content = @Content)
     })
     @GetMapping("/statistics/admin")
-    @PreAuthorize("@customSecurityService.isClubAdminOrExecutiveForApplyForm(#clubApplyFormId)")
+    @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     public ResponseEntity<StatisticsResponseDto> getStatisticsForAdmin(
-            @Parameter(description = "지원폼 ID", example = "12")
-            @PathVariable Long clubApplyFormId,
+            @Parameter(description = "동아리 ID", example = "12")
+            @PathVariable Long clubId,
 
             @Parameter(description = "조회할 집계 항목. 생략하면 전체를 반환합니다.",
                     example = "GENDER,FACULTY")
@@ -67,8 +67,8 @@ public class StatisticsAdminController {
     ) {
         List<StatisticsDimension> requested = StatisticsDimension.resolve(dimensions);
 
-        log.info("관리자 지원자 통계 조회 clubApplyFormId={}, dimensions={}", clubApplyFormId, requested);
+        log.info("관리자 지원자 통계 조회 clubId={}, dimensions={}", clubId, requested);
 
-        return ResponseEntity.ok(statisticsService.getStatisticsForAdmin(clubApplyFormId, requested));
+        return ResponseEntity.ok(statisticsService.getStatisticsForAdmin(clubId, requested));
     }
 }

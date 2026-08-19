@@ -24,13 +24,14 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * 지원자 통계 공개 API.
  * <p>
- * 지원폼 단위로 집계하며, 지원자에게 공개되므로 <strong>비로그인 상태에서도 조회할 수 있다.</strong>
+ * 동아리(clubId) 단위로 조회한다. 동아리와 지원폼은 1:1이므로 프론트가 지원폼 ID를 따로 알지 않아도 이미 가진
+ * clubId로 호출할 수 있다. 지원자에게 공개되므로 <strong>비로그인 상태에서도 조회할 수 있다.</strong>
  * ({@code SecurityConfig}에 permitAll로 등록되어 있다)
  */
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/club-apply-forms/{clubApplyFormId}")
+@RequestMapping("/api/clubs/{clubId}")
 @Tag(name = "Statistics", description = "지원자 통계 API")
 public class StatisticsController {
 
@@ -113,12 +114,12 @@ public class StatisticsController {
                     )
             ),
             @ApiResponse(responseCode = "400", description = "지원하지 않는 dimension", content = @Content),
-            @ApiResponse(responseCode = "404", description = "지원폼을 찾을 수 없음", content = @Content)
+            @ApiResponse(responseCode = "404", description = "해당 동아리의 지원폼을 찾을 수 없음", content = @Content)
     })
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponseDto> getStatistics(
-            @Parameter(description = "지원폼 ID", example = "12")
-            @PathVariable Long clubApplyFormId,
+            @Parameter(description = "동아리 ID", example = "12")
+            @PathVariable Long clubId,
 
             @Parameter(description = "조회할 집계 항목. 생략하면 전체를 반환합니다.",
                     example = "GENDER,FACULTY")
@@ -127,8 +128,8 @@ public class StatisticsController {
         // 관리자 컨트롤러와 동일하게 dimension 파싱은 StatisticsDimension.resolve()로 일원화한다.
         List<StatisticsDimension> requested = StatisticsDimension.resolve(dimensions);
 
-        log.info("지원자 통계 조회 clubApplyFormId={}, dimensions={}", clubApplyFormId, requested);
+        log.info("지원자 통계 조회 clubId={}, dimensions={}", clubId, requested);
 
-        return ResponseEntity.ok(statisticsService.getStatistics(clubApplyFormId, requested));
+        return ResponseEntity.ok(statisticsService.getStatistics(clubId, requested));
     }
 }
