@@ -51,12 +51,33 @@ class StatisticsServiceImplTest {
     }
 
     @Test
-    @DisplayName("존재하지 않는 지원폼이면 예외(404 매핑)")
+    @DisplayName("해당 동아리의 지원폼이 없으면 예외(404 매핑)")
     void notFound_throws() {
-        when(clubApplyFormRepository.findById(99L)).thenReturn(Optional.empty());
+        when(clubApplyFormRepository.findByClubId(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getStatistics(99L, List.of(StatisticsDimension.GENDER)))
                 .isInstanceOf(ClubApplyFormNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("clubId로 지원폼을 찾아 집계·캐시는 지원폼 ID로 수행한다(clubId != formId)")
+    void resolvesClubIdToForm_cacheKeyedByFormId() {
+        long clubId = 7L;
+        long formId = 100L;
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(formId);
+        when(clubApplyFormRepository.findByClubId(clubId)).thenReturn(Optional.of(form));
+        when(aggregator.countApplicants(formId)).thenReturn(50L);
+        cacheMissWithAggregates(form, Map.of(StatisticsDimension.GENDER, List.of(
+                RawBucket.of("MALE", "남성", 50)
+        )));
+
+        StatisticsResponseDto res = service.getStatistics(clubId, List.of(StatisticsDimension.GENDER));
+
+        // 캐시 조회·저장 모두 clubId(7)가 아니라 formId(100)로 이뤄진다.
+        verify(cache).find(formId);
+        verify(cache).put(eq(formId), any(StatisticsResponseDto.class));
+        assertThat(res.clubApplyFormId()).isEqualTo(formId);
     }
 
     @Test
@@ -64,7 +85,7 @@ class StatisticsServiceImplTest {
     void cacheMiss_assemblesBucketsWithRatioAndCaches() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(200L);
         cacheMissWithAggregates(form, Map.of(StatisticsDimension.GENDER, List.of(
                 RawBucket.of("MALE", "남성", 121),
@@ -90,7 +111,9 @@ class StatisticsServiceImplTest {
     @Test
     @DisplayName("캐시 히트면 재계산 없이 캐시 결과에서 요청 dimension만 걸러 반환한다")
     void cacheHit_servesFromCacheWithoutRecompute() {
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(mock(ClubApplyForm.class)));
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L); // 캐시 키(formId)
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         StatisticsResponseDto cached = new StatisticsResponseDto(
                 1L, 200L, false, false, OffsetDateTime.now(),
                 List.of(
@@ -120,7 +143,7 @@ class StatisticsServiceImplTest {
     void publicView_belowMinTotal_masked() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(2L); // < MIN_TOTAL(3)
         cacheMissWithAggregates(form, Map.of());
 
@@ -134,7 +157,9 @@ class StatisticsServiceImplTest {
     @Test
     @DisplayName("공개 조회: 캐시 히트인데 기준 미만이면 비공개하되 calculatedAt은 캐시 스냅샷 시각을 유지한다")
     void publicView_cacheHitBelowMinTotal_maskedButKeepsSnapshotTime() {
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(mock(ClubApplyForm.class)));
+        ClubApplyForm form = mock(ClubApplyForm.class);
+        when(form.getId()).thenReturn(1L); // 캐시 키(formId)
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         OffsetDateTime snapshotTime = OffsetDateTime.parse("2026-03-14T23:59:30+09:00");
         StatisticsResponseDto cached = new StatisticsResponseDto(
                 1L, 2L, false, false, snapshotTime, // total 2 < MIN_TOTAL(3)
@@ -155,7 +180,7 @@ class StatisticsServiceImplTest {
     void publicView_atMinTotal_notMasked() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(3L); // == MIN_TOTAL(3) → 공개
         cacheMissWithAggregates(form, Map.of(StatisticsDimension.GENDER, List.of(
                 RawBucket.of("MALE", "남성", 2),
@@ -171,9 +196,9 @@ class StatisticsServiceImplTest {
     }
 
     @Test
-    @DisplayName("관리자 조회도 존재하지 않는 지원폼이면 예외(404 매핑)")
+    @DisplayName("관리자 조회도 해당 동아리의 지원폼이 없으면 예외(404 매핑)")
     void admin_notFound_throws() {
-        when(clubApplyFormRepository.findById(99L)).thenReturn(Optional.empty());
+        when(clubApplyFormRepository.findByClubId(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getStatisticsForAdmin(99L, List.of(StatisticsDimension.GENDER)))
                 .isInstanceOf(ClubApplyFormNotFoundException.class);
@@ -184,7 +209,7 @@ class StatisticsServiceImplTest {
     void admin_bypassesCacheAndReturnsRawEvenBelowMinTotal() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(2L); // < MIN_TOTAL(3)이지만 관리자는 무관
         when(aggregator.aggregate(form, StatisticsDimension.GENDER)).thenReturn(List.of(
                 RawBucket.of("MALE", "남성", 1),
@@ -208,7 +233,7 @@ class StatisticsServiceImplTest {
     void timeSeriesDimension_hasNoRatio() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(10L);
         cacheMissWithAggregates(form, Map.of(StatisticsDimension.DAILY_APPLICATIONS, List.of(
                 RawBucket.of("2026-03-02", "3월 2일", 4)
@@ -227,7 +252,7 @@ class StatisticsServiceImplTest {
     void publicView_zeroCountBucketIsDistinctFromMasked() {
         ClubApplyForm form = mock(ClubApplyForm.class);
         when(form.getId()).thenReturn(1L);
-        when(clubApplyFormRepository.findById(1L)).thenReturn(Optional.of(form));
+        when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
         when(aggregator.countApplicants(1L)).thenReturn(10L); // >= MIN_TOTAL → 공개
         cacheMissWithAggregates(form, Map.of(StatisticsDimension.DAILY_APPLICATIONS, List.of(
                 RawBucket.of("2026-03-02", "3월 2일", 0)

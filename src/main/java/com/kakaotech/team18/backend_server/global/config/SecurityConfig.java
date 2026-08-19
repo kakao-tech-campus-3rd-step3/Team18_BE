@@ -86,8 +86,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
                 // 동아리 후기 조회 및 등록 API (공개)
                 .requestMatchers("/api/clubs/*/reviews").permitAll()
-                // 지원자 통계 조회 API (공개) - 지원자에게 공개하는 통계이므로 비로그인 조회를 허용한다
-                .requestMatchers(HttpMethod.GET, "/api/club-apply-forms/*/statistics").permitAll()
+                // 지원자 통계 조회 API (공개) - 지원자에게 공개하는 통계이므로 비로그인 조회를 허용한다.
+                // 단일 세그먼트 매처라 /statistics/admin(관리자)은 걸리지 않고 인증 대상으로 떨어진다.
+                .requestMatchers(HttpMethod.GET, "/api/clubs/*/statistics").permitAll()
                 // 헬스체크 (공개)
                 .requestMatchers("/actuator/health","/actuator/health/**").permitAll()
                 .anyRequest().authenticated()

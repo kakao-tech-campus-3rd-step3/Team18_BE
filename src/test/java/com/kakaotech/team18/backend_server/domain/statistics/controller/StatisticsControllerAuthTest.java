@@ -40,7 +40,7 @@ class StatisticsControllerAuthTest {
         given(statisticsService.getStatistics(any(), any()))
                 .willReturn(new StatisticsResponseDto(12L, 0L, false, false, OffsetDateTime.now(), List.of()));
 
-        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L))
+        mockMvc.perform(get("/api/clubs/{id}/statistics", 12L))
                 .andExpect(status().isOk());
     }
 }

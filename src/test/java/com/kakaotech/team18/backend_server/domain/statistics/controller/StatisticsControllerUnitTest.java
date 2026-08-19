@@ -67,7 +67,7 @@ class StatisticsControllerUnitTest {
         given(statisticsService.getStatistics(eq(12L), eq(List.of(StatisticsDimension.GENDER))))
                 .willReturn(sampleResponse());
 
-        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
+        mockMvc.perform(get("/api/clubs/{id}/statistics", 12L)
                         .param("dimensions", "GENDER")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -82,7 +82,7 @@ class StatisticsControllerUnitTest {
         given(statisticsService.getStatistics(eq(12L), eq(StatisticsDimension.defaults())))
                 .willReturn(sampleResponse());
 
-        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
+        mockMvc.perform(get("/api/clubs/{id}/statistics", 12L)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.clubApplyFormId").value(12));
@@ -91,7 +91,7 @@ class StatisticsControllerUnitTest {
     @Test
     @DisplayName("지원하지 않는 dimension → 400")
     void getStatistics_unsupportedDimension_badRequest() throws Exception {
-        mockMvc.perform(get("/api/club-apply-forms/{id}/statistics", 12L)
+        mockMvc.perform(get("/api/clubs/{id}/statistics", 12L)
                         .param("dimensions", "NOT_A_DIMENSION")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
