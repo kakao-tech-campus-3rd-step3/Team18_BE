@@ -5,12 +5,16 @@ import com.kakaotech.team18.backend_server.domain.club.entity.Category;
 import com.kakaotech.team18.backend_server.domain.club.entity.Club;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClubRepository extends JpaRepository<Club, Long> {
+
+    @Query("select c.id from Club c")
+    List<Long> findAllIds();
 
     Optional<Club> findById(Long id);
 

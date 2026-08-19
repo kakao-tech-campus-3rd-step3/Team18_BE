@@ -1,0 +1,18 @@
+{
+  "annotations": {"list": []},
+  "editable": true,
+  "panels": [
+    {"id": 1, "type": "stat", "title": "기능 활성화", "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0}, "targets": [{"expr": "club_popularity_enabled", "refId": "A"}]},
+    {"id": 2, "type": "stat", "title": "Pending 건수", "gridPos": {"h": 5, "w": 6, "x": 6, "y": 0}, "targets": [{"expr": "club_popularity_pending_count", "refId": "A"}]},
+    {"id": 3, "type": "stat", "title": "최장 Pending 대기(초)", "gridPos": {"h": 5, "w": 6, "x": 12, "y": 0}, "targets": [{"expr": "club_popularity_pending_oldest_age_seconds", "refId": "A"}]},
+    {"id": 4, "type": "stat", "title": "복구 진행 중", "gridPos": {"h": 5, "w": 6, "x": 18, "y": 0}, "targets": [{"expr": "club_popularity_recovery_in_progress", "refId": "A"}]},
+    {"id": 5, "type": "timeseries", "title": "API 결과", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5}, "targets": [{"expr": "sum by (api,result) (rate(club_popularity_api_requests_total[5m]))", "legendFormat": "{{api}} / {{result}}", "refId": "A"}]},
+    {"id": 6, "type": "timeseries", "title": "Redis 오류", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5}, "targets": [{"expr": "sum by (operation) (rate(club_popularity_redis_errors_total[5m]))", "legendFormat": "{{operation}}", "refId": "A"}]},
+    {"id": 7, "type": "timeseries", "title": "DB 저장·실패", "gridPos": {"h": 8, "w": 12, "x": 0, "y": 13}, "targets": [{"expr": "rate(club_popularity_db_saved_total[5m])", "legendFormat": "saved", "refId": "A"}, {"expr": "rate(club_popularity_db_failed_total[5m])", "legendFormat": "failed", "refId": "B"}]},
+    {"id": 8, "type": "timeseries", "title": "복구 시간", "gridPos": {"h": 8, "w": 12, "x": 12, "y": 13}, "targets": [{"expr": "club_popularity_recovery_duration_seconds", "legendFormat": "seconds", "refId": "A"}]}
+  ],
+  "schemaVersion": 39,
+  "title": "Club Popularity Operations",
+  "uid": "club-popularity-operations",
+  "version": 1
+}
