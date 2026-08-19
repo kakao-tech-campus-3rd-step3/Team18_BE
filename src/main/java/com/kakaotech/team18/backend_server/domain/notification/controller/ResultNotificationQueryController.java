@@ -33,7 +33,8 @@ public class ResultNotificationQueryController {
             @Parameter(description = "동아리 ID", example = "1")
             @PathVariable Long clubId,
             @RequestParam(defaultValue = "20")
-            @Min(1) @Max(100) int limit
+            @Min(value = 1, message = "1 이상이어야 합니다.")
+            @Max(value = 100, message = "100 이하여야 합니다.") int limit
     ) {
         return queryService.findRequestSummaries(clubId, limit);
     }

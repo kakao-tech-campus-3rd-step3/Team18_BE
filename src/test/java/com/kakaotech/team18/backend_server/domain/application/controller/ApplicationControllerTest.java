@@ -468,6 +468,28 @@ class ApplicationControllerTest {
                         .value(ErrorCode.IDEMPOTENCY_KEY_CONFLICT.name()));
     }
 
+    @Test
+    @DisplayName("합/불 결과 알림 - RESULT 단계는 400")
+    void sendPassFailMessage_fail_resultStage() throws Exception {
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", 17L)
+                        .param("stage", "RESULT")
+                        .header("Idempotency-Key", "result-stage-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "message": "결과 안내",
+                                  "channels": ["EMAIL"]
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.detail").value(
+                        "결과 알림 stage는 INTERVIEW 또는 FINAL이어야 합니다. requestedStage=RESULT"
+                ));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
     @Nested
     @DisplayName("POST /api/clubs/{clubId}/apply-submit")
     class SubmitApplicationEndpoint {

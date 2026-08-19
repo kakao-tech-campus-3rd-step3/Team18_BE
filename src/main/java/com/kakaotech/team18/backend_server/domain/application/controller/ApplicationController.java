@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationSta
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidResultNotificationStageException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -132,6 +133,7 @@ public class ApplicationController {
             )
             @RequestHeader("Idempotency-Key") String idempotencyKey
     ){
+        validateResultNotificationStage(stage);
         SuccessResponseDto responseDto = applicationService.sendPassFailMessage(
                 clubId,
                 requestDto,
@@ -139,5 +141,11 @@ public class ApplicationController {
                 idempotencyKey
         );
         return ResponseEntity.ok(responseDto);
+    }
+
+    private void validateResultNotificationStage(Stage stage) {
+        if (stage != Stage.INTERVIEW && stage != Stage.FINAL) {
+            throw new InvalidResultNotificationStageException(stage);
+        }
     }
 }

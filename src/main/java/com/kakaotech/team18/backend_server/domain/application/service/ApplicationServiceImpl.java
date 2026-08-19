@@ -47,6 +47,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingU
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.IdempotencyKeyConflictException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidIdempotencyKeyException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidResultNotificationStageException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
@@ -378,6 +379,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             String idempotencyKey
     ) {
 
+        validateResultNotificationStage(stage);
         validateIdempotencyKey(idempotencyKey);
 
         ClubApplyForm form;
@@ -557,6 +559,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     private void validateIdempotencyKey(String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isBlank() || idempotencyKey.length() > 100) {
             throw new InvalidIdempotencyKeyException();
+        }
+    }
+
+    private void validateResultNotificationStage(Stage stage) {
+        if (stage == Stage.RESULT) {
+            throw new InvalidResultNotificationStageException(stage);
         }
     }
 

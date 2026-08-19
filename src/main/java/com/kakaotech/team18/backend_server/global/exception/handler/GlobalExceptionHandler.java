@@ -7,6 +7,8 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomExc
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
+import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -109,6 +111,23 @@ public class GlobalExceptionHandler {
                 errorCode.getMessage(),
                 detail);
 
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleConstraintViolationException(
+            final ConstraintViolationException e
+    ) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = e.getConstraintViolations().stream()
+                .map(violation -> parameterName(violation.getPropertyPath().toString())
+                        + ": " + violation.getMessage())
+                .sorted()
+                .collect(Collectors.joining(", "));
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("ConstraintViolationException: {} (detail: {})",
+                errorCode.getMessage(), detail);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
@@ -236,6 +255,11 @@ public class GlobalExceptionHandler {
             t = t.getCause();
         }
         return false;
+    }
+
+    private String parameterName(String propertyPath) {
+        int separator = propertyPath.lastIndexOf('.');
+        return separator < 0 ? propertyPath : propertyPath.substring(separator + 1);
     }
 
 }

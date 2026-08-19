@@ -16,6 +16,7 @@ import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.IdempotencyKeyConflictException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidIdempotencyKeyException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidResultNotificationStageException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.TemporaryServerConflictException;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
@@ -136,6 +137,26 @@ class ApplicationServiceIdempotencyTest {
         )).isInstanceOf(InvalidIdempotencyKeyException.class);
 
         verifyNoInteractions(clubApplyFormRepository, resultNotificationRequestRepository);
+    }
+
+    @Test
+    @DisplayName("결과 알림을 생성할 수 없는 RESULT 단계는 DB 접근 전에 거절한다")
+    void rejectResultStageBeforeDatabaseAccess() {
+        ApplicationApprovedRequestDto request = new ApplicationApprovedRequestDto("결과 안내");
+
+        assertThatThrownBy(() -> applicationService.sendPassFailMessage(
+                1L,
+                request,
+                Stage.RESULT,
+                "result-stage-key"
+        )).isInstanceOf(InvalidResultNotificationStageException.class);
+
+        verifyNoInteractions(
+                clubApplyFormRepository,
+                resultNotificationRequestRepository,
+                applicationRepository,
+                publisher
+        );
     }
 
     @Test
