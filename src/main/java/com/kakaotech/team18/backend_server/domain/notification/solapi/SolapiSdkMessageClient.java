@@ -58,6 +58,7 @@ public class SolapiSdkMessageClient implements SolapiMessageClient {
         try {
             SendRequestConfig config = new SendRequestConfig();
             config.setAllowDuplicates(false);
+            config.setShowMessageList(true);
             MultipleDetailMessageSentResponse response = messageService.send(message, config);
             return toResponse(response);
         } catch (Exception exception) {

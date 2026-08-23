@@ -68,6 +68,7 @@ class SolapiSdkMessageClientTest {
                 .containsEntry("notificationDeliveryId", "delivery-100")
                 .containsEntry("idempotencyKey", "idempotency-key-100");
         assertThat(configCaptor.getValue().getAllowDuplicates()).isFalse();
+        assertThat(configCaptor.getValue().getShowMessageList()).isTrue();
         assertThat(response).isEqualTo(new SolapiSendResponse(
                 "group-id",
                 "message-id",
