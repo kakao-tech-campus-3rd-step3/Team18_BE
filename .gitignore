@@ -224,3 +224,26 @@ gradle-app.setting
 # End of https://www.toptal.com/developers/gitignore/api/java,gradle,windows,macos,dotenv,visualstudiocode,intellij+all
 
 src/main/resources/application.yml
+
+### oh-my-claudecode (OMC) ###
+.omc/
+.omc-workspace
+.claude/
+CLAUDE.local.md
+
+### AI agent docs (팀원별로 다른 Claude/AI 플러그인 사용 — 추적 제외) ###
+AGENTS.md
+CLAUDE.md
+docs/
+
+### Ouroboros (OOO) ###
+.harness/
+.ouroboros/
+.codex/*
+!.codex/agents/
+!.codex/agents/**
+!.codex/skills/
+!.codex/skills/**
+.codex/skills/.system/**
+!.codex/prompts/
+!.codex/prompts/**

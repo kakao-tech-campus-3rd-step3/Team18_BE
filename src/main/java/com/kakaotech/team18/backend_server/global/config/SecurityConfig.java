@@ -79,6 +79,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/notices", "/api/notices/*").permitAll()
                 // 동아리 정보 조회 관련 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/*").permitAll()
+                // 실시간 인기 동아리 기록 API (공개, 인증 헤더 선택)
+                .requestMatchers(HttpMethod.POST, "/api/clubs/*/views", "/api/clubs/*/heartbeat").permitAll()
                 // 지원서 양식 조회 API (공개)
                 .requestMatchers(HttpMethod.GET, "/api/clubs/*/apply").permitAll()
                 // 동아리원 일괄 등록 양식 다운로드 API (공개)
@@ -87,6 +89,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/clubs/*/apply-submit").permitAll()
                 // 동아리 후기 조회 및 등록 API (공개)
                 .requestMatchers("/api/clubs/*/reviews").permitAll()
+                // 지원자 통계 조회 API (공개) - 지원자에게 공개하는 통계이므로 비로그인 조회를 허용한다.
+                // 단일 세그먼트 매처라 /statistics/admin(관리자)은 걸리지 않고 인증 대상으로 떨어진다.
+                .requestMatchers(HttpMethod.GET, "/api/clubs/*/statistics").permitAll()
                 // 헬스체크 (공개)
                 .requestMatchers("/actuator/health","/actuator/health/**").permitAll()
                 .anyRequest().authenticated()

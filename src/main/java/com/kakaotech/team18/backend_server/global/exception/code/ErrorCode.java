@@ -41,6 +41,7 @@ public enum ErrorCode {
     CANNOT_DELETE_SELF("자기 자신은 삭제할 수 없습니다. 권한 위임 후 탈퇴해주세요.", HttpStatus.BAD_REQUEST),
     UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면접 시간을 결정해주세요.", HttpStatus.BAD_REQUEST),
     NOTIFICATION_SMS_LIMIT_EXCEEDED("한 번에 발송할 수 있는 문자 알림 수를 초과했습니다.", HttpStatus.BAD_REQUEST),
+    UNSUPPORTED_STATISTICS_DIMENSION("지원하지 않는 통계 항목입니다.", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
     UNAUTHENTICATED_USER("인증되지 않은 사용자입니다.", HttpStatus.UNAUTHORIZED),

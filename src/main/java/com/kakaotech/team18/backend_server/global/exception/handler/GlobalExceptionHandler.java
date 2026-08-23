@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -197,9 +198,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(MissingServletRequestPartException.class)
-    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(
-            MissingServletRequestPartException e)
-    {
+    public ResponseEntity<ErrorResponseDto> handleMissingServletRequestPartException(MissingServletRequestPartException e) {
         final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
         final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
         log.warn("MissingServletRequestPartException: {}", errorCode.getMessage(), e);

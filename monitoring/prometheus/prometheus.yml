@@ -4,6 +4,9 @@ global:
   external_labels:
     monitor: 'dongarium-monitor'
 
+rule_files:
+  - /etc/prometheus/club-popularity-alerts.yml
+
 scrape_configs:
   # Prometheus 자체 메트릭
   - job_name: 'prometheus'

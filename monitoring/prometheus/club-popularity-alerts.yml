@@ -1,0 +1,32 @@
+groups:
+  - name: club-popularity-alerts
+    interval: 1m
+    rules:
+      - alert: ClubPopularityRedisRecordingFailureRateHigh
+        expr: |
+          club_popularity_enabled == 1
+          and sum(rate(club_popularity_api_requests_total{api=~"views|heartbeat",result="redis_error"}[5m]))
+              / clamp_min(sum(rate(club_popularity_api_requests_total{api=~"views|heartbeat"}[5m])), 0.001) >= 0.2
+          and sum(increase(club_popularity_api_requests_total{api=~"views|heartbeat",result="redis_error"}[5m])) >= 10
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "실시간 인기 Redis 기록 실패율이 높습니다"
+          description: "최근 5분 동안 인기 기록 API의 Redis 실패율이 20% 이상입니다."
+      - alert: ClubPopularityPendingOldestTooLong
+        expr: club_popularity_enabled == 1 and club_popularity_pending_oldest_age_seconds > 7200
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "실시간 인기 DB 저장 대기가 오래되었습니다"
+          description: "가장 오래된 pending 기록이 2시간을 초과했습니다."
+      - alert: ClubPopularityRecoveryTooLong
+        expr: club_popularity_enabled == 1 and club_popularity_recovery_in_progress == 1 and club_popularity_recovery_duration_seconds > 1800
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "실시간 인기 Redis 복구가 지연되고 있습니다"
+          description: "Redis 복구가 30분을 초과했습니다."
