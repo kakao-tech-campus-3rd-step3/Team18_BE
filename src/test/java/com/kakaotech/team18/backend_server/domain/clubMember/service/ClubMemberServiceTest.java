@@ -45,6 +45,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -131,6 +132,10 @@ class ClubMemberServiceTest {
         // then
         assertThat(result.name()).isEqualTo("박신입");
         assertThat(result.role()).isEqualTo(Role.CLUB_EXECUTIVE); // Role 유지됨
+
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(userCaptor.capture());
+        assertThat(userCaptor.getValue().getEmail()).isEqualTo("241001@jnu.ac.kr");
         
         verify(clubMemberRepository, times(1)).save(any(ClubMember.class));
     }
