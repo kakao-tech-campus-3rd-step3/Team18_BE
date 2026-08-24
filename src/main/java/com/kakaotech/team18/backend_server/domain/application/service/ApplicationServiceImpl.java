@@ -271,10 +271,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     ) {
         Long clubId = form.getClub().getId();
         clubMemberRepository.findByUserIdAndClubId(user.getId(), clubId)
-                .filter(cm -> cm.getActiveStatus() == ActiveStatus.ACTIVE)
                 .ifPresent(cm -> {
                     throw new AlreadyClubMemberException(
-                            "userId=" + user.getId() + ", clubId=" + clubId + ", role=" + cm.getRole());
+                            "userId=" + user.getId() + ", clubId=" + clubId
+                                    + ", role=" + cm.getRole() + ", activeStatus=" + cm.getActiveStatus());
                 });
 
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();

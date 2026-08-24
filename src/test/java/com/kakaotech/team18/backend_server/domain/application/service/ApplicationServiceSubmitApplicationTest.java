@@ -33,6 +33,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -253,9 +255,9 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.lastModifiedAt()).isNotNull();
         }
 
-        @Test
-        @DisplayName("이미 활성 동아리원이면 AlreadyClubMemberException, 지원서 미생성")
-        void alreadyActiveMember_throwsAlreadyClubMemberException() {
+        @ParameterizedTest(name = "이미 동아리원(activeStatus={0})이면 AlreadyClubMemberException, 지원서 미생성")
+        @EnumSource(ActiveStatus.class)
+        void alreadyClubMember_throwsAlreadyClubMemberException(ActiveStatus activeStatus) {
             // given
             Club club = mock(Club.class);
             when(club.getId()).thenReturn(1L);
@@ -274,14 +276,14 @@ class ApplicationServiceSubmitApplicationTest {
             when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
                     .thenReturn(Optional.empty());
 
-            ClubMember activeMembership = ClubMember.builder()
+            ClubMember existingMembership = ClubMember.builder()
                     .user(baseUser)
                     .club(club)
-                    .activeStatus(ActiveStatus.ACTIVE)
+                    .activeStatus(activeStatus)
                     .role(Role.CLUB_MEMBER)
                     .build();
             when(clubMemberRepository.findByUserIdAndClubId(any(), eq(1L)))
-                    .thenReturn(Optional.of(activeMembership));
+                    .thenReturn(Optional.of(existingMembership));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
                     "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null, null,
