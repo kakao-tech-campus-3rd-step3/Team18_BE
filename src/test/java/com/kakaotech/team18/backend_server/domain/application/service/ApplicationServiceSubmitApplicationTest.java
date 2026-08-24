@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.kakaotech.team18.backend_server.domain.answer.entity.Answer;
 import com.kakaotech.team18.backend_server.domain.answer.repository.AnswerRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
@@ -24,6 +25,7 @@ import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmitted
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AlreadyClubMemberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
@@ -249,6 +251,50 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.userEmail()).isEqualTo("stud@example.com");
             assertThat(info.presidentEmail()).isEqualTo("president@example.com");
             assertThat(info.lastModifiedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("이미 활성 동아리원이면 AlreadyClubMemberException, 지원서 미생성")
+        void alreadyActiveMember_throwsAlreadyClubMemberException() {
+            // given
+            Club club = mock(Club.class);
+            when(club.getId()).thenReturn(1L);
+
+            ClubApplyForm form = mock(ClubApplyForm.class);
+            when(form.getClub()).thenReturn(club);
+
+            when(clubApplyFormRepository.findByClubId(1L))
+                    .thenReturn(Optional.of(form));
+
+            when(userRepository.findByStudentId("20231234"))
+                    .thenReturn(Optional.empty());
+            when(userRepository.save(any(User.class)))
+                    .thenAnswer(inv -> inv.getArgument(0));
+
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
+                    .thenReturn(Optional.empty());
+
+            ClubMember activeMembership = ClubMember.builder()
+                    .user(baseUser)
+                    .club(club)
+                    .activeStatus(ActiveStatus.ACTIVE)
+                    .role(Role.CLUB_MEMBER)
+                    .build();
+            when(clubMemberRepository.findByUserIdAndClubId(any(), eq(1L)))
+                    .thenReturn(Optional.of(activeMembership));
+
+            ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
+                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null, null,
+                    List.of()
+            );
+
+            // when / then
+            assertThatThrownBy(() -> service.submitApplication(1L, req, false))
+                    .isInstanceOf(AlreadyClubMemberException.class);
+
+            verify(applicationRepository, never()).save(any(Application.class));
+            verify(clubMemberRepository, never()).save(any(ClubMember.class));
+            verify(publisher, never()).publishEvent(any());
         }
 
     }
