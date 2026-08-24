@@ -25,6 +25,8 @@ import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -274,7 +276,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(existing));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null, null,
+                    "pending-change@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null, null,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("남")),
@@ -293,10 +295,52 @@ class ApplicationServiceSubmitApplicationTest {
             // then
             assertThat(res).isNotNull();
             assertThat(res.studentId()).isEqualTo("20231234");
+            assertThat(baseUser.getEmail()).isEqualTo("stud@example.com");
 
             verify(answerRepository, never()).deleteByApplication(any());
             verify(answerRepository, never()).saveAll(anyList());
             verify(publisher, never()).publishEvent(any());
+        }
+
+        @Test
+        @DisplayName("덮어쓰기 시 기존 전화번호가 다르면 이메일을 갱신하지 않는다")
+        void existing_overwrite_phoneNumberMismatch() {
+            ClubApplyForm form = mock(ClubApplyForm.class);
+            when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
+            when(userRepository.findByStudentId("20231234")).thenReturn(Optional.of(baseUser));
+
+            Application existing = Application.builder().user(baseUser).clubApplyForm(form).build();
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
+                    .thenReturn(Optional.of(existing));
+
+            ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
+                    "updated@example.com", "홍길동", "20231234", "010-9999-9999", "컴공", null, null, List.of()
+            );
+
+            assertThatThrownBy(() -> service.submitApplication(1L, req, true))
+                    .isInstanceOf(ExistingUserPhoneNumberException.class);
+            assertThat(baseUser.getEmail()).isEqualTo("stud@example.com");
+        }
+
+        @Test
+        @DisplayName("덮어쓰기 시 다른 사용자의 이메일이면 갱신하지 않는다")
+        void existing_overwrite_duplicateEmail() {
+            ClubApplyForm form = mock(ClubApplyForm.class);
+            when(clubApplyFormRepository.findByClubId(1L)).thenReturn(Optional.of(form));
+            when(userRepository.findByStudentId("20231234")).thenReturn(Optional.of(baseUser));
+
+            Application existing = Application.builder().user(baseUser).clubApplyForm(form).build();
+            when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
+                    .thenReturn(Optional.of(existing));
+            when(userRepository.existsByEmail("taken@example.com")).thenReturn(true);
+
+            ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
+                    "taken@example.com", "홍길동", "20231234", "010-0000-0000", "컴공", null, null, List.of()
+            );
+
+            assertThatThrownBy(() -> service.submitApplication(1L, req, true))
+                    .isInstanceOf(ExistingUserEmailException.class);
+            assertThat(baseUser.getEmail()).isEqualTo("stud@example.com");
         }
 
         @Test
@@ -338,7 +382,7 @@ class ApplicationServiceSubmitApplicationTest {
                     .thenReturn(Optional.of(president));
 
             ApplicationApplyRequestDto req = new ApplicationApplyRequestDto(
-                    "stud@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과", null, null,
+                    "updated@example.com", "홍길동", "20231234", "010-0000-0000", "컴퓨터공학과", null, null,
                     List.of(
                             new ApplicationApplyRequestDto.AnswerDto(0L, "q", tn("수정본문")),
                             new ApplicationApplyRequestDto.AnswerDto(1L, "q", tn("여")),
@@ -354,6 +398,7 @@ class ApplicationServiceSubmitApplicationTest {
             // then
             assertThat(res).isNotNull();
             assertThat(res.studentId()).isEqualTo("20231234");
+            assertThat(baseUser.getEmail()).isEqualTo("updated@example.com");
 
             verify(answerRepository, times(1)).deleteByApplication(eq(existing));
             verify(answerRepository, times(1)).saveAll(anyList());
@@ -374,7 +419,7 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.studentId()).isEqualTo("20231234");
             assertThat(info.userDepartment()).isEqualTo("컴퓨터공학과");
             assertThat(info.userPhoneNumber()).isEqualTo("010-0000-0000");
-            assertThat(info.userEmail()).isEqualTo("stud@example.com");
+            assertThat(info.userEmail()).isEqualTo("updated@example.com");
             assertThat(info.presidentEmail()).isEqualTo("president@example.com");
             assertThat(info.lastModifiedAt()).isNotNull();
         }

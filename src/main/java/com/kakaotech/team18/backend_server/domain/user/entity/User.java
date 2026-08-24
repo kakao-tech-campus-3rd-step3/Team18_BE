@@ -88,6 +88,10 @@ public class User extends BaseEntity {
         this.kakaoId = kakaoId;
     }
 
+    public void updateEmail(String email) {
+        this.email = email;
+    }
+
     /**
      * 성별이 아직 없을 때만 채워 넣습니다.
      * <p>

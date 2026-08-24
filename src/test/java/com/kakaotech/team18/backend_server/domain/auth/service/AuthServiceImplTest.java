@@ -26,6 +26,7 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.KakaoApiTimeoutException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
@@ -409,7 +410,7 @@ class AuthServiceImplTest {
         assertThat(savedClubMember.getRole()).isEqualTo(Role.CLUB_EXECUTIVE);
     }
 
-    @DisplayName("기존 사용자 계정 연결 성공")
+    @DisplayName("기존 사용자 계정 연결 시 전화번호를 확인하고 이메일을 갱신한다")
     @Test
     void register_linkAccount_success() {
         // given
@@ -447,8 +448,39 @@ class AuthServiceImplTest {
         // then
         assertThat(result.status()).isEqualTo(AuthStatus.REGISTER_SUCCESS);
         assertThat(existingUser.getKakaoId()).isEqualTo(kakaoId); // kakaoId가 연결되었는지 확인
+        assertThat(existingUser.getEmail()).isEqualTo("existing@example.com");
         assertThat(result.accessToken()).isEqualTo("linkedAccessToken");
         assertThat(result.refreshToken()).isEqualTo("linkedRefreshToken");
+    }
+
+    @DisplayName("기존 사용자 계정 연결 시 전화번호가 다르면 이메일을 갱신하지 않는다")
+    @Test
+    void register_linkAccount_phoneNumberMismatch_throwsException() {
+        String bearerToken = "Bearer testTemporaryToken";
+        String temporaryToken = "testTemporaryToken";
+        Long kakaoId = 54321L;
+        String studentId = "existingStudent456";
+        RegisterRequestDto requestDto = new RegisterRequestDto(
+                "existingUser", "changed@example.com", studentId, "전자공학과", "01099998888"
+        );
+        User existingUser = User.builder()
+                .studentId(studentId)
+                .name("기존사용자")
+                .email("pre-existing@example.com")
+                .department("전자공학과")
+                .phoneNumber("01033334444")
+                .build();
+        Claims claims = Jwts.claims();
+        claims.setSubject(TokenType.TEMPORARY.name());
+        claims.put("kakaoId", kakaoId);
+
+        given(jwtProvider.extractToken(bearerToken)).willReturn(temporaryToken);
+        given(jwtProvider.verify(temporaryToken)).willReturn(claims);
+        given(userRepository.findByStudentId(studentId)).willReturn(Optional.of(existingUser));
+
+        assertThatThrownBy(() -> authService.register(bearerToken, requestDto))
+                .isInstanceOf(ExistingUserPhoneNumberException.class);
+        assertThat(existingUser.getEmail()).isEqualTo("pre-existing@example.com");
     }
 
     @DisplayName("계정 탈취 시도 - 이미 연동된 학번으로 가입 시 예외 발생")
