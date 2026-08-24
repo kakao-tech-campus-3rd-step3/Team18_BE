@@ -211,6 +211,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
             //3.1.1 덮어쓰기가 true 이면
             if (overwrite) {
+                updateExistingUserEmail(user, request);
                 return updateApplication(existingApplication, request);
             }
 
@@ -222,8 +223,22 @@ public class ApplicationServiceImpl implements ApplicationService {
             );
         } else {
             //3.2 제출내역이 없는경우
+            updateExistingUserEmail(user, request);
             return createApplication(user, form, request);
         }
+    }
+
+    private void updateExistingUserEmail(User user, ApplicationApplyRequestDto request) {
+        if (user.getEmail().equals(request.email())) {
+            return;
+        }
+        if (!user.getPhoneNumber().equals(request.phoneNumber())) {
+            throw new ExistingUserPhoneNumberException("학번에 등록된 전화번호가 일치하지 않습니다.");
+        }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new ExistingUserEmailException("이미 사용 중인 이메일입니다. email: " + request.email());
+        }
+        user.updateEmail(request.email());
     }
 
     private ApplicationApplyResponseDto updateApplication(

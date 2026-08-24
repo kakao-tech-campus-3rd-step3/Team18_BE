@@ -20,6 +20,8 @@ import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemb
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.DuplicateKakaoIdException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExpiredRefreshTokenException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.LoggedOutUserException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidRefreshTokenException;
@@ -178,6 +180,11 @@ public class AuthServiceImpl implements AuthService {
                 throw new DuplicateKakaoIdException("이미 다른 계정과 연동된 학번입니다.");
             }
 
+            if (!user.getPhoneNumber().equals(registerRequestDto.phoneNumber())) {
+                throw new ExistingUserPhoneNumberException("학번에 등록된 전화번호가 일치하지 않습니다.");
+            }
+            updateEmailIfChanged(user, registerRequestDto.email());
+
             log.info("기존 사용자 계정 연결: studentId={}, kakaoId={}", user.getStudentId(), kakaoId);
             user.connectKakaoId(kakaoId);
         } else {
@@ -214,6 +221,16 @@ public class AuthServiceImpl implements AuthService {
         log.info("Redis에 Refresh Token 저장 완료: userId={}", user.getId());
 
         return new LoginSuccessResponseDto(AuthStatus.REGISTER_SUCCESS, accessToken, refreshToken, user.getId(), clubIdAndRoleList);
+    }
+
+    private void updateEmailIfChanged(User user, String email) {
+        if (user.getEmail().equals(email)) {
+            return;
+        }
+        if (userRepository.existsByEmail(email)) {
+            throw new ExistingUserEmailException("이미 사용 중인 이메일입니다. email: " + email);
+        }
+        user.updateEmail(email);
     }
 
     @Override
