@@ -332,7 +332,7 @@ public class ClubMemberServiceImpl implements ClubMemberService {
                 .studentId(requestDto.studentId())
                 .phoneNumber(requestDto.phoneNumber())
                 .department(requestDto.department())
-                .email(requestDto.studentId() + "@placeholder.com")
+                .email(requestDto.studentId() + "@jnu.ac.kr")
                 .build();
         return userRepository.save(user);
     }
