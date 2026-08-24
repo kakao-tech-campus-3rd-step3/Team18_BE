@@ -274,8 +274,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .filter(cm -> cm.getRole() != Role.APPLICANT)
                 .ifPresent(cm -> {
                     throw new AlreadyClubMemberException(
-                            "userId=" + user.getId() + ", clubId=" + clubId
-                                    + ", role=" + cm.getRole() + ", activeStatus=" + cm.getActiveStatus());
+                            "userId=" + user.getId() + ", clubId=" + clubId + ", role=" + cm.getRole());
                 });
 
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();

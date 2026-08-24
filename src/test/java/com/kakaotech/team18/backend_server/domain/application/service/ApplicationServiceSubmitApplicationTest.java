@@ -33,8 +33,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -255,9 +253,9 @@ class ApplicationServiceSubmitApplicationTest {
             assertThat(info.lastModifiedAt()).isNotNull();
         }
 
-        @ParameterizedTest(name = "이미 동아리원(activeStatus={0})이면 AlreadyClubMemberException, 지원서 미생성")
-        @EnumSource(ActiveStatus.class)
-        void alreadyClubMember_throwsAlreadyClubMemberException(ActiveStatus activeStatus) {
+        @Test
+        @DisplayName("이미 동아리원(role=CLUB_MEMBER)이면 AlreadyClubMemberException, 지원서 미생성")
+        void alreadyClubMember_throwsAlreadyClubMemberException() {
             // given
             Club club = mock(Club.class);
             when(club.getId()).thenReturn(1L);
@@ -276,10 +274,11 @@ class ApplicationServiceSubmitApplicationTest {
             when(applicationRepository.findByStudentIdAndClubApplyForm(eq("20231234"), eq(form)))
                     .thenReturn(Optional.empty());
 
+            // activeStatus는 판단 기준이 아니므로(role만 본다) 임의 값을 사용한다
             ClubMember existingMembership = ClubMember.builder()
                     .user(baseUser)
                     .club(club)
-                    .activeStatus(activeStatus)
+                    .activeStatus(ActiveStatus.INACTIVE)
                     .role(Role.CLUB_MEMBER)
                     .build();
             when(clubMemberRepository.findByUserIdAndClubId(any(), eq(1L)))
