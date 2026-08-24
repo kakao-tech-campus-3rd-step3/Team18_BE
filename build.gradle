@@ -56,6 +56,8 @@ dependencies {
 
     // SMTP 전송 (JavaMailSender)
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+    // SOLAPI 문자 발송 공식 SDK
+    implementation 'com.solapi:sdk:1.1.0'
     // Thymeleaf 템플릿 렌더링(나중에 제거할 것)
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 

@@ -9,11 +9,13 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationSta
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
 import com.kakaotech.team18.backend_server.global.config.SecurityConfig;
 import com.kakaotech.team18.backend_server.global.config.TestSecurityConfig;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
 import com.kakaotech.team18.backend_server.global.exception.code.ErrorCode;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.IdempotencyKeyConflictException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import java.time.LocalDateTime;
@@ -31,11 +33,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Collections;
+import java.util.Set;
 
 import static java.time.LocalDateTime.now;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -291,13 +295,14 @@ class ApplicationControllerTest {
                 }
                 """;
 
-        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW)))
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
                 .willThrow(new UnscheduledAcceptedApplicantExistsException());
 
         // when
         ResultActions resultActions = mockMvc.perform(
                 patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
                         .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "unscheduled-key")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody)
         );
@@ -307,6 +312,182 @@ class ApplicationControllerTest {
                 .andExpect(jsonPath("$.error_code").value(ErrorCode.UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS.name()))
                 .andExpect(jsonPath("$.message")
                         .value("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면접 시간을 결정해주세요."));
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 다중 채널 선택 성공")
+    void sendPassFailMessage_success_multipleChannels() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지",
+                  "channels": ["EMAIL", "SMS"]
+                }
+                """;
+
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
+                .willReturn(new SuccessResponseDto(true));
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "multiple-channel-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true));
+
+        verify(applicationService).sendPassFailMessage(
+                eq(clubId),
+                argThat(request -> request.channels().equals(
+                        Set.of(NotificationChannel.EMAIL, NotificationChannel.SMS))),
+                eq(Stage.INTERVIEW),
+                eq("multiple-channel-key")
+        );
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 채널 생략 시 이메일 기본값 적용")
+    void sendPassFailMessage_success_defaultEmailChannel() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지"
+                }
+                """;
+
+        given(applicationService.sendPassFailMessage(eq(clubId), any(), eq(Stage.INTERVIEW), anyString()))
+                .willReturn(new SuccessResponseDto(true));
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "default-email-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk());
+
+        verify(applicationService).sendPassFailMessage(
+                eq(clubId),
+                argThat(request -> request.channels().equals(Set.of(NotificationChannel.EMAIL))),
+                eq(Stage.INTERVIEW),
+                eq("default-email-key")
+        );
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 빈 채널 목록은 400")
+    void sendPassFailMessage_fail_emptyChannels() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지",
+                  "channels": []
+                }
+                """;
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "empty-channel-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.detail").value("channels: 알림 채널은 하나 이상 선택해야 합니다."));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 지원하지 않는 채널은 400")
+    void sendPassFailMessage_fail_unsupportedChannel() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지",
+                  "channels": ["PUSH"]
+                }
+                """;
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "unsupported-channel-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - Idempotency-Key 헤더가 없으면 400")
+    void sendPassFailMessage_fail_missingIdempotencyKey() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "면접 결과 공지",
+                  "channels": ["EMAIL"]
+                }
+                """;
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.detail")
+                        .value("필수 헤더 'Idempotency-Key'가 요청에 포함되지 않았습니다."));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - 동일한 Idempotency-Key에 다른 요청이면 409")
+    void sendPassFailMessage_fail_idempotencyKeyConflict() throws Exception {
+        Long clubId = 17L;
+        String requestBody = """
+                {
+                  "message": "변경된 면접 결과 공지",
+                  "channels": ["EMAIL"]
+                }
+                """;
+        given(applicationService.sendPassFailMessage(
+                eq(clubId),
+                any(),
+                eq(Stage.INTERVIEW),
+                eq("reused-key")
+        )).willThrow(new IdempotencyKeyConflictException());
+
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", clubId)
+                        .param("stage", "INTERVIEW")
+                        .header("Idempotency-Key", "reused-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.error_code")
+                        .value(ErrorCode.IDEMPOTENCY_KEY_CONFLICT.name()));
+    }
+
+    @Test
+    @DisplayName("합/불 결과 알림 - RESULT 단계는 400")
+    void sendPassFailMessage_fail_resultStage() throws Exception {
+        mockMvc.perform(patch("/api/clubs/{clubId}/club-apply-form/result", 17L)
+                        .param("stage", "RESULT")
+                        .header("Idempotency-Key", "result-stage-key")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "message": "결과 안내",
+                                  "channels": ["EMAIL"]
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.detail").value(
+                        "결과 알림 stage는 INTERVIEW 또는 FINAL이어야 합니다. requestedStage=RESULT"
+                ));
+
+        verify(applicationService, never()).sendPassFailMessage(any(), any(), any(), any());
     }
 
     @Nested

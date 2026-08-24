@@ -8,6 +8,8 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomExc
 import com.kakaotech.team18.backend_server.global.security.JwtAuthenticationFilter;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
@@ -24,7 +26,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -49,6 +53,7 @@ class GlobalExceptionHandlerTest {
     private ObjectMapper objectMapper;
 
     // 테스트를 위한 가짜 컨트롤러
+    @Validated
     @RestController
     static class TestController {
 
@@ -74,6 +79,14 @@ class GlobalExceptionHandlerTest {
         @GetMapping("/test/unhandled-exception")
         public void throwUnhandledException() {
             throw new RuntimeException("예상치 못한 에러 발생");
+        }
+
+        @GetMapping("/test/validated-parameter")
+        public void validateParameter(
+                @RequestParam
+                @Min(value = 1, message = "1 이상이어야 합니다.")
+                @Max(value = 100, message = "100 이하여야 합니다.") int limit
+        ) {
         }
     }
 
@@ -167,7 +180,8 @@ class GlobalExceptionHandlerTest {
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
                 .andExpect(jsonPath("$.error_code").value(errorCode.name()))
-                .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
+                .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
+                .andExpect(jsonPath("$.detail").value("요청 본문의 형식 또는 값이 올바르지 않습니다."));
     }
 
     @Test
@@ -186,7 +200,8 @@ class GlobalExceptionHandlerTest {
         // then
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
                 .andExpect(jsonPath("$.error_code").value(errorCode.name()))
-                .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
+                .andExpect(jsonPath("$.message").value(errorCode.getMessage()))
+                .andExpect(jsonPath("$.detail").value("요청 본문의 형식 또는 값이 올바르지 않습니다."));
     }
 
     @Test
@@ -204,5 +219,15 @@ class GlobalExceptionHandlerTest {
         resultActions.andExpect(status().is(errorCode.getHttpStatus().value()))
                 .andExpect(jsonPath("$.error_code").value(errorCode.name()))
                 .andExpect(jsonPath("$.message").value(errorCode.getMessage()));
+    }
+
+    @Test
+    @DisplayName("요청 파라미터 제약조건 위반은 표준 400 응답으로 처리한다")
+    void handleConstraintViolationException_test() throws Exception {
+        mockMvc.perform(get("/test/validated-parameter").param("limit", "101"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error_code").value(ErrorCode.INVALID_INPUT_VALUE.name()))
+                .andExpect(jsonPath("$.message").value(ErrorCode.INVALID_INPUT_VALUE.getMessage()))
+                .andExpect(jsonPath("$.detail").value("limit: 100 이하여야 합니다."));
     }
 }

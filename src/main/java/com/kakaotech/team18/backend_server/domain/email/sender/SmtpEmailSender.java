@@ -29,6 +29,15 @@ public class SmtpEmailSender implements EmailSender {
             backoff = @Backoff(delay = 2_000, multiplier = 2.0, maxDelay = 60_000)
     )
     public void sendHtml(String from, String replyTo, List<String> to, String subject, String htmlBody) {
+        send(from, replyTo, to, subject, htmlBody);
+    }
+
+    @Override
+    public void sendHtmlOnce(String from, String replyTo, List<String> to, String subject, String htmlBody) {
+        send(from, replyTo, to, subject, htmlBody);
+    }
+
+    private void send(String from, String replyTo, List<String> to, String subject, String htmlBody) {
         try {
             MimeMessage mime = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mime, true, "UTF-8");
@@ -47,6 +56,7 @@ public class SmtpEmailSender implements EmailSender {
             throw EmailSendFailedException.of(e);
         }
     }
+
     @Recover
     public void recover(Exception e, String from, String replyTo, List<String> to, String subject, String htmlBody) {
         log.error("[Email] Permanently failed after retries. to={}, subject={}", to, subject, e);

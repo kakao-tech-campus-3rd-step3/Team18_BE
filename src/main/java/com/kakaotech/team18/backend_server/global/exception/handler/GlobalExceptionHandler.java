@@ -7,8 +7,11 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.CustomExc
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExcelParsingException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ForbiddenAccessException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.StatusNotFoundException;
+import jakarta.validation.ConstraintViolationException;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.ConversionFailedException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
@@ -16,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestCookieException;
+import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -111,6 +115,36 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ErrorResponseDto> handleConstraintViolationException(
+            final ConstraintViolationException e
+    ) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = e.getConstraintViolations().stream()
+                .map(violation -> parameterName(violation.getPropertyPath().toString())
+                        + ": " + violation.getMessage())
+                .sorted()
+                .collect(Collectors.joining(", "));
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("ConstraintViolationException: {} (detail: {})",
+                errorCode.getMessage(), detail);
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    protected ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(
+            final HttpMessageNotReadableException e) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = "요청 본문의 형식 또는 값이 올바르지 않습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("HttpMessageNotReadableException: {} (detail: {})",
+                errorCode.getMessage(), detail);
+
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
     @ExceptionHandler({ MethodArgumentTypeMismatchException.class, ConversionFailedException.class })
     public ResponseEntity<ErrorResponseDto> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         // Status 파라미터 변환 실패면 커스텀 메시지
@@ -137,27 +171,6 @@ public class GlobalExceptionHandler {
      * @param e MissingRequestCookieException
      * @return 400 Bad Request 상태 코드와 표준 에러 응답
      */
-    /**
-     * HttpMessageNotReadableException 예외를 처리
-     * <p>
-     * 요청 본문(JSON)을 DTO로 역직렬화하지 못했을 때 발생합니다. 정의되지 않은 Enum 상수(예: 성별에 잘못된 값)나
-     * 깨진 JSON이 여기에 해당합니다. 이 핸들러가 없으면 전역 {@code Exception} 핸들러로 떨어져 500이 나가므로,
-     * 클라이언트 입력 오류를 400으로 명확히 구분하기 위해 별도로 처리합니다.
-     *
-     * @return 400 Bad Request 상태 코드와 표준 에러 응답
-     */
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    protected ResponseEntity<ErrorResponseDto> handleHttpMessageNotReadableException(
-            final HttpMessageNotReadableException e) {
-
-        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
-        final ErrorResponseDto response = ErrorResponseDto.from(errorCode);
-
-        log.warn("HttpMessageNotReadableException: {}", errorCode.getMessage(), e);
-
-        return new ResponseEntity<>(response, errorCode.getHttpStatus());
-    }
-
     @ExceptionHandler(MissingRequestCookieException.class)
     protected ResponseEntity<ErrorResponseDto> handleMissingRequestCookieException(final MissingRequestCookieException e) {
         final ErrorCode errorCode = ErrorCode.REQUIRED_COOKIE_NOT_FOUND;
@@ -168,6 +181,18 @@ public class GlobalExceptionHandler {
                 errorCode.getMessage(),
                 detail);
 
+        return new ResponseEntity<>(response, errorCode.getHttpStatus());
+    }
+
+    @ExceptionHandler(MissingRequestHeaderException.class)
+    protected ResponseEntity<ErrorResponseDto> handleMissingRequestHeaderException(
+            final MissingRequestHeaderException e
+    ) {
+        final ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+        final String detail = "필수 헤더 '" + e.getHeaderName() + "'가 요청에 포함되지 않았습니다.";
+        final ErrorResponseDto response = ErrorResponseDto.of(errorCode, detail);
+
+        log.warn("MissingRequestHeaderException: {} (detail: {})", errorCode.getMessage(), detail);
         return new ResponseEntity<>(response, errorCode.getHttpStatus());
     }
 
@@ -229,6 +254,11 @@ public class GlobalExceptionHandler {
             t = t.getCause();
         }
         return false;
+    }
+
+    private String parameterName(String propertyPath) {
+        int separator = propertyPath.lastIndexOf('.');
+        return separator < 0 ? propertyPath : propertyPath.substring(separator + 1);
     }
 
 }

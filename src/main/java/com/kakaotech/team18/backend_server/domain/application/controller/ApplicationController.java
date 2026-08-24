@@ -9,6 +9,7 @@ import com.kakaotech.team18.backend_server.domain.application.dto.ApplicationSta
 import com.kakaotech.team18.backend_server.domain.application.entity.Stage;
 import com.kakaotech.team18.backend_server.domain.application.service.ApplicationService;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidResultNotificationStageException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -112,18 +114,38 @@ public class ApplicationController {
         }
     }
 
-    @Operation(summary = "합/불 처리 및 메세지 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 이메일을 보냅니다.")
+    @Operation(summary = "합/불 처리 및 결과 알림 전송", description = "동아리 운영진이 지원서를 합/불에 따라 승격/삭제 처리하고 선택한 채널로 결과 알림을 보냅니다.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "상태 변경 및 전송 성공"),
+            @ApiResponse(responseCode = "400", description = "알림 채널이 비어 있거나 지원하지 않는 값인 경우"),
+            @ApiResponse(responseCode = "409", description = "동일한 Idempotency-Key에 다른 요청이 전달된 경우"),
     })
     @PreAuthorize("@customSecurityService.isClubAdminOrExecutive(#clubId)")
     @PatchMapping("/{clubId}/club-apply-form/result")
     public ResponseEntity<SuccessResponseDto> sendPassFailMessage(
-            @Parameter(description = "이메일 송신자의 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
-            @RequestBody ApplicationApprovedRequestDto requestDto,
-            @Parameter(description = "면접과 최종을 구별해주는 변수", required = true, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage
+            @Parameter(description = "결과 알림을 발송하는 동아리 ID", required = true, example = "1")@PathVariable("clubId") Long clubId,
+            @Valid @RequestBody ApplicationApprovedRequestDto requestDto,
+            @Parameter(description = "면접과 최종을 구별해주는 변수", required = true, example = "INTERVIEW")@RequestParam(value = "stage") Stage stage,
+            @Parameter(
+                    description = "결과 발표 요청의 중복 처리를 방지하는 1~100자 키. 재시도 시 동일한 값을 사용합니다.",
+                    required = true,
+                    example = "550e8400-e29b-41d4-a716-446655440000"
+            )
+            @RequestHeader("Idempotency-Key") String idempotencyKey
     ){
-        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(clubId, requestDto, stage);
+        validateResultNotificationStage(stage);
+        SuccessResponseDto responseDto = applicationService.sendPassFailMessage(
+                clubId,
+                requestDto,
+                stage,
+                idempotencyKey
+        );
         return ResponseEntity.ok(responseDto);
+    }
+
+    private void validateResultNotificationStage(Stage stage) {
+        if (stage != Stage.INTERVIEW && stage != Stage.FINAL) {
+            throw new InvalidResultNotificationStageException(stage);
+        }
     }
 }

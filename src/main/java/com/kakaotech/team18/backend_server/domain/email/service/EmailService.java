@@ -158,6 +158,19 @@ public class EmailService {
     public void sendFinalRejectedResultToApplicant(ApplicationInfoDto info) {
         sendResult(info, ResultType.FINAL_REJECTED, null);
     }
-}
 
+    public void sendStoredResultNotificationOnce(
+            String replyTo,
+            String recipient,
+            String subject,
+            String messageBody
+    ) {
+        Map<String, Object> model = new HashMap<>();
+        model.put("title", subject);
+        model.put("messageBody", messageBody);
+
+        String html = renderer.render("email-body-result-notification", model);
+        emailSender.sendHtmlOnce(from, replyTo, List.of(recipient), subject, html);
+    }
+}
 

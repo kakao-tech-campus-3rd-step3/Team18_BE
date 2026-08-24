@@ -40,6 +40,7 @@ public enum ErrorCode {
     INVALID_EXCEL_DATA("엑셀 데이터 검증 실패", HttpStatus.BAD_REQUEST),
     CANNOT_DELETE_SELF("자기 자신은 삭제할 수 없습니다. 권한 위임 후 탈퇴해주세요.", HttpStatus.BAD_REQUEST),
     UNSCHEDULED_ACCEPTED_APPLICANT_EXISTS("면접 시간을 결정하지 않은 합격자가 존재합니다. 모든 합격자의 면접 시간을 결정해주세요.", HttpStatus.BAD_REQUEST),
+    NOTIFICATION_SMS_LIMIT_EXCEEDED("한 번에 발송할 수 있는 문자 알림 수를 초과했습니다.", HttpStatus.BAD_REQUEST),
     UNSUPPORTED_STATISTICS_DIMENSION("지원하지 않는 통계 항목입니다.", HttpStatus.BAD_REQUEST),
 
     // 401 UNAUTHORIZED: 인증되지 않은 사용자
@@ -76,6 +77,7 @@ public enum ErrorCode {
     // 409 CONFLICT: 리소스 충돌
     USER_ALREADY_EXISTS("이미 존재하는 유저입니다.", HttpStatus.CONFLICT),
     TEMPORARY_SERVER_CONFLICT("일시적인 요청 충돌이 발생했습니다. 잠시 후 다시 시도해주세요.", HttpStatus.CONFLICT),
+    IDEMPOTENCY_KEY_CONFLICT("동일한 Idempotency-Key가 다른 결과 발표 요청에 사용되었습니다.", HttpStatus.CONFLICT),
     EXISTING_USER_NAME("이미 제출된 이름입니다. 학번을 다시 확인해주세요.", HttpStatus.CONFLICT),
     EXISTING_USER_EMAIL("이미 제출된 이메일입니다. 학번을 다시 확인해주세요.", HttpStatus.CONFLICT),
     EXISTING_USER_PHONE_NUMBER("이미 제출된 전화번호입니다. 학번을 다시 확인해주세요.", HttpStatus.CONFLICT),

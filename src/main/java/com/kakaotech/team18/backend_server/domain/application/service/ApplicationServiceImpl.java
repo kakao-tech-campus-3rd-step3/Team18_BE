@@ -27,10 +27,15 @@ import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationSubmittedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalApprovedEvent;
 import com.kakaotech.team18.backend_server.domain.email.dto.FinalRejectedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewApprovedEvent;
-import com.kakaotech.team18.backend_server.domain.email.dto.InterviewRejectedEvent;
 import com.kakaotech.team18.backend_server.domain.formQuestion.entity.FormQuestion;
 import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQuestionRepository;
+import com.kakaotech.team18.backend_server.domain.notification.entity.NotificationDelivery;
+import com.kakaotech.team18.backend_server.domain.notification.entity.ResultNotificationRequest;
+import com.kakaotech.team18.backend_server.domain.notification.event.ResultNotificationDispatchRequestedEvent;
+import com.kakaotech.team18.backend_server.domain.notification.repository.ResultNotificationRequestRepository;
+import com.kakaotech.team18.backend_server.domain.notification.service.ResultNotificationDeliveryService;
+import com.kakaotech.team18.backend_server.domain.notification.type.NotificationChannel;
+import com.kakaotech.team18.backend_server.domain.notification.util.NotificationRequestFingerprintGenerator;
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
@@ -40,9 +45,13 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingU
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserPhoneNumberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserStudentIdException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidAnswerException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.IdempotencyKeyConflictException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidIdempotencyKeyException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.InvalidResultNotificationStageException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.NoApplicationException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingApplicationsExistException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.TemporaryServerConflictException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.util.DateUtil;
 import java.time.LocalDateTime;
@@ -58,6 +67,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +84,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
     private final ClubMemberRepository clubMemberRepository;
+    private final ResultNotificationRequestRepository resultNotificationRequestRepository;
+    private final ResultNotificationDeliveryService resultNotificationDeliveryService;
     private static final int MAX_READ_LIMIT = 100;
 
     @Override
@@ -391,14 +403,48 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Transactional
     @Override
-    public SuccessResponseDto sendPassFailMessage(Long clubId, ApplicationApprovedRequestDto requestDto, Stage stage) {
+    public SuccessResponseDto sendPassFailMessage(
+            Long clubId,
+            ApplicationApprovedRequestDto requestDto,
+            Stage stage,
+            String idempotencyKey
+    ) {
 
-        ClubApplyForm form = clubApplyFormRepository.findByClubId(clubId)
-                .orElseThrow(() -> {
-                            log.warn("ClubApplyForm not found, clubId={}", clubId);
-                            return new ClubApplyFormNotFoundException("clubId = " + clubId);
-                        }
-                );
+        validateResultNotificationStage(stage);
+        validateIdempotencyKey(idempotencyKey);
+
+        ClubApplyForm form;
+        try {
+            form = clubApplyFormRepository.findByClubIdForUpdate(clubId)
+                    .orElseThrow(() -> {
+                                log.warn("ClubApplyForm not found, clubId={}", clubId);
+                                return new ClubApplyFormNotFoundException("clubId = " + clubId);
+                            }
+                    );
+        } catch (CannotAcquireLockException e) {
+            throw new TemporaryServerConflictException("결과 발표 요청 잠금 획득 실패: clubId=" + clubId);
+        }
+
+        String requestFingerprint = NotificationRequestFingerprintGenerator.generate(clubId, stage, requestDto);
+        Optional<ResultNotificationRequest> existingRequest = resultNotificationRequestRepository
+                .findByClubIdAndIdempotencyKey(clubId, idempotencyKey);
+
+        if (existingRequest.isPresent()) {
+            ResultNotificationRequest existing = existingRequest.get();
+            if (!existing.hasSameFingerprint(requestFingerprint)) {
+                throw new IdempotencyKeyConflictException();
+            }
+            return new SuccessResponseDto(Boolean.TRUE.equals(existing.getSuccess()));
+        }
+
+        ResultNotificationRequest notificationRequest = ResultNotificationRequest.processing(
+                clubId,
+                idempotencyKey,
+                requestFingerprint,
+                stage
+        );
+        resultNotificationRequestRepository.save(notificationRequest);
+
         User president = clubMemberRepository
                 .findUserByClubIdAndRoleAndStatus(clubId, Role.CLUB_ADMIN, ActiveStatus.ACTIVE)
                 .orElseThrow(() -> new PresidentNotFoundException("clubId:" + clubId));
@@ -427,25 +473,23 @@ public class ApplicationServiceImpl implements ApplicationService {
                 throw new UnscheduledAcceptedApplicantExistsException();
             }
 
+            List<NotificationDelivery> deliveries = resultNotificationDeliveryService.createPendingDeliveries(
+                    clubId,
+                    idempotencyKey,
+                    stage,
+                    requestDto.message(),
+                    president.getEmail(),
+                    requestDto.channels(),
+                    apps
+            );
+            publishDispatchEvent(deliveries);
             form.updateInterviewMessage(requestDto.message());
 
             for(Application a : approved) {
-                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                Stage originalStage = a.getStage();
                 a.updateStage(Stage.FINAL);
                 a.updateStatus(Status.PENDING);
-                publisher.publishEvent(new InterviewApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        originalStage,
-                        safeInterviewAt(a)
-                ));
             }
             for(Application a : rejected) {
-                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new InterviewRejectedEvent(applicationInfoDto));
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 applicationRepository.delete(a);
             }
@@ -459,7 +503,6 @@ public class ApplicationServiceImpl implements ApplicationService {
             if (hasPending) {
                 throw new PendingApplicationsExistException();
             }
-            form.updateFinalMessage(requestDto.message());
             List<Application> approved = apps.stream()
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.APPROVED)
@@ -468,22 +511,24 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .filter(a -> a.getStage() == stage)
                     .filter(a -> a.getStatus() == Status.REJECTED)
                     .toList();
+
+            List<NotificationDelivery> deliveries = resultNotificationDeliveryService.createPendingDeliveries(
+                    clubId,
+                    idempotencyKey,
+                    stage,
+                    requestDto.message(),
+                    president.getEmail(),
+                    requestDto.channels(),
+                    apps
+            );
+            publishDispatchEvent(deliveries);
+            form.updateFinalMessage(requestDto.message());
+
             for(Application a : approved) {
-                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                Stage originalStage = a.getStage();
                 a.updateStage(Stage.RESULT);
                 clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
-
-                publisher.publishEvent(new FinalApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        originalStage));
             }
             for(Application a : rejected) {
-                ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 a.updateStage(Stage.RESULT);
             }
@@ -509,34 +554,49 @@ public class ApplicationServiceImpl implements ApplicationService {
             for(Application a : approved) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
                 clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
-                publisher.publishEvent(new FinalApprovedEvent(
-                        applicationInfoDto,
-                        a.getId(),
-                        a.getUser().getEmail(),
-                        requestDto.message(),
-                        a.getStage()));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalApprovedEvent(
+                            applicationInfoDto,
+                            a.getId(),
+                            a.getUser().getEmail(),
+                            requestDto.message(),
+                            a.getStage()));
+                }
             }
             for(Application a : rejected) {
                 ApplicationInfoDto applicationInfoDto = buildApplicationInfo(a,president);
-                publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                if (requestDto.channels().contains(NotificationChannel.EMAIL)) {
+                    publisher.publishEvent(new FinalRejectedEvent(applicationInfoDto));
+                }
                 clubMemberRepository.clearApplicationByApplicationId(a.getId());
                 applicationRepository.delete(a);
             }
         }
+        notificationRequest.complete(true);
         return new SuccessResponseDto(true);
     }
 
     //helper methods
 
-    private LocalDateTime safeInterviewAt(Application a) {
-        // 인터뷰 합격(=다음 단계 진행)인데 면접 시간이 비어있을 수 있어 null-safe 처리
-        // (메일/알림에서 null이면 '추후 안내' 등으로 처리하도록 이벤트가 전달받게 함)
-        if (a.getInterviewDate() == null || a.getInterviewTime() == null) {
-            log.warn("Interview schedule is missing. applicationId={}, interviewDate={}, interviewTime={}",
-                    a.getId(), a.getInterviewDate(), a.getInterviewTime());
-            return null;
+    private void publishDispatchEvent(List<NotificationDelivery> deliveries) {
+        List<Long> deliveryIds = deliveries.stream()
+                .map(NotificationDelivery::getId)
+                .toList();
+        if (!deliveryIds.isEmpty()) {
+            publisher.publishEvent(new ResultNotificationDispatchRequestedEvent(deliveryIds));
         }
-        return LocalDateTime.of(a.getInterviewDate(), a.getInterviewTime());
+    }
+
+    private void validateIdempotencyKey(String idempotencyKey) {
+        if (idempotencyKey == null || idempotencyKey.isBlank() || idempotencyKey.length() > 100) {
+            throw new InvalidIdempotencyKeyException();
+        }
+    }
+
+    private void validateResultNotificationStage(Stage stage) {
+        if (stage == Stage.RESULT) {
+            throw new InvalidResultNotificationStageException(stage);
+        }
     }
 
     private ApplicationInfoDto buildApplicationInfo(Application a, User president) {
