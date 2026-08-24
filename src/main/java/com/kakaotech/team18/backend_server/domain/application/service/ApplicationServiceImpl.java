@@ -34,6 +34,7 @@ import com.kakaotech.team18.backend_server.domain.formQuestion.repository.FormQu
 import com.kakaotech.team18.backend_server.domain.user.entity.User;
 import com.kakaotech.team18.backend_server.domain.user.repository.UserRepository;
 import com.kakaotech.team18.backend_server.global.dto.SuccessResponseDto;
+import com.kakaotech.team18.backend_server.global.exception.exceptions.AlreadyClubMemberException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ApplicationNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ClubApplyFormNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.ExistingUserEmailException;
@@ -268,6 +269,14 @@ public class ApplicationServiceImpl implements ApplicationService {
             ClubApplyForm form,
             ApplicationApplyRequestDto request
     ) {
+        Long clubId = form.getClub().getId();
+        clubMemberRepository.findByUserIdAndClubId(user.getId(), clubId)
+                .filter(cm -> cm.getActiveStatus() == ActiveStatus.ACTIVE)
+                .ifPresent(cm -> {
+                    throw new AlreadyClubMemberException(
+                            "userId=" + user.getId() + ", clubId=" + clubId + ", role=" + cm.getRole());
+                });
+
         Application newApplication = Application.builder().user(user).clubApplyForm(form).build();
         applicationRepository.save(newApplication);
         log.info("새로운 답변 기록됨 applicationId={}", newApplication.getId());
