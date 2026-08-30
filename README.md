@@ -38,7 +38,7 @@
 운영진은 지원폼을 자유롭게 구성하고 지원자를 심사·관리할 수 있으며, 지원자는 카카오 로그인만으로 여러 동아리에 간편하게 지원할 수 있습니다.
 
 - 🌐 서비스: [dongarium.co.kr](https://dongarium.co.kr)
-- 🖥️ 프론트엔드 레포: 팀 노션/별도 저장소 참고 (링크 추후 추가)
+- 🖥️ 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
 
 ## ⚡ 빠른 시작
 
