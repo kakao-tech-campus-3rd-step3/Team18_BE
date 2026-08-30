@@ -13,6 +13,8 @@
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#-기술-스택)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](#-기술-스택)
 
+**[🌐 서비스 바로가기](https://dongarium.co.kr)** · **[📑 API 문서](#-api-문서)** · **[🚀 시작하기](#-시작하기)**
+
 </div>
 
 ---
@@ -20,6 +22,7 @@
 ## 📌 목차
 
 - [소개](#-소개)
+- [빠른 시작](#-빠른-시작)
 - [주요 기능](#-주요-기능)
 - [기술 스택](#-기술-스택)
 - [아키텍처](#-아키텍처)
@@ -36,6 +39,19 @@
 
 - 🌐 서비스: [dongarium.co.kr](https://dongarium.co.kr)
 - 🖥️ 프론트엔드 레포: 팀 노션/별도 저장소 참고 (링크 추후 추가)
+
+## ⚡ 빠른 시작
+
+가장 빠르게 로컬에서 띄워보는 방법입니다. 상세 설정은 [시작하기](#-시작하기) 참고.
+
+```bash
+git clone https://github.com/kakao-tech-campus-3rd-step3/Team18_BE.git
+cd Team18_BE
+docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
+./gradlew bootRun
+```
+
+→ `http://localhost:8080/swagger-ui/index.html` 에서 API 확인
 
 ## ✨ 주요 기능
 
