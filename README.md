@@ -12,6 +12,10 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#-기술-스택)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#-기술-스택)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](#-기술-스택)
+[![Kakao](https://img.shields.io/badge/Kakao%20OAuth-FFCD00?logo=kakaotalk&logoColor=black)](#-기술-스택)
+[![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20S3%20%7C%20ECR-FF9900?logo=amazonaws&logoColor=white)](#-기술-스택)
+[![Nginx](https://img.shields.io/badge/Nginx-reverse%20proxy-009639?logo=nginx&logoColor=white)](#-기술-스택)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#-기술-스택)
 
 **[🌐 서비스 바로가기](https://dongarium.co.kr)** · **[📑 API 문서](#-api-문서)** · **[🚀 시작하기](#-시작하기)**
 
