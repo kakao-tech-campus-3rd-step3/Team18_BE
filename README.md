@@ -206,19 +206,35 @@ src/main/java/com/kakaotech/team18/backend_server
 
 ### Backend
 
-| 이름 | GitHub |
-| --- | --- |
-| gary5876 | [@gary5876](https://github.com/gary5876) |
-| ji-mim | [@ji-mim](https://github.com/ji-mim) |
-| jnujh | [@jnujh](https://github.com/jnujh) |
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/gary5876"><img src="https://github.com/gary5876.png" width="100" alt="gary5876" /><br /><sub><b>gary5876</b></sub></a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ji-mim"><img src="https://github.com/ji-mim.png" width="100" alt="ji-mim" /><br /><sub><b>ji-mim</b></sub></a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/jnujh"><img src="https://github.com/jnujh.png" width="100" alt="jnujh" /><br /><sub><b>jnujh</b></sub></a>
+    </td>
+  </tr>
+</table>
 
 ### Frontend ([Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE))
 
-| 이름 | GitHub |
-| --- | --- |
-| kanghaeun | [@kanghaeun](https://github.com/kanghaeun) |
-| ganimjeong | [@ganimjeong](https://github.com/ganimjeong) |
-| aaaaaattt | [@aaaaaattt](https://github.com/aaaaaattt) |
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/kanghaeun"><img src="https://github.com/kanghaeun.png" width="100" alt="kanghaeun" /><br /><sub><b>kanghaeun</b></sub></a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/ganimjeong"><img src="https://github.com/ganimjeong.png" width="100" alt="ganimjeong" /><br /><sub><b>ganimjeong</b></sub></a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/aaaaaattt"><img src="https://github.com/aaaaaattt.png" width="100" alt="aaaaaattt" /><br /><sub><b>aaaaaattt</b></sub></a>
+    </td>
+  </tr>
+</table>
 
 ---
 
