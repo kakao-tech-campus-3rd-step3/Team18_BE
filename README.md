@@ -39,6 +39,7 @@
 
 - 🌐 서비스: [dongarium.co.kr](https://dongarium.co.kr)
 - 🖥️ 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
+- 🤖 개발 과정에서 Claude Code 등 AI 코딩 에이전트를 코드 작성·리뷰·문서화에 적극 활용했습니다.
 
 ## ⚡ 빠른 시작
 
