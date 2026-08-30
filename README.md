@@ -58,13 +58,13 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 - **동아리 지원 관리**: 동아리별 커스텀 지원폼(질문/답변) 생성 및 지원서 접수
 - **전형 프로세스**: 서류 → 면접 → 최종 합격/불합격 단계별 상태 관리
 - **동아리원 관리**: 지원자의 동아리원 전환, 재지원 제한 등 멤버십 상태 관리
-- **알림**: 전형 결과를 이메일로 자동 발송 (전형 단계별 템플릿)
-- **카카오 소셜 로그인**: OAuth2 기반 인증 및 JWT 발급/재발급
+- **알림**: 전형 결과를 전형 단계별 템플릿 이메일로 자동 발송
+- **카카오 소셜 로그인**: OAuth2 기반 인증, JWT 발급 및 Redis 기반 Refresh Token/로그아웃 블랙리스트 관리
 - **동아리 후기**: 동아리원 대상 동아리 후기 작성/조회
-- **지원자 통계**: 성별·학과·입학년도 등 다각도의 지원자 통계 집계 (재식별 방지를 위한 최소 공개 기준 적용)
-- **동아리 인기도**: 조회수 기반 실시간 인기 동아리 집계 (Redis 활용)
-- **파일 업로드**: 동아리 이미지/첨부파일 AWS S3 업로드
-- **모니터링**: Actuator + Prometheus + Grafana + Loki 기반 운영 모니터링
+- **지원자 통계**: 성별·학과·입학년도 등 다각도의 지원자 통계 집계 (재식별 방지를 위한 최소 공개 기준 적용, Redis 캐시)
+- **동아리 인기도**: 조회수·체류시간 기반 실시간 인기 동아리 집계 (Redis + Lua 스크립트)
+- **파일 업로드**: 동아리 이미지/지원서 첨부파일 AWS S3 업로드
+- **모니터링**: Actuator + Prometheus + Grafana + Loki 기반 운영 모니터링, Discord Webhook 알림 연동
 
 ## 🛠 기술 스택
 
@@ -74,30 +74,42 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 | Framework | Spring Boot 3.5.5, Spring Data JPA, Spring Security, Spring Validation |
 | Auth | OAuth2 Client (Kakao), JWT (jjwt) |
 | Database | MySQL 8.0 (운영), H2 (로컬/테스트) |
-| Cache / Realtime | Redis 7 |
+| Cache / Realtime | Redis 7 — Refresh Token/블랙리스트, 동아리 인기도 집계, 통계 캐시 |
+| Web Server | Nginx (리버스 프록시, HTTPS 종료) |
 | Infra | Docker, Docker Compose, AWS EC2, AWS S3, AWS ECR |
 | API 문서 | Springdoc OpenAPI (Swagger UI) |
-| Monitoring | Actuator, Prometheus, Grafana, Loki, Promtail |
-| Test | JUnit5, Spring Security Test, Testcontainers (LocalStack) |
-| CI/CD | GitHub Actions |
-| 기타 | Spring Retry(AOP 재시도), Apache POI(엑셀), Discord Webhook(로그 알림) |
+| Monitoring | Actuator, Prometheus, Grafana, Loki, Promtail, Discord Webhook |
+| Test | JUnit5, Spring Security Test, Testcontainers (LocalStack), k6 (부하 테스트) |
+| CI/CD | GitHub Actions → Amazon ECR → EC2 (SSH 배포) |
+| 기타 | Spring Retry(AOP 재시도), Apache POI(엑셀), Lua(Redis 스크립트) |
 
 ## 🏗 아키텍처
 
 ```
-Client (Web)
-    │
-    ▼
-Spring Boot App (EC2, Docker)
-    ├── MySQL          : 서비스 데이터 저장
-    ├── Redis          : 인기도 집계 캐시, 세션성 데이터
-    ├── AWS S3         : 동아리 이미지 / 지원서 첨부파일
-    └── Kakao OAuth2   : 소셜 로그인
+                        Client (Web)
+                             │ HTTPS
+                             ▼
+                          Nginx  ← 리버스 프록시 / TLS 종료
+                 ┌───────────┴────────────┐
+        dongarium.co.kr           monitor.dongarium.co.kr
+                 │                         │
+                 ▼                         ▼
+     ┌────────────────────┐        ┌──────────────┐
+     │  Spring Boot App    │        │   Grafana     │
+     │  (Docker, :8080)    │        └──────┬───────┘
+     └───┬──────┬──────┬───┘               │
+         │      │      │             ┌─────┴─────┐
+         ▼      ▼      ▼           Prometheus    Loki ← Promtail (컨테이너 로그 수집)
+      MySQL   Redis  AWS S3           ▲
+         │                            │ /actuator/prometheus
+         └──────── Kakao OAuth2 ──────┘
 
-Monitoring: Actuator → Prometheus → Grafana (+ Loki/Promtail 로그 수집)
+에러/알림: 로그백(Discord Appender), Grafana Alerting → Discord Webhook
 ```
 
-패키지는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
+- **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2 접속 후 `docker compose pull && up`으로 무중단 재기동합니다. (`.github/workflows/deploy-with-docker.yml`)
+- **패키지 구조**는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
+- Nginx 설정은 EC2 호스트에서 직접 관리되며 이 저장소에는 포함되어 있지 않습니다.
 
 ## 🚀 시작하기
 
@@ -115,7 +127,7 @@ cd Team18_BE
 
 ### 2. 로컬 인프라 실행 (선택)
 
-로컬 기본 프로필은 H2 인메모리 DB로 동작하지만, Redis 관련 기능(인기도 집계 등)을 확인하려면 Redis가 필요합니다.
+로컬 기본 프로필은 H2 인메모리 DB로 동작하지만, Redis 관련 기능(인기도 집계, 토큰 저장 등)을 확인하려면 Redis가 필요합니다.
 
 ```bash
 docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
@@ -123,7 +135,7 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 ### 3. 환경변수 설정
 
-카카오 로그인, 메일 발송, AWS S3 등 외부 연동 값은 환경변수 또는 로컬 전용 `src/main/resources/application.yml`(gitignore 처리되어 저장소에는 커밋되지 않음)로 주입합니다. 필요한 주요 값은 아래와 같습니다.
+카카오 로그인, 메일 발송, AWS S3 등 외부 연동 값은 환경변수 또는 로컬 전용 `src/main/resources/application.yml`(`.gitignore`에 등록되어 저장소에는 커밋되지 않음)로 주입합니다. 필요한 주요 값은 아래와 같습니다.
 
 ```
 KAKAO_CLIENT_ID
@@ -161,7 +173,7 @@ http://localhost:8080/swagger-ui/index.html
 ## 🌿 브랜치 & 커밋 전략
 
 - `main` : 배포 브랜치
-- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성)
+- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, push 시 자동 배포)
 - `{type}/{작업-내용}#{이슈번호}` : 기능/작업 브랜치 (예: `feat/club-review#123`, `fix/apply-form-validation#456`)
 
 이슈 템플릿(`.github/ISSUE_TEMPLATE`)에는 `feature` / `bug` / `refactor` / `question` 타입이 있으며, PR은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)에 맞춰 작성합니다. 모든 PR은 `develop` 대상 CI(빌드 & 테스트)를 통과해야 합니다.
@@ -172,7 +184,7 @@ http://localhost:8080/swagger-ui/index.html
 src/main/java/com/kakaotech/team18/backend_server
 ├── domain
 │   ├── application       # 지원서
-│   ├── auth               # 인증/인가 (OAuth2, JWT)
+│   ├── auth               # 인증/인가 (OAuth2, JWT, Redis)
 │   ├── club                # 동아리
 │   ├── clubApplyForm      # 지원폼
 │   ├── clubMember         # 동아리원
