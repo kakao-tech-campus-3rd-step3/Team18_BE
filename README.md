@@ -86,26 +86,26 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 ## 🏗 아키텍처
 
 ```
-                        Client (Web)
-                             │ HTTPS
-                             ▼
-                          Nginx  ← 리버스 프록시 / TLS 종료
-                 ┌───────────┴────────────┐
-        dongarium.co.kr           monitor.dongarium.co.kr
-                 │                         │
-                 ▼                         ▼
-     ┌────────────────────┐        ┌──────────────┐
-     │  Spring Boot App    │        │   Grafana     │
-     │  (Docker, :8080)    │        └──────┬───────┘
-     └───┬──────┬──────┬───┘               │
-         │      │      │             ┌─────┴─────┐
-         ▼      ▼      ▼           Prometheus    Loki ← Promtail (컨테이너 로그 수집)
-      MySQL   Redis  AWS S3           ▲
-         │                            │ /actuator/prometheus
-         └──────── Kakao OAuth2 ──────┘
-
-에러/알림: 로그백(Discord Appender), Grafana Alerting → Discord Webhook
+                          Client (Web)
+                               │ HTTPS
+                               ▼
+                             Nginx   ← 리버스 프록시 / TLS 종료
+                ┌────────────────┴─────────────────┐
+       dongarium.co.kr                    monitor.dongarium.co.kr
+                │                                   │
+                ▼                                   ▼
+   ┌────────────────────────────┐              ┌─────────────┐
+   │      Spring Boot App        │              │   Grafana    │
+   │      (Docker, :8080)        │              └──────┬──────┘
+   └──┬──────┬──────┬──────┬─────┘                     │
+      │      │      │      │                     ┌─────┴─────┐
+      ▼      ▼      ▼      ▼                  Prometheus     Loki ◄── Promtail
+    MySQL  Redis   S3   Kakao OAuth2                ▲          (컨테이너 로그 수집)
+                          (외부)                     │
+                                       App의 `/actuator/prometheus` 스크레이핑
 ```
+
+- 에러/알림: 로그백(Discord Appender), Grafana Alerting → Discord Webhook
 
 - **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2 접속 후 `docker compose pull && up`으로 무중단 재기동합니다. (`.github/workflows/deploy-with-docker.yml`)
 - **패키지 구조**는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
