@@ -202,13 +202,23 @@ src/main/java/com/kakaotech/team18/backend_server
 
 ## 👥 팀 소개
 
-카카오테크 캠퍼스 3기 Step3 **Team 18** 백엔드 파트
+카카오테크 캠퍼스 3기 Step3 **Team 18**
+
+### Backend
 
 | 이름 | GitHub |
 | --- | --- |
 | gary5876 | [@gary5876](https://github.com/gary5876) |
 | ji-mim | [@ji-mim](https://github.com/ji-mim) |
 | jnujh | [@jnujh](https://github.com/jnujh) |
+
+### Frontend ([Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE))
+
+| 이름 | GitHub |
+| --- | --- |
+| kanghaeun | [@kanghaeun](https://github.com/kanghaeun) |
+| ganimjeong | [@ganimjeong](https://github.com/ganimjeong) |
+| aaaaaattt | [@aaaaaattt](https://github.com/aaaaaattt) |
 
 ---
 
