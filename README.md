@@ -7,7 +7,6 @@
 동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지<br/>
 동아리 운영의 전 과정을 하나로 관리하는 서비스의 백엔드 서버입니다.
 
-[![CI](https://github.com/kakao-tech-campus-3rd-step3/Team18_BE/actions/workflows/ci-on-pr.yml/badge.svg)](https://github.com/kakao-tech-campus-3rd-step3/Team18_BE/actions/workflows/ci-on-pr.yml)
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](#-기술-스택)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#-기술-스택)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#-기술-스택)
