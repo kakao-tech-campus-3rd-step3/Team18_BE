@@ -18,9 +18,12 @@ import com.kakaotech.team18.backend_server.domain.application.entity.Status;
 import com.kakaotech.team18.backend_server.domain.application.repository.ApplicationRepository;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.entity.ClubApplyForm;
 import com.kakaotech.team18.backend_server.domain.clubApplyForm.repository.ClubApplyFormRepository;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.AcademicStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ActiveStatus;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMember;
+import com.kakaotech.team18.backend_server.domain.clubMember.entity.ClubMemberProfile;
 import com.kakaotech.team18.backend_server.domain.clubMember.entity.Role;
+import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberProfileRepository;
 import com.kakaotech.team18.backend_server.domain.clubMember.repository.ClubMemberRepository;
 import com.kakaotech.team18.backend_server.domain.email.dto.AnswerEmailLine;
 import com.kakaotech.team18.backend_server.domain.email.dto.ApplicationInfoDto;
@@ -45,6 +48,7 @@ import com.kakaotech.team18.backend_server.global.exception.exceptions.PendingAp
 import com.kakaotech.team18.backend_server.global.exception.exceptions.PresidentNotFoundException;
 import com.kakaotech.team18.backend_server.global.exception.exceptions.UnscheduledAcceptedApplicantExistsException;
 import com.kakaotech.team18.backend_server.global.util.DateUtil;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,6 +78,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final UserRepository userRepository;
     private final ApplicationEventPublisher publisher;
     private final ClubMemberRepository clubMemberRepository;
+    private final ClubMemberProfileRepository clubMemberProfileRepository;
     private static final int MAX_READ_LIMIT = 100;
 
     @Override
@@ -473,6 +478,22 @@ public class ApplicationServiceImpl implements ApplicationService {
                 Stage originalStage = a.getStage();
                 a.updateStage(Stage.RESULT);
                 clubMemberRepository.updateRoleByApplicationId(a.getId(), Role.APPLICANT, Role.CLUB_MEMBER);
+
+                ClubMember clubMember = clubMemberRepository.findByUserIdAndClubId(a.getUser().getId(), clubId)
+                        .orElseThrow(() -> new NoApplicationException("clubMember not found for applicationId=" + a.getId()));
+                User approvedUser = a.getUser();
+                ClubMemberProfile profile = ClubMemberProfile.builder()
+                        .clubMember(clubMember)
+                        .name(approvedUser.getName())
+                        .studentId(approvedUser.getStudentId())
+                        .phoneNumber(approvedUser.getPhoneNumber())
+                        .college("")
+                        .department(approvedUser.getDepartment())
+                        .academicStatus(AcademicStatus.ENROLLED)
+                        .joinDate(LocalDate.now())
+                        .role(Role.CLUB_MEMBER)
+                        .build();
+                clubMemberProfileRepository.save(profile);
 
                 publisher.publishEvent(new FinalApprovedEvent(
                         applicationInfoDto,
