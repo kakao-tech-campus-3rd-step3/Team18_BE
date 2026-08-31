@@ -15,6 +15,7 @@
 [![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20S3%20%7C%20ECR-FF9900?logo=amazonaws&logoColor=white)](#-기술-스택)
 [![Nginx](https://img.shields.io/badge/Nginx-reverse%20proxy-009639?logo=nginx&logoColor=white)](#-기술-스택)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#-기술-스택)
+[![OpenWiki](https://img.shields.io/badge/Docs-OpenWiki-8A2BE2?logo=readthedocs&logoColor=white)](openwiki/quickstart.md)
 
 **[🌐 서비스 바로가기](https://dongarium.co.kr)** · **[📑 API 문서](#-api-문서)** · **[🚀 시작하기](#-시작하기)**
 
@@ -81,6 +82,7 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 | Web Server | Nginx (리버스 프록시, HTTPS 종료) |
 | Infra | Docker, Docker Compose, AWS EC2, AWS S3, AWS ECR |
 | API 문서 | Springdoc OpenAPI (Swagger UI) |
+| 문서화 | OpenWiki (저장소 위키 자동 생성/갱신) |
 | Monitoring | Actuator, Prometheus, Grafana, Loki, Promtail, Discord Webhook |
 | Test | JUnit5, Spring Security Test, Testcontainers (LocalStack), k6 (부하 테스트) |
 | CI/CD | GitHub Actions → Amazon ECR → EC2 (SSH 배포) |
