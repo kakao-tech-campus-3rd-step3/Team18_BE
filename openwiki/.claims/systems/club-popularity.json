@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:d8aa9d511c9aa17effb5d3a4e2db58fa4d17cbc047a5b7fd99baedfd8b46b509",
+  "claims": [
+    {
+      "id": "claim_173ebd9154004bafbc79f8a915e9257e",
+      "statement": "club-popularity-record-views.lua는 복구 상태가 READY가 아니면 3을, 클럽 ID가 KNOWN_CLUBS에 없으면 4를, rate-limit 키가 이미 있으면 2를 반환하고, 그렇지 않으면 최근/활성 조회자 정렬 집합에 ZADD GT로 시각을 기록하고 1을 반환한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/resources/lua/club-popularity-record-views.lua#L1-L21",
+          "version": "repo-lines-v1:sha256:08c06b9d250da71a08acc2423c7e4ee0baacdc9b29e2924c62e8f796b93a3c6a:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQxYmVmMzgxMDA3NzFkZjNjOWU3NTBhM2JkZTMwYjk2MWY5ZGM3ZWRmNjMxYTMzNGI1MjAwNTdiMGE3NGUzOTEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA4MDViZmRjMDJlODcyZWQzMjJhNGE0ZTQ0MGFlOTg1ZjNhNDMzNWY0ZGQ1OWYzZDM3M2RmYWYyYTY4YTRhM2MiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2dcdc71be82142cabd09d46e09962ade",
+      "statement": "ClubPopularityRecordingService.RecordingResult는 Redis 결과를 RECORDED/RATE_LIMITED/RECOVERING/INVALID_CLUB/REDIS_ERROR/INVALID_IDENTITY/DISABLED로 매핑하며, DataAccessException이 나면 REDIS_ERROR로 흡수해 조회 기능 자체가 Redis 문제로 실패하지 않게 한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubPopularity/service/ClubPopularityRecordingService.java#L26-L51",
+          "version": "repo-lines-v1:sha256:e12ceaf92c4f1b0c377e100f0fc02ad3b8f6807346ee5a7fe0ad1881dd3556ba:eyJzZWxlY3RlZExpbmVDb3VudCI6MjYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4YzhhNWIxZDZlN2IyZjkyNDgwMjAzMDQ1MDU5M2JlZDY5M2I0YTgxYmZhMTllZjljYjNiMzJhNTc4YjI2ODkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlM2YwYTI0YjIzZDBiOGFjMjkxYjZjMmFhZmFlMWQ0ZjkxNzlhNDkzNjc3OGM0OTI4ZWM2ZTlkNTAzYmQ0YjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjAyNmIwMGE5YjMzMzI4ZDcwMzE1ZmFlYmQxNzBhNGM1ZmJlODViZWMzODQ2NWNkZmY5ZDQyMzNlZjViNWQ2YWIifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubPopularity/service/ClubPopularityRecordingService.java#L87-L95",
+          "version": "repo-lines-v1:sha256:8a53ab8d9acd4d790e07d496bdfc52c6d0287876b6cd38a267a617973a6342d3:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiN2RlNDk0OWViMzA0NWY2NTUxODMyOWZlYzU1MmI5MGEyMDFmN2UwYzY4YzUxMjM5MWE1YWYyMDk1ZmE0ZmM0NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYzgwODgzZGNjNDU1Y2I0ZTA4OTc0OTE3MzBmZWFiZDM5YzcxNGFhNGZhNTNlNzgzMDVhOGQ3ZWIxZDJmNjFmZiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_9f73befc5a2142f6a1043fc76fdcaa27",
+      "statement": "club-popularity-aggregate.lua는 컷오프 이전 항목을 ZREMRANGEBYSCORE로 제거한 뒤 남은 개수를 ZCOUNT로 세고, 두 카운트가 모두 0이면 해당 클럽을 CANDIDATES에서 제거하며, 결과는 recentCount*2^32+activeCount로 하나의 Long에 패킹된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/resources/lua/club-popularity-aggregate.lua#L1-L13",
+          "version": "repo-lines-v1:sha256:d5587fd5d3d250f5fc43dc7d337fb68803f7ece0391134977a6cdf622d7c4f09:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI2YTBiZmI0MDBiMTdhY2M1ZGE4OWNiYmJmNDdlOWYxNDZjZTUwNjQzODc5YzI2MzQ1NmU3Mzg1NGYxZWVmMDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk0ODU2Y2Y1MjA1ZGY2YjFhZGUzOWM0NzMzZmY3NTU3YTdkZmQ3NzU1MmJmNGFlNDAzM2YzMzBjNjg3NjVkZTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_02115d9985044065b08f5b5f407c7631",
+      "statement": "ClubPopularityQueryService.getPopularClubs는 recentViewerCount>=recentViewerThreshold 또는 activeViewerCount>=activeViewerThreshold일 때 인기 배지를 부여하며, 집계 도중 복구 상태로 전환되면 부분 결과를 노출하지 않고 빈 응답을 반환한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubPopularity/service/ClubPopularityQueryService.java#L60-L79",
+          "version": "repo-lines-v1:sha256:5b252176314f185c3c9561335b01c81ef0265035c2d3e423c7ce6cd5ec75b020:eyJzZWxlY3RlZExpbmVDb3VudCI6MjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ1NmFhYWFjMmQzODc1ZWE2MTBmZjE3N2E1NTQ1ZWUzN2VkNTNjN2ZhMmZmNjhjN2NmMTA1MDc0Y2NlNGIwYTMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0NTdlOWE3OGU2Mjg1ODk3NGExZGE2OTU4NmQxN2MxNDEzYzVjMGM3OWU4ZmMxM2QyYjY4MzRhYmJiYmFiNWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmNGU2MzdlNzViYWViMjcyZTZiNDU4MTJhZTYzMWNlNzY1NDY2NTkyYmVkM2Q3YmZhYTc2YjQwOTAyNDgxZjAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0YTA4NzI0ZGUyMGI5ZTZmOTljY2QzY2ExMjY1NmE3YWI4ZmI1ZjRmYWJkOTI5ZWQ5MDY1MjIwMWUyOWM0ZGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_59ed7b4ff9414616b0b57c6984574065",
+      "statement": "ClubPopularityScheduler.flushPending은 club-popularity.flush-interval-minutes(기본 60분)마다 복구 상태가 READY일 때만 실행되며, 최대 레코드 수/최대 DB 시도 횟수/최대 실행 시간 상한을 모두 지키며 중단한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/scheduler/ClubPopularityScheduler.java#L25-L65",
+          "version": "repo-lines-v1:sha256:cffc0ebd2eaefba3e3512f68b5890aa875db0e52fa31e67b4534af1893a17238:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImUwZmE4NzZjYjRlNWYzMGUyNmNjNzIxZGIzOWI4MmI4OTNmODhiZTE0MzRlZjcyMjE1OTA1NWFmMDI3NjlmNmMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImE5Y2FmZTIxNDM3MTNmOWEyNTkwNzM4NGZmOTc5NjdhY2EyZTQ2NjJiMGIwYWYyNzY1ZjFjMGE2OTM1YzA1YjUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlNGIzNDk3OGU2ODY0ZjA3MTMxNzUwOGVmMmM3ZWRlNTVmNzFkYjVhMDk4ZTUzY2M3N2EwZjU2YjU5YmFkNGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2438e6ef904044b69e579f9683b62ac1",
+      "statement": "ClubPopularityRecoveryService는 애플리케이션 시작 시(ApplicationReadyEvent)와 주기적으로 분산 랭(RECOVERY_LOCK)을 획득해 KNOWN_CLUBS를 DB의 현재 클럽 ID 전체로 교체하고 ClubView의 최근 조회 기록으로 최근 조회자 정렬 집합을 재구성한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubPopularity/service/ClubPopularityRecoveryService.java#L40-L97",
+          "version": "repo-lines-v1:sha256:c8f6e390a84ef6020134af20375bfba5d5e9a90bf52d5f6a6547111e08a35de3:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzVlOWNjMWQzMDg4OGU1OTI3OWEwMDVhZTYyNTc0NWVkODZiZmQ5NWYyZjg3NmI4MzVlMTI1OGE1NTIyYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBjNjQ3OWNjMjMwNDQwZmQ0MWU4MjI0MjE4Njc5Njk4NTU5ZDI4OTNiZDY3YjQzODBhZmFiODExYjM4YTU1YWEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFkODQyYTA2NGU3MDVjYjk4ZmE0NGQ1M2ZjOWJjZTg0NzlmZjFiNTJmZWRlZjMxYzY4NDE2MTQ5NDFhY2M4NzYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImYyZTg3Nzg5NmM0MTQ2ODFhNjQ2NjM0MGU3NGQzNDZkMmU0NzBhZmE2ZDllZTFhMTk0ZWIyMTZhZDQ3MTNiMzIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

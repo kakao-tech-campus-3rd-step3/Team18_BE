@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:533a0cd8ab2789ad768b7d32eefb7a85c9266de8462e700aa639493d49a7acc6",
+  "claims": [
+    {
+      "id": "claim_49ce0621c8e14378ab4c626d239fb0b9",
+      "statement": "Club과 ClubApplyForm은 1:1(optional=false) 관계로, 동아리 하나당 지원폼이 정확히 하나만 존재하도록 강제된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubApplyForm/entity/ClubApplyForm.java#L30-L32",
+          "version": "repo-lines-v1:sha256:4b14a68afe21056d94f11cdc261ed9c3ac6c1e610405d2b1ada5503716ec8c77:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNWRiNWUzMjUwMTdkOTIzZTQ1NTVjZTBhZGM4MDgzY2M3OTlmNzNlNjk0NmE3NzAxZTE5MWI5MzMwZDc5NjI2NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMTcxY2EzY2VjOGUwYTAwYzFmMTQ1ZDZjYzMzZmUxMDExNjY2YTViZGJmMTljNDc1MDIzNTE5OWY3NmQ0YTVjZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjdmYzgwNTI2ZjNjMGE5YjA2ZWRmZmU2NjJhYmI4ZjcyYWY3YmM0MWUwMjIxNWRmNmQ1MTJkODU4ODk4NDZiOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiY2EwNDQzNWJkMGRjZTFlMmIyNDhkNzRjMmJmOWJlZTljYTM3YjI4ZjY2ZDFiYzhhNmJmOGMwZjE0N2FhZjU3ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2d1e3dedbe64002bb37735853bc5898",
+      "statement": "Application 엔티티는 합격 여부(Status: PENDING/APPROVED/REJECTED)와 전형 진행 단계(Stage: INTERVIEW/FINAL/RESULT)를 독립된 두 축으로 관리한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/entity/Application.java#L52-L58",
+          "version": "repo-lines-v1:sha256:f19cb32710e72e6165974c51ae8893534e44685d1d9f1a5cbd4070cbc3661684:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTNlOTU3OTA0NmNmNDNhOGE4N2Y4MTYzNDVlYTBjN2I5ZjMxMzYyYTUwMmFmN2M4NTg5MGUwNDE4MjViY2E0NSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDQ4YjAzZTZiOTY2ZTM4MjExMTAzY2Y2MmIxMTI4ZmM0ODVjZjVjMzM4MGM5YWFmMWYzNTliYjg4NzMxMDg4OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOGFiOWFkY2NiMmY1YjFjY2JkNWVlZDljMGRiYjgzMWE5NzcyYTgyNzViODFjMzQ1OTI2NzhhY2VlNGE2YjRhYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTMwMmQ4YjM5NTBlMmY5MDc1OGM0MGMyMDU1OWM3ZjAxNzRjZDczOWZkNWI4Y2NhMmFmMjRkOGZjMjRkN2QyYSJ9"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/entity/Stage.java#L3-L4",
+          "version": "repo-lines-v1:sha256:2ceee01c3029dd53e7ede4a8bc1976085bbb826985cc6999084aacf1f29cad3c:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZlYmY0YjA2NmYyMWYyZWNkYTNmZjNlYTgwM2ZlODk2ZjZmN2Y4OGIwNGY2NmJiMGQwM2RhYjE5ZjZhMTZiOSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZWU0NGJiYjM5ZTA2ZmMzMDVlMzU1ZWUwNTQ0YmQ0NjE0Y2ZiMTQ3Zjc5MjcxM2E1M2FhYTMyODA2M2NkOTM3MyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjIsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMzE2NDU2N2FjMzBkOGY3ZDY1OTBkMjIzZjdjY2Q1YzU3NDA2YWM5YmQ5MjM2NzQyMGYwODE1MDc3NzI4NDg5ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTU3Zjk0OTUxZjI1Zjk3NDFlZTk5NTRmMTQ4YzM0MDZkZGM0NzZjODcyYTNmNzI1NjVhZjM5MDkyNDM0NzBlYyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/entity/Status.java#L8-L11",
+          "version": "repo-lines-v1:sha256:bb4121233d2583352d71534da686b613527a443e8cf17cf9fc7840f1e75eef06:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjM3NGJjNjFiY2M5MGIyNzI2ZjQxZmM4Y2NjMmEzYjNiYzViMjU5OWMzMTk2ZmM3NzkxMTZiYmU4OTRlYmI4MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOWEwOTgxNTk1ZmQ1OWY5M2FkYmNiNjA4OTQxMmFmMmNhMDBlMzA1MGEzYzNjNmY0ODRkYThjYzVlZWRjYmZmMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTM4NzdkOGQ1ZGI2NTdmMTZlOWQwZjllNzIxZTg4ZGFiYzBkZTIxMzUzNzhlOTkzMmQ3OTAyNTM2ZjJjNjlmMSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGIwYWEwMGRmMDlmNDc0ZjkxMDFiZDEyOGZjODIzZTExZWFjOGM5YWExZDk4ZjVmN2M0ZWM4NDg4NTgyMDk4NyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_aa9c35bfd4f74e0b849b15a7fe9ec6f6",
+      "statement": "FormQuestion.updateFrom은 fieldType이 TIME_SLOT이면 timeSlotOptions를 채우고 options를 null로, 그 반대면 options를 채우고 timeSlotOptions를 null로 설정해 두 표현이 동시에 남지 않게 한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/formQuestion/entity/FormQuestion.java#L80-L104",
+          "version": "repo-lines-v1:sha256:097031a84b6f3a979675d3c580e9acebbf7b35ee360996c241b1dcb038664458:eyJzZWxlY3RlZExpbmVDb3VudCI6MjUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRkMWQxNWVmMDViZDNiMzgwNDgzNjMyN2ZlMjE5M2ZmMjY3NmNjNTAzNmYwM2U3MzBhZmZhYzEzOGY4YWQ3YmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk5ODIwN2Y4Yzc0NDkxODFkYzdhZmZmMTgxOWMzZTdlOGY3ZjI4MjU2NzdiNWFkOTJiNTNmYWMzZmM2OGYxNjEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjI2ZGM1MDc2NDk0OTU5MTgzZGJkMWIwYjE0YTliZWY2NjUxYjRlNGVlOWQ4ZmM3OTI0MThkNGYwYTExMTM3ZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_aaef56df587844d8a5798147ab0a1540",
+      "statement": "User는 studentId, email, phoneNumber에 각각 unique 제약이 있고 kakaoId는 nullable+unique이어서, 지원서 제출로 먼저 생성된 User가 이후 카카오 로그인으로 connectKakaoId를 통해 연결될 수 있다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/user/entity/User.java#L28-L41",
+          "version": "repo-lines-v1:sha256:5522763a074e91642003178a42f7f349b65a1d09af6a4052a39d23b87139f63e:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0YjU3MTRjMGE1NDJiNTFmNGU2NDhhMDQ5NDQxY2UzNmE0YzhkYzIyN2U0YzQ4NWYyM2UzNDJjNjg2NDA3ZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjgxMmUzZGU1ZGE2MTQwMjhhODgwZDUxYjM2ZmY3NzViY2Q4YTY2N2M3MmIxNjJjMTc3ZTFmOWQ2YzVjYTUzNDYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg3MDdmODI1NWVhZDdkZWI5ZDRjYzNmM2ViZWZkYzdjMTAxNmM2ZWFlYzc3OTRmN2U2YWZhN2M3N2I1OWY4N2IiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJlMmY1NWQ5NzAzNWRkMDI2NDcyN2EwODZkNGIxZTNhYzA3ZDZiNGQ4MzdmMDU2NTgwZjgyMTFkODI5Y2ExZDcifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/user/entity/User.java#L87-L89",
+          "version": "repo-lines-v1:sha256:7b1d6fcba7dad87617608ebbf10dfd5125bef41ec214194157fccd3e14e04c48:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzFjODg1ZWFjZGRmZTRhNzQ2ZGExZDk3Mzc4MGM0NTkyZTA1M2RlYjg4MTFkZjM0MmM0ZTYxN2JjYWIyOWJjYSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMmMyMzUzYTY0YmNkNTY2MzYzZGM1M2U5ZGI3ZTE3NjAwNzQ0ZWNhNzhkY2U1ODI1Mjk0Y2RhYjQwODE3ZWY3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNDY5NWI4NjdiNTg3ZjVlZGQzYzkxMTZiMTExZGEzZDhmOWIyYjI5MWM2Mzc3MThjZTE5MTBhMWRlY2M3MDM3ZSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c8f38a6b5c354fc6b769626612bfdc9e",
+      "statement": "User.fillGenderIfAbsent/fillFacultyIfAbsent는 값이 이미 있으면 덮어쓰지 않고, 없을 때만 채워 넣는다. 이는 학번 재사용으로 인해 같은 User가 여러 번 지원서를 제출할 수 있기 때문이다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/user/entity/User.java#L95-L129",
+          "version": "repo-lines-v1:sha256:0c6351d0b9bd873c457623f3dff49e50511f041ac9ae5f061a36e73f705f4b35:eyJzZWxlY3RlZExpbmVDb3VudCI6MzUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5Y2JiYzY1NDY5ZGIxY2EyODQyZWZkOTdkZjdlZTJjZTZjYzE1NzE0ODJkMDFhMThiNzkwYTEwYzdjNTEwZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImZmZjUyZjYxNWQ5YjRmODc4MmM4MGZhZWMxNjJlNmZjZWQ1YTA4ZGE3NzVlM2Q0ZGYxZmU0ZGM1Yzg4YmU5ZTciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9cd7c1ba0d9644ec85ccbab304c2129f",
+      "statement": "ClubMember는 role(APPLICANT/SYSTEM_ADMIN/CLUB_MEMBER/CLUB_EXECUTIVE/CLUB_ADMIN)과 activeStatus(ACTIVE/INACTIVE)를 가지며, 합류 근거가 된 Application을 선택적으로 참조한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubMember/entity/ClubMember.java#L31-L44",
+          "version": "repo-lines-v1:sha256:c0be90ce2f6f3b4df1ec8e069f7579136ce3c1fb15c91c2ea508d5b45f0fcfa5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzZTk1NzkwNDZjZjQzYThhODdmODE2MzQ1ZWEwYzdiOWYzMTM2MmE1MDJhZjdjODU4OTBlMDQxODI1YmNhNDUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijk3OWY2NmM0N2QxMmM1OWJhMjhjODkyMGNlODg5ZjEzNTE1ZTRiNjA5ZWJiZjBhOWRkNjlmNzg2YjIwMDAwMmYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2YzRkNWUxNzVhNjNlMWZjY2M3NGNlZDYxODJiMmI4YWM2ZWY1MjgwMTQwODdjMjVjNTlhNmIyYTUyM2IwMmEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM1NGM2OTgxMTQyMzM2ZTc1Mjk4MGQ5Mjc1YjkzNjY5ZjRmZjAzZjUxNzc3OWE4NjE1ZWNjNjZhYTc0ZWY0YWYifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubMember/entity/Role.java#L6-L11",
+          "version": "repo-lines-v1:sha256:f4f74ece8b7dfa0d79e03121aac8c4fbdf92101c3d0302176190bc8687881630:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMzVjNzdiNGY4MmIwOGQwZDE3NDg4MmE0ZDVmYWI2OWUwOGE3OTg1M2Y0YTkyZGVlMzQ3ZWI1MjZhOWZhNzQxZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDIzMjRjZDYyMmZhMWE1NDNmMzJkMDA1MmQzZjE3MTJjZjc2YThjYTk3YzY2MDdlNjgxMmIwMGY0ZDczMjg4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMThjNmVmYWI1YmYwN2M0ZmYxOGYxNmRlMGNmNGQ4OWU0MGE1NmU4Mjc1ZDdiM2IzZjI1ZWY0MmMzOWU3MmFkYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNmRiNGVjZjIwNTk5ZTljMDIzMjFhOGFhZGRmYTIwYjZiNDE1NTQwMzUxOTA4ZGUzYWQ4NTY1ZmU5MzIzMDg1MiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_8267de5a0eb545ed92eac172c52fb497",
+      "statement": "ClubMemberProfile.update는 필드별로 새 값이 null/blank가 아닐 때만 교체하는 부분 업데이트 패턴(getOrDefault)을 사용한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubMember/entity/ClubMemberProfile.java#L78-L110",
+          "version": "repo-lines-v1:sha256:d5a6a3a55c7712409ee1d1073a7ff00a938794fca23da37bc6983353fecb8227:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjJkNmZkNzNhZDI1Njg2Y2E2MTdjYzc3YjA0MjhkZjZmNTY3N2QyNDkwNWM5ODA0ZWM4MDdiMjk4OWQ1ZTk5OGYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUyN2NhNDc5MGUxYmY4NmFiZmQ0MjZkOTdkYjQ1ZTFmZGViMjYxODBhMjNhYWQ1MTMwNzUzZGY0MmYzMDg3NDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_8f3b075c004d45f9a24d910f41565213",
+      "statement": "모든 도메인 엔티티는 BaseEntity를 상속해 JPA Auditing(AuditingEntityListener)으로 createdAt/lastModifiedAt을 자동 기록한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/BaseEntity.java#L12-L23",
+          "version": "repo-lines-v1:sha256:bcc7c07ffb1adb7b1ac16f269ca5d96f33c4d26ada2178f0da93392059ae1a49:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjNkZmJlMzgwZjY4NTUwNDZlYmNhMzVjYWVlYjdlYzAyODRjNmE5ZTM2N2VlZjU0ZWM2MmYxZjk3YTEwYzc5MDciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImIzNGYwOWQ2MzUwMDY5NzAwMzEyMmQxMzYxZjExOWZlMDY0YWQ2ZDZlYWU3OWFjMzNkY2I1ZGQ4MjU5NWFjNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

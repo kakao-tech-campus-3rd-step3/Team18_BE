@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:b8cac09f4ed40c020f25ce6853cbcb5646754a473719e81fc309af0d6f112acd",
+  "claims": [
+    {
+      "id": "claim_3df233435b59497aa3c9a52867412045",
+      "statement": "ClubControllerAuthTest는 @SpringBootTest(webEnvironment=MOCK)+@AutoConfigureMockMvc로 실제 SecurityConfig를 통과시키면서 ClubService를 @MockBean으로 대체하고, @WithMockCustomUser(memberships=...)로 동아리별 역할 인가를 검증한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/test/java/com/kakaotech/team18/backend_server/domain/club/controller/ClubControllerAuthTest.java#L18-L50",
+          "version": "repo-lines-v1:sha256:3caa9c9daf5932840e6fca38bf9dbac4c3eeaf71846a4946117cd4928613964f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImNlN2IzYTNhM2NhMDJiYTUzNDNjOThhN2IyOWJiN2FlZGI4YmYwMGI2MzQyNzYwZTA0MTcwYmJhZjE0ZjQ3ZTQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjFhNWRlNzE0MmNiNjhmM2NjZGM3OTRlNzExZjVmNDQwMjRmYzEzZDdlMzg0MTBlYTcyNTFiY2FlZDMzZmQ4MzkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk1OTExNjM1ODQ1YzM2ZTI2MzA3MGQ3MDU4YTAyZjJkZGFlMGI0NmQxOWM1ZTA4ZTk1NjY0NDgyYjE1NGM1OGQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0854fca5aaa64f41b56ce998f801779c",
+      "statement": "WithMockCustomUserSecurityContextFactory는 WithMockCustomUser 애노테이션의 memberships를 파싱해 JWT 발급 과정 없이 PrincipalDetails를 가진 SecurityContext를 직접 주입한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/test/java/com/kakaotech/team18/backend_server/global/security/WithMockCustomUser.java",
+          "version": "repo-file-v1:sha256:2da61eade76515169d06fde94ccb96f1ab8d37bd5b322e1ddc6e6d0b3ae7e2d0"
+        },
+        {
+          "resource": "repo://src/test/java/com/kakaotech/team18/backend_server/global/security/WithMockCustomUserSecurityContextFactory.java",
+          "version": "repo-file-v1:sha256:04a6987b2f45c947ce128299781c5597c88487b03f325ec6a3f0c3fd72373a29"
+        }
+      ]
+    },
+    {
+      "id": "claim_f2115abcce264ca1b7093583e8ca9d3d",
+      "statement": "ClubPopularityRedisRepositoryIntegrationTest는 Spring 컨텍스트 없이 GenericContainer(\"redis:7-alpine\")를 직접 띄우고 LettuceConnectionFactory/StringRedisTemplate을 수동 구성해 ClubPopularityRedisRepository의 Lua 스크립트를 실제 Redis에서 검증한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/test/java/com/kakaotech/team18/backend_server/domain/clubPopularity/redis/ClubPopularityRedisRepositoryIntegrationTest.java#L23-L40",
+          "version": "repo-lines-v1:sha256:2d4c676c127158b17e5dc089ab23d92c1758f2b1b72a27bffcbe258a700dc11a:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBlNmZkNTk3MzE1ZjU1ZmYwNzJkMWUwNmY5YjdlNjhmNmQ4ZmRlYzY2YTdlYjc2NTdmZjNjOWUzOGY3ZGZlMGIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImYyMDY4MTU4OWYyZDA3MjM2ZmIzNmY0YjI5ZTQzYTJiM2Q3MTVhZTBiMzY1ZTZjZmRjZDZjM2M4YzA4NGRlZTQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjBjYWI3OGMzMjYwNDU2MTM0Y2VkZWE1ZDdlZjJkMmY2NmY0YWE3ZDVhNDJjNjYxMDlmNTNhYmIyNTc3NzZkMWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhhZGJjN2EzMTkyODU2NDFkZGU1N2JhNmRlNjZmYmYyZTI1Zjc4ZDAwYjdiMWM0OWEwMTliMDIwNDhlYzg5MDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_17714d204a9b451aa54335c718b3b627",
+      "statement": "S3IntegrationTest는 LocalStackContainer로 S3Service.upload/deleteFile을 검증하도록 작성되었지만, 클래스 전체가 @Disabled이고 개별 테스트도 \"LocalStack 환경 필요 - CI에서는 무시\" 사유로 비활성화되어 있어 현재 CI에서는 실행되지 않는다.",
+      "evidence": [
+        {
+          "resource": "repo://src/test/java/com/kakaotech/team18/backend_server/global/service/S3IntegrationTest.java#L18-L36",
+          "version": "repo-lines-v1:sha256:48cfb4c2947ce5ee9282bffb15a62ac066a2ba619b740057993d99a9eff800ac:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ5OGFmZjRlNjIwMWEwNzk0Y2ZiNmVjMjFjNmRhMDM5N2ZkMGZjYzI5ZGY5NGNiZWMyNDUzMTVhZDcwZGY0YjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZiMjJhZGU0NzBjZTAxYWY1N2Y2Y2E3OTJkMGJiZTk4NGU1ZWRmMmEzOGI3NTRlYmFlYzZjNjlhZDVjZDkwZmMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlODg5ZDQ5ZGMwYzY5NDNhYWNhOWYzZGNjYjQwNGIwODVmZjAyZDA5MDk5MDgwYzgyNTMwMjJlOGVmZjY1NDEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwZjZhOTUxMjc2Yzg4YzY1MTMyYzdjMTg4OTg3YmUwOTlhODA2ODIwODY1ZWI5ZDQ2MmI0NDg5MTE1YmU2YWYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_2604eefb0fcb40ee951d5b444095cf4a",
+      "statement": "build.gradle은 org.testcontainers:junit-jupiter와 org.testcontainers:localstack을 testImplementation으로, org.springframework.security:spring-security-test를 testImplementation으로 포함한다.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L41-L43",
+          "version": "repo-lines-v1:sha256:fe2178f0c471d54f4069fd1c38f6260ee5a606aad08f060695121f31d6133085:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiOWMwMGJhYjI3ZjA4M2EwYzA5MWRkMWU3OGM5ZDZkZTgyYjc5MjYxNjdmNjY0ZGIyNzg3NDA3NTM1YTJhZjMzNSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDY1N2Y5MDhmNjE1NWIyNzdhZDg3YzU3OWM2ZGNkMjlhZjE2NTEyOGMzY2I4NGVlNDc3YzkzMDNlNDZhZWE0OCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMTBlZTQzMTFkNTFiMWNkODkxNmIxMjQ3NjZiYjNmMGYzYzhlMzk0OWRhOTZjZjg4MGY4YTkzZDJmMjFhOTRjYiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYWQzZTY5ZDAyZTJiYjc2YTIyNWE1YjAzYTA0MTBjNWJjNmZkOTUxZmRhOTE5ODg3ZTgwOTZmZjllYjFmZjk4NiJ9"
+        },
+        {
+          "resource": "repo://build.gradle#L86-L88",
+          "version": "repo-lines-v1:sha256:96aedcf7db2406df50024a38fccacbe9f35e574b9113ac8b8056685352291559:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDdiYzM0YTk5MTQxNDU1MTg2ZjMwZWQ0NjNlOGMwOWFkODE1NmI2YzdkNjY5OTIyMjMwNjIyYTM2MTAwYjk2MyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYTYyZTE2MWE4NWQ3MTQ4ZTMxMjljMTk3ZGUxNGU5NDM2OTQ1M2U5NjVmNGMxNDgyNGVjYzg4Yjc2Y2VjNTgyMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiOTcyOWRlMTU1YzNmM2ZiODQ5NGI2MTBiNmM4OGFiMGVhOTk0NjgxYmYzNzQyNGYzNjA2NTk1ZDQ3MjUyMjg0YSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDY0NDBjODM3NWUwYWU1NmZkMDNmNzc4MGVlYzFmNGU3NjU5M2VmYjAzZGMxZmI2NjdiYTA2M2NhYjYxMjYyYiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_df5672516b004ec0925d8c90eb57c3b5",
+      "statement": "scripts/load-test/club-popularity.js k6 스크립트는 detail_entry(상세 조회+조회수 기록), popular_polling(인기 목록 폴링), heartbeat(체류 신호) 세 시나리오를 동시에 실행하며 LOAD_TEST_SHORT=true로 구간을 단축할 수 있다.",
+      "evidence": [
+        {
+          "resource": "repo://scripts/load-test/club-popularity.js#L1-L59",
+          "version": "repo-lines-v1:sha256:4b26d5c1c9d641936f00256e8a6c3ddf7f435dcd2713d76059590dfcd44a999a:eyJzZWxlY3RlZExpbmVDb3VudCI6NTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZjNDczZDIyNDZkNWM0ZDcxYTM2OGU3MjU5N2MzZmVlNTg5ZDg3YzJjYzcyMTJkODQ0OGVkNDBmYmRkMWVkMGQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

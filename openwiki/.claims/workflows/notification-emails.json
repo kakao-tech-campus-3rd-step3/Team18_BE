@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:21a56a5edba80a5d5397a58c3a0bad0ba4b02e528675b8aeedd412e39334240f",
+  "claims": [
+    {
+      "id": "claim_8d98586632b5479b827e568ac8f10140",
+      "statement": "ApplicationNotificationListener의 모든 리스너 메서드는 @TransactionalEventListener(phase=AFTER_COMMIT)+@Async로 선언되어, 지원서 상태 변경 트랜잭션이 컮밋된 뒤에만 별도 스레드에서 이메일을 발송한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/eventListener/ApplicationNotificationListener.java#L26-L65",
+          "version": "repo-lines-v1:sha256:591ceb2f7f338129a4f7452672648cc8dc5b5f3b2f6882ce8a069bd3ccac76ae:eyJzZWxlY3RlZExpbmVDb3VudCI6NDAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY0NzVlOWNjMWQzMDg4OGU1OTI3OWEwMDVhZTYyNTc0NWVkODZiZmQ5NWYyZjg3NmI4MzVlMTI1OGE1NTIyYzAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImEwOGM0MDdiYzc2Y2QyM2Q3NmI4MTQzOTQ4MGZlNmMwMzFmNDZjYmJiNGY1NjFiZGZiMzFkM2NiNmI5NjBkYTMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_b6e475e6f60e4fe1a4640b564fce09af",
+      "statement": "EmailService는 ResultType(INTERVIEW_APPROVED/INTERVIEW_REJECTED/FINAL_APPROVED/FINAL_REJECTED)에 따라 제목과 템플릿을 매핑하며, 합격 통지인데 message가 비어 있으면 IllegalArgumentException을 던져 즉시 거부한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/service/EmailService.java#L131-L147",
+          "version": "repo-lines-v1:sha256:d50f351f0ee2bcaa4fa499f4e53a3470c8224df40b78f7d6447efee81107d92b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY0NGFkNmRhZjUwZDYxMzA1NjkwZjg3MTFhZWUxZGViODZhNzk2ZWE5N2ExODYxZjA5ZmMzNjc4OGU3YTNjMWUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4MDg4M2RjYzQ1NWNiNGUwODk3NDkxNzMwZmVhYmQzOWM3MTRhYTRmYTUzZTc4MzA1YThkN2ViMWQyZjYxZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjA0ZDhiYTE3MzYyMWJiY2JkNDlhMzA5ZmMxYjE1NDk2ZDBkMjI0MmMyMzlmNDE5YTIzMjQxN2EzMWJhMmQyMmQifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/service/EmailService.java#L58-L111",
+          "version": "repo-lines-v1:sha256:91f83d0b0ba1c2d4d44973b4f7822f806d28abbffb178ea5b041d311fbaf9229:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIyN2M5YTI0MjE2M2RlNGM1NjNiYWQxZThhMmU2NjJlMDgwN2Q2OTNmNGNiZGM2NDQ0NTJkMGY3MmExZjc3M2YiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM2YTEyOTA2MTU0ZGI4YjA2YjJjYTg2ZmRhNDQ3ZGE1NTgwNTU5YjBlOTFkNTY1ZGU2ZTljYmJmMDM3N2M5ZjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjlhM2NiYzhhZTIzNmU0Y2EzNDdmNTM4N2E4MjhmOTZkNmU4NTBiODc5Mzk2Y2FmMTE5ZWJhYjMwN2ZhMWY1MDUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_e350dddfe7514a6d988274ca106f2aa1",
+      "statement": "SmtpEmailSender.sendHtml은 @Retryable(include=RetryableEmailException.class, maxAttempts=5, backoff=2초×2.0배수·최대 60초)로 재시도하며, 재시도를 모두 소진하면 @Recover가 EmailSendFailedException으로 최종 실패 처리한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/sender/SmtpEmailSender.java#L25-L54",
+          "version": "repo-lines-v1:sha256:24c8984488ee9796d0efbcb938f3bb54b2aa3d55de53b67b0fcdf44250fb744b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYzJiMzExYWJlODc1NzJlOGE3Y2MwZDk5NmE2NTg0NDA3NmU1MjMyZDIxYjdhODU0NzVmOWI0MDU1Yjc0OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQwNzk2NDk1YjM3MjYxZWRhMjYzMjVlNGFmN2YwZDRiZjQ2NzlmNjdhM2M3MWEwZWY0ZDUzY2RiOTg1MTFiYjciLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fed29ee9587f4de5889ee3bf35f8d97f",
+      "statement": "SmtpFailureClassifier.isTemporary는 MailConnectException/SocketTimeoutException, SMTP 확장 상태 코드 4.x.x나 5.2.2, 기본 응답 코드 4xx·552를 임시 실패로 판단해 재시도 대상으로 분류하고, 인증 실패나 그 외 5.x.x/5xx는 영구 실패로 분류한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/sender/SmtpFailureClassifier.java#L23-L67",
+          "version": "repo-lines-v1:sha256:117df0636dd29e7dbbf8c5f2e7d15f23474a780cec2ea7b04c9c93e57626e513:eyJzZWxlY3RlZExpbmVDb3VudCI6NDUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyMTkxN2QxNDZmNzM3N2UzZGM5MjZjNDNmYjg4ZTFhOGM0NGVmODY3ZmY1NTM3ZTg0OWE2M2Y2YTY2M2VhYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijc0NzI4M2VlYTgyZDRmNGJhZmEzNDA0MGI0YzllZTZkMjgxMjQ4OTU4YzAwNTYzZDVmZjczNDBkZDVmMTk1NWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ5NWE3ODVlZWI1ODNiOWE5ODZiYzE5MDA2YjZjYWVkN2E2YTMxZGIxZTdjYzcxNzMzZmMwYWZhZjg0YjBkMmYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_55a886bd6e9a42e1b9781d7e753408f9",
+      "statement": "SmtpFailureClassifier.toErrorCode는 분류 결과를 EMAIL_RECIPIENT_INVALID, EMAIL_AUTH_FAILED, EMAIL_POLICY_REJECTED, EMAIL_TIMEOUT 등 ErrorCode로 변환한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/email/sender/SmtpFailureClassifier.java#L70-L110",
+          "version": "repo-lines-v1:sha256:18826414acbfc728d1e65afa4e3a9279135e13559367b088cc3ef5d00fe40c98:eyJzZWxlY3RlZExpbmVDb3VudCI6NDEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdjODc3NTNjYTA0ZmIzMGI2ZDNmMmMxMGU2YjAyNzA3MjQ5MTZiN2ZhODcyNWQ4MGUxM2FhOTA3NTE3NDQxMzIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZjNjFhYzRiOTA4OGRjNzRlYzRkMTY2ODlhNDdmYWVhMDEyNjFkYThkZDFmMTRjMDNkOWNlNjZiOTI2Y2JiYTEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBmM2UzOGY5MWZhMDA3ZWIyY2ZkMGFiYmRiNjQyZDg2ZDMzZjc0NTM4MGZiOWFiMWQ5ZWRjN2U3ZGEyOWM5MmQifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

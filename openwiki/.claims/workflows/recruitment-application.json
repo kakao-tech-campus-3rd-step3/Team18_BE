@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:abe04a360525d3f4a7de1b8fca9b32be40536cff641d1d9b7e59aae85489a837",
+  "claims": [
+    {
+      "id": "claim_a9bcefe9f74b4e7ba6c54dcebcaa3cbb",
+      "statement": "createApplication은 새 Application과 동시에 role=APPLICANT, activeStatus=ACTIVE인 ClubMember를 즉시 생성해 해당 Application을 참조하게 하므로, 지원자는 합격 여부와 무관하게 지원 시점부터 ClubMember 레코드를 갖는다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L266-L299",
+          "version": "repo-lines-v1:sha256:44531aa950dbbf90a319d8f7c61a0555088a106a21889c8469a311b6aa4cff2f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE5YWNlNzE1MGNlZjQ0ZWEzZTcwMWRmOTNhNGExNjViZmRhZTA5NzMzNjNhM2IwODkyMDg4ZmJjMWJlYWRkMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImYyZDgyOGEwMzdhYzFjODE1MzViMWQ1NTAwODMyMzIzYmZiYjg2NmEzYTNmODdlN2E2OGMxM2EyYmFlNTZmZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImY3ZmQ3ZWU1ZGI5ZDNhMGYwMDMzNmQyZTFiNmQwM2NiM2E3NDhmYzIzMzA4MjMyOWNlY2FlODc2Yjc1NjM0NWIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_189629ebc4fa44aba6316972713398a4",
+      "statement": "submitApplication은 기존 User를 재사용할 때 비어 있는 성별/학부 필드를 updateGenderIfAbsent/updateFacultyIfAbsent 조건부 UPDATE로 원자적으로 채운다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L191-L203",
+          "version": "repo-lines-v1:sha256:65ab5561f33840203ab31cb033502f52f3867e84ec3638579938e68c6eabe6d5:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU1OTczNTYwOTE3MGMzMjg5MjgzNmUwNjc1MGVjY2VhZTVjMWRlMjM4MzA1NjE4YjQ1NTY5MDRhOTc2MGExMGMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3YjdmNmRhYzc3Zjk1ZTU5NTYxOTZlZTE0ZDdkNDA2NTM1YzlhZGQyOTA3MjRkOGRlOWQyM2RmNTlhNWI0MWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU0NGNkZWM2NDc4NjliMTgwMTc0YjBmYzVjMDYwMTA2Y2Y2MjhmYzI5MzJmZTk0MWFhMTIwZjYyZGIyNmFmNGIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a4ad697bca8247148553394a0f839689",
+      "statement": "saveApplicationAnswers는 필수 문항 미응답을 InvalidAnswerException으로 거부하고, TIME_SLOT 타입은 reassembleTimeSlots로 재조립한 후 Application.updatePreferInterviewInfo로 면접 희망 시간을 갱신한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L332-L369",
+          "version": "repo-lines-v1:sha256:dd0694cd3cfc7d76d5023841a5d8bc5e987e6d1f01eb36767911bf16f96a4dc5:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjBmZDlmODNhN2Y1YWI5NGQwMGY5Mzk3MDY5NjJhNWU0YzE2OGY1M2QyYmQ2MGQ3M2U4NjI4MTJjNTFkYmI2MDAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5MmYwMjFiNzI0OWIzZTIxNjQ5MWMxM2I4NzA5OWI1ODBmMWFiZTJkMzZjNzVlZTViNGYwMGNhNjEwMjVkODgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjgwNWJjNzAxMWE5ZDYwMGQyNWFkNjY1ODE5OGViNzJjZTg3YTQzNTA4ODU2ZDE0NjgzZDI0MDRlNWY3Y2ViMGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_57583fd4c29243e4a3c93f58a54852f0",
+      "statement": "sendPassFailMessage는 모든 단계에서 Status.PENDING인 지원서가 하나라도 남아 있으면 PendingApplicationsExistException을 던지며, Stage.INTERVIEW단계에서는 면접 일정이 비어있는 합격자가 있으면 UnscheduledAcceptedApplicantExistsException을 던진다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L406-L427",
+          "version": "repo-lines-v1:sha256:204b99150b0286279be38381bbcd25745c733c51cb56fbdf2c1bcdad8395bff3:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRkMWYyYmIyYmE2ZThhYWU3Y2FkNWY0YmU2MTBhZjFmMTc4ZmYxNmRmYTc2NDUwNGQxNmEyZTljMjQ2NjE4YzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYxNmEzMGJmNzE4ZTQzMTYyMzFjMWQwMjVjMjQwNzA5OTc3OGVmZDQ5ZGM1NjQ4YTIwYTEwODlmNGI5ODkxMzMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJmYjhkM2RhNjQ5YzMzZTA3Y2RlNTEwMzQwY2FiYWE5MDY5YmRkNjg4Mzg5MzJkZDlhZWU3YWMyY2I5OTI1YTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQ3ZGM0YjRkZTI5MjE3YjY3OTg2N2YxNjBlYjFiZWUzZTEyNTdjZGIxMGEyMDNkMzM3Nzk4OTVhOWM5M2EyNDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cb29e15603bd4a9cbd6bf625be6852aa",
+      "statement": "Stage.INTERVIEW단계에서 합격자는 Stage.FINAL로 진행하며 다음 단계 평가를 위해 Status가 다시 PENDING으로 리셋되고 InterviewApprovedEvent가 발행되며, 불합격자는 InterviewRejectedEvent 발행 후 ClubMember 연결이 끊어지고 Application이 삭제된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L430-L451",
+          "version": "repo-lines-v1:sha256:ce48f88b5036b13714fa8a8fec27d25c98fe8ad6dc03f2fc86fab6f279e476ea:eyJzZWxlY3RlZExpbmVDb3VudCI6MjIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjdmNzA4ZWE0Zjk5NzE5ZTE5MTUyZGZkYzgwMTY2NWYzMDQ5MGQ0MmExNWRmOGQ1M2I3NzljYTYwMzdkZGMwNzgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImJmYzdmOTJkMmVjMjhjMjlhZGI2NDY5MzU0M2VkZWZjYjZhNGRkMTg3MGQxYzhkNGIzZGMyZjdjNGI3YWQwNWUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE4YTRlNDZkMzFlNmEzZjU3ODg0Mjg0YjViOWI0YTU0NTNmZmFjOTg0OGUwMzM1N2Y5NDJmZmY2MjIwNmVlODMifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9e28e06144e548b19bd2c01389238af9",
+      "statement": "Stage.FINAL단계에서 합격자는 Stage.RESULT로 이동하며 이 시점에 ClubMemberRepository.updateRoleByApplicationId로 ClubMember.role이 APPLICANT에서 CLUB_MEMBER로 바뀜어 정식 동아리원으로 전환되고 FinalApprovedEvent가 발행된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L471-L483",
+          "version": "repo-lines-v1:sha256:c47fbea276275cf0286a1419c043104778e032e69ea1ab394ce581e294e199fc:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjMyNDkzODYxNGY3ZWQ3YTAxYTEyMmEzNDdiOTljZjUwYTJlN2M4YWM4ZGIwOTc3ODJhMjgyYzM5MWY2YzcxYWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM1YjJjYmVjMWZhNGQ1ZDBjMmRkMjNjNzE1YTQ4MzQ2OWJkZGRmMjBkMTc1ZWM3ODdlM2QzYjYzNmM1MTU2ZWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRmYmNjYzEzNTM5M2Y4YjlkMWUxMDI4YzhlZmEyYWYzMmI3MDMzMGNlNjNkZThjOGFjNDIwZWMxZjI3N2UyYjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_05738edeaaa34436b4f2708ac4deeff8",
+      "statement": "stage가 null이면 모든 단계의 지원자를 한 번에 평가해, 합격자는 곰바로 CLUB_MEMBER로 전환되고 FinalApprovedEvent가, 불합격자는 FinalRejectedEvent가 발행된 뒤 Application이 삭제된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/application/service/ApplicationServiceImpl.java#L495-L525",
+          "version": "repo-lines-v1:sha256:d8d824e87f5856f10032a9d6009c7700113b5541e919a4773d05dbd92b7f476c:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImJhMjgzM2VjYjAyZmZjNzgwMmVjM2ZhZTUwMGNiMGRkMzNkNTliNWMyNTNlYjRjYzNlMDFkMTEzZWQxMmVhYmYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJjNGJjMTg0ODM5Y2Y4OTE2MWZlYzMzZTA3NzU2YzE3NTM0YzM4NTEyZjdiMTE1MmUzNjYxMDFiNWNiOGIzMjYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE3YTA2ZDRhZGQ5YmVlOTFkNzU4NGUxNjQzYzE1OGQxZWJiYjdhZjBmZWQ4NzQ0NDQ2MGRiYjhhMTY0MDZkOGUifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

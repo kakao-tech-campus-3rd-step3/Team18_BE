@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:0bed1ed440d00db0ec1dfd27c3aab68d97c104803fcf9e49dd377bce3f96a1cd",
+  "claims": [
+    {
+      "id": "claim_c391c859f6734b818b0c580fbf7ff234",
+      "statement": "StatisticsAggregator는 GENDER/FACULTY dimension에서 값이 null인 지원자를 항상 마지막 \"미입력\" 버켓으로 합산하고, ADMISSION_YEAR는 기준 연도로부터 최근 6년(ADMISSION_YEAR_RECENT_YEARS)은 개별 연도별 버켓으로, 그보다 오래된 연도는 \"그 이전\" 하나로 묶는다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsAggregator.java#L162-L191",
+          "version": "repo-lines-v1:sha256:0c915e69e09b377d071c3fbb0759b90a79b18e61d56cd3931d2e6a3a9c129240:eyJzZWxlY3RlZExpbmVDb3VudCI6MzAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImExMTVjNTFjMmQ4YmRlNWMxNWJkOGY5NDViM2NiNjRiYTc0NTRjZDE5MzliOTViYTE3ZjMwZTg1OWE5NzkxMjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjNlYTIwNzRkOWI5MTM3OGFlNzhjNTJiYTQwYjdjZWRmZTc5Y2ZhNDE2MGQyZDViMzU0NmI5MWY0ZWE4NzUzNTAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImM4ZjJkMjgxYzVjZTJkOGU1YjRkMjlkZTk5NmM4YWRkMDdkZjE3ZGFlMzgzOGRlNDEzOWE4MzUwOGEzMTM4NDgifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsAggregator.java#L90-L143",
+          "version": "repo-lines-v1:sha256:f83be538a41a58ce99f5c666d278efed4512653e5a02bc5e4ef9554daf889b67:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijg4ZjM3M2I4ZjlmMDVjOWNmOTcxMzQ5MmM1Mzc1N2IwOGFiYjI4ZWJiM2YyMTc0NTZhMjAxMGNmZGI3OTVmNjUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjlkZDY4NzUwZWU2NGI4NjEzZjdlYzMzZTgyMDdmODQ2OTFjMGMxMjgyYTEwMjRjYTYyMzZlNThmODIyNGFhMTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjE0YjRmYmU0NDE5Y2ZkY2JlZDJhYzFkMGY0YjM3ODc1ZDljM2IwZjFlZjkxNDk3YzQ0YTRhNmI4YTlhNTk5NzcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d77193504e5449c5830cfed51a894f40",
+      "statement": "DAILY_APPLICATIONS 집계는 모집 시작·종료일 사이에서 지원자가 없는 날도 count:0으로 채우지만, 아직 오지 않은 미래 날짜는 채우지 않는다(0 채움 종료일 = min(모집종료일, 오늘)).",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsAggregator.java#L220-L240",
+          "version": "repo-lines-v1:sha256:71203bc52412d0c57d15312afde447f93e1f9821dc7f03e67f1d1fab6587bfa8:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAzNzM1YmNlNzA3NzVlMTkzNjViYzI2M2U3YmYxNDk5ZGU5MGE4N2JjNjdiZTgxYzUxZTI3ZjE2MWYyOTY1OTAiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImRkMDI4ZTkwODg0YzRhZjAyYWI4NGFlZjVlODUyYjVmMTdjNzkxMGI1NTRjNjljMGQwYzg1ZjcyNTI3YzFkZjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhjYzBhOTA4NjZiZjYwYzkzMTcwZjBkNjcxNTExNzFiNDIxMDBjMWMyZWQxNWI0OTc0ODJmY2U2MTliYzc0ZDAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_93a94e79a5034f1dad94fccfbb467b7d",
+      "statement": "StatisticsServiceImpl.getStatistics는 totalApplicants가 StatisticsProperties.minTotalApplicants(기본 3명) 미만이면 masked=true와 빈 results로 응답하며, 이 기준은 개별 버켓이 아닌 전체 지원자 수에만 걸린다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/config/StatisticsProperties.java#L9-L19",
+          "version": "repo-lines-v1:sha256:09188deff981423007e845926476b310f824c5d01f107ec618b313ae20780347:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImIxYjM2ZjRkMDNlNDg1NGI5MTNjOGMwYmYyMTc5NmMxZTZmMWVmY2MzNGRmYmU1ODlmOTBlMGRkNDJhY2RhZDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjExYmJmNDIyMzgwNWJlMjk4NGU3MjczODk2YjY2ZmI4Njc2NWNmM2U5ZTBiZGYxMmZkMjEyMjdkZWJkOGM1YmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY3NGQ2YWIyYjc2YTc1YTg3OTE5OTc2NGRjZGExY2M1M2QxMGFlYTQ0M2E2OWZiNjM3MWM4ZTI3MGJmNzI5NDQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdhNjI3OTg4NGFjNGQyMjIzNDczZjE0ZGZjZDBiMDhmZGE3Y2RlZTkwOWRhMGU4NzhiMjU5YzEwYjUwNmExZDIifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsServiceImpl.java#L63-L70",
+          "version": "repo-lines-v1:sha256:968fb19595044e8a9d728b068a6a63ed87e1fa3f6c96a8281c4416fb2debd8ef:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGE3YjYyZTA0ZmUyYWY3NmNjNTdjNGVjZGY4ODM2Y2JkOGNjMjJiOTE0ZDg5NWY1YmMyNTY4NTM0ZDBlOGZkYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTZiMDQ0OTE0Njk3MjJlODM2M2E5NGU0MDQ0NTM4ZTAxM2EyYTIxN2UzNmIxZTU2OGJhNjBhY2I3YjRjOGYyZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTFlYTZkN2E2NGVjNTQ4ZjVjOGQxYjllNzU5YTM1OWI0NjJiNDI2NDViMGM5MDJhZjRmZGNhOGRkY2ZlMjQxMCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzVlNjQ4ZmZjZTFlMTFmZTYyZjFiOTgyZDBkYmZmMjI5ODRlMmFhMDExZTVjMzgwNDNiNTQ1M2YzZDcyZWM3ZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_1615f65df61b4457a5f0981850419969",
+      "statement": "getStatisticsForAdmin은 최소 공개 기준 마스킹을 거치지 않고 항상 calculate()의 원본 분포를 반환한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsServiceImpl.java#L75-L83",
+          "version": "repo-lines-v1:sha256:992379c6911d7a5ec9392080c41022c6c6439ca98d4376550eba767d0ce81fe9:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZWRjMmIzMTFhYmU4NzU3MmU4YTdjYzBkOTk2YTY1ODQ0MDc2ZTUyMzJkMjFiN2E4NTQ3NWY5YjQwNTViNzQ5MiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMThlYmY2NTQ1YzM1ZGMxNzI3NmU0ZWY1YmIwZWFiYzEwNGIyYmQ0MTJmZTRmODY1YTg1MTI3ZTlhY2IyYzA3NCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzZlOGNhNDk1YmUxYzRiNTBkYjM1MWYxMjMzYWNiNTFkZTA2NDU1ZjUzZmYxMzI2MzkzN2M1ZWE2MmUwYTcwZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_39b0869f73d242b692c02a45fd458137",
+      "statement": "StatisticsServiceImpl은 클래스 전체가 @Transactional(readOnly=true, isolation=Isolation.REPEATABLE_READ)로 지정되어, 같은 요청 안에서 총 지원자 수 판정과 dimension 집계가 동일한 스낅샷을 보도록 강제한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/service/StatisticsServiceImpl.java#L28-L34",
+          "version": "repo-lines-v1:sha256:a9772520fd056d4b84ef4507b54349f7f952ce5efa0a7110e1e03a2d40b9aa84:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDFhOGMxMTYwZWIwYTk1MWQ5ZDFjOTNiZTFiYzQ1NGJiMzRmZjk1Mzk2M2QxM2UxN2RmYTg4YzU0MzBkMGEwMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGY0NTBjZGUwNTc0NDkwMjk4ZjA5ZmUzMDliM2Q0ZTYwZjEwNWVmNjZlMzEzYzVhMmQ2OWU4N2IxYjUzYmRkMiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYjkyNjIzZWZhMWVjODU2MmZmY2M1NmRhMDIyZDU3Nzg1MzhkOTAyZDlmZTY3NDM2ZjgzNzE1Zjk4OGIzMjk1MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMGM3Yjk2NDk0NmI4NjFhZjdkMWIxMjhjMmQzMjc5YWQ2ZjMwMzU1ZTE3MzZiM2E1Y2MwYzA5ZDBlNTgwNGQ5MyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_868437775e7c46f4b3f63779b2f355e3",
+      "statement": "RedisStatisticsCache는 statistics:v1:{clubApplyFormId} 키로 마스킹하지 않은 전체 dimension 결과를 JSON으로 저장하고 cacheTtlSeconds(기본 1800초) TTL로 만료시키며, 캠시 조회/저장 예외는 모두 삼켜 조회는 미스로 저장은 무시로 처리한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/cache/RedisStatisticsCache.java#L23-L64",
+          "version": "repo-lines-v1:sha256:f98127a25135210729da895bc0814ae5cf4da6de92a1ccba4529ce80e2f70418:eyJzZWxlY3RlZExpbmVDb3VudCI6NDIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjA0OWE5MjYwYmYyYmEwOGYzOTZhZDgyOTcxNGE0YzhhNGQxMzlkODMzNTZiNzlhNmMxYWUxNzlkMTg0YWQ5OGUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjRlYzVjZjViNGU1NGY1ZDc2NDdiYTYzYmZkMjY0OTZkNTllNTNmZTI3YjhmZWExMmNiZjIzYzNhMWI2ZDk3MDMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImMyNWU3MzNhN2FjZjM3ZmJlZWU3N2YxMjViNmIzNDM2NjAwMDI1OTVjNzRkYTVmMTU0NDQxZGI0ZTgyYjdjNGEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_9d2b6d3020fa45f58f80d2c0726668c8",
+      "statement": "StatisticsController와 StatisticsAdminController는 같은 /api/clubs/{clubId} 기본 경로 매핑 아래에서 각각 GET /statistics(공개)와 GET /statistics/admin(관리자용)로 경로가 분리되어 있다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/controller/StatisticsAdminController.java#L35-L58",
+          "version": "repo-lines-v1:sha256:5a40f54f0d979ba0ec34bbc87d5fef36ce73527897513b2e0aa394dcbba6f7e7:eyJzZWxlY3RlZExpbmVDb3VudCI6MjQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhMjc5ZmYzM2ZhOWRmNDRhNGNlNGZlYWY3ZmVhNDJmMzM5NjcxNTRlN2ZjZGU2ZWM3ZTY3MDNiMjIyZjAwMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjllZDUwY2ExODJlMjk1Mjc3NmEyYzM2MzVkMGU5Y2FjOWI0ZWQyYjEyNmVmOWExYmMwZWQ1ZmQ3OGIwMjM2ZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhYzc2YThjNmFlNzc5MzRkOWE2OTU1MWMwZDg2YTgzYmRiMzYzZGNlMmY0OWEyOTMyMDRkZmMxNjQzMWNmMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjdkZDcwNDkwZDk5MWU1MGVjNmMzNTNhY2MzNTg0MGMzYzEyNTc1OTYyOGQxYmQzZjhhYmY0ZTk0NzZhZWVlNTIifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/statistics/controller/StatisticsController.java#L34-L119",
+          "version": "repo-lines-v1:sha256:2673b547496c598c7c6b3ff889edb8d878e79162bf14251089251e290f04462b:eyJzZWxlY3RlZExpbmVDb3VudCI6ODYsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjlhMjc5ZmYzM2ZhOWRmNDRhNGNlNGZlYWY3ZmVhNDJmMzM5NjcxNTRlN2ZjZGU2ZWM3ZTY3MDNiMjIyZjAwMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjIwOWE3MWQwZTk0MWNiYjhjMWU1MjgwYzQzNmFjN2E4NTZlNWVkYWRhZTY4ZmViNmZiMzZhODJlN2ZkMzI0NTkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjhhYzc2YThjNmFlNzc5MzRkOWE2OTU1MWMwZDg2YTgzYmRiMzYzZGNlMmY0OWEyOTMyMDRkZmMxNjQzMWNmMjIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjNkNzQxYzZjMzVjOWEzODAxY2QyZTMxNzY5MjIwOWE0ZDNiYTg0NjcxOWFmOWY1Mjg2MmViZjFjMWRmNWFjZmMifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

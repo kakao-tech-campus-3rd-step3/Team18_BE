@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:34777e07f0f17dfed2c074b3c48deb5c13a20dbaab839382f001809487a63e3f",
+  "claims": [
+    {
+      "id": "claim_858de0bc883f47649ea3808d08f31274",
+      "statement": "ci-on-pr.yml은 develop을 대상으로 한 PR이 열리거나 갱신될 때 redis:7-alpine 서비스 컨테이너를 띄우고 SPRING_PROFILES_ACTIVE=test ./gradlew clean build로 빌드와 테스트를 함께 수행하며, 포크 저장소의 PR은 조건문으로 실행에서 제외된다.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/ci-on-pr.yml#L1-L28",
+          "version": "repo-lines-v1:sha256:c279c072f73b2f95e1af44157b3fca28ccd9be2a1841bf5473b6d52f8bd94cae:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjZlYjM5ZWU3Y2VhN2M3NmYwZjhjNzJjNTZmMjU2N2YwOGYzMzU2MTVjZWE3ZjFlMmQ5OWU4NDE4ODBhMmRiMTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjFkMWJhNjM2Yzk5MWI4NDZiZGEzNzMzYmJiZTNlMmQ4YTJmZGI4YjUxMjFkNDYxMmU3ZTFlYjk2ZTgyZTc0MWUifQ"
+        },
+        {
+          "resource": "repo://.github/workflows/ci-on-pr.yml#L151-L152",
+          "version": "repo-lines-v1:sha256:0ce3eee44cee2bc816267e77f1ed4facadfd04b9bd5859ca027da7f349144621:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjQ2ZDMyNDI0OTUyMGNhMjkzYWMwMGE0MDI0ZjY5OTE4NDViMDU2YmJlYmZjNDZhZjNlYTM2M2Q5MTA0ZjMxZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMzUyODcyZGJmYjgxNGZhM2ZjMTdiN2FlZGZmZTc0OWViZWFiNzViOWVlMmFjNGQwZmU5ODNjNTg1ZmE0YjQzYSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTQ3YTJiMzJmNmQ0ZTI1YWQ4MmUyMTczMWM2YTEyNzRiMzk1ZDJjYzZiZmMwYTU1YWNkOWI3NjI3ZmI5NGZlOCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjEsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiOWM5ZTc1MGNlM2FjNmEzOWQ5ZTk1MDM2ZmI0NGY3YTViMWYwZWFkMTRkNjRjYzVjMDdkYWUwYjgxNmNmMTk2ZCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_f8934851a2a64bc9a495841d36b64693",
+      "statement": "deploy-with-docker.yml은 develop 브랜치에 push되면 Gradle 빌드 후 Docker 이미지를 Amazon ECR에 푸시하고, docker-compose 파일과 monitoring/ 디렉토리를 EC2로 전송한 뒤 SSH로 접속해 docker compose down/up으로 재기동한다.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/deploy-with-docker.yml#L1-L5",
+          "version": "repo-lines-v1:sha256:84decc4d065a054ac50d09800f80d2064d4ddd0ab6d44e28aecbbb240b7f1e07:eyJzZWxlY3RlZExpbmVDb3VudCI6NSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNTE1NjViYjAwODFhYmNlODVhNWU0NWRmODU2ODRkNmRmZTExNWEyYzgzZTI2MjY2MDUzYzhlMjliNzFkMTE2MCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOGFhY2Q3MWFlYjhhMzI5MTI0ZDNhNjIxYTI3YTg0NzkzNmZiMWIyNDYxNDU4ZGI4ZDcwZmI1NmYzNDdkZTM5NSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjAsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZWVhNGQ5YzE1ODQ4N2M3OTVlMzdlNjNhYTJlOWIyM2E3NWM1ZWM4NjE4ZDgzNzdmM2NhOGFhYmViMzY4ZjUyYyJ9"
+        },
+        {
+          "resource": "repo://.github/workflows/deploy-with-docker.yml#L196-L201",
+          "version": "repo-lines-v1:sha256:41da07d7b4f9ae4df28c6538cd643dd4cb4d7ff4de6d8d8193e30b01c70f1fdb:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYzdmMThjNGQ2YTM1NzQyOTNjZmU3ZjI1NGU2ZmYwMThlNDhmNDAwODc5MjBiMGI4YzQ5YTc5Nzg1NmY5N2Y1ZSIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiY2JmZTlhYjYxYjM4ZWE4ZGY3MGZjOTE0ZGNhOTkxNWIxYzRkNGQyYWE5ODljZDk1MzhhZDk5YjY4ZjBiOGU3NyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNWI0MTAxMzcwMGU2MDc0YjQzN2QzMmI0YjAwMDAwNzQyMDA0YWQ2MGM4MmZmN2MwMTA0Njk0ZDgwMGQwMDkyOSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        },
+        {
+          "resource": "repo://.github/workflows/deploy-with-docker.yml#L72-L79",
+          "version": "repo-lines-v1:sha256:4281afb0fbf9c249589fd9997fbf48b977ee003f7440631e77cb1d7ab7a8e14a:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMDIyNjQ5ZTYzZTFjYmNhYjBkNWU2YjZkYzJiM2RmNWJkZmJjYjc0NjJlZDQxMDQ1NmMzZTRkYWI2MjgzMTI3NCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNTA2NWE5N2Y1YTU4MmViZTc4YzM5OTM2ZGZkMzM4OWQ5MjUyNmU3NDE5Y2E4OWM5YzM0Mjk3MjY5MDgzZTM4NiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2M3NDdjMGZhMjQ3MWJiZjUwNTMwZmQyNjM2MTM2NTM2ZWY1YzgzMDg2ZmQ1ODgxNGQyMTczNmJiMjY2Y2ExNCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTYyOTdmMTg1MTFmN2M1NzhlMzRjZmY2MWY2Y2IyOWUwYTZlMGZhZDJiY2M3NzM5YzJjMTZhNTMyYzhkMmQ0MSJ9"
+        },
+        {
+          "resource": "repo://.github/workflows/deploy-with-docker.yml#L93-L100",
+          "version": "repo-lines-v1:sha256:14aa598684dac188981829de5b43a7cf7e96b1a53595d7372d758cf5c604081f:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiYjM1YmJjM2U4MTZjMGVhYzNhNWEzNTQzNzExMjdmYjdlNjE3NTM0MTlmZmUwODZhN2VlN2JlZjk3MDI1MWI5NiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTQxNGRiMmFlM2FlMTExMWI1YWZmNWY2MmRmMzk0OGZmM2I3MTdjYjIyNGU1MjVmNWI0NDMzZWU3Y2E5YTJhZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjYwNjFmOTg3Y2NiM2UyOTAzNzliMWU2Y2Y3YjMxNGFiNzI2NDNhNmU2NDZiNWMyMDBhZGMwYjRmNTFiYzQxZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDg2MDNjOTMzYWUwMGI4YTc1NzRjZmE1ZTk2YjE3N2FhNWZmYmY2NTcxMTcwOWFmZjJkZDI4NzUwOGZhZTJmZiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_92f81e1b4f4a4d4da5dda30b041618e2",
+      "statement": "배포 워크플로는 EC2에서 런타임 시크릿을 install -m 600으로 ~/dongarium/shared/.env에 생성한 뒤 current/.env로 심볼릭 링크해 권한을 제한한 파일에만 비밀값이 노출되게 한다.",
+      "evidence": [
+        {
+          "resource": "repo://.github/workflows/deploy-with-docker.yml#L159-L189",
+          "version": "repo-lines-v1:sha256:a016007148c5dcbbbfbf3b4950dc2573f77d5d1d47e03db08a07f5dfe1f9fa3b:eyJzZWxlY3RlZExpbmVDb3VudCI6MzEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ5ZjM0ZWM2NDYwZDRkZGVlNWY3ZTU2NmU5NjVmMzk2YTNlNmMxNjc3N2ZkNzMyNmRhNjg4MmEyOWFmMzcwMjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1ZWUzMDFkMjk5ODU0OWViYTljMTQzZjUxMTBiNGU1ODg5ZmU1M2I1YTVjZDQwZTFiYjMzZTNjZDM4NDZhZjYiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU0YzEwOWU1ZThjYjVmZjIyNzUzZDRjZTIyMTRiYWRlNjU3MmNkMDc2YzhlNThmZTA3ZjAxYWQyYzYzNmQwN2EiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijk3ODBhMjE1N2VmNDZmNzEwZDgzNzljNDkxMDA0MzE2Mzk4NTRjMDkyZDc4ZTc3ZDk3MWZhZTM2OTllOGRkMTkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_62a70d86cafa4a9dbd2fbf8ec273a5f1",
+      "statement": "docker-compose.monitoring.yml은 Prometheus/Grafana/Loki/Promtail을 dongarium-net(애플리케이션 스택과 공유하는 external 네트워크)에 구성하며, Grafana는 DISCORD_WEBHOOK_URL로 통합 알림을 Discord로 전달한다.",
+      "evidence": [
+        {
+          "resource": "repo://docker-compose.monitoring.yml#L1-L60",
+          "version": "repo-lines-v1:sha256:0e44e611bb4f535d83b09cef9c16a82ab3bc479bc6073d79d1ec4cd0a56ed5d4:eyJzZWxlY3RlZExpbmVDb3VudCI6NjAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc4MjkyNzVhZGMzZTdkNjlmY2VhZjBjZGMzZTY0ZTBhZmUxMTU2NDMxZTllNTljZjBlMDhhMWVlMmY5ZTk2NWMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4OTNiZmI2ZDU3Nzk1Y2QwZTU4NmEwYzkwYjM5ZDRlYzhiMzcwZDliZGQwZjc3OGJlODhiYmVkNmI2MTdlNzQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZlN2ViYjFjNGFiNzQ1YzlmNjU4NzQ0YzgxNjA5YjcyNjhmMzM5ZDliOTE1Njg4Njg3YmQ4MjAxYzkwMjZlMzQifQ"
+        },
+        {
+          "resource": "repo://docker-compose.monitoring.yml#L97-L100",
+          "version": "repo-lines-v1:sha256:828002354a17dc971fac2b17a6e1ac04d64c74df22dc47d206d8c227367602fb:eyJzZWxlY3RlZExpbmVDb3VudCI6NCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMGUxODhlMDVhNzBjYzkwZDdjZTg4ZjMwYzdlYWI0N2NmMzgyMWE1MDljZmQ0NDU0NmU3ZmYyN2Y5YWIwYTg1YiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZGJhZWI2OTNjNGU4NzBmYzg4YmRkYjdhZjdjMjA5YWE4OWI5YTgzN2NlNWQyOTM0OWUzNDEyOWVhNTBjMTRhNiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZjY5NTgxYTA5MTAyYzA1Mzc1ZDhhN2U5NTk2Y2RkZmIzYjU5MjVlOTYzOGQ2Nzk0OTc0Y2ZkZGE1ODJmMTQxNyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTU3M2QyM2Y1YTE4Y2YzZjhlNTU4NmJkM2IwODkwOWRmMDczNGFhOGJhYzcyNDUxMGY1MGJhY2E1MjdiZDRlMyJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_be2f71b5b55f403ebd3c7d262566dfa0",
+      "statement": "logback-spring.xml은 prod 프로파일에서만 DiscordAppender를 AsyncAppender로 감싸고 ThresholdFilter(level=ERROR)를 적용해 ERROR 레벨 로그만 비동기로 Discord 웹훅에 전송한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/resources/logback-spring.xml#L20-L52",
+          "version": "repo-lines-v1:sha256:c3d3c895cd5118523a2c30ba02e40db9ae6044caa22488fbbce99c36d781f8e0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZkZWE3NmZkMTU5YmM5MTZhOGI3NTk0NWU2YjQyN2NlMDk0ZTFlNDY4ZGQzMDNmYmU3ZWFkNjdhYzQ1OWFlZjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjFkYjllZmZlYjQ1YmVmYTZkYTEyNzc4NzUwZWUyNjljMWEyNjhkYjFkNjAxODg0Zjg0ZmRhMWRkOGNkYzc5M2EiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI4NTcxNTUwNGQ4MTYxNzA3NGI2Njk3YTZlMzU5YWFhYjkzNGQ3MzU5ODEyZjkzYWU1ZjE4MmRhMTg4YWMwMmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjI5MzllMDgzMzUwZjZkYzFjODg1MGM4YTY2NTg2ZmI1ZTQ2YzJjYjhmMWE1YzFmZmY2MzkxOGMxMTE5N2E2M2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_6a68de3282b4414eb75272a44cbdb8ea",
+      "statement": "MetricsConfig는 dongarium.users.total, dongarium.clubs.total, dongarium.applications.total 세 개의 Gauge 메트릭을 등록해 전체 사용자/동아리/지원서 수를 실시간으로 노출한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/MetricsConfig.java#L64-L91",
+          "version": "repo-lines-v1:sha256:13f3247b97edb81c595c94fa6874636305c221fe5cd418c080ed2c9093ebc66d:eyJzZWxlY3RlZExpbmVDb3VudCI6MjgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1ZTU5MDY5YzNmMzg3NzE5ZWZlZDI1NmM2YzRiZjIxOWNjYzRmNmU0YjQxYWJmZDQ0NzYxZDQ1NDkyMTRkMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFkMTEzZDJjODFlMjA4N2UzMDc3MmVmMzcwNDAwNjI0NDViNmEzZDA5MDc5MjBiNjJhNTNiZTI4MjZjOWNjZWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQxMGIzNmFhNzRhNTliY2Y0YTg4MTg1ODM3ZjY1OGFmYWYzNjQ2ZWZmMmJiMTZjMzkyOGQwZTkzMzVlOTQ1ZDIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:1da8864d42baca1b3e7d4646e5472ba5f0ec571a0bfe17733f66e366f48c3921",
+  "claims": [
+    {
+      "id": "claim_e4f1d0c81b9549deb03ae2a05a25a184",
+      "statement": "CustomException을 상속받은 구체 예외 클래스(예: UserNotFoundException)는 생성자에서 고정된 ErrorCode를 부모에게 전달하고 선택적으로 detail 문자열을 함께 전달한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/exceptions/CustomException.java#L22-L42",
+          "version": "repo-lines-v1:sha256:6cc0005a555a9ebd895a52b9c028b11e9b20cd890117c1f6fbb840f3f5ac8ee2:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3M2Y0YjM0YmU3MmU2OWI1ZGIwYmI3ZGQ4Njc3NzFkZWY5MjU1NWEwY2YwODE0YmNiYjc5YjAyNGQwY2VjMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZkNDc5ODgxY2UzMGFiOGZhZTIyMjBmYmI3MmQ3ZTdiOWQ3YmRiODkzMGViNzIwNDM4YTIxZDA1NDJlMzc0Y2YiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/exceptions/UserNotFoundException.java#L5-L10",
+          "version": "repo-lines-v1:sha256:d5082af6a9c76daaf5fe45dbf37a1b2847f6fcd4500ddd4df3545dc435231181:eyJzZWxlY3RlZExpbmVDb3VudCI6NiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiMjk4NTMxYWY4ODBhMWE3ZTMwMWE2MjZmN2Y3NWMzNjQyNDIzMTk0MWZjZjNhYTY5OWMzMmQxMzA5OGRjMjJmNCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDEyY2EzNDVjY2Y3NWJmOWMwODA2YmNlNjk1YmU4ZGU4MDhiNzk5ODQyNTFhN2E1NGQyMDJjZjYxMDFkZDQ1MSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiNTdjYzMyNzBhYmI5N2M3NGYyZDA3ZTc3YjUzNTBiYzdiMjA1NmNmYmEwZDAxYTQ1NGM5Yjg2OGFmMWM5NDZiMiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjAsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZTNiMGM0NDI5OGZjMWMxNDlhZmJmNGM4OTk2ZmI5MjQyN2FlNDFlNDY0OWI5MzRjYTQ5NTk5MWI3ODUyYjg1NSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_76f230e840164ae28f6b4571440166a8",
+      "statement": "GlobalExceptionHandler.handleCustomException은 detail이 있으면 ErrorResponseDto.of, 없으면 ErrorResponseDto.from을 사용해 내부 정보 노출 여부를 구분하며, ErrorCode에 매핑된 HttpStatus로 응답한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/handler/GlobalExceptionHandler.java#L42-L56",
+          "version": "repo-lines-v1:sha256:7ca2b1bd015863b29fb810a77c041be6871f11642a548aed0fc1ff7924014cb0:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRhNjgzM2E3YjJlNmRhMzkxMWE1MzEzMTRmNjNhMGE4M2YxMTFlYWRmMzkyNTY5NDA2NmFmNmFjYmVjYjE3MmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM3ZGQ4NjcxZTVjYTE3ZjM3YTg2ZTJjOGY4OTlkYzA4ZDgzM2QwMDJhM2EyODczMDI4YzNhMmJlNGQyM2ZkOWMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIzOGVjMTQ2ZTUxZGI1NWM5ZTUyNmY0ODcxZjAwNDFjMDkyOTkzMGQ3OGRmNDIyMGIyOTY4NDI0NTExN2E2MDcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_20202210667b4f8bbb42c3509017e7e0",
+      "statement": "ErrorResponseDto는 @JsonInclude(NON_NULL)이므로 detail이 null이면 응답 JSON에서 해당 필드가 생략된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/dto/ErrorResponseDto.java#L9-L17",
+          "version": "repo-lines-v1:sha256:c363a892dd45ef5c2dde2f18a4bb021860e01d6da26f2ce025a27c2b06fd391d:eyJzZWxlY3RlZExpbmVDb3VudCI6OSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNzczZjRiMzRiZTcyZTY5YjVkYjBiYjdkZDg2Nzc3MWRlZjkyNTU1YTBjZjA4MTRiY2JiNzliMDI0ZDBjZWMzNiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiYzVkN2M3NzZhMWE2NTRkMjkyMjFlYjMyOWU2YTkxOGYxNGRlODZiMzE3YzM2OWJiYjdlZDExMDI2ZmFhODc1YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiYTUwN2JjN2FmZWVlMjE4ZDM1YzM2MTAyNWM4Nzk5NWIxYmIzZGIxNTRlOWYzMDM3MDRjMGJiN2Y4MzU5NWE3ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNjUxYjQ2YThmZGQ1YWZlMjkzZmI3NzlhMDA0YjljZThmYmYyN2NjOGNiYzZlYWVlODA1MmU4ZGRhODI3MTNjOCJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_c29b058f544f4b06909400faf7801547",
+      "statement": "HttpMessageNotReadableException은 별도 핸들러 없으면 전역 Exception 핸들러로 떨어져 500이 나가기 때문에, 클라이언트 입력 오류를 400(INVALID_INPUT_VALUE)으로 명확히 구분하기 위해 별도로 처리된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/handler/GlobalExceptionHandler.java#L149-L159",
+          "version": "repo-lines-v1:sha256:5b687e77fa12a6b3a6deda945fc4b0c2debf7c8cb22e3063d56a06b1ae1be425:eyJzZWxlY3RlZExpbmVDb3VudCI6MTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE1ZjNmNmExNDdiNjIzNWIzYWQxZDMzYTE3MGQ2NjdjMWUyMjQ4NmQ3MDk2YTEyMTNhOTQwMzkzOWNjOWVhZGEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjllYzIxZjJhMTc0YTUxY2VkYmFmYzg2N2QzMmMwYzAyNWI4MmIyZTI5MjFjMTI2ZTNhZTczOTg0NzE3MmIyODIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZmMjRlNDc2MTAyM2M0ZGU5OGZlMWQ1YTA1ZTlmYTg4YjU1NzMwOGRhZGRiN2U1ZTU3MzVmN2MwMmYyYjY4MjYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_ace9a40dced14b3db0b2706a72d8ecbf",
+      "statement": "AuthorizationDeniedException(@PreAuthorize 메서드 시큐리티 인가 실패)은 ForbiddenAccessException으로 변환된 후 handleCustomException을 재사용해 동일한 응답 형식을 유지한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/exception/handler/GlobalExceptionHandler.java#L199-L206",
+          "version": "repo-lines-v1:sha256:00e46d50023d82d99223cf431d25fc81f97d3ceab41d91bba21547a3d70c916b:eyJzZWxlY3RlZExpbmVDb3VudCI6OCwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiNGY3NDYxY2MzY2E5MGI1MGE5OTIxMGQ2MDA1Y2FlNWZhZjk5OWMwMmY5YTE4MzYyNjZhZGJjYmRmNjJhMzlmYyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDg5M2Y0MGUzNzgxZWI4OTZjODJkMDQ2YTA4MDY3YTExZTM1Y2RmMmYxZGZhZjI2ZmVhOTBiOGRiNjY3NjQxMyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiN2EyZDczMzVmZGI5OWExODg0NDRkNTg5ZDZkZWQzMTY1ZTMwOGYwN2EwYjY3ZTk0NGM4YjUwMTU2Y2M4NzJlZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYzNhZGZhM2IzYWI2NTBlM2NmZGMwMTk2Y2RlNDIzYjJjOTU3ZTIxYjcxZmQ2NDM4YzFjYzIxYTU2ZGMzNjZmYSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_5b436c69bfba4af88449225835f08479",
+      "statement": "SecurityConfig의 authenticationEntryPoint()와 accessDeniedHandler()는 직접 HTTP 응답을 쓰지 않고 HandlerExceptionResolver.resolveException을 통해 각각 UnauthenticatedUserException과 ForbiddenAccessException을 GlobalExceptionHandler로 넘겨, 필터와 컨트롤러의 예외 처리 경로가 통합된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/SecurityConfig.java#L99-L132",
+          "version": "repo-lines-v1:sha256:8c2169349cc81d3139b8e11039945e75cf42a6c4e30a515567b5ee487216767f:eyJzZWxlY3RlZExpbmVDb3VudCI6MzQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc2ODc1MDc2MGIzYjMyN2FlZWM4NGQ1MWFmNGUwMWEzNjQ0Y2M4YmI0ZTIwODE2OTg4ZWM5NmMxYzM1YmY3NzEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUxMDFkMzViNjczMjMxYTNmNWNlNjVkYjYwNDgxNGJlNDU5MDBiYzY3NTBhMTc2YjRmMWYzZjg0ZDdmNmYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

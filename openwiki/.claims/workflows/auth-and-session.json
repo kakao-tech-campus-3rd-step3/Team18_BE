@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:dda68cc9da3a0408bd945e8959577e5d7b8bcca0b6bac85de77aedf903a06c2e",
+  "claims": [
+    {
+      "id": "claim_9a8b92eedb674758ae0bd722f46e7df0",
+      "statement": "AuthServiceImpl.kakaoLogin은 kakaoId로 기존 User가 있으면 정식 액세스/리프레시 토큰을 즉시 발급하고, 없으면 5분짜리 임시 토큰을 발급해 RegistrationRequiredResponseDto로 반환한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/auth/service/AuthServiceImpl.java#L91-L148",
+          "version": "repo-lines-v1:sha256:ead492a3c1e4490ba3eac0efebe74bcf75d5b3090584d9df1041a03bd68020b6:eyJzZWxlY3RlZExpbmVDb3VudCI6NTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYzJiMzExYWJlODc1NzJlOGE3Y2MwZDk5NmE2NTg0NDA3NmU1MjMyZDIxYjdhODU0NzVmOWI0MDU1Yjc0OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImQ4YmVlNmI5YzkyMTM1ZTczNTJkOWQxYmFjMTlmZDk4ODVkMDNiNWIzZDIwYjQxYzk1ZGI0MzY3NjQ1ODY5YWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjZiZWNhZTE4MWU4ODE0NzY0YzllZThmOTRhNWMyYWMzOTM2ZWMwZDE1OTBlZTU2MTQyYzRiZTQyYWI3Y2I0NjkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_35eea1087a0741479c70fcbefae2b1e3",
+      "statement": "AuthServiceImpl.register는 임시 토큰이 TokenType.TEMPORARY인지 검증하고, 학번으로 기존 User가 있으면 이미 다른 카카오 계정과 연동된 경우 DuplicateKakaoIdException을 던져 계정 탈취 시도를 차단한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/auth/service/AuthServiceImpl.java#L152-L202",
+          "version": "repo-lines-v1:sha256:5e4892229c0f78d92ee4848aa1ac4e93665927ab58edd0e2f6da4082c37a1412:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU0NTg4MWVlNDdjNTMzMWEzYTQzYzNmMzc4MDM1OWRmZjQyMmViMDNiNjY3ZDkyMWFhMzY1OTI4MjRhZDhlMWQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjZiZWNhZTE4MWU4ODE0NzY0YzllZThmOTRhNWMyYWMzOTM2ZWMwZDE1OTBlZTU2MTQyYzRiZTQyYWI3Y2I0NjkiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjBjY2I3ZmI4MDc1NTk5ZDgxOTE5NzY2OWFhYjgxMTJmNDY5MTdkY2Q3NDcxZGU1OGY3MDJlNDgzNGZlNjdiMmQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_25fb4ec4d907408ebf5f039ae76e29fb",
+      "statement": "JwtProvider는 임시/액세스/리프레시 세 종류의 토큰을 HS512로 서명하며, 액세스 토큰에만 memberships 클레임(동아리별 role 맵)을 담아 DB 조회 없이 인가 판단을 가능하게 한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/security/JwtProvider.java#L53-L106",
+          "version": "repo-lines-v1:sha256:a2a35239ca778d28fa8f92e730bf2c9bc0bc374f82a6e375bcffed805bc91524:eyJzZWxlY3RlZExpbmVDb3VudCI6NTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImRhZWEwNjBiMjYxNmFlMDhmNmUyNTgxNWFkZjA4MjNkNzJjMWQyMDA2MjEzMWQzOTY1NmM0MTM0OTFhZDg4YjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM1OTM3OGJiNGRiOWVjZjJkNWQ2NWJmY2FhYWE1OWRlOTdmM2Q5YTA3ODg1ZjI4M2I0MGExNmM3ZWE2OGViOTgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImIwNDk2Zjk1MzVmYjQ4MWU5ZGQzMTFiZTJmYjBkZWI5NTdhNjA4MTJjNmEwMGQzNGZiYmVmYjMxODQxMDQ0NDQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_590074e29c0f49d2bc4a5bd2e55d2b88",
+      "statement": "RefreshToken은 @RedisHash+@TimeToLive로 Redis에 저장되어 설정된 ttl이 지나면 자연 만료된다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/auth/entity/RefreshToken.java#L9-L21",
+          "version": "repo-lines-v1:sha256:a08516816cac80a596af62fa9a600b8cac0a1f66b648df62fedb049f197bb37b:eyJzZWxlY3RlZExpbmVDb3VudCI6MTMsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc3M2Y0YjM0YmU3MmU2OWI1ZGIwYmI3ZGQ4Njc3NzFkZWY5MjU1NWEwY2YwODE0YmNiYjc5YjAyNGQwY2VjMzYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFlNmIwOWQ4YjYwNzEzM2YwOTQwMjRkNTQ5ZjI2NTFlYzkyZDZmM2M2YmE1NGQ4N2I4N2QzMTc4YmM0ZWJkNGIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjowLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_c9cb6e0d3d46459f83da4511acf0e037",
+      "statement": "AuthServiceImpl.reissue는 요청 리프레시 토큰이 Redis에 저장된 값과 다르면 InvalidRefreshTokenException을, Redis에 아예 없으면 LoggedOutUserException을 던지며, 검증 통과 시 액세스·리프레시 토큰을 모두 새로 발급해 Redis 값을 덮어쒴다(rotation).",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/auth/service/AuthServiceImpl.java#L236-L286",
+          "version": "repo-lines-v1:sha256:ad0eb5fb7726697e02cba9716f76e3c407b7ab89e7e70d12ac1c3e46ed197912:eyJzZWxlY3RlZExpbmVDb3VudCI6NTEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYzJiMzExYWJlODc1NzJlOGE3Y2MwZDk5NmE2NTg0NDA3NmU1MjMyZDIxYjdhODU0NzVmOWI0MDU1Yjc0OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImM4N2Q0NDMwZTJkYzY5OWJiY2JkZjdmMTBhY2RmZTY0ZWU3YTJjYzIwYmEwZjhiMDQ3MzE5Y2YwMWViYmMxOGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0YWVjMTg4MTE3NjFmMDJjMTY5OTE3MWQzZjYzODM3Njc3ZTNiMGRiMzVhZjY0NjIyMDg1ZjliOTAyZTgxZDIifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_dbf85df3ee02459891381ac586ee81a3",
+      "statement": "AuthServiceImpl.logout은 액세스 토큰의 남은 TTL만큼 blacklist:{accessToken} 키를 Redis에 저장해 즉시 무효화하고, 리프레시 토큰을 Redis에서 삭제하며 refreshToken 쿼키를 Max-Age=0으로 덮어쓐다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/auth/service/AuthServiceImpl.java#L288-L325",
+          "version": "repo-lines-v1:sha256:233bc79ac7ec5cd038cd14be3e886648706fe3cdd77a4332389e5054b8a20838:eyJzZWxlY3RlZExpbmVDb3VudCI6MzgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6Ijc1MjYzMzA5MjNkNGUwYjVlZWYyNTkyMTEzMTJhY2U0ZWIxYjk5MDE3OGIyNjFhODVlOWViZDRhMWFlYjA5NjgiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjE5NWM5Mzg5MmRjNjdlM2VhZTRiNTNjMzc5ZGFmZGY0ZTYxNzk3NWZhNDZhN2JiMjM4MTVlZGU1NGE0MDVjM2QiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImZiZjkyM2FjOTMxYmJkNjJkZGFjZWVlMzMwODI4ODkxZmJkMDJiNDQzNTk1ZjU0ZmM2ODAxYjEwNjRiMWZlN2MifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_0b1bc6905ed447609db08d4fe8420f60",
+      "statement": "JwtAuthenticationFilter는 /api/auth/reissue와 /api/auth/kakao/login을 제외한 요청에서 토큰이 blacklist:{token} 키로 Redis에 있으면 즉시 InvalidJwtException(BLACKLISTED_TOKEN)으로 거부하고, tokenType이 ACCESS가 아니면 인증을 세팅하지 않고 다음 필터로 넘긴다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/security/JwtAuthenticationFilter.java#L45-L88",
+          "version": "repo-lines-v1:sha256:ddea6d673a27b795bd2f8241dcbc3e35dcc47ff5e0cc7d60890661445e289126:eyJzZWxlY3RlZExpbmVDb3VudCI6NDQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVkYzJiMzExYWJlODc1NzJlOGE3Y2MwZDk5NmE2NTg0NDA3NmU1MjMyZDIxYjdhODU0NzVmOWI0MDU1Yjc0OTIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjU1MjJjNDJjZDE5YzZkMDNkODA4YzQ1MjcyMDU1MjgyNWI3ZWExYzViNDkxYjIxODUxMWNhYzc0MTVjZjlkOWIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVmNDcyOTRiYTlhODFhMzgyNTBiMTU3YTY4ZjQxNzAyNDJmNzJmMzcwOGE4YTY1ZWMyNGMxYjAzMWY1ZjNhOWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImUzYjU3MTBiZTFiMTY2OTRhNzQwNDE3Yzg0NjdhZjExOGU5YWEzZDE1MzM0ZWZmMGUyZGVmZDdkOGY1YzcwMGYifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_fb7f29e066444f7982308d267f65111a",
+      "statement": "CustomSecurityService.isClubAdminOrExecutive(clubId)는 DB 조회 없이 액세스 토큰의 memberships 클레임만으로 CLUB_ADMIN/CLUB_EXECUTIVE 여부를 판단하고, isClubAdminOrExecutiveForApplication(applicationId)는 지원서가 속한 클럽 ID를 조회한 뒤 같은 판단을 적용한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/security/CustomSecurityService.java#L29-L89",
+          "version": "repo-lines-v1:sha256:4c475516607155ffdf0732a30497b3648b20074e4168ea4e78526a81297fe245:eyJzZWxlY3RlZExpbmVDb3VudCI6NjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM4YjA0ZmJmYTg3OGQxZjY1NzAzODE0NTFkOThkNDZmYmJkZDJlZmY2MGI1YjEwZWNhMmQ5NWRhMzkyMGM0YmEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImFmMDU3NDIwZGIzZDcwMzY4YTdiYzUzOWIzNjA1NWUyZWY4MDMyYTU0NTRjMDdiY2ViZDZlMWEzMDQwMTQ0YzQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImRhNmUxNDZkMjM3Y2I5NDQwNDQyNDc4NDM0OGU2YjBlYjU4Njk1MzhlZGZiYTIxYTQyOGM2ZDk3NDE0OTNkYWYifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}
