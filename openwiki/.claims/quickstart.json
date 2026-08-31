@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:532f2fb2fbbdde39ede8bdea7d39023cbfe660e4da15c3899502a2652fa5ee42",
+  "claims": [
+    {
+      "id": "claim_652a05133ab74e5faf9baec55359d332",
+      "statement": "이 프로젝트는 Java 21 툴체인(toolchain)과 Spring Boot 3.5.5 플러그인을 사용하는 Gradle 프로젝트다.",
+      "evidence": [
+        {
+          "resource": "repo://build.gradle#L1-L15",
+          "version": "repo-lines-v1:sha256:406e7331f7bf2b419db923df71ae09a63103ac9276c289617590e6934e8e3aa3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ0MDQwMTAzMTViZGJiMGZlYTBmZDZmZjAyMTRkOGJjOTIxY2UyODM2ZDFjYzZiY2I4ODQ5ZjM1NzZjZjVhNjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImE5Nzc1MTAxNzBjMDlmMzZiMWMwMzk4ZmIzZjQ0NzRjYmM4MmRjODRmMThiODI4Nzc3Y2Y0NzkyMzc3YmE2NGUifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_cfaeacb19b214ddd9a24b4d732467d95",
+      "statement": "README의 빠른 시작 절차는 dongarium-redis 컨테이너를 띄운 뒤 ./gradlew bootRun으로 실행하고 /swagger-ui/index.html에서 API를 확인하도록 안내한다.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L46-L57",
+          "version": "repo-lines-v1:sha256:84df44b59be2f8d7853a65088525207260e75d57c64fc8bab5f6c40ed4907a03:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVjMjNiNGEwNjk4NGJiMjQwOTQxZDM4N2ZmM2M1MWZlZjgxNWFlZmRlZDFkOWU0YTM3OTMzZWExZWZmNDlkY2UiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjY2NjdkOGUxYmI1ZjgxMzJmYjk3MjVlZTRiYjg0MWRjY2RjYThkNWU4NGM5Yjk2NTY5M2NjZWEyMjA5NGZmZDIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjM0MjhmYmNjYWEzMjZlMGY0MjQ3ZTk0YWZkMTYyNjBkZWRjNzUzM2IyOGQ3NjFjZTk2ZmZiMzFmMDRjNmZlYmMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhmZDI1MjA3OWQ5NzhkYzMxOWZmMzJjODYzNjViMWQyNDRiNzQzMTA5ZTk2YjM3YzhmNWRiMTQ2YWZlMmE5NjgifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_79e47a85d82d473e93da6f37ad537711",
+      "statement": "README는 브랜치 전략을 main(배포)/develop(통합, PR 기본 대상)/{type}/{작업}#{이슈번호}(작업 브랜치)로 명시하며, 모든 PR은 develop 대상 CI(빌드&테스트)를 통과해야 한다고 명시한다.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L176-L182",
+          "version": "repo-lines-v1:sha256:72ed418172f26391016294aba0ebd9e3bb8d8b4b8f12c5e9310f7d860102142f:eyJzZWxlY3RlZExpbmVDb3VudCI6NywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiODRiOTA3MDUyOWMzZDg4YTBmNjZhZTkwMDFlZjQzYjdjYjRhZmMzZDNlYjliNThhNGY5ZWNjNTIyNTk2NWRhMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZTk4YjU3Zjg4MjkyZWZmNDllZTgxYWIwMmJlYzIyMTQ2ZDBkMzYwYjAwMTIwM2FmNGFkMGMxYjcyMmRhNDM4ZSIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMWI0ZjI0NjQ1MWIwYTA0YWI0NmJlOTlmZTAxMjFmZTFkMzg5NmQzMTNlYzYzNDdhNGRlMjA1NjliYTExOTE0ZSIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiYTUxNGM5MTgxNDRlYTY4OWQ3NDk5Y2I0OTQ5NGU1MTU0NjFlODFlNzQ2MGVmMDllYzEyODNmZjA5M2VkZjZiMiJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

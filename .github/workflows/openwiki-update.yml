@@ -1,0 +1,75 @@
+name: OpenWiki Freshness Tracker
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1" # 매주 월요일 08:00 UTC
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          # openwiki/.last-update.json이 가리키는 마지막 문서화 커밋부터 현재까지의
+          # 커밋 수를 세려면 전체 히스토리가 필요하다.
+          fetch-depth: 0
+
+      - name: Compute staleness
+        id: staleness
+        run: |
+          set -euo pipefail
+          last_head=$(jq -r '.gitHead' openwiki/.last-update.json)
+          last_updated_at=$(jq -r '.updatedAt' openwiki/.last-update.json)
+          commits_behind=$(git rev-list --count "${last_head}..HEAD")
+          compare_url="https://github.com/${GITHUB_REPOSITORY}/compare/${last_head}...${GITHUB_SHA}"
+
+          {
+            echo "last_head=${last_head}"
+            echo "last_updated_at=${last_updated_at}"
+            echo "commits_behind=${commits_behind}"
+            echo "compare_url=${compare_url}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Update freshness tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LAST_HEAD: ${{ steps.staleness.outputs.last_head }}
+          LAST_UPDATED_AT: ${{ steps.staleness.outputs.last_updated_at }}
+          COMMITS_BEHIND: ${{ steps.staleness.outputs.commits_behind }}
+          COMPARE_URL: ${{ steps.staleness.outputs.compare_url }}
+        run: |
+          set -euo pipefail
+          title="OpenWiki 최신화 상태"
+          short_head="${LAST_HEAD:0:7}"
+          checked_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+          body=$(cat <<EOF
+          이 이슈는 OpenWiki 문서를 자동으로 재생성하지 않고, 코드 대비 얼마나
+          뒤처졌는지만 기록합니다. LLM을 호출하지 않는 순수 집계 작업입니다.
+
+          - 마지막 문서화 커밋: \`${short_head}\` (${LAST_UPDATED_AT})
+          - 현재 HEAD 대비 뒤처진 커밋 수: **${COMMITS_BEHIND}개**
+          - 변경 내역 비교: ${COMPARE_URL}
+
+          뒤처진 커밋이 쌓였다면 \`/openwiki\`(OpenWiki 스킬)로 수동 갱신을 고려하세요.
+
+          _마지막 확인: ${checked_at}_
+          EOF
+          )
+
+          issue_number=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open \
+            --search "in:title \"${title}\"" --json number,title \
+            --jq ".[] | select(.title == \"${title}\") | .number" | head -n1)
+
+          if [ -z "$issue_number" ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$title" \
+              --label "📝 docs" --body "$body"
+          else
+            gh issue edit "$issue_number" --repo "$GITHUB_REPOSITORY" --body "$body"
+          fi

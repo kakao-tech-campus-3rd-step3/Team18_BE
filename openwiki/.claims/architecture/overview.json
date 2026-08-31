@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:95cb198bdf312ef4fae27cefbc23ad54173c8f96422b749561ccd3d3dad7bebb",
+  "claims": [
+    {
+      "id": "claim_c89125a447af4540bf88cfc9cc7fd1f7",
+      "statement": "Team18BeApplication은 @EnableScheduling을 적용해 동아리 인기도 집계와 고아 이미지 정리 같은 스케줄러 기반 배치 작업을 최상위에서 활성화한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/Team18BeApplication.java#L7-L9",
+          "version": "repo-lines-v1:sha256:bf0f3663e6dfe9e83074f380d1c72dead910385f57d61802db2297cd5e25e46e:eyJzZWxlY3RlZExpbmVDb3VudCI6MywiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjFjMDQwY2VjYTE5ZGQ1NzFiODhlOWQ2MDA5YTViNTY5MzJkYWMxNTEyZDUyNDg1Y2MyYTljNDQ0MGZkOWJkMyIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiNDVkOWFiZDliZmY1MmQwNDBlOTk0YWM5MGZjYjM2NjA3NTliZDFmY2ZhYzk1M2QxM2U1ZjVkNTc0MmE1OWM4YyIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMjdhZWRjMzk5NzQwMDFiYTZjZjFjOTM5NTc5Y2U3ZmQ5ZGZmM2Q1NjRmY2NmNWExMjg4MTZiY2IyZmIzNjQ3MiIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiMTEwNjNlOTk0OTU3ZTRjYjZmYzhkMjUyZDFjMjBhZGJiOGMyZWM5NWMyZmYzNjE4NjA5ODE2M2ZiMmVlYmMwNSJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_b08b04b65f82461a9b157be5ebdd7970",
+      "statement": "소스 패키지는 domain(도메인별 controller/dto/entity/repository/service 수직 분리)과 global(config/exception/security/util 공통 관심사) 두 축으로 구성된다.",
+      "evidence": [
+        {
+          "resource": "repo://README.md#L184-L204",
+          "version": "repo-lines-v1:sha256:cbbc70b060dc2a9c3045b707923cc1faacc01ba1f237e770dab42eb402c1a17b:eyJzZWxlY3RlZExpbmVDb3VudCI6MjEsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE3MjM5MDczZDJmZjg5ZjE2MjNjZmVkYjdkNjIxOGI0YTdiNjAzZWYzNWE3MmVkNTIyY2ZjNTFlYmMwZWUyZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ3YzA2YzU2MWQ1YzMyNzM0MzY4NTI2OGE0NmIzMzkxZjM5OThlZWU4OTBkMmJlNTFmMGQyMWNjNGE1M2FlNmQiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjU5YzVjYTc2MmI5MWZjZDNiOTAyYmJlMDQ2MDJlNDIzYWZlNmZhNWQxYTc1YWQ2MWU0YzE2OTEwODM5ZjJhMzAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImQ2NTRiZjFkNGM1ZTdlMTJiN2U0NjdkOTI3OTE1MmI3MGQzMTQwMDU0NWQ4NWRjMjgwZDM3MGMzMGJkNDAzYTQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_68db120e49074a54acd0d2b9203333eb",
+      "statement": "RepositoryConfig는 domain 베이스 패키지에 @EnableJpaRepositories와 @EnableRedisRepositories를 함께 적용하되, RefreshTokenRepository만 Redis Repository로 포함하고 JPA Repository에서는 제외하는 필터를 명시적으로 둔다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/RepositoryConfig.java#L10-L24",
+          "version": "repo-lines-v1:sha256:e7133561c1c4cc0f65906a5cc26b916a4092cf4e1d3ca975dd23ef3f018982bf:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjRiMTQ3NjJhYWFkNThkMTM4NDRjZjJlYzU0NzQwYTRkOTdmNWUwN2VlNTE2ZDMyMGQ2MDM2YzFjN2NlNDJkZmUiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImZhZmJhMDUyN2MzOTUzYzRiNmUwZTViNTczOWJhODM2MTJmODA1M2JjZGM5NDY2NzMwMTkzY2QxZDU5MGI0MDgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkZDJlYjlkMzUzYzkyYzJmNDU0Y2FjMjczZTQ5ZGQ4NjQ1N2QzZTNhOGU0MzZlMTFlZjlmNTU3Yjc5Njk1ZmYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoyLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJjODRkY2RiNDUwOWVkZjkyNjNiOTNlMWQ0YjBmMDdlNjZlNTU4ZThjOWJjY2MxYjU0Y2ViNDU5MjNlNGFkMmEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_d81b43e80521443b9d03ecf3d7061f73",
+      "statement": "RedisConfig는 Lettuce의 기본 커맨드 타임아웃(1분)을 최대 3초로 강제해, Redis 장애 시 요청이 오래 대기하지 않고 빨리 우회 경로로 전환되게 한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/RedisConfig.java#L13-L27",
+          "version": "repo-lines-v1:sha256:8f16be76ced61c07c3c319e5579bceb5ddec3f411d01727fd503bde860bd69e3:eyJzZWxlY3RlZExpbmVDb3VudCI6MTUsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImY5ZTMyYmMwMmFmNWJhZmY0OTY4ZmNhZmRmOTZkZjA0ZjJjNDI4MDcxMjYwZTAzMGVmNDY1MzA1NTEzMmRmYjQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjJkNDM4YjcyODc0MTc1NmMwODgxNjNkYjg0ZDA2M2ZmNzYxZWQzZTVhNWUyYjUwZmZmNzNkMGRhMTI4NGFiYTYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_739bb00468e14b4a965af7886003309e",
+      "statement": "AppConfig는 SimpleClientHttpRequestFactory에 connect-timeout/read-timeout을 설정한 RestClient 빈을 등록해, 카카오 등 외부 서버 응답 지연이 애플리케이션 전체에 영향을 미치지 않도록 한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/AppConfig.java#L18-L34",
+          "version": "repo-lines-v1:sha256:13c3f9df367bbac57a6867557430cea519ad325726de0979b176f6a646885851:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM5Y2JiYzY1NDY5ZGIxY2EyODQyZWZkOTdkZjdlZTJjZTZjYzE1NzE0ODJkMDFhMThiNzkwYTEwYzdjNTEwZjMiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImNkYjYwN2EyOTRkMTE3NWQxODkwMmNmMWNiOGY2NzJlMjlkMjg0MWZlYjU1NGM4NWYxMWJmOTFkZDA5Y2JkYWQiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_a2e90a006a7d40e49cc5d0351d4c79dc",
+      "statement": "Dockerfile은 eclipse-temurin:21-jdk-alpine 기반 이미지에서 빌드된 JAR를 --spring.profiles.active=prod로 실행하며 /actuator/health를 헬스체크 엔드포인트로 사용한다.",
+      "evidence": [
+        {
+          "resource": "repo://Dockerfile#L1-L17",
+          "version": "repo-lines-v1:sha256:20580370cd05334cbda1be7101e93c01ed1a298e5395ab050b48b40035361127:eyJzZWxlY3RlZExpbmVDb3VudCI6MTcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImVmNmJkY2I3Yjc1NWRmNmNhMzllZjc2ODhlODY5YjJmOTE1ODVmYWE1ZWI4ZGQxNjA3YWQ1NDkwYjEzODI1MjEiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjowLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImUzYjBjNDQyOThmYzFjMTQ5YWZiZjRjODk5NmZiOTI0MjdhZTQxZTQ2NDliOTM0Y2E0OTU5OTFiNzg1MmI4NTUiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6Ijc0OTA2ODZhOGE5MTZjODUwOGQwYzdkZGRiZDBhYmFhMTVkOGJjNWYzMjRjNTMxNDlhZmVkODc3MzQzYzIyZTAifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_081da276c03c47d38ccbd4f56065a5dc",
+      "statement": "docker-compose.yml은 db(MySQL 8.0), redis, app 세 서비스를 dongarium-net 네트워크로 묶고, app은 db/redis의 헬스체크가 service_healthy가 될 때까지 시작을 지연한다.",
+      "evidence": [
+        {
+          "resource": "repo://docker-compose.yml#L40-L53",
+          "version": "repo-lines-v1:sha256:e8ca052e1bdbf602c1f4aae3665c92da8aae0b3a53b40fce8326ed86ccbf22e7:eyJzZWxlY3RlZExpbmVDb3VudCI6MTQsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImE4ZTFlMDIwM2VlMGIyNTU1MWRhMzdiMWFiYzUwNDU5MjMyYTkwNDhmNjJjM2JhODY1MTczNGNhODExZmUzYjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjYyZTYxNmRkNDBkZGIyNjg1NjM5OGY2Yzk1NThiODIyNjJkMjhjMzk0YzkwNTQwMGU2OWQ5OTMxODYzOGVlZTUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjQzYWFmMTlkMzI1MTFkY2YwYmIyMDg5OTgwMWQzOTlmNTc3MTQxMDIxNWVjM2YxYjc5OWE2OTRhZTNjMjRjZjEiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjJmMzAwZjliNjc3ZmUyYTlhNzA1NGY4NjQyZjk0YjY2Y2ZlNDMwYjkzZTNmNTI3YTZlYmRmMDM3MDMzZTBhZTIifQ"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}

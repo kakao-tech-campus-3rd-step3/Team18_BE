@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "pageVersion": "sha256:56008f313c90c1e46843315916d1dccc1e2a6a2bedbc0d7bb621ebea3c9eaa80",
+  "claims": [
+    {
+      "id": "claim_a6e46b72d6e9480f8903113b6d50eebb",
+      "statement": "S3Config는 cloud.aws.credentials.access-key/secret-key가 설정되어 있으면 StaticCredentialsProvider(로컬)를, 비어 있으면 InstanceProfileCredentialsProvider(EC2 IAM Role)를 사용하도록 S3Client와 S3Presigner 빈을 분기한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/config/S3Config.java#L25-L61",
+          "version": "repo-lines-v1:sha256:714b4d96124b3e9896b556d863591096e84624005b286ac21a89d7bd51569ea0:eyJzZWxlY3RlZExpbmVDb3VudCI6MzcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjM1ZTU5MDY5YzNmMzg3NzE5ZWZlZDI1NmM2YzRiZjIxOWNjYzRmNmU0YjQxYWJmZDQ0NzYxZDQ1NDkyMTRkMDkiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjQ4OTNmNDBlMzc4MWViODk2YzgyZDA0NmEwODA2N2ExMWUzNWNkZjJmMWRmYWYyNmZlYTkwYjhkYjY2NzY0MTMiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6IjY1NzJiNmM4N2I3NTlhZjNmZWRhODdiNjU5MWI3ODBhODFiZTM1MGE3N2NjMzI4ODg3MjA1MjkxMTdjZWQxMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_4cecfe2ee1d64cd196db5acf4c3aacb8",
+      "statement": "S3Service.upload는 image/jpeg와 image/png가 아닌 Content-Type을 거부하고, 파일명에서 경로 구분자를 제거하며, 저장 키는 UUID.randomUUID() + \"-\" + originalName으로 만들어 파일명 충돌을 방지한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/service/S3Service.java#L76-L122",
+          "version": "repo-lines-v1:sha256:5926fd0eb825027effdf613033f10a5fa5f69093be13d4efd3b4c2baeaf833bb:eyJzZWxlY3RlZExpbmVDb3VudCI6NDcsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImQ4ZGE4YWFmOGZmMTY4MzFhMjRjYjMwYjVmOTgwMTExZjY1MmRlMmQxMmZhZjYyNmQ5N2RkZjcxY2FiNDJiNDQiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM5NzRhNGNkYWUxY2VjMTU2NDcyNDI4NzEzZjdjYjI3OTgyZjcyOWU5MGQ2YTU4NGE0ZDgyNDdjM2ZmMTUzNzIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijk5OWJkZWZlZWFjYTYzNDBlMDI5MGRjODZlODg5Yzg5ZDVlMTg5YWE1YmE0NGI1ODViM2I3MDczNGY0YTYyZDgiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImI3YmNiMzZlN2Y2MTFiMzMyZTBiMDIwZjdlYzgwMDU3NjIyZTVhNDI1ZTcyZjg4MWY0Mzg0ZDk2OWQ0NmI5MTcifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_63d203966f764d46a85dc0cbfcf3de6a",
+      "statement": "S3Service.deleteFile은 전달된 URL이 버킷의 표준 URL 형식으로 시작하지 않으면 삭제를 거부하고 AwsS3Exception을 던진다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/service/S3Service.java#L125-L134",
+          "version": "repo-lines-v1:sha256:12a6c611647b0e3dbf13742169a1d6b47f380a22a44a5adaa86ac76b23ee7e4c:eyJzZWxlY3RlZExpbmVDb3VudCI6MTAsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjI4NmQ4YTg4YjJlYmVhNjE0NTE3OGZkMmExN2VjZTFhZTk1MjllMTc1NTRhMjhmYzkzMDViNzVmOTkyYmZjOTYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImU2YjA0NDkxNDY5NzIyZTgzNjNhOTRlNDA0NDUzOGUwMTNhMmEyMTdlMzZiMWU1NjhiYTYwYWNiN2I0YzhmMmUiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImVlZTdlNTE2OWZjYmQ0YWFhODJhMGZiYmFmY2EyOWJkOGVlOGFkNzdjYTJkM2VjN2M0NzlhOWY2NGYyNjIzOGYiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU1NjlmYzEzMTUyNzU5YjkxNzBmOGI1MjQ0YjlhNjc5ODQ1ZjJjZTc3NDFlYjhmMGI0YTgzYzU3MDM1ZTg3ZDkifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_f9d6fc164a7748af87a435213b4ed614",
+      "statement": "OrphanImageCleanupService는 S3Service.listAllFiles()의 전체 URL 중 ClubImageRepository.findAllImageUrls()에 없는 URL만 고아로 분류해 삭제하며, 이를 매일 새벽 3시에 실행하도록 작성된 OrphanImageCleanupScheduler의 @Scheduled는 현재 주석 처리되어 자동 실행되지 않는다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/club/service/OrphanImageCleanupService.java#L10-L21",
+          "version": "repo-lines-v1:sha256:32e0fb83f6e54f0dff29377c63b114e138f9ef4373b24b8ac1307f94a7e7174d:eyJzZWxlY3RlZExpbmVDb3VudCI6MTIsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjE5MThkMDg5NjNmYTc0NWNkOTMxMzU3YTQ1NmIxYjA1YWE4YzhmYTY4MTE2ZWUyYTBiMjBkNTdhMDBjOTQ1MjYiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjUzM2E3ZTJjOTFmZGNhNjIzYWYzNjUxMGU5YWI1Y2NiZGZlMzAxNTBjNTU0ZjM4OWI2MzQxZjgxNDliZjkwNzgiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg0N2NiNWFlMmQxYWU1MjU5MzU1NTc1ODg1ZTE4ZDdkYTU0ZGNkMWMzNjMyMzM3Zjk2MmU3YmJlNjNiOWU0YzIiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6ImU4NmFhNzJiODZkZjI4ZjhiNTZhMjg0OWEwZWIxN2Q2NzhlNTdlYTFlMDQwMGY1NDI0NzNiMGM3MmI4YzA0MTkifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/global/scheduler/OrphanImageCleanupScheduler.java#L16-L17",
+          "version": "repo-lines-v1:sha256:11e646d28c897d1411812e4dd0791a217911e8dcc833b5af3f41bd31dd63c9b8:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiM2I5YmE4ZmJlNDY0ZTZlNjIwMWUxNDYwYzY5NmNiZGJhZTYzN2Y1MmY3Y2I3N2Q4MmZiZmY1Nzc4NDAzY2NkZiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiMWM2ZmEyMjZiYjA2ZmY2MGJkODlhNzc0ZDg0OTRjNmVkMzcxZjU1Yjg1M2I2MDZlNmEzOTY1ZmY0NWQ2NTUwZiIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiMDY5ZDU5YzRhOGIxNjdkMzAzNDlmMmE5ODliNzBlNWU5ZmQzZTQwYTdjNmEyYmU4ZDEyNmZkYzkzMzZmN2Y5ZCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiZDYxNDRlYzU0MTcwZjBlNWRjMmEwYjIxYTI0YjM2NzlhM2EzMGRjZmI1OTczMDRmMGYwMDRhYTVkYjk2NmEwMiJ9"
+        }
+      ]
+    },
+    {
+      "id": "claim_37740a8ade8a41d6af463497c1e0a9ad",
+      "statement": "File 엔티티는 Notice에 다대일로 종속되어 이름/타입/objectUri를 저장하며, NoticeServiceImpl.getNoticeById는 조회 시마다 cloud.aws.s3.bucket-attachments 버킷을 대상으로 7일 만료의 presigned 다운로드 URL을 즉석에서 생성해 응답에 포함시킨다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/files/entity/File.java#L28-L46",
+          "version": "repo-lines-v1:sha256:3653320f300f0523fef974337609e5650249a6e7cf2f7c947ba4a7da46fff371:eyJzZWxlY3RlZExpbmVDb3VudCI6MTksImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM0MGQ1NzAyNDcyNDRiZTkzMDIyMmRlMTM0NzhjODQ0OTNhYmEyZjBlYjQ1ZDcyMTc0ZWJkY2E2NWUyZWMzZjciLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6ImM3NjZjNDhlZDQ1ODZkMWEwMGZhMzQ5Y2I4ZTAxOTM0NmMwNzMzMTU1ZDhmNWY1YzRiZmFhMDRhNjMwN2VmNDkiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6ImI2MGI4Y2Q0ZTg3YzEzMTY3MTBhMDU1ZWY0MzNmYWE4Y2M2MTBhMzhlZjg0ZjM1MmYzMjZjOTBiMzFhOWVmMDAiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjoxLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjQxMmNhMzQ1Y2NmNzViZjljMDgwNmJjZTY5NWJlOGRlODA4Yjc5OTg0MjUxYTdhNTRkMjAyY2Y2MTAxZGQ0NTEifQ"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/notices/service/NoticeServiceImpl.java#L118-L135",
+          "version": "repo-lines-v1:sha256:0361621579d8cbd6228e439d3389006714c3a168bb80f440391a13d8da3faca1:eyJzZWxlY3RlZExpbmVDb3VudCI6MTgsImZpcnN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJsYXN0U2VsZWN0ZWRMaW5lSGFzaCI6IjAxYmE0NzE5YzgwYjZmZTkxMWIwOTFhN2MwNTEyNGI2NGVlZWNlOTY0ZTA5YzA1OGVmOGY5ODA1ZGFjYTU0NmIiLCJwcmVjZWRpbmdDb250ZXh0TGluZUNvdW50IjozLCJwcmVjZWRpbmdDb250ZXh0SGFzaCI6Ijg5YmQ4NjE5MDVhMmU4ZTdmMjliY2IyMDQ1OGEzYTMzZjUxMjRlMDZkNmQzNjVkZmFlYzY1N2VmYzQyZDcwMGMiLCJmb2xsb3dpbmdDb250ZXh0TGluZUNvdW50IjozLCJmb2xsb3dpbmdDb250ZXh0SGFzaCI6IjhlMzlmNjBlNzU3YjBiNzc4NzIyNDY1NjA4M2RiNTdiNGFlOGQzMDU0YjIzODY2NGZiNDRiOTFmYzk0YzY1YjQifQ"
+        }
+      ]
+    },
+    {
+      "id": "claim_350901360416430f9f9151fe8274a9a3",
+      "statement": "ClubMemberServiceImpl은 동아리원 일괄 등록 양식 다운로드를 위해 cloud.aws.s3.bucket-attachments 버킷의 templates/members_template.xlsx 키를 사용한다.",
+      "evidence": [
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubMember/service/ClubMemberServiceImpl.java#L321-L321",
+          "version": "repo-lines-v1:sha256:d50e9bae2611cf5df5c82c21b6f88a3683225811bcf70cf5f8bdfedf7e2100cd:eyJzZWxlY3RlZExpbmVDb3VudCI6MSwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUwZTliYWUyNjExY2Y1ZGY1YzgyYzIxYjZmODhhMzY4MzIyNTgxMWJjZjcwY2Y1ZjhiZGZlZGY3ZTIxMDBjZCIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiZDUwZTliYWUyNjExY2Y1ZGY1YzgyYzIxYjZmODhhMzY4MzIyNTgxMWJjZjcwY2Y1ZjhiZGZlZGY3ZTIxMDBjZCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZWEyM2I1NmMyYTk5NTllZTYxZjE4ZGVlZmJlMTNiODBlN2EyYjgxODVkOWIzNTc4NmUyZWRhMTdkNDQzMjdlYyIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNGZiZDAwOTMxNGJjMjcwODQxNjczNGEwMmFlNWZmMzlhMWU0OGEwNTBiZTkxZjQzYjJmYWE5MjAwMmM2MmJmYyJ9"
+        },
+        {
+          "resource": "repo://src/main/java/com/kakaotech/team18/backend_server/domain/clubMember/service/ClubMemberServiceImpl.java#L50-L51",
+          "version": "repo-lines-v1:sha256:2dd0534648ae415948d969d67759b470c0fad7c4449687358df9ba2a1992f389:eyJzZWxlY3RlZExpbmVDb3VudCI6MiwiZmlyc3RTZWxlY3RlZExpbmVIYXNoIjoiZjhlNmNmZjc5NmI5MGUwZGUyYzEzMTBlMzc0ZjRjODUxMmI5ZmZlYTNjNTVmOWJjNGViNzMzMDI4ODcyMjEwMiIsImxhc3RTZWxlY3RlZExpbmVIYXNoIjoiOTg3NWU4YTQ1Yzc0NjBjMDczMWJkYWI2NjIwNjdkMjUxYjhkNjIwZTMxMzBiOTliZmJmNDcxYTIwMWY2YjljNCIsInByZWNlZGluZ0NvbnRleHRMaW5lQ291bnQiOjMsInByZWNlZGluZ0NvbnRleHRIYXNoIjoiZDU1MDNiNDUxNWVhNmRlMmQ2N2JjYTJiMjdjNTZlOWYwNmM3MjA2NTA2MGExYTBjYjdjOTFkNzk4Y2I3ZjE5MCIsImZvbGxvd2luZ0NvbnRleHRMaW5lQ291bnQiOjMsImZvbGxvd2luZ0NvbnRleHRIYXNoIjoiNTJlMGZiNGJiZjYyYTU3ZWRmN2U4NTI5OTgyZmIwNjlhNzM5ZTllNWZmZjNiMjA5OTQxM2NjNWU1OWNhNWQyNyJ9"
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "by": "openwiki/0.4.3",
+    "at": "2026-08-31T14:35:03.507Z"
+  }
+}
