@@ -12,17 +12,22 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
+import java.util.List;
 import java.util.Collections;
 import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -34,24 +39,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver resolver;
     private final RedisTemplate<String, String> redisTemplate;
 
+    // 필터링을 건너뛸 경로 목록을 미리 정의합니다.
+    private final List<AntPathRequestMatcher> permitAllMatchers;
+
     // Qualifier 를 이용하기 위해서 RequiredArgsConstructor 사용 X
     public JwtAuthenticationFilter(JwtProvider jwtProvider, PrincipalDetailsService principalDetailsService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver, RedisTemplate<String, String> redisTemplate) {
         this.jwtProvider = jwtProvider;
         this.principalDetailsService = principalDetailsService;
         this.resolver = resolver;
         this.redisTemplate = redisTemplate;
+        // SecurityConfig의 permitAll 규칙들을 여기에 명시적으로 정의합니다.
+        this.permitAllMatchers = List.of(
+                new AntPathRequestMatcher("/api/auth/**"),
+                new AntPathRequestMatcher("/swagger-ui.html"),
+                new AntPathRequestMatcher("/v3/api-docs/**"),
+                new AntPathRequestMatcher("/swagger-ui/**"),
+                new AntPathRequestMatcher("/api/notices", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/notices/*", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/clubs", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/clubs/*", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/clubs/*/apply", HttpMethod.GET.name()),
+                new AntPathRequestMatcher("/api/clubs/*/apply-submit", HttpMethod.POST.name()),
+                new AntPathRequestMatcher("/api/clubs/*/reviews")
+        );
+    }
+
+    /**
+     * 이 필터가 동작하지 않아야 할 경로인지 확인합니다.
+     * 생성자에서 정의된 permitAllMatchers 리스트와 현재 요청을 비교합니다.
+     * @return 필터를 건너뛰려면 true, 필터를 실행하려면 false
+     */
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return permitAllMatchers.stream()
+                .anyMatch(matcher -> matcher.matches(request));
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        // 요청 URI를 확인하여 특정 경로의 요청은 필터를 그냥 통과시킨다.
-        String requestURI = request.getRequestURI();
-        if (requestURI.equals("/api/auth/reissue") || requestURI.equals("/api/auth/kakao/login")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // 1. 헤더에서 "Authorization" 값을 가져온다.
         String bearerToken = request.getHeader("Authorization");

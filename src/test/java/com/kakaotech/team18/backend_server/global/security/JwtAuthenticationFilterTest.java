@@ -96,7 +96,7 @@ class JwtAuthenticationFilterTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                get("/api/clubs")
+                get("/api/clubs/1/dashboard") // 인증이 필요한 경로로 변경
                         .header("Authorization", "Bearer " + invalidSignatureToken)
         );
 
@@ -115,7 +115,7 @@ class JwtAuthenticationFilterTest {
 
         // when
         ResultActions resultActions = mockMvc.perform(
-                get("/api/clubs")
+                get("/api/clubs/1/dashboard") // 인증이 필요한 경로로 변경
                         .header("Authorization", "Bearer " + malformedToken)
         );
 
@@ -146,7 +146,7 @@ class JwtAuthenticationFilterTest {
         // when
         // 만료된 토큰을 헤더에 담아 일반 API(/api/clubs)로 요청
         ResultActions resultActions = mockMvc.perform(
-                get("/api/clubs")
+                get("/api/clubs/1/dashboard") // 인증이 필요한 경로로 변경
                         .header("Authorization", "Bearer " + expiredToken)
         );
 
