@@ -15,6 +15,8 @@ jobs:
     env:
       AWS_REGION: ap-northeast-2
       ECR_REPO_NAME: dongarium-server
+      MIGRATE_ECR_REPO_NAME: dongarium-migrate
+      IMAGE_TAG: ${{ github.sha }}
       REMOTE_DIR: /home/ec2-user/dongarium
 
     steps:
@@ -58,6 +60,7 @@ jobs:
           DB_ROOT_PASSWORD: '${{ secrets.DB_ROOT_PASSWORD }}'
 
         run: SPRING_PROFILES_ACTIVE=test ./gradlew clean build -x test
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -69,14 +72,21 @@ jobs:
         id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build Docker image
-        run: docker build -t $ECR_REPO_NAME .
+      - name: Build Docker images (server + migrate)
+        env:
+          REG: ${{ steps.ecr.outputs.registry }}
+        run: |
+          set -e
 
-      - name: Tag image for ECR
-        run: docker tag $ECR_REPO_NAME:latest ${{ steps.ecr.outputs.registry }}/$ECR_REPO_NAME:latest
+          # server 이미지 빌드 및 푸시
+          docker build -t $ECR_REPO_NAME:$IMAGE_TAG .
+          docker tag $ECR_REPO_NAME:$IMAGE_TAG $REG/$ECR_REPO_NAME:$IMAGE_TAG
+          docker push $REG/$ECR_REPO_NAME:$IMAGE_TAG
 
-      - name: Push image to ECR
-        run: docker push ${{ steps.ecr.outputs.registry }}/$ECR_REPO_NAME:latest
+          # migrate 이미지 빌드 및 푸시
+          docker build -f Dockerfile.flyway -t $MIGRATE_ECR_REPO_NAME:$IMAGE_TAG .
+          docker tag $MIGRATE_ECR_REPO_NAME:$IMAGE_TAG $REG/$MIGRATE_ECR_REPO_NAME:$IMAGE_TAG
+          docker push $REG/$MIGRATE_ECR_REPO_NAME:$IMAGE_TAG
 
       - name: Ensure remote directory structure
         uses: appleboy/ssh-action@v1.0.3
@@ -99,7 +109,7 @@ jobs:
           source: "docker-compose.yml,docker-compose.monitoring.yml,monitoring/"
           target: "${{ env.REMOTE_DIR }}/current"
 
-      - name: Deploy on EC2 (create .env, set credHelpers, compose up)
+      - name: Deploy on EC2 (create .env, set credHelpers, migrate, compose up)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -110,6 +120,7 @@ jobs:
           script: |
             set -euo pipefail
             rm -f ~/.docker/config.json || true
+
             # Docker/compose 보장
             if ! systemctl is-active --quiet docker; then
               sudo systemctl start docker || true
@@ -123,7 +134,7 @@ jobs:
               docker compose version || { echo "FATAL: docker compose not available"; exit 1; }
             fi
 
-            # AWS 크레덴셜 (Instance Profile이 없을 때만)
+            # AWS 크레덴셜
             export AWS_ACCESS_KEY_ID='${{ secrets.AWS_ACCESS_KEY_ID }}'
             export AWS_SECRET_ACCESS_KEY='${{ secrets.AWS_SECRET_ACCESS_KEY }}'
             export AWS_REGION='${{ env.AWS_REGION }}'
@@ -141,10 +152,11 @@ jobs:
             export DOCKER_CONFIG=/tmp/docker-config-ecr
             mkdir -p "$DOCKER_CONFIG"
 
-            # credHelpers 설정을 jq로 생성 (heredoc NO)
             REG='${{ steps.ecr.outputs.registry }}'
+            IMAGE_TAG='${{ env.IMAGE_TAG }}'
+
+            # credHelpers 설정
             if ! command -v jq >/dev/null 2>&1; then
-              # jq가 없으면 설치 (Amazon Linux 계열)
               if command -v yum >/dev/null 2>&1; then
                 sudo yum install -y jq || true
               elif command -v dnf >/dev/null 2>&1; then
@@ -156,9 +168,10 @@ jobs:
             # 디렉토리 이동
             cd ${{ env.REMOTE_DIR }}
 
-            # .env 생성 (printf로 안전하게 생성)
+            # .env 생성
             tmp_env="$(mktemp)"
-            printf 'DB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\nKAKAO_CLIENT_ID=%s\nKAKAO_CLIENT_SECRET=%s\nJWT_SECRET=%s\nKAKAO_REDIRECT_URI_PROD=%s\nKAKAO_LOGOUT_REDIRECT_URI_PROD=%s\nFRONTEND_MAIN_PAGE_URI_PROD=%s\nSMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USERNAME=%s\nSMTP_PASSWORD=%s\nEMAIL_FROM=%s\nEMAIL_SUBJECT_PREFIX=%s\nREDIS_HOST=%s\nREDIS_PORT=%s\nAPI_REST_CLIENT_CONNECT_TIMEOUT=%s\nAPI_REST_CLIENT_READ_TIMEOUT=%s\nCLOUD_AWS_S3_BUCKET=%s\nCLOUD_AWS_S3_BUCKET_ATTACHMENTS=%s\nDISCORD_WEBHOOK_URL=%s\nCLOUD_AWS_REGION_STATIC=%s\n' \
+            printf 'IMAGE_TAG=%s\nDB_NAME=%s\nDB_USER=%s\nDB_PASSWORD=%s\nDB_ROOT_PASSWORD=%s\nECR_REGISTRY=%s\nKAKAO_CLIENT_ID=%s\nKAKAO_CLIENT_SECRET=%s\nJWT_SECRET=%s\nKAKAO_REDIRECT_URI_PROD=%s\nKAKAO_LOGOUT_REDIRECT_URI_PROD=%s\nFRONTEND_MAIN_PAGE_URI_PROD=%s\nSMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USERNAME=%s\nSMTP_PASSWORD=%s\nEMAIL_FROM=%s\nEMAIL_SUBJECT_PREFIX=%s\nREDIS_HOST=%s\nREDIS_PORT=%s\nAPI_REST_CLIENT_CONNECT_TIMEOUT=%s\nAPI_REST_CLIENT_READ_TIMEOUT=%s\nCLOUD_AWS_S3_BUCKET=%s\nCLOUD_AWS_S3_BUCKET_ATTACHMENTS=%s\nDISCORD_WEBHOOK_URL=%s\nCLOUD_AWS_REGION_STATIC=%s\n' \
+            "$IMAGE_TAG" \
             '${{ secrets.DB_NAME }}' \
             '${{ secrets.DB_USER }}' \
             '${{ secrets.DB_PASSWORD }}' \
@@ -188,14 +201,27 @@ jobs:
             rm -f "$tmp_env"
             ln -sf ${{ env.REMOTE_DIR }}/shared/.env ${{ env.REMOTE_DIR }}/current/.env
 
-            echo "==> Pull latest image (credHelpers auto-auth)"
-            docker pull $REG/${{ env.ECR_REPO_NAME }}:latest
+            echo "==> Pull images (server + migrate) with tag: $IMAGE_TAG"
+            docker pull $REG/${{ env.ECR_REPO_NAME }}:$IMAGE_TAG
+            docker pull $REG/${{ env.MIGRATE_ECR_REPO_NAME }}:$IMAGE_TAG
 
-            # 재기동
+            # 포트 강제 해제
             sudo fuser -k -n tcp 8080 || true
+
             cd ${{ env.REMOTE_DIR }}/current
-            ECR_REGISTRY="$REG" docker compose down || true
-            ECR_REGISTRY="$REG" docker compose up -d --remove-orphans
+
+            # db/redis 먼저 기동 (기존 데이터 유지)
+            ECR_REGISTRY="$REG" IMAGE_TAG="$IMAGE_TAG" docker compose up -d --remove-orphans db redis
+
+            # migrate 1회 실행 (실패 시 set -e로 배포 중단)
+            echo "==> Running Flyway migration"
+            ECR_REGISTRY="$REG" IMAGE_TAG="$IMAGE_TAG" docker compose run --rm migrate
+
+            # migrate 성공 후 app 기동
+            echo "==> Starting app"
+            ECR_REGISTRY="$REG" IMAGE_TAG="$IMAGE_TAG" docker compose up -d --remove-orphans app
+
             docker compose ps
-            # 모니터링 스택 실행 명령어
+
+            # 모니터링 스택
             docker compose -f docker-compose.monitoring.yml up -d
