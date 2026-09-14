@@ -1,52 +1,52 @@
 <div align="center">
 
-# 🏫 동아리움 (Dongarium)
+# 동아리움 (Dongarium)
 
-**대학 동아리 지원 · 관리 플랫폼 백엔드**
+대학 동아리 지원 · 관리 플랫폼 백엔드
 
-동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지<br/>
-동아리 운영의 전 과정을 하나로 관리하는 서비스의 백엔드 서버입니다.
+동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지
+동아리 운영의 전 과정을 하나의 서비스로 관리합니다.
 
-[![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](#-기술-스택)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#-기술-스택)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#-기술-스택)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](#-기술-스택)
-[![Kakao](https://img.shields.io/badge/Kakao%20OAuth-FFCD00?logo=kakaotalk&logoColor=black)](#-기술-스택)
-[![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20S3%20%7C%20ECR-FF9900?logo=amazonaws&logoColor=white)](#-기술-스택)
-[![Nginx](https://img.shields.io/badge/Nginx-reverse%20proxy-009639?logo=nginx&logoColor=white)](#-기술-스택)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#-기술-스택)
+[![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](#기술-스택)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#기술-스택)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#기술-스택)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)](#기술-스택)
+[![Kakao](https://img.shields.io/badge/Kakao%20OAuth-FFCD00?logo=kakaotalk&logoColor=black)](#기술-스택)
+[![AWS](https://img.shields.io/badge/AWS-EC2%20%7C%20S3%20%7C%20ECR-FF9900?logo=amazonaws&logoColor=white)](#기술-스택)
+[![Nginx](https://img.shields.io/badge/Nginx-reverse%20proxy-009639?logo=nginx&logoColor=white)](#기술-스택)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#기술-스택)
 [![OpenWiki](https://img.shields.io/badge/Docs-OpenWiki-8A2BE2?logo=readthedocs&logoColor=white)](openwiki/quickstart.md)
 
-**[🌐 서비스 바로가기](https://dongarium.co.kr)** · **[📑 API 문서](#-api-문서)** · **[🚀 시작하기](#-시작하기)**
+[서비스 바로가기](https://dongarium.co.kr) · [API 문서](#api-문서) · [시작하기](#시작하기)
 
 </div>
 
 ---
 
-## 📌 목차
+## 목차
 
-- [소개](#-소개)
-- [빠른 시작](#-빠른-시작)
-- [주요 기능](#-주요-기능)
-- [기술 스택](#-기술-스택)
-- [아키텍처](#-아키텍처)
-- [시작하기](#-시작하기)
-- [API 문서](#-api-문서)
-- [브랜치 & 커밋 전략](#-브랜치--커밋-전략)
-- [프로젝트 구조](#-프로젝트-구조)
-- [팀 소개](#-팀-소개)
+- [소개](#소개)
+- [빠른 시작](#빠른-시작)
+- [주요 기능](#주요-기능)
+- [기술 스택](#기술-스택)
+- [아키텍처](#아키텍처)
+- [시작하기](#시작하기)
+- [API 문서](#api-문서)
+- [브랜치 & 커밋 전략](#브랜치--커밋-전략)
+- [프로젝트 구조](#프로젝트-구조)
+- [팀 소개](#팀-소개)
 
-## 📖 소개
+## 소개
 
-**동아리움**은 대학 동아리의 신입 부원 모집 과정을 온라인으로 통합 관리할 수 있도록 돕는 플랫폼입니다.
-운영진은 지원폼을 자유롭게 구성하고 지원자를 심사·관리할 수 있으며, 지원자는 카카오 로그인만으로 여러 동아리에 간편하게 지원할 수 있습니다.
+동아리움은 대학 동아리의 신입 부원 모집 과정을 온라인으로 통합 관리하는 플랫폼입니다.
+운영진은 지원폼을 자유롭게 구성하고 지원자를 심사·관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
 
-- 🌐 서비스: [dongarium.co.kr](https://dongarium.co.kr)
-- 🖥️ 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
+- 서비스: [dongarium.co.kr](https://dongarium.co.kr)
+- 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
 
-## ⚡ 빠른 시작
+## 빠른 시작
 
-가장 빠르게 로컬에서 띄워보는 방법입니다. 상세 설정은 [시작하기](#-시작하기) 참고.
+가장 빠르게 로컬에서 띄워보는 방법입니다. 상세 설정은 [시작하기](#시작하기) 참고.
 
 ```bash
 git clone https://github.com/kakao-tech-campus-3rd-step3/Team18_BE.git
@@ -57,20 +57,19 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 → `http://localhost:8080/swagger-ui/index.html` 에서 API 확인
 
-## ✨ 주요 기능
+## 주요 기능
 
-- **동아리 지원 관리**: 동아리별 커스텀 지원폼(질문/답변) 생성 및 지원서 접수
-- **전형 프로세스**: 서류 → 면접 → 최종 합격/불합격 단계별 상태 관리
-- **동아리원 관리**: 지원자의 동아리원 전환, 재지원 제한 등 멤버십 상태 관리
-- **알림**: 전형 결과를 전형 단계별 템플릿 이메일로 자동 발송
-- **카카오 소셜 로그인**: OAuth2 기반 인증, JWT 발급 및 Redis 기반 Refresh Token/로그아웃 블랙리스트 관리
-- **동아리 후기**: 동아리원 대상 동아리 후기 작성/조회
-- **지원자 통계**: 성별·학과·입학년도 등 다각도의 지원자 통계 집계 (재식별 방지를 위한 최소 공개 기준 적용, Redis 캐시)
-- **동아리 인기도**: 조회수·체류시간 기반 실시간 인기 동아리 집계 (Redis + Lua 스크립트)
-- **파일 업로드**: 동아리 이미지/지원서 첨부파일 AWS S3 업로드
-- **모니터링**: Actuator + Prometheus + Grafana + Loki 기반 운영 모니터링, Discord Webhook 알림 연동
+동아리별로 지원폼(질문/답변)을 자유롭게 구성해 지원서를 받고, 서류 → 면접 → 최종 합격/불합격까지 전형 단계를 상태로 관리합니다. 합격자는 동아리원으로 전환되고, 탈락자에게는 재지원 제한이 걸립니다.
 
-## 🛠 기술 스택
+- 전형 결과는 단계별 템플릿 이메일로 자동 발송됩니다.
+- 로그인은 카카오 OAuth2 하나로 처리하고, JWT 발급과 Refresh Token/로그아웃 블랙리스트는 Redis에 둡니다.
+- 동아리원은 동아리 후기를 남길 수 있습니다.
+- 지원자 통계는 성별·학과·입학년도 등으로 집계하되, 재식별을 막기 위한 최소 공개 기준을 두고 Redis에 캐시합니다.
+- 동아리 인기도는 조회수·체류시간을 Redis + Lua 스크립트로 실시간 집계합니다.
+- 동아리 이미지와 지원서 첨부파일은 AWS S3에 올라갑니다.
+- 운영 모니터링은 Actuator + Prometheus + Grafana + Loki 조합이고, 이상 상황은 Discord Webhook으로 알립니다.
+
+## 기술 스택
 
 | 분류 | 스택 |
 | --- | --- |
@@ -88,7 +87,7 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 | CI/CD | GitHub Actions → Amazon ECR → EC2 (SSH 배포) |
 | 기타 | Spring Retry(AOP 재시도), Apache POI(엑셀), Lua(Redis 스크립트) |
 
-## 🏗 아키텍처
+## 아키텍처
 
 ```
                           Client (Web)
@@ -116,7 +115,7 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 - **패키지 구조**는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
 - Nginx 설정은 EC2 호스트에서 직접 관리되며 이 저장소에는 포함되어 있지 않습니다.
 
-## 🚀 시작하기
+## 시작하기
 
 ### 사전 요구 사항
 
@@ -167,7 +166,7 @@ S3_BUCKET / S3_BUCKET_ATTACHMENTS
 SPRING_PROFILES_ACTIVE=test ./gradlew clean build
 ```
 
-## 📑 API 문서
+## API 문서
 
 서버 실행 후 Swagger UI에서 전체 API 명세를 확인할 수 있습니다.
 
@@ -175,7 +174,7 @@ SPRING_PROFILES_ACTIVE=test ./gradlew clean build
 http://localhost:8080/swagger-ui/index.html
 ```
 
-## 🌿 브랜치 & 커밋 전략
+## 브랜치 & 커밋 전략
 
 - `main` : 배포 브랜치
 - `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, push 시 자동 배포)
@@ -183,7 +182,7 @@ http://localhost:8080/swagger-ui/index.html
 
 이슈 템플릿(`.github/ISSUE_TEMPLATE`)에는 `feature` / `bug` / `refactor` / `question` 타입이 있으며, PR은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)에 맞춰 작성합니다. 모든 PR은 `develop` 대상 CI(빌드 & 테스트)를 통과해야 합니다.
 
-## 📂 프로젝트 구조
+## 프로젝트 구조
 
 ```
 src/main/java/com/kakaotech/team18/backend_server
@@ -205,9 +204,9 @@ src/main/java/com/kakaotech/team18/backend_server
     └── util                 # 공통 유틸
 ```
 
-## 👥 팀 소개
+## 팀 소개
 
-카카오테크 캠퍼스 3기 Step3 **Team 18**
+카카오테크 캠퍼스 3기 Step3 Team 18
 
 ### Backend
 
@@ -240,11 +239,3 @@ src/main/java/com/kakaotech/team18/backend_server
     </td>
   </tr>
 </table>
-
----
-
-<div align="center">
-
-Made with ❤️ by Team 18
-
-</div>
