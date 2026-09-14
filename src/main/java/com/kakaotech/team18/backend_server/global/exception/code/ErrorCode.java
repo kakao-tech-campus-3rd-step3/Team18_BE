@@ -80,6 +80,7 @@ public enum ErrorCode {
     EXISTING_USER_EMAIL("이미 제출된 이메일입니다. 학번을 다시 확인해주세요.", HttpStatus.CONFLICT),
     EXISTING_USER_PHONE_NUMBER("이미 제출된 전화번호입니다. 학번을 다시 확인해주세요.", HttpStatus.CONFLICT),
     EXISTING_USER_STUDENT_ID("이미 제출된 학번입니다. 다른 정보가 일치하지 않습니다.", HttpStatus.CONFLICT),
+    ALREADY_CLUB_MEMBER("이미 해당 동아리의 소속 인원입니다.", HttpStatus.CONFLICT),
 
     // 422 UNPROCESSABLE_ENTITY
     EMAIL_RECIPIENT_INVALID ("수신자 주소가 존재하지 않음", HttpStatus.UNPROCESSABLE_ENTITY),
