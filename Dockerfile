@@ -15,4 +15,7 @@ WORKDIR /app
 # 헬스체크(옵션: 관리 편의)
 HEALTHCHECK --interval=30s --timeout=3s --retries=5 CMD wget -qO- http://localhost:8080/actuator/health || exit 1
 
-ENTRYPOINT ["java","-jar","project.jar","--spring.profiles.active=prod"]
+# 실행 프로필은 환경변수로 받는다 (EC2: prod, Cloud Run: prod,gcp)
+ENV SPRING_PROFILES_ACTIVE=prod
+
+ENTRYPOINT ["java","-jar","project.jar"]
