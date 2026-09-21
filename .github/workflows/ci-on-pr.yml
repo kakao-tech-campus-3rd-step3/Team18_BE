@@ -3,7 +3,7 @@ name: CI on PR (build & test)
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches: [develop]
+    branches: [develop, main-gcp]
 
 jobs:
   test:
