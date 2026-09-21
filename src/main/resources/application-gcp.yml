@@ -1,0 +1,147 @@
+# ===============================================================
+# 'gcp' 프로필 (GCP Cloud Run 운영 환경)
+# 실행: SPRING_PROFILES_ACTIVE=prod,gcp
+#  - prod: logback-spring.xml의 운영 로깅(Discord 알림)을 켜기 위해 함께 활성화한다.
+#  - 비밀값은 이 파일에 적지 않는다. Cloud Run이 Secret Manager 값을 환경변수로 주입한다.
+# ===============================================================
+
+server:
+  port: ${PORT:8080}
+  # Cloud Run은 SIGTERM 후 10초 뒤 강제 종료하므로, 처리 중인 요청을 마무리할 시간을 준다.
+  shutdown: graceful
+  # LB 뒤에서 X-Forwarded-* 헤더로 원래 요청의 scheme/host를 인식한다.
+  forward-headers-strategy: framework
+  tomcat:
+    max-swallow-size: 50MB
+
+logging:
+  discord:
+    webhook-url: ${DISCORD_WEBHOOK_URL:}
+
+api:
+  rest-client:
+    connect-timeout: ${API_REST_CLIENT_CONNECT_TIMEOUT:3000}
+    read-timeout: ${API_REST_CLIENT_READ_TIMEOUT:3000}
+
+statistics:
+  min-total-applicants: 3
+  cache-ttl-seconds: 1800
+
+spring:
+  lifecycle:
+    # 웹 요청 정리(5초) + 비동기 작업 대기(3초)가 Cloud Run 종료 유예 10초 안에 끝나도록 한다.
+    timeout-per-shutdown-phase: 5s
+  task:
+    scheduling:
+      pool:
+        size: 2
+    execution:
+      shutdown:
+        # 종료 시 @Async 메일 발송이 중간에 끊기지 않도록 대기한다.
+        await-termination: true
+        await-termination-period: 3s
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 50MB
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    hikari:
+      # (인스턴스당 풀 크기 × Cloud Run 최대 인스턴스 수)가 Cloud SQL max_connections보다 작아야 한다.
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  sql:
+    init:
+      mode: never
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: ${KAKAO_REDIRECT_URI}
+            scope:
+              - profile_nickname
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-validity-in-seconds: 1800
+    refresh-token-validity-in-seconds: 604800
+
+  email:
+    from: ${EMAIL_FROM}
+    subject-prefix: ${EMAIL_SUBJECT_PREFIX:[동아리 지원]}
+
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USERNAME}
+    password: ${SMTP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # 외부 요청은 LB에서 /actuator/** 를 차단한다.
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: never
+      # /actuator/health/liveness, /actuator/health/readiness 를 Cloud Run probe에 사용한다.
+      probes:
+        enabled: true
+      group:
+        # 시작 시(startup probe) DB와 Redis 연결까지 확인한다.
+        # liveness에는 넣지 않는다. 외부 의존성 장애로 인스턴스가 재시작 반복에 빠지는 것을 막기 위해서다.
+        readiness:
+          include: readinessState,db,redis
+  metrics:
+    tags:
+      application: dongarium
+    distribution:
+      # API별 p50/p95/p99 응답 시간 계산용
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 100ms,300ms,500ms,1s
+
+# TODO(#380): GCS로 교체하면서 제거한다.
+cloud:
+  aws:
+    s3:
+      bucket: ${S3_BUCKET:}
+      bucket-attachments: ${S3_BUCKET_ATTACHMENTS:}
+    region:
+      static: ${S3_REGION:ap-northeast-2}
