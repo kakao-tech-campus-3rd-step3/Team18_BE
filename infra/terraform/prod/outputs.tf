@@ -32,3 +32,31 @@ output "secret_ids" {
   description = "값을 직접 입력해야 하는 Secret Manager 항목"
   value       = [for s in google_secret_manager_secret.app : s.secret_id]
 }
+
+output "sql_instance_connection_name" {
+  description = "Cloud SQL 연결 이름"
+  value       = google_sql_database_instance.main.connection_name
+}
+
+output "sql_private_ip" {
+  description = "Cloud SQL 비공개 IP (앱의 DB_URL에 사용)"
+  value       = google_sql_database_instance.main.private_ip_address
+}
+
+output "redis_host" {
+  description = "Redis 주소 (앱의 REDIS_HOST에 사용)"
+  value       = google_redis_instance.main.host
+}
+
+output "redis_port" {
+  value = google_redis_instance.main.port
+}
+
+output "buckets" {
+  description = "생성한 GCS 버킷"
+  value = {
+    club_image  = google_storage_bucket.club_image.name
+    attachments = google_storage_bucket.attachments.name
+    frontend    = google_storage_bucket.frontend.name
+  }
+}
