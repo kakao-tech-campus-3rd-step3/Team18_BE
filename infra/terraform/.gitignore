@@ -1,0 +1,9 @@
+# Terraform 작업 파일
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+crash.log
+# 실제 값이 들어가는 파일 (example만 추적한다)
+terraform.tfvars
+*.auto.tfvars
