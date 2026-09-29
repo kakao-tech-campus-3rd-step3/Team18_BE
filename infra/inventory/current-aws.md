@@ -182,15 +182,18 @@ CloudFront의 SPA 폴백 때문에 `index.html`이 200으로 돌아온다(상태
 | 587 (SMTP) | 허용 → Gmail SMTP 발송 경로 |
 | 25 (SMTP) | 차단 (AWS 기본). GCP도 25번은 차단하므로 587을 쓰는 현재 방식이 그대로 동작한다 |
 
-### GCP 설계에 반영할 요건
+### 전환 시 현행과 동일하게 맞출 항목
 
-| 요건 | 구현 |
+현행 접근 범위를 그대로 재현하는 것이 기준이다. 더 엄격하게 바꾸지 않는다.
+
+| 현행 | GCP에서 동일하게 맞추는 방법 |
 |---|---|
-| 앱에 직접 접근하는 경로를 만들지 않는다 | Cloud Run `ingress = internal-and-cloud-load-balancing` (LB 경유만 허용) |
-| DB에 공개 경로를 두지 않는다 | Cloud SQL private IP, 공개 IP 미생성 |
-| `/actuator/**`, `/swagger-ui`, `/v3/api-docs`를 외부에 노출하지 않는다 | LB URL map에서 차단 |
-| 모니터링 도구에 기본 계정을 쓰지 않는다 | Cloud Monitoring 사용, Grafana를 유지할 경우 IAP로 보호하고 계정은 Secret Manager |
-| 비밀값을 파일·환경 파일에 두지 않는다 | Secret Manager + Cloud Run 주입 |
-| 장기 액세스 키를 쓰지 않는다 | GitHub Actions는 Workload Identity Federation |
-| 인바운드 규칙을 코드로 관리한다 | `google_compute_firewall` (기본 차단, 필요한 대역만 허용) |
-| 메일 발송 경로 | 587 포트 유지 (25번은 GCP에서도 차단) |
+| `/api/**` 공개 | LB URL map: `/api/*` → Cloud Run |
+| `/swagger-ui/**`, `/v3/api-docs` 공개 | LB URL map에서 Cloud Run으로 전달 (차단하지 않는다) |
+| `/actuator/**`는 도메인 경유 시 프론트 `index.html`이 반환됨 | `/actuator` 전용 규칙을 두지 않고 `/*`(프론트 버킷)로 보내면 동일하게 동작한다 |
+| `monitor.dongarium.co.kr`에서 Grafana 공개, 계정은 compose 기본값 | 같은 호스트 규칙으로 Grafana를 공개하고 동일한 계정 환경변수 구성을 사용한다 |
+| 앱 포트(8080)가 외부에서 직접 접근 가능 | Cloud Run은 LB를 통하지 않는 직접 접근 경로를 만들 수 없으므로 이 부분은 동일하게 재현되지 않는다 (LB 경유만 가능) |
+| MySQL이 외부에서 연결되지 않음 | Cloud SQL private IP, 공개 IP 미생성 |
+| Prometheus·Loki는 외부 비공개 | 외부 엔드포인트를 만들지 않는다 |
+| 비밀값을 `.env`와 `APPLICATION_YML`로 주입 | Secret Manager에 저장하고 Cloud Run 환경변수로 주입 (전달 방식만 바뀌고 범위는 동일) |
+| 아웃바운드 443·587 허용, 25 차단 | GCP 기본과 동일. Gmail SMTP(587) 그대로 동작 |
