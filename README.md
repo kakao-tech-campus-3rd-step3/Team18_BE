@@ -2,10 +2,14 @@
 
 # 동아리움 (Dongarium)
 
-대학 동아리 지원 · 관리 플랫폼 백엔드
+대학 동아리 지원 및 관리 플랫폼 백엔드
 
 동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지
 동아리 운영의 전 과정을 하나의 서비스로 관리합니다.
+
+**2026년 9월 서비스 운영을 종료했습니다.**<br />
+카카오테크캠퍼스 6인 팀(백엔드 3, 프론트엔드 3)이 2025.08 ~ 2026.09 개발하고 운영했으며,<br />
+Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건을 기록했습니다.
 
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](#기술-스택)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#기술-스택)
@@ -17,7 +21,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#기술-스택)
 [![OpenWiki](https://img.shields.io/badge/Docs-OpenWiki-8A2BE2?logo=readthedocs&logoColor=white)](openwiki/quickstart.md)
 
-[서비스 바로가기](https://dongarium.co.kr) · [API 문서](#api-문서) · [시작하기](#시작하기)
+[서비스 바로가기](https://dongarium.co.kr) (운영 종료) | [API 문서](#api-문서) | [시작하기](#시작하기)
 
 </div>
 
@@ -39,9 +43,9 @@
 ## 소개
 
 동아리움은 대학 동아리의 신입 부원 모집 과정을 온라인으로 통합 관리하는 플랫폼입니다.
-운영진은 지원폼을 자유롭게 구성하고 지원자를 심사·관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
+운영진은 지원폼을 자유롭게 구성하고 지원자를 심사하고 관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
 
-- 서비스: [dongarium.co.kr](https://dongarium.co.kr)
+- 서비스: [dongarium.co.kr](https://dongarium.co.kr) (운영 종료)
 - 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
 
 ## 빠른 시작
@@ -64,8 +68,8 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 - 전형 결과는 단계별 템플릿 이메일로 자동 발송됩니다.
 - 로그인은 카카오 OAuth2 하나로 처리하고, JWT 발급과 Refresh Token/로그아웃 블랙리스트는 Redis에 둡니다.
 - 동아리원은 동아리 후기를 남길 수 있습니다.
-- 지원자 통계는 성별·학과·입학년도 등으로 집계하되, 재식별을 막기 위한 최소 공개 기준을 두고 Redis에 캐시합니다.
-- 동아리 인기도는 조회수·체류시간을 Redis + Lua 스크립트로 실시간 집계합니다.
+- 지원자 통계는 성별, 학과, 입학년도 등으로 집계하되, 재식별을 막기 위한 최소 공개 기준을 두고 Redis에 캐시합니다.
+- 동아리 인기도는 조회수와 체류시간을 Redis + Lua 스크립트로 실시간 집계합니다.
 - 동아리 이미지와 지원서 첨부파일은 AWS S3에 올라갑니다.
 - 운영 모니터링은 Actuator + Prometheus + Grafana + Loki 조합이고, 이상 상황은 Discord Webhook으로 알립니다.
 
@@ -89,6 +93,8 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 ## 아키텍처
 
+운영 당시(2026.09 종료)의 구성입니다.
+
 ```
                           Client (Web)
                                │ HTTPS
@@ -111,9 +117,9 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 - 에러/알림: 로그백(Discord Appender), Grafana Alerting → Discord Webhook
 
-- **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2 접속 후 `docker compose pull && up`으로 무중단 재기동합니다. (`.github/workflows/deploy-with-docker.yml`)
+- **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2에 접속해 `docker compose down && up`으로 재기동했습니다. (`.github/workflows/deploy-with-docker.yml`)
 - **패키지 구조**는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
-- Nginx 설정은 EC2 호스트에서 직접 관리되며 이 저장소에는 포함되어 있지 않습니다.
+- Nginx 설정은 EC2 호스트에서 직접 관리했고 이 저장소에는 포함되어 있지 않습니다.
 
 ## 시작하기
 
@@ -177,7 +183,7 @@ http://localhost:8080/swagger-ui/index.html
 ## 브랜치 & 커밋 전략
 
 - `main` : 배포 브랜치
-- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, push 시 자동 배포)
+- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, 운영 기간에는 push 시 EC2로 자동 배포)
 - `{type}/{작업-내용}#{이슈번호}` : 기능/작업 브랜치 (예: `feat/club-review#123`, `fix/apply-form-validation#456`)
 
 이슈 템플릿(`.github/ISSUE_TEMPLATE`)에는 `feature` / `bug` / `refactor` / `question` 타입이 있으며, PR은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)에 맞춰 작성합니다. 모든 PR은 `develop` 대상 CI(빌드 & 테스트)를 통과해야 합니다.
