@@ -7,6 +7,10 @@
 동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지
 동아리 운영의 전 과정을 하나의 서비스로 관리합니다.
 
+**2026년 9월 서비스 운영을 종료했습니다.**<br />
+카카오테크캠퍼스 6인 팀(백엔드 3, 프론트엔드 3)이 2025.08 ~ 2026.09 개발하고 운영했으며,<br />
+Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건을 기록했습니다.
+
 [![Java](https://img.shields.io/badge/Java-21-orange?logo=openjdk&logoColor=white)](#기술-스택)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.5-6DB33F?logo=springboot&logoColor=white)](#기술-스택)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white)](#기술-스택)
