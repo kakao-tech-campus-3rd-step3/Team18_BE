@@ -93,6 +93,8 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 ## 아키텍처
 
+운영 당시(2026.09 종료)의 구성입니다.
+
 ```
                           Client (Web)
                                │ HTTPS
@@ -115,9 +117,9 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 
 - 에러/알림: 로그백(Discord Appender), Grafana Alerting → Discord Webhook
 
-- **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2 접속 후 `docker compose pull && up`으로 무중단 재기동합니다. (`.github/workflows/deploy-with-docker.yml`)
+- **배포 파이프라인**: `develop` 브랜치에 push되면 GitHub Actions가 빌드 → Docker 이미지 생성 → Amazon ECR push → SSH로 EC2에 접속해 `docker compose down && up`으로 재기동했습니다. (`.github/workflows/deploy-with-docker.yml`)
 - **패키지 구조**는 도메인 기준으로 분리되어 있습니다. (`club`, `clubApplyForm`, `application`, `clubMember`, `clubReview`, `statistics`, `auth`, `email` 등)
-- Nginx 설정은 EC2 호스트에서 직접 관리되며 이 저장소에는 포함되어 있지 않습니다.
+- Nginx 설정은 EC2 호스트에서 직접 관리했고 이 저장소에는 포함되어 있지 않습니다.
 
 ## 시작하기
 
@@ -181,7 +183,7 @@ http://localhost:8080/swagger-ui/index.html
 ## 브랜치 & 커밋 전략
 
 - `main` : 배포 브랜치
-- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, push 시 자동 배포)
+- `develop` : 통합 개발 브랜치 (PR은 기본적으로 이 브랜치를 대상으로 생성, 운영 기간에는 push 시 EC2로 자동 배포)
 - `{type}/{작업-내용}#{이슈번호}` : 기능/작업 브랜치 (예: `feat/club-review#123`, `fix/apply-form-validation#456`)
 
 이슈 템플릿(`.github/ISSUE_TEMPLATE`)에는 `feature` / `bug` / `refactor` / `question` 타입이 있으며, PR은 [PR 템플릿](.github/PULL_REQUEST_TEMPLATE.md)에 맞춰 작성합니다. 모든 PR은 `develop` 대상 CI(빌드 & 테스트)를 통과해야 합니다.
