@@ -21,7 +21,7 @@ Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건�
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#기술-스택)
 [![OpenWiki](https://img.shields.io/badge/Docs-OpenWiki-8A2BE2?logo=readthedocs&logoColor=white)](openwiki/quickstart.md)
 
-[API 문서](#api-문서) | [시작하기](#시작하기)
+[서비스 바로가기](https://dongarium.co.kr) (운영 종료) | [API 문서](#api-문서) | [시작하기](#시작하기)
 
 </div>
 
@@ -45,7 +45,7 @@ Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건�
 동아리움은 대학 동아리의 신입 부원 모집 과정을 온라인으로 통합 관리하는 플랫폼입니다.
 운영진은 지원폼을 자유롭게 구성하고 지원자를 심사하고 관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
 
-- 서비스: dongarium.co.kr (운영 종료로 접속되지 않습니다)
+- 서비스: [dongarium.co.kr](https://dongarium.co.kr) (운영 종료)
 - 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
 
 ## 빠른 시작
