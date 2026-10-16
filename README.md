@@ -2,7 +2,7 @@
 
 # 동아리움 (Dongarium)
 
-대학 동아리 지원 · 관리 플랫폼 백엔드
+대학 동아리 지원 및 관리 플랫폼 백엔드
 
 동아리 모집 공고 등록부터 지원서 접수, 서류/면접 전형, 합격 발표, 지원자 통계까지
 동아리 운영의 전 과정을 하나의 서비스로 관리합니다.
@@ -21,7 +21,7 @@ Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건�
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](#기술-스택)
 [![OpenWiki](https://img.shields.io/badge/Docs-OpenWiki-8A2BE2?logo=readthedocs&logoColor=white)](openwiki/quickstart.md)
 
-[API 문서](#api-문서) · [시작하기](#시작하기)
+[API 문서](#api-문서) | [시작하기](#시작하기)
 
 </div>
 
@@ -43,7 +43,7 @@ Google Analytics 기준 누적 사용자 약 4,000명, 이벤트 약 13만 건�
 ## 소개
 
 동아리움은 대학 동아리의 신입 부원 모집 과정을 온라인으로 통합 관리하는 플랫폼입니다.
-운영진은 지원폼을 자유롭게 구성하고 지원자를 심사·관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
+운영진은 지원폼을 자유롭게 구성하고 지원자를 심사하고 관리하며, 지원자는 카카오 로그인만으로 여러 동아리에 지원할 수 있습니다.
 
 - 서비스: dongarium.co.kr (운영 종료로 접속되지 않습니다)
 - 프론트엔드 레포: [Team18_FE](https://github.com/kakao-tech-campus-3rd-step3/Team18_FE)
@@ -68,8 +68,8 @@ docker run -d --name dongarium-redis -p 6379:6379 redis:7-alpine
 - 전형 결과는 단계별 템플릿 이메일로 자동 발송됩니다.
 - 로그인은 카카오 OAuth2 하나로 처리하고, JWT 발급과 Refresh Token/로그아웃 블랙리스트는 Redis에 둡니다.
 - 동아리원은 동아리 후기를 남길 수 있습니다.
-- 지원자 통계는 성별·학과·입학년도 등으로 집계하되, 재식별을 막기 위한 최소 공개 기준을 두고 Redis에 캐시합니다.
-- 동아리 인기도는 조회수·체류시간을 Redis + Lua 스크립트로 실시간 집계합니다.
+- 지원자 통계는 성별, 학과, 입학년도 등으로 집계하되, 재식별을 막기 위한 최소 공개 기준을 두고 Redis에 캐시합니다.
+- 동아리 인기도는 조회수와 체류시간을 Redis + Lua 스크립트로 실시간 집계합니다.
 - 동아리 이미지와 지원서 첨부파일은 AWS S3에 올라갑니다.
 - 운영 모니터링은 Actuator + Prometheus + Grafana + Loki 조합이고, 이상 상황은 Discord Webhook으로 알립니다.
 
